@@ -20,7 +20,7 @@ calculate_bebcs <- function(params) {
     bc_c_content <- 0.99 - 0.78 * exp(-0.0042 * py_temp)
 
     # Stable Fraction using Fperm (Woolf et al. 2021)
-    bc_stability <- calculate_fperm(h_c_org, method = "HC", soil_temp = soil_temp)
+    bc_stability <- calculate_fperm_approx(h_c_org, method = "HC", soil_temp = soil_temp)
     # Carbon Sequestration
     # C sequestered = bc_yield * bc_c_content * bc_stability
     c_sequestered <- bc_yield * bc_c_content * bc_stability

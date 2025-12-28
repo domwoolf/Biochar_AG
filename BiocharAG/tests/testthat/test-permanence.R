@@ -54,3 +54,19 @@ test_that("Approximate Fperm matches exact calculation", {
         }
     }
 })
+
+test_that("Vectorized 1D Fperm matches 2D approx", {
+    # Strategy: Pre-calc vector for fixed H:C, then run across temps
+    v <- 0.35
+    temps <- seq(-10, 30, by = 0.5)
+
+    # 2D Approx
+    res_2d <- calculate_fperm_approx(v, method = "HC", soil_temp = temps)
+
+    # 1D Optimization
+    prep <- prep_fperm_vector(v, method = "HC")
+    res_1d <- calculate_fperm_vectorized(prep, temps)
+
+    # Should be effectively identical (floating point diffs only)
+    expect_equal(res_1d, res_2d)
+})
