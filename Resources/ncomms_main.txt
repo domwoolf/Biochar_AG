@@ -1,0 +1,1657 @@
+ARTICLE
+Received 8 Oct 2015 | Accepted 6 Sep 2016 | Published 21 Oct 2016
+
+DOI: 10.1038/ncomms13160
+
+OPEN
+
+Optimal bioenergy power generation for climate
+change mitigation with or without carbon
+sequestration
+Dominic Woolf1, Johannes Lehmann1,2 & David R. Lee2,3
+
+Restricting global warming below 2 °C to avoid catastrophic climate change will require
+atmospheric carbon dioxide removal (CDR). Current integrated assessment models (IAMs)
+and Intergovernmental Panel on Climate Change scenarios assume that CDR within the
+energy sector would be delivered using bioenergy with carbon capture and storage (BECCS).
+Although bioenergy-biochar systems (BEBCS) can also deliver CDR, they are not included in
+any IPCC scenario. Here we show that despite BECCS offering twice the carbon sequestration
+and bioenergy per unit biomass, BEBCS may allow earlier deployment of CDR at lower carbon
+prices when long-term improvements in soil fertility offset biochar production costs.
+At carbon prices above $1,000 Mg  1 C, BECCS is most frequently (P40.45, calculated as
+the fraction of Monte Carlo simulations in which BECCS is the most cost effective) the most
+economic biomass technology for climate-change mitigation. At carbon prices below
+$1,000 Mg  1 C, BEBCS is the most cost-effective technology only where biochar signiﬁcantly
+improves agricultural yields, with pure bioenergy systems being otherwise preferred.
+
+1 Soil and Crop Sciences, School of Integrative Plant Science, Cornell University, Ithaca, New York 14853, USA. 2 Atkinson Center for a Sustainable Future,
+Cornell University, Ithaca, New York 14853, USA. 3 Charles H. Dyson School of Applied Economics and Management, Cornell University, Ithaca, New York
+14853, USA. Correspondence and requests for materials should be addressed to D.W. (email: domwoolf@gmail.com).
+
+NATURE COMMUNICATIONS | 7:13160 | DOI: 10.1038/ncomms13160 | www.nature.com/naturecommunications
+
+1
+
+ARTICLE
+
+A
+
+NATURE COMMUNICATIONS | DOI: 10.1038/ncomms13160
+
+target rise in global mean temperature of less than 2 °C
+has been widely advocated as necessary to prevent
+dangerous anthropogenic interference with the climate
+system1,2. Most mitigation scenarios that achieve this include
+widespread carbon dioxide removal (CDR) in the second half of
+the century to compensate for residual emissions from sectors
+where mitigation is costly and to recover from an overshoot of
+CO2 emissions3. Therefore, CDR is critical to achieving climate
+stabilization within safe limits. Hopes for CDR have largely
+been pinned on the extensive deployment of bioenergy with
+carbon capture and storage (BECCS), which is the only negative
+emissions technology included in the mitigation scenarios of the
+recent Intergovernmental Panel on Climate Change (IPCC) ﬁfth
+Assessment Report3. BECCS achieves a net removal of CO2
+from the atmosphere by relying on photosynthesis to ﬁx CO2 and
+interrupting the natural carbon cycle that would otherwise have
+rapidly returned this carbon to the atmosphere during respiration
+or combustion. Instead, BECCS sequesters the photosynthetically
+ﬁxed carbon as post-combustion CO2 stored in a stable
+reservoir4,5. However, BECCS may be costly and parts of the
+technology are unproven6.
+An alternative CDR approach is biochar (BC), in which
+biomass is pyrolysed and the carbon-rich residue sequestered in
+soil. BC, like BECCS, relies on photosynthesis to ﬁx CO2, followed
+by storage of this ﬁxed carbon in a stable reservoir (in this case,
+soil). As a co-beneﬁt, BC can improve the fertility of degraded or
+less fertile soils7–9. It is also possible to co-produce bioenergy with
+BC in a bioenergy-biochar system (BEBCS)10–12.
+Within any mitigation scenario, BECCS and BEBCS must
+compete for available biomass—with each other and also
+with pure bioenergy systems (BES), which can also reduce
+energy-sector carbon emissions by offsetting more carbon
+intensive energy resources. Each of these technologies has
+advantages and disadvantages. BES generates the greatest
+bioenergy per unit biomass. BECCS sequesters the largest fraction
+of biomass carbon, but generates less energy than BES at a higher
+cost13,14. BEBCS produces the least energy and sequesters less
+carbon than BECCS7,10,13,15, but it can enhance soil fertility16,17,
+return nutrients to soil (although nitrogen may be largely lost or
+inaccessible to plants after pyrolysis), and reduce greenhouse
+gas (GHG) emissions from soils16,18. These BEBCS co-beneﬁts
+potentially offset some of the cost of its CDR, and simultaneously
+address issues of food security for a growing world population19.
+BC can also increase or decrease the turnover rate of native soil
+organic carbon (SOC)20–23, which would create a negative or
+positive feedback, respectively, on the amount of carbon
+sequestered. BEBCS also has additional costs associated with
+haulage, handling and tillage of BC.
+Under which, if any, set of biophysical and economic
+conditions BEBCS becomes more attractive relative to both BES
+and BECCS has not been previously investigated. We address this
+issue here by developing a multi-parameter model to determine
+which of BES, BECCS, or BEBCS is the more economically
+efﬁcient use of a given biomass resource for climate-change
+mitigation under varying conditions. A multivariate Monte Carlo
+analysis was conducted using a broad range of parameter related
+to agro-ecological, economic, technological, global spatial and
+temporal variability and uncertainty to 2100. Here we show that,
+despite BECCS offering twice the carbon sequestration and
+bioenergy per unit biomass, BEBCS may allow earlier deployment
+of CDR at lower carbon prices. Our model predicts that, at carbon
+prices above $1,000 Mg  1 C, BECCS is typically the most
+economic biomass technology for climate-change mitigation.
+At carbon prices below $1,000 Mg  1 C, BEBCS is the most
+cost-effective technology only where BC signiﬁcantly improves
+agricultural yields, with pure BES being otherwise preferred.
+2
+
+Thus, we have shown that BEBCS can be competitive with both
+BES and BECCS under a range of conditions.
+Results
+Impact of carbon price on optimal technology. Biomass supply
+chains are highly heterogeneous, with costs and emissions varying
+geospatially and temporally with species, production conditions,
+and harvest, collection and storage practices. To facilitate
+comparison of biomass conversion technologies across this
+diverse landscape of feedstock supply chains, the analysis was
+based on a functional unit of mass of biomass delivered to the
+conversion facility gate, assuming that all costs and emissions
+associated with delivering that biomass are independent of
+the conversion technology used to process it. For each of the
+conversion technologies (BES, BECCS or BEBCS), we deﬁne its
+relative net present value (RPV) as the difference between its net
+present value (NPV) and the NPV of the best alternative.
+By making comparisons on the basis of RPV per unit biomass, all
+costs, beneﬁts and emissions associated with biomass supply
+cancel out. For a given biomass supply chain, we thus calculate
+which of the technologies is most economically efﬁcient relative
+to the alternatives under given conditions, with the caveat
+that this approach does not determine when biomass price or
+environmental externalities would make none of the bioenergy
+conversion processes viable. A full description of the calculation
+of RPV is provided in Methods.
+At carbon prices below $460 Mg  1 C, BES has the highest
+mean NPV (range where BES mean RPV40 in Fig. 1a).
+For carbon prices in the range of $460–$900 Mg  1 C, BEBCS
+has the highest mean NPV. Above $900 Mg  1 C, BECCS has the
+highest mean NPV (Fig. 1a).
+Although these three technologies can be broadly categorized
+by which is optimal at different carbon prices, variability (and, to
+a lesser extent, uncertainty) in their RPVs contributes
+to considerable overlap in the ranges of suitability of the three
+technologies (see overlapping uncertainty ranges shown by the
+shaded areas at þ /  1 s.d. (s) in Fig. 1a). In the lower
+carbon-price range below $400 Mg  1 C, BES is most likely
+(P ¼ 0.44–0.64) to have the highest NPV, while BEBCS has the
+highest NPV for most other situations (P ¼ 0.37–0.44), BECCS
+being infrequently (Po0.1) the most economic biomass power
+generation technology in this carbon-price range (Fig. 1b).
+Although BECCS is typically the technology with highest NPV
+in the higher carbon-price range (4$1,000 Mg  1 C), even with
+carbon prices as high as $3,000 Mg  1 C BEBCs remains the most
+economic technology in 20% of the parameter space (Fig. 1b).
+Two mitigation scenarios were investigated: MS430–480, in
+which atmospheric CO2 concentration in 2100 is in the range
+430–480 p.p.m. (IPCC Representative Concentration Pathway
+RCP2.6), consistent with a likely (deﬁned as P40.66) probability
+of temperature change below 2 °C relative to pre-industrial levels;
+and MS650–720, which relates to the upper band of IPCC
+RCP4.5, in which temperature change below 2 °C is unlikely,
+buto3 °C warming remains more likely than not3 (P40.5).
+The carbon price ranges for each of the mitigation scenarios
+(MS430–480 and MS650–720) in each of the years 2020, 2050
+and 2100 are shown in Fig. 1c to facilitate cross referencing of the
+carbon prices in Fig. 1a,b to the scenarios (see Supplementary
+Fig. 1 for cumulative probability distributions of carbon prices in
+each scenario, and Supplementary Table 1 for summary statistics
+of these distributions).
+Relative importance of parameters. The relative importance
+of parameters in determining variability in RPV was assessed
+by random forest analysis, a method that takes account of
+
+NATURE COMMUNICATIONS | 7:13160 | DOI: 10.1038/ncomms13160 | www.nature.com/naturecommunications
+
+ARTICLE
+
+NATURE COMMUNICATIONS | DOI: 10.1038/ncomms13160
+
+600
+
+b
+
+a
+
+BES
+
+1.00
+
+BECCS
+
+300
+
+0.75
+
+0
+
+0.50
+
+−300
+
+0.25
+
+−600
+
+Probability
+
+RPV ($ Mg−1 biomass)
+
+BEBCS
+
+0.00
+0
+
+1,000
+
+2,000
+
+3,000
+
+0
+
+1,000
+
+Carbon price ($ Mg−1 C)
+MS430−480 (2100)
+MS430−480 (2050)
+MS430−480 (2020)
+MS650−720 (2100)
+MS650−720 (2050)
+MS650−720 (2020)
+
+2,000
+
+3,000
+
+Carbon price ($ Mg−1 C)
+
+c
+
+50
+
+100
+
+200
+
+500
+
+1,000 2,000
+
+5,000 10,000 20,000
+
+Carbon price ($ Mg−1 C)
+
+Figure 1 | Relative present value as a function of carbon price. (a) Shows the relative present value (RPV) and (b) shows the probability of having the
+highest RPV, as a function of carbon price, for bioenergy systems (BES; cyan line), bioenergy with carbon capture and storage (BECCS; orange line) and
+bioenergy-biochar systems (BEBCS; purple line). Shading indicates one s.d.. (c) Shows the carbon price distribution for each of the mitigation scenarios
+(MS430–480 and MS650–720) in each of the years 2020, 2050 and 2100 (boxes indicate the median, upper and lower quartiles and whiskers extend to
+1.5 times the interquartile range).
+
+parameter covariances24. Parameter importance was estimated by
+incremental mean square error (IMSE) of the random forest
+model with respect to each parameter (Fig. 2).
+The highest ranked parameters, in order of their importance as
+determinants of BEBCS RPV are electricity price, BC’s long-term
+impact on crop yields, carbon price and discount rate. Electricity
+price and BC’s crop-yield impact are of approximately equal
+importance because the value of BC to crop production must
+offset the foregone energy production involved in its manufacture
+for BEBCS to be preferred. Note that it is the long-term impact of
+BC on alleviating soil constraints to crop yields that is critical to
+its economic value. BC is most likely to have a long-term positive
+impact on crop production in soils with low cation exchange
+capacity (CEC) (Methods: crop yield impacts of BC). While BC
+can also improve crop yields through ephemeral mechanisms
+such as fertilization (when BC contains plant-available nutrients)
+or raising the pH of acidic soils, these mechanisms have lower
+economic value, because their impact diminishes rapidly over
+time (Methods: value of BC’s liming potential to address soil pH
+constraints’’, and ‘‘value of BC’s nutrient content). The next most
+important determinant of BEBCS RPV was the persistence or
+stability of BC in soil (Methods: BC decomposition, and
+Supplementary Fig. 2).
+The ranking order of most important parameters differed
+slightly for BES and BECCS, in which cases carbon price ranked
+highest. Carbon price is more important for BES and BECCS,
+because it is the primary factor in determining which of these two
+is more cost effective, with low (high) carbon prices favouring
+BES (BECCS), with other factors altering the balance between
+them in the intermediate price range. BEBCS, on the other hand,
+is slightly less sensitive to carbon price than BES or BECCS,
+because it has an additional major value stream—its crop yield
+impact—that is independent of carbon pricing. Discount rate
+ranks highly because of its differential impact on the various
+technologies, with BC continuing to accrue beneﬁts
+gradually over time after it has been produced (due to its impacts
+
+BEBCS
+
+BECCS
+
+BES
+
+Electricity price
+BC crop−yield impact
+Carbon price
+Discount rate
+BC persistence
+Crop price increase
+BES generation efficiency
+CO2 capture and storage cost
+BC impact on SOC turnover
+BECCS %CO2 sequestered
+0
+
+100 200 300 400 500
+Parameter importance
+(%IMSE)
+
+Figure 2 | Parameter importance as determinants of relative present
+value. The most important parameters for determining the relative present
+value (RPV) of bioenergy systems (BES; open cyan triangles), bioenergy
+with carbon capture and storage (BECCS; open orange squares) and
+bioenergy-biochar systems (BEBCS; ﬁlled purple circles). Parameters are
+ranked in order of importance in determining BEBCS RPV. Parameter
+importance was determined by random forest analysis incremental mean
+square error (IMSE). BC, biochar; CCS, carbon capture and storage; SOC,
+soil organic carbon; and BECCS seq. fraction is the fraction of generated
+CO2 that is sequestered.
+
+on soil fertility and soil GHG emissions), whereas the revenue
+streams from BES and BECCS (energy production and carbon
+sequestration) are valued at time of production.
+Plotting the RPVs and the highest-ranked parameters on a
+parallel coordinates plot (Fig. 3) provides a useful visual
+indication of the typical conditions in which the RPV of each
+technology is maximized. Each line on the parallel coordinates
+
+NATURE COMMUNICATIONS | 7:13160 | DOI: 10.1038/ncomms13160 | www.nature.com/naturecommunications
+
+3
+
+Max
+
+NATURE COMMUNICATIONS | DOI: 10.1038/ncomms13160
+
+BES
+
+BEBCS
+
+BECCS
+
+Min
+
+Parameter value
+(normalized to parameter range)
+
+ARTICLE
+
+V ice ice act ate nce ase
+V
+V
+st
+RP RP RP n pr y pr mp nt r iste cre S co
+i
+t
+S
+S
+u
+i
+o
+s
+in
+CC
+B EBC ECC arb ctric ield isco per ice
+y D
+C
+e
+B
+C
+B
+pr
+El op−
+B
+op
+cr
+Cr
+BC
+ES
+
+Figure 3 | Parallel coordinates plot of the relative net present values as a
+function of the most important parameters. Relative net present values
+(RPVs) of bioenergy systems (BES), bioenergy with carbon capture and
+storage (BECCS) and bioenergy-biochar systems (BEBCS), and the principal
+factors on which these RPVs depend, in the years 2020, 2050 and 2100,
+are shown here with each of the seven most important parameters (see
+Fig. 2) plotted on parallel axes, to allow depiction of a multidimensional
+parameter space in a two-dimensional image. Each line represents a single
+data point in the Monte Carlo simulation, connecting the values of each
+variable for that point. The number of Monte Carlo simulations plotted was
+limited to 4,500 (750 randomly sampled from each of the six scenario-year
+combinations) to prevent over-cluttering the plot and to ensure high
+visibility of the main trends. Parameter values are normalized linearly within
+their sample ranges so that the y axes of all parameters share a common
+scale that is linearly interpolated between the parameter minimum and
+maximum. Line transparency is graduated by RPV (darker, less transparent
+lines for higher RPV), also to increase visibility of the main trends. Lines are
+coloured by which technology is optimal under the speciﬁed conditions
+(cyan, BES, purple, BEBCS and orange, BECCS).
+
+plot corresponds to a single point in the multi-dimensional
+parameter space, with lines connecting the values for each
+parameter on their respective (parallel) axes. Each parallel
+parameter axis is normalized to range from the minimum to
+the maximum value of that parameter. For example, it can be seen
+that a high RPV for BECCS (Fig. 3, orange lines) correlates with
+high carbon and electricity prices (evident in the clustering of
+orange lines at the upper end on these parameter axes), whereas
+the opposite conditions favour BEBCS. When interpreting such
+plots, however, care must be taken to consider covariance
+between parameters, which can give rise to correlations that are
+not causal. For example, it can be seen in Fig. 3 that large
+increases in crop price correlate with a high RPV for BECCS,
+despite the fact that high crop prices would favour BEBCS
+rather than BECCS if all else remained equal. But, the time factor
+in the model means that crop prices rise over time (Methods:
+future food price trends), while other factors that improve
+the competitiveness of BECCS also increase with time and thus
+co-vary with crop prices without any causal link.
+Impacts of mitigation scenario and time on technology mix. A
+more detailed approach to quantifying and visualizing the
+impacts and interactions of parameters was investigated using the
+distributions of parameter values for which BES, BEBCS or
+BECCS becomes the preferred technology, disaggregated by
+mitigation scenario and time (Fig. 4). Figure 4 indicates for each
+scenario (level of mitigation and year) how far each parameter
+must differ from the mean of that parameter in order to
+make each technology option the optimal one. In the following
+4
+
+discussion, the bias, d, of parameter P is deﬁned as
+d ¼ [m(P,T)  m(P)]/s(P), where m(P) and s(P) are the mean and
+s.d., respectively, of parameter P, and m(P,T) is the mean when
+technology TA{BES, BEBCS, BECCS} has the highest RPV.
+That is, d provides a measure (in dimensionless units of s.d.’s) of
+how far, on average, values of P must deviate from the mean for a
+given technology to be most economic. A high value of d indicates
+that a parameter exerts a strong effect on whether a technology
+will be the preferred option, with positive (negative) values of d
+indicating that the parameter must be higher (lower) than average
+to make that technology optimal. Absolute values of the ranges,
+means and s.d.’s of each parameter in each scenario are given in
+Supplementary Tables 2–4.
+In 2020–2050, BES is the preferred technology option when its
+RPV is, on average, 0.8–1.2 s.d.’s higher than its mean value
+(that is, d ¼ 0.8–1.2). For BES to achieve this higher than average
+RPV requires conditions that favour BES relative to BEBCS
+(the primary competing technology at the carbon prices
+prevailing in 2020–2050 even under the more stringent mitigation
+scenario MS430–480). The main factors that favour BES over
+BEBCS are: a lower than average BC yield impact (d ¼  0.7
+to  1.0 s), higher than average energy prices ( þ 0.4 to þ 0.5 s),
+and low discount rates (  0.3 s). By 2050 in MS430–480, lower
+than average carbon prices (  0.4 s) (as carbon prices start to
+move into a range where BECCS is optimal under favourable
+conditions) and above average carbon intensity of the electricity
+generation sector ( þ 0.4 s) also begin to have a stronger role in
+determining if BES will be the preferred technology.
+By 2100, BES is not competitive in MS430–480 under any
+conditions (note the absence of bars for BES in this scenario in
+2100 in Fig. 4a). In MS650–720, on the other hand, BES
+maintains its competitiveness in 2100 only when a combination
+of factors are all seen, including a high carbon intensity ( þ 1.6 s),
+low carbon prices (  1.5 s), high cost of carbon capture and
+storage ( þ 1.6 s), and a low fraction of CO2 being sequestered by
+BECCS (  1.0 s).
+In 2020–2050, BEBCS is optimal under roughly the opposite
+conditions that favour BES (BES and BEBCS being the main
+competing technologies at these times). In essence, this means
+that BEBCS is most likely to be favoured when the BC yield
+impact is higher than average ( þ 0.4 to þ 0.6 s), energy prices
+are below average (  0.2 to  0.4 s), and discount rates are
+slightly below average (  0.2 s). By 2100 in MS650–720, more
+stringent conditions are required to keep BEBCS optimal, with a
+higher yield impact ( þ 0.9 s), lower discount rate (  0.7 s), and
+lower electricity prices (  0.6 s) being required. Whereas, in
+MS430–480, BEBCS remains competitive by 2100 with BECCS
+only under particularly favourable conditions that give BEBCS
+an RPV þ 2.0 s higher than average. These conditions depend on
+a combination of a very low discount rate (  1.2 s), a carbon
+price that is in the lower range for that time (  0.7 s), and
+locations with soils that show a high BC yield impact ( þ 1.1 s),
+which is most likely to occur on cropland soils with low CEC
+(Methods: crop yields impact of BC).
+BECCS is not competitive in 2020 in MS650–720 under any
+conditions (hence, the bars for BECCS are absent for these years
+in Fig. 4f). In 2020, BECCS is only competitive in MS430–480
+under highly favourable conditions that require a very low cost
+for carbon dioxide capture and sequestration (CCS) (  1.6 s),
+low BC yield impact (  1.0 s), and high carbon prices ( þ 0.7 s).
+For BECCS to be competitive in 2050 in the more ambitious
+mitigation scenario MS430–480 requires that a combination of
+factors improve its performance relative to both BES and BEBCS
+simultaneously, both of which are also viable technologies under a
+wide range of conditions at that time. This requires some
+combination of low BC yield impact (  0.6 s), high carbon price
+
+NATURE COMMUNICATIONS | 7:13160 | DOI: 10.1038/ncomms13160 | www.nature.com/naturecommunications
+
+ARTICLE
+
+NATURE COMMUNICATIONS | DOI: 10.1038/ncomms13160
+
+MS430−480
+
+MS650−720
+2020
+
+2
+
+2050
+
+a
+
+d
+
+b
+
+e
+
+c
+
+f
+
+2100
+
+BES
+
+1
+0
+−1
+−2
+
+1
+BEBCS
+
+Standardized value (s.d.)
+
+2
+
+0
+−1
+−2
+2
+
+BECCS
+
+1
+0
+−1
+−2
+V V V act ate ice ce ity ice cy ost ost ost ed lty
+V V V ct ate rice ce ity ice cy st ost st ed lty
+RP RP RP pa t r p ten ns pr ien co c co er na RP RP RP p t r pr ten ns pr ien c c c er na
+S CS CS ld im oun icity rsis inte bon effic pital pital age uesty pe ES CS CS ld im oun icity rsis inte bon effic pital pital rage uesty pe
+E
+r
+c
+r
+r
+B EC EB yie isc ctr pe on ar n ca ca sto eq nc
+B EC EB yie is ct pe on a n ca ca to eq nc
+B B p− D Ele BC arb C atio ES BS nd 2 s ficie
+B B p− D Ele BC arb C ratio ES BS d s 2 s ficie
+r B E a
+n
+c
+c
+o
+f
+f
+O
+E
+r
+B
+e
+r
+cro
+c
+B re
+B re a %C S e
+ne
+CO e
+tor
+en
+cto
+ge
+g
+u
+C
+tu S %CCS
+e
+ec
+t
+BC
+BC
+S
+s
+s
+p
+C
+p
+S
+S
+a
+C
+r
+r
+a
+C
+E
+E
+BE
+BE
+we
+we
+2 c EC B
+2 c EC B
+Po
+Po
+CO B
+CO B
+
+Figure 4 | Parameter ranges for which each technology has the highest relative net present value. The y axes are in units of standardized values for each
+parameter—that is, population mean of that parameter (in each scenario) is at zero, and height is measured in s.d.’s from the mean. (a–c) Relate to
+mitigation scenario MS430–480 (that is, atmospheric CO2 concentration in 2100 is 430–480 p.p.m. (IPCC Representative Concentration Pathway
+RCP2.6), consistent with a likely chance to keep temperature change below 2 °C relative to pre-industrial levels), and d–f relate to MS650–720 (RCP 4.5, in
+which temperature change below 3 °C is more unlikely than likely). Each panel is divided in two with three response variables (relative present values of
+BES, BEBCS or BECCS) on the left of the solid line, and the 12 most important independent parameters on the right. Each parameter has three bars (blue,
+pink and yellow) for parameter ranges in the years 2020, 2050 and 2100, respectively. Bars show the mean þ /  1 s.d. of the samples in which BES
+(a,d), BEBCS (b,e) or BECCS (c,f) has the highest RPV. Thus, the graph shows for each scenario (level of mitigation and year) how far each parameter must
+differ from the mean of that parameter in order to make each technology option the preferred one. Note that absent bars for BECCS in 2020 (f) and BES in
+2100 (a) indicate that they are not economically viable at those times.
+
+( þ 0.3 s), low CCS cost (  0.8 s) and high discount rate
+( þ 0.3 s). By 2100 in MS430–480, BECCS is favoured
+under most conditions, therefore, no signiﬁcant bias is observed
+in any of the parameters to make BECCS competitive. The
+same is broadly true in MS650–720, except that BEBCS can
+remain competitive in 2100 when its yield impact is high
+( þ 0.9 s), the discount rate is low (  0.7 s), and electricity prices
+are low (  0.6 s).
+Discussion
+Our results show that the availability and inclusion of BEBCS
+within a portfolio of climate-mitigation measures can reduce the
+costs and ease the implementation of long-term CDR strategies
+using biomass, because BEBCS can be signiﬁcantly cheaper than
+
+BECCS when agronomic beneﬁts offset costs. The reduced cost of
+CDR using BEBCS, relative to an energy supply portfolio in
+which BECCS is the only negative emissions technology,
+may allow for earlier CDR deployment at a lower carbon price
+than in scenarios without BEBCS.
+However, long-term improvements in soil productivity from
+BC applications are required for BEBCS to become competitive
+with either BES or BECCS. This suggests that an integrated
+portfolio of BECCS plus BEBCS would maximize the economic
+potential for CDR, with BEBCS being preferred where long-term
+fertility of agricultural soils can beneﬁt most from BC. However,
+it is important to note that long-term crop trials with BC
+remain largely absent from the published literature. Of the 781
+treatments from 68 published studies used to develop the crop
+response relationship for our model, 85% were measured in the
+
+NATURE COMMUNICATIONS | 7:13160 | DOI: 10.1038/ncomms13160 | www.nature.com/naturecommunications
+
+5
+
+ARTICLE
+
+NATURE COMMUNICATIONS | DOI: 10.1038/ncomms13160
+
+ﬁrst year following BC addition, 10% in the second year, 3% in
+the third year, 2% in the fourth year and no data were
+available from longer term trials in the peer-reviewed literature
+(Methods: Crop yield impacts of BC, Supplementary Figs 3–5,
+and Supplementary Tables 5 and 6). Although a correlation
+between higher crop response and low soil CEC was found,
+suggesting that BC can offer long term improvement to the
+fertility of low CEC soils (Methods: Crop yield impacts of BC),
+the evidence to support this hypothesis from direct observation
+remains inadequate. Furthermore, in some studies, unfavourable
+changes in soil chemical, physical and biological properties and
+reductions in crop yields have been reported25. An improved
+understanding of the mechanisms underlying crop response to
+BC will support the development of decision-support models that
+direct BC applications into systems they can most beneﬁt, and
+that avoid the application of unsuitable grades of BC in cropping
+systems where they may do harm, while distinguishing between
+uncertainty and manageable variability26. Nonetheless, we note
+that there is currently low conﬁdence and high uncertainty in the
+expected long-term response of speciﬁc soil-crop systems to BC
+amendments. While the parameter ranges used in our model
+reﬂect this high level of uncertainty, it is clear that further
+research to provide long term data on crop response in a variety
+of soils, cropping systems and agroecological zones should be a
+pre-requisite to the widespread use of BC. Further research will
+also be required to quantify impacts on ecosystem services and
+functions such as interactions with soil-dwelling and aquatic
+biota, nutrient cycling through ecosystems and the potential
+for contamination or bioaccumulation of contaminants27.
+Where or when BEBCS is not viable, BES (BECCS) is more
+often than not (that is, P40.5) the preferred option at carbon
+prices below (above) $660 Mg  1 C. The dependence of BEBCS
+on beneﬁcial soil-fertility impacts to be economically viable
+means that its economic potential for climate-change mitigation
+is likely lower than its sustainable technical potential previously
+reported7. BEBCS may, however, increase the total technical
+potential for CDR, not just because it allows for earlier
+deployment, but also because it may be applicable in situations
+where BECCS is not: for example, in locations too remote from
+suitable geologic or other sinks for BECCS to be economic, or in
+the production of carbon-negative transport biofuels—a sector
+not readily compatible with CO2 capture and storage. The
+results reported here indicate that BEBCS could be a key
+component to reduce the costs and otherwise ease the
+implementation of long-term climate-mitigation strategies.
+At present, integrated assessment models (IAMs) are the
+primary tool for assessing questions such as these associated with
+long-term stabilization scenarios. While recognizing that it is
+premature to embark on a large scale deployment of BEBCS for
+climate-change mitigation, given the remaining uncertainties
+outlined above, we recommend that a useful next phase of
+research would be inclusion of BEBCS as a technology option in
+IAMs. Large uncertainties are routinely investigated in IAMs by
+the use of scenarios as a means to provide what-if analyses. For
+example, the current uncertainty over the viability of CCS as a
+mitigation technology option, has been investigated in IAM
+simulations through the use of scenarios in which CCS either is or
+is not included as an option (see, for example, ﬁg. 6.35 in ref. 4).
+Including scenarios, both with and without BEBCS, in IAM
+simulations would allow for a more thorough understanding of
+how availability of BEBCS as a mitigation option would affect the
+cost, timing and technology mix of a comprehensive mitigation
+strategy, if increased crop yields persist in the long term. This
+improved understanding will be critical to making informed
+decisions about how great an investment in further BC research is
+justiﬁed. For example, we have shown that, with carbon prices
+6
+
+expected to rise over time, BEBCS could lead to earlier
+adoption of CDR. However, the converse is also possible, that
+BEBCS might delay adoption of BECCS until carbon prices rise
+sufﬁciently high for BECCS to become competitive with BEBCS.
+The overall impact of such interactions on overall mitigation
+outcomes and costs can only be assessed adequately by using
+IAMs.
+A ﬁnal issue is the question of the costs and impacts of biomass
+supply chains to support any of these technologies at a sufﬁcient
+scale to make a substantial contribution to climate change
+mitigation. The land area required to provide sufﬁcient BECCS to
+meet the requirements of MS430–480 has been estimated at
+400–700 Mha (two to four times the global area of abandoned
+or marginal land)28. These large demands on land would be
+expected to create competition for productive land with food,
+ﬁbre, biofuels, habitat and other ecosystem services29,30.
+Nutrient28,31 and water32 supply may also further constrain
+biomass supply potential. The results presented here are
+independent of the actual costs (economic, social and
+environmental) and prices of biomass supply, because we
+calculate only the relative value of each technology (that is, how
+much better or worse it is than the alternative technologies
+considered). In practice, these costs and the price of biomass will
+be key determinants of the feasibility of any mitigation strategy
+that places demands on biomass supply. At present, there is low
+agreement in the literature as to the scale of the biomass potential
+once economic, social and environmental impacts are considered.
+Improved estimates using a systems approach that considers all
+these aspects in a spatially explicit manner must be a high
+research priority to ensure that policy decisions with possibly
+irreversible global implications are not based on unrealistic
+estimates of the biomass supply potential.
+Methods
+Overall approach. A discounted cost-beneﬁt analysis approach was used to
+compare BES, BECCS and BEBCS, with global environmental beneﬁts of avoided
+carbon dioxide emissions internalized into the econometric model as a carbon
+price. NPV is deﬁned as the sum of all time-discounted costs and beneﬁts of a
+project (equation (1))
+NPV ¼
+
+N
+X
+
+Rt
+
+t¼0 ð1 þ iÞ
+
+t;
+
+ð1Þ
+
+where, t ¼ time interval, N is the total number of time intervals over the period of
+analysis, Rt is the net cash ﬂow (total beneﬁts minus total costs) at time t, and i is
+the discount rate.
+Comparative evaluation of the three biomass conversion technologies (BES,
+BECCS and BEBCS) was conducted by calculating how much higher or lower each
+technology’s NPV is than the next best alternative—a metric we refer to as its RPV,
+deﬁned by equation (1):
+RPV ¼ NPV  OC;
+
+ð2Þ
+
+where OC is the NPV of the best alternative foregone. To calculate RPV for each
+technology, we note that by deﬁning NPV’ as the NPV excluding costs and beneﬁts
+associated with the biomass supply chain (NPVbm), the problem becomes more
+tractable by cancelling NPVbm from the calculation (equations (3 and 4)):
+NPV0 ¼ NPV  NPVbm
+
+ð3Þ
+
+RPV ¼ NPV  OC ¼ NPV0  OC0
+
+ð4Þ
+
+Therefore,
+Hence, by making comparisons on the basis of a functional unit of mass of biomass
+delivered to the conversion facility gate, all costs, beneﬁts and emissions associated
+with the biomass supply side of the equation cancel out and we are able to
+calculate, for a given biomass supply chain, which of the conversion technologies
+considered is most economically efﬁcient.
+The NPV calculation of the various conversion technologies consisted of the
+following components. First, all technologies have capital, operation and
+maintenance costs; revenue from energy production; and avoided CO2 emissions
+from reference energy system that would have provided energy supply if bioenergy
+were not generated. Second, BECCS and BEBCS have an additional beneﬁt from
+reduced atmospheric CO2 due to their carbon sequestration component
+(that is, they return a smaller fraction of the biomass carbon to the atmosphere
+than do BES), but with lower energy conversion efﬁciencies than BES. Third,
+
+NATURE COMMUNICATIONS | 7:13160 | DOI: 10.1038/ncomms13160 | www.nature.com/naturecommunications
+
+ARTICLE
+
+NATURE COMMUNICATIONS | DOI: 10.1038/ncomms13160
+
+BEBCS can have further beneﬁts from its potential to increase agricultural
+productivity on low-fertility soils, to reduce N2O emissions from soils, and to offset
+agricultural lime and fertilizer inputs. BEBCS has additional costs and emissions
+associated with transport of BC and ﬁeld operations to spread and incorporate
+the BC. BC can also alter (increase or decrease) the turnover rate of native
+(non-pyrogenic) SOC, which can either be a cost or a beneﬁt, depending on the
+direction of the effect.
+Thus,
+0
+Nbes
+¼ Ne þ Naff  Ncc  Nom
+
+ð5Þ
+
+0
+Nbeccs
+¼ Ne þ Naff þ Ncs  Ncc  Nom
+
+ð6Þ
+
+0
+Nbebcs
+¼ Ne þ Naff þ Ncs þ Nbcf þ Nbcg  Ncc  Nom  Nbct
+
+ð7Þ
+
+Where,
+Ne ¼ NPV of net energy generated,
+Naff ¼ NPV of avoided fossil fuel emissions,
+Ncc ¼ NPV of capital costs,
+Nom ¼ NPV of operation and maintenance,
+Ncs ¼ NPV of carbon sequestration,
+Nbcf ¼ NPV of BC impacts on soil fertility and crop production
+Nbcg ¼ NPV of BC impacts on soil GHG ﬂuxes
+Nbct ¼ NPV of BC transport and tillage operations
+A Monte Carlo analysis was conducted (n ¼ 30,000 per scenario) to investigate
+the performance of each technology over a broad range of parameter values
+representative of uncertainty and variability globally to 2100. Ranges, means and
+s.d.’s of each parameter in each scenario are given in Supplementary Tables 2–4.
+Derivation of these parameter ranges and methods and equations used to model
+their impacts are detailed in the following sections.
+Carbon price. We apply a price on carbon to internalize impacts on net GHG
+ﬂuxes into the economic comparison of biomass energy technologies. It was
+assumed that the same carbon price would apply to all technologies equally. The
+ranges of estimated carbon price within all idealized implementation scenarios that
+reported carbon prices in the IPCC WG III AR5 Scenario Database (Annex II.10)
+(ref. 33) are shown in Supplementary Table 1, categorized by year and by maximum atmospheric CO2 eq. concentration in 2100. The quantiles in Supplementary
+Table 1 for a given year and concentration pathway were ﬁtted to lognormal
+distributions for multivariate sensitivity analysis; cumulative probability curves of
+these ﬁtted functions are shown in Supplementary Fig. 1. Non-CO2 GHGs were
+converted to CO2 equivalents using 100-year global warming potentials34. Thus,
+each IPCC emission pathway was represented in the scenarios by the
+corresponding carbon price range (Supplementary Tables 1, 3 and 4). According to
+standard practice in integrated assessment modelling, the carbon price was applied
+both to net avoided emissions (for example, avoided fossil fuel consumption
+displaced by bioenergy) and also to carbon offsets in the form of net sequestered
+carbon in BECCS and BEBCS.
+Discount rate. There has been much debate in the recent literature about the
+appropriate discount rate to apply for issues with long-term and intergenerational
+impacts such as climate change. Discounting of future costs and beneﬁts is done for
+two principal reasons. First, if the overall economy grows, as is assumed in many
+(but not all) forecasts, the utility of a given sum of money diminishes according to
+the law of diminishing marginal utility. Second, and more contentiously, future
+costs and beneﬁts are often discounted simply because they occur further in the
+future. This second component of discounting is referred to as the pure time
+discount rate (PTDR) and is a common feature of most markets. The Stern
+review35 challenged the prevailing application of a PTDR, arguing that it is
+indefensible with regard to inter-generational ethics. For example, Stern et al.
+(page 31 of ref. 35) state, ‘we take a simple approach in this review: if a future
+generation will be present, we suppose that it has the same claim on our ethical
+attention as the current one’. This stance has been challenged by others who argue
+that applying a PTDR is more consistent with observed market behaviour36, and
+with increasing uncertainty associated with forecasting the distant future37. We do
+not take a speciﬁc stance here on the correct social discount rate to apply, but use a
+sensitivity range in the Monte Carlo analysis that covers the range of values
+normally applied as social discount rates, from the lower value of 1.5% per year
+suggested by Stern et al.35, to the upper bound of 6% suggested by both Nordhaus36
+and Weitzman37.
+It should be noted that BES is, in comparison to BECCS and BEBCS a more
+mature technology. Therefore, it is currently considered to be less risky to invest in
+this technology. Risk is sometimes reﬂected in discount rates, with higher (riskadjusted) discount rates being applied to higher risk technologies. In this analysis
+we account for risk, not by applying differential discount rates to each technology,
+but by using a Monte Carlo method to simulate uncertainty in a technology
+performing worse (or better) than expected. Expected cash ﬂows are thus adjusted
+in line with the probability distributions of expected returns. We have thus used the
+conventional practice of applying a common social discount rate to quantify the
+uncertainty in the net social costs and beneﬁts for each technology on a common
+
+basis. It should be borne in mind, however, that risk-averse investors may, in
+practice, discount less proven technologies at a higher rate.
+Capital depreciation. Capital expenditures were depreciated at the discount rate
+(i) over a plant lifetime (L) within the sensitivity range of 25–45 years. Annualized
+cost of capital was thus calculated by equations (8 and 9) below.
+fa ¼
+
+1  ð1  iÞ  L
+i
+
+ð8Þ
+
+Ca ¼ fa C
+
+ð9Þ
+
+Where, C is the total capital cost, Ca is the annualized capital cost and fa is the
+annuity factor.
+Leakage and macroeconomic effects. Here we deﬁne leakage in the sense deﬁned
+by the IPCC as a change in GHG emissions occurring outside of the project
+boundary resulting from project activities. This study investigates the marginal
+NPV of adding a unit of biomass power generation in the form of BES, BECCS or
+BEBCS. As such, it assumes that the overall economic system is not signiﬁcantly
+perturbed by the marginal change. Therefore, leakage arising from broader
+economic effects due to changes in energy, carbon, food, land or other prices as a
+result of adding bioenergy capacity were beyond the scope of this study.
+Reference energy system. It was assumed that electricity provided by the BES
+(BES, BEBCS or BECCS) would otherwise have been provided by a reference
+energy system with carbon intensity CIref. In practice CIref depends what type of
+power generation technology would have supplied the energy in the absence of the
+bioenergy production. Depending on the legislative and economic framework
+within which the BES is implemented, there can be several different types of drivers
+of this interaction. Factors that can inﬂuence the carbon intensity of offset energy
+include ﬁnancial and legislative instruments that may be designed to ensure that
+new bioenergy capacity allows phase out of the most polluting alternative power
+sources. Also, competition for available mitigation incentives can lead to bioenergy
+capacity offsetting other low-carbon alternatives that would otherwise have
+received available ﬁnance. Additionally, market forces or planning objectives may
+lead to a mixed effect in which bioenergy offsets a mix of technologies whose
+combined carbon intensity could be the overall energy mix of the existing system,
+the energy mix of a subset of the existing energy infrastructure (for example, base
+load or load-following power generation), or the energy mix of new plant that
+would otherwise have replaced existing capacity as it reaches end-of-life.
+To account for all these possibilities, we use a wide sensitivity range for CIref in
+all scenarios that includes both high- and low-carbon technologies (Supplementary
+Table 7) as a Gaussian distribution with mean and s.d. as given in Supplementary
+Table 8. In 2010, the global carbon intensity of electricity generation was 0.04 Mg C
+GJe 1(where GJe is a GJ of electrical energy generated (page 741, ﬁg.7.7 in ref. 38).
+Avoided carbon emissions from the reference energy system (AEref) were then
+calculated as electricity produced by BES (Ebes) multiplied by carbon intensity of
+the reference energy system (CIref) (equation (9)):
+AEref ¼ CIref Ebes
+
+ð10Þ
+
+Electricity price. Mean electricity price over 2010 to 2013 in IEA countries was
+US$ 32.78 þ /  9.67 GJ  1 (1 s.d.) (equivalent to 11.8 þ /  3.5 c kWh  1),
+industrial price before tax39. The lowest price was 14.59 USD GJ  1 (Norway), and
+the highest was 56.32 USD GJ  1 (Italy). However, power generation in Norway is
+currently over 90% hydro-electricity and may, therefore, be unrepresentative of
+prices for biomass energy. The next lowest price was in the USA, at 17.88
+USD GJ  1, which was therefore used as the lower bound of the range.
+In all, 2014 electricity prices were, accordingly, assumed to lay in the range
+14.6–56.3 USD GJ  1. Electricity prices to 2100 were estimated to rise linearly at
+1.9–2.1 % of 2014 values per year40.
+Bioenergy systems. Capital costs, generation efﬁciencies and operation and
+maintenance costs for biomass power generation are shown in Supplementary
+Table 9, for both recent (2012) plant, and for projections to 2030. It was assumed
+that there would be no signiﬁcant further cost reductions or efﬁciency
+improvements beyond the 2030 values. Values in 2020 were estimated by linear
+interpolation. To provide comparability with BECCS, which is typically only
+considered plausible at the large scale, the parameter ranges for 450 MW plant
+were used in the Monte Carlo sensitivity analysis.
+Bioenergy with carbon capture and storage. The baseline capital, operation and
+maintenance costs of the biomass energy component of BECCS were assumed to be
+the same as for BES, but with additional costs associated with CCS as described in
+the following section.
+
+NATURE COMMUNICATIONS | 7:13160 | DOI: 10.1038/ncomms13160 | www.nature.com/naturecommunications
+
+7
+
+ARTICLE
+
+NATURE COMMUNICATIONS | DOI: 10.1038/ncomms13160
+
+Cost of carbon capture and storage. Early IPCC estimates of the capital cost for
+CCS applied to coal power stations were in the range $12–52 Mg  1 CO2
+captured (2007 basis, with lower costs being associated with integrated gasiﬁcationcombined cycle, and higher costs with pulverized coal plants)15,41. Later estimates
+based on greater experience and closer examination estimate tended towards higher
+CO2 capture costs in the range of $48–80 Mg  1 CO2 captured ($67–109 Mg  1
+CO2 avoided)42–45. The most recent and detailed estimates, which we use for this
+study, expand this range somewhat to between $28–111 Mg  1 CO2 captured for
+CCS applied to fossil fuel power plants46. These estimates, however, assume a
+capacity factor of up to 0.85 which is high over the lifetime of a plant when
+compared with recent experience of base-load coal power stations which on
+average have achieved levelled capacity factors of 0.65–0.75 in the USA47. Here we
+assume a capacity factor in the range 0.65–0.85, potentially increasing ﬁxed capital
+costs by up to 24% relative to estimates based on a capacity factor of 0.85. We apply
+the same capacity factor for BECCS, BEBCS and BES to prevent bias.
+Costs of transporting CO2 were estimated to range from $1.3 to 14.8 Mg  1 CO2
+per 250 km and geological storage costs (including monitoring) to range from
+$0.6–8.3 Mg  1 CO2 (ref. 41). The pipeline diameter required for CO2 transport
+increases more slowly with ﬂow rate (approximately with the square root of ﬂow
+rate) than does cost per unit length (approximately proportional to diameter),
+giving rise to substantial economies of scale48. Collection of CO2 from a network of
+smaller biomass facilities co-located near to biomass resources would be likely to
+also entail longer transport distances than fossil fuel CCS. Although lower
+economies of scale and less efﬁcient source-sink matching for BECCS relative to
+fossil CCS would potentially raise CO2 transport costs by up to $30 Mg  1 CO2
+when CO2 must be transported further than 500 km (ref. 43), we assumed here that
+BECCS would not be applied in situations where biomass resources were too
+distant from suitable sinks to be viable14. CO2 transport distance was assumed to
+range from 1 to 500 km.
+CCS applied to biomass power, where speciﬁcally considered in the studies cited
+above, has been assumed to have the same or comparable capital cost per kW of plant
+generating capacity as coal-based systems43. Biomass conversion facilities are likely to
+be smaller than fossil fuel power generation and would, therefore, tend to accrue
+lower economies of scale, with accordingly higher CCS costs, on average, per unit C
+captured than coal-based CCS43. We, therefore, extend the upper end of the range of
+CCS costs considered here to include also BECCS deployment in suboptimal
+conditions with lower economies of scale (up to 20% higher capital cost assumed),
+lower capacity factors and longer CO2 transport distance than coal-CCS
+(Supplementary Table 10). The costs shown in Supplementary Table 10 thus
+represents a range from: (a) biomass co-ﬁring in large scale coal-powered power plant
+situated close to geological sequestration reservoirs, at the low end, to (b) medium
+scale dedicated BECCS (with 20% higher unit capital cost for CCS than a large scale
+facility), with a capacity factor of 0.65, located up to 500 km from reservoirs.
+Outlook for future CCS costs. Cost reductions of B15% have been estimated for
+combustion-based plants with CCS and 20% for gasiﬁcation-based plants with CCS
+after 100 GW of increased capacity worldwide relative to current technology46,49.
+Accordingly, we have assumed cost reductions of 20% for CCS in 2100,
+interpolated linearly for 2050 (Supplementary Tables 3 and 4).
+
+production technology we consider here is slow pyrolysis. We assume
+that fast pyrolysis would be the preferred technology over slow pyrolysis
+only in those conditions when energy is more valuable than BC, in which
+case the BC product of fast pyrolysis would itself be combusted rather than
+added to soil.
+Techno-economic assessments of pyrolysis for bioenergy have typically focused
+more on fast pyrolysis (with its higher energy production potential) rather than
+slow pyrolysis50–52. Accordingly, there are few detailed estimates of capital costs of
+slow pyrolysis power generation plants in the published literature. To estimate a
+realistic uncertainty range for slow pyrolysis power generation capital costs, we,
+therefore, base the sensitivity range on costs for biomass integrated gasiﬁcation
+combined cycle (BIGCC) power generation, for which a substantial literature exists.
+In an analogous pyrolysis-based conﬁguration (PyGCC), the gasiﬁcation stage
+would be replaced with a pyrolysis unit, a cyclone for char separation, and possibly
+an additional gas conditioning plant to accommodate the higher tar content of
+pyrolysis gases than gasiﬁer syngas. Due to the lower energy conversion efﬁciency
+of slow pyrolysis than gasiﬁcation, the pyrolysis unit would need to be sized larger
+per unit electricity generation than a BIGCC gasiﬁer (or conversely, for a given
+biomass throughput, the electricity generation stage would be smaller in PyGCC
+than BIGCC). This will also engender an increased size in biomass handling costs
+per unit power output.
+Gasiﬁcation accounts for B25–30% of BIGCC capital cost53. Biomass handling
+and storage equipment accounts for a further 15–20% of BIGCC capital cost53,54.
+We assume that biomass handling and gasiﬁcation costs are scaled from BIGCC to
+PyGCC in proportion to the ratio of syngas fuel produced per unit biomass in a
+gasiﬁer or pyrolyser (on an energy basis). Energy conversion efﬁciency is in the
+range of 75–85% for gasiﬁcation55,56. For pyrolysis, energy conversion efﬁciency is
+in the range 37–60% (see pyrolysis mass and energy balance, below), where higher
+values correspond to pyrolysis at 600 °C with biomass being used as the fuel for
+heat supply; and lower values correspond to pyrolysis at 450 °C, with syngas
+providing the fuel for heat supply). To account for additional costs of BC handling
+and tar cracking, we also add a further 25% of the pyrolyser cost to the overall
+PyGCC system54. Thus, we estimate that capital cost of gasiﬁcation and biomass
+handling for PyGCC is in the range of 20–60% higher than BIGCC per unit
+electricity output capacity.
+Operation and maintenance costs were assumed to be 3–5 % of capital costs, as
+for BES (Supplementary Table 9).
+Crop yield impacts of BC. BC can improve crop yields by a variety of
+mechanisms, including (a) direct provision of nutrients, (b) alleviating pH
+constraints, (c) improving fertilizer use efﬁciency (and thus nutrient uptake for a
+given fertilizer application rate) by increasing the soil CEC and (d) improving soil
+water holding capacity (WHC) (in light or sandy soils) or drainage (in clayey
+soils)16,57,58. Of these mechanisms, nutrient content and liming potential of BC are
+likely to be transient effects, whereas CEC and WHC impacts are associated with
+the carbon matrix provided by BC and are likely to at least persist, if not increase,
+while the BC remains. We, therefore, treat transient and persistent impacts of BC
+separately in the valuation of its yield impacts.
+Nf ;bc ¼ Nsoc;bc þ NpH;bc þ Nn;bc
+
+BECCS efﬁciency penalty. Net generating efﬁciency, on a lower heating value
+basis is assumed to be lower with than without CCS by an efﬁciency penalty (P) of
+4–11 percentage points14,15,41,43 (equation (11)):
+Ebeccs Ebes
+¼
+P
+Elhv
+Elhv
+
+ð11Þ
+
+Where, Ebeccs and Ebes are the net amounts of electricity exported from a BECCS
+and BES plant, respectively; and Elhv is the energy content (on an lower heating
+value basis) of the biomass used to generate that electricity.
+BECCS CO2 sequestration fraction. We assume that between 81–91 % of CO2
+generated from biomass combustion is sequestered41. Note that, per unit electricity
+generated, CO2 captured is greater than CO2 avoided, because the efﬁciency
+penalty (see BECCS efﬁciency penalty, above) means that more CO2 is emitted per
+GJ electricity. Care must be taken when comparing literature values as to whether
+they refer to CO2 captured or avoided. Here we base calculations on CO2 captured
+per unit biomass combusted.
+BEBCS costs. BC production necessarily entails a reduction in possible energy
+production per unit biomass than a pure BES, because a substantial fraction of the
+biomass enthalpy remains embodied in the BC product. Different pyrolysis
+technologies have different relative yields of energy and BC; fast pyrolysis
+producing more energy and less BC than slow pyrolysis. When energy is the
+desired product, BC produced during pyrolysis will typically itself be combusted or
+gasiﬁed to raise the energy production efﬁciency of the overall process. However,
+under conditions when it is economically viable to produce BC at the expense of
+energy (that is, when the value of the BC for soil improvement and carbon
+sequestration is high enough to offset foregone energy when it is buried in soil),
+it would then be most economical to maximize BC yields. Therefore, the BC
+8
+
+ð12Þ
+
+Where,
+Nsoc,bc is the NPV of BC’s long-term soil fertility beneﬁts from increased SOC,
+NpH,bc is the NPV of BC’s liming potential and
+Nn,bc is the NPV of BC’s nutrient content
+To estimate the relative importance of these different types of mechanisms, we
+conducted a random forest decision-tree analysis24 of a comprehensive database
+crop trials with 781 treatments involving lignocellulosic feedstocks (excluding
+manures) from 68 published studies (Supplementary Fig. 3). The analysis was
+constrained to include only non-manure lignocellulosic feedstocks, because we are
+interested here in feedstocks that may have a competitive use in bioenergy power
+generation. Studies using hydrochar were also excluded because hydrochar turns
+over rapidly (thus having little sequestration potential), and its production is not
+currently compatible with power co-generation. Previous meta-analyses of
+published yield responses have not employed methods that account for both
+correlation (non-independence) and interactive effects of explanatory
+parameters16,17. The random forest approach does not have these limitations, and
+furthermore makes no implicit assumptions about the linearity or form of the
+model. The stochastic ensemble approach of random forests also eliminates the
+tendency of single decision tree models to overﬁt data24.
+Of the BC yield-impact data shown in Supplementary Fig. 3, 85% were
+measured in the ﬁrst year following BC addition, 10% in the second year, 3% in the
+third year, 2% in the fourth year and no data were available from longer term trials.
+Random forest analysis was conducted using the cForest function in the party
+package of the R statistical programming language, which provides random forest,
+bootstrapping and bagging ensemble algorithms utilizing conditional inference
+trees. cForest was run with an ensemble of 5,001 trees (parameter value
+ntree ¼ 5,001), 5 parameter tries per node (mtry ¼ 5), and the cforest_unbiased
+method to eliminate bias towards predictors with continuous values or greater
+number of categories. The resulting relative importance of the predictor variables
+
+NATURE COMMUNICATIONS | 7:13160 | DOI: 10.1038/ncomms13160 | www.nature.com/naturecommunications
+
+ARTICLE
+
+NATURE COMMUNICATIONS | DOI: 10.1038/ncomms13160
+
+(estimated by incremental change in mean square error from omitting a variable
+from the model) is shown in Supplementary Fig. 4.
+The relative importance of the model parameters was estimated by the IMSE for
+each parameter in the random forest analysis24. Soil pH and CEC were
+overwhelmingly, and approximately equally, the most important predictors of yield
+response to BC (IMSE ¼ 0.085 and 0.084, respectively). Next, clay and silt content,
+BC carbon fraction, and fertilizer and BC application rates were of secondary
+importance (IMSE ¼ 0.02–0.04). Crop type, pyrolysis temperature, sand, SOC, BC
+pH and feedstock were only minor predictors of yield response (IMSEo0.02).
+Time since BC application was found to be a very poor indicator of yield response
+within the available data, but this is likely to have been skewed by most of the
+measurements being taken during the ﬁrst cropping cycle following application.
+Value of increased soil carbon from BC additions. Because pH impacts of BC
+are approximately equally responsible for observed yield responses as are CEC
+effects (Supplementary Fig. 4), it is unlikely that the more extreme yield responses
+observed would be solely attributable to increased SOC, rather than having also a
+pH and possibly nutrient mechanism contributing. We, therefore, estimate that the
+potential range of persistent yield impacts attributable to BC increasing SOC
+(and the associated effects on CEC and WHC) lies within the 50% of the
+yield-response data represented by the interquartile range (Supplementary Fig. 5).
+Current food prices. Supplementary Table 5 shows the production, yield and
+price of major food crops globally during the period 2008–2013, ranked by area
+harvested (derived from FAOStat data59). The range of impacts of BC on yields of
+major crops is shown in Supplementary Fig. 5. Note that major crops, such as sugar
+cane, that have shown either no signiﬁcant yield improvements or only yield
+reductions with BC are not included, because it was assumed that BC would not be
+used for such crops. The economic values of these yield increments are then
+calculated by multiplying by the crop price. The interquartile range of these values
+for major crops with demonstrated yield responses to BC are shown in
+Supplementary Table 6 (based on inter-annual and international producer price
+ﬂuctuations over the period 2008–2013).
+Thus, depending on crop, soil and location the estimated value of increased
+crop yields (Rf,bc) resulting from BC-SOC varies between  $13 to $63 per
+yr Mg  1 C (IQR), based on 2008–2013 crop prices. The NPV in perpetuity is then
+calculated as the sum of these annual returns discounted at the discount rate and
+diminishing exponentially in proportion to the decay rate of the BC
+(equation (13)).
+Nf ;bc ¼ 
+
+Rf ;bc
+
+
+i þ lnð2Þ
+T1=2
+
+ð13Þ
+
+Future food price trends. Projections of future food price trends have advanced
+considerably in recent years with an increasing diversity of trade models being
+applied under a range of possible projected trends in yield, and prices disaggregated
+by speciﬁc commodities, and under a range of future population and climate
+scenarios60–65. Existing studies point to a high degree of uncertainty in future food
+prices, and high sensitivity to assumptions about climate change, adaptation to
+climate change, CO2 fertilization, potential for yield improvements, dietary shifts,
+population, land degradation and competing land uses. Furthermore, there is a lack
+of published projections beyond 2050, giving rise to even greater uncertainty in
+trends through to 2100. Departing from the trend of falling food prices over the
+20th century, current projections suggest that increasing population and afﬂuence
+will drive an increase in food prices over the 21st century that will outstrip the
+potential for increased agricultural intensiﬁcation to provide a counterbalance64,65.
+General and partial equilibrium trade models suggest that food price increases
+ranging from 3–84% are very likely by 2050 (refs 60–66). In the shorter term, we
+assume that food prices will increase by 3–5% in real terms by 2020 relative to 2000
+(0–3% relative to current prices)65. In the absence of published estimates through
+to 2100, we make the simplifying assumption that world population increases from
+2050 to 2100 by 14% (ref. 67), and would drive a proportional increase in food
+prices over this time interval. Thus we assume food prices rise by 4–96% relative to
+present values by 2100.
+Value of BC liming potential. In addition to BC’s potential to provide long lasting
+impacts on soil fertility through increased SOC, transient impacts of BC as a liming
+agent and organic fertilizer also have value. The economic value of BC’s impact on
+soil pH was estimated according to the method of ref. 14, whereby BC’s calcium
+carbonate equivalence (CCEbc) is given by equation (14). The NPVcce of this liming
+potential is then calculated as the avoided cost of an equivalent quantity of
+agricultural lime, assuming a price of $10–80 Mg  1 CaCO3.
+CCEbc ¼ 5:378 þ 1:582 Bbc  0:2136 Abc
+
+ð14Þ
+
+Where, Abc ¼ ash content of the BC, and Bbc ¼ the percentage of base elements
+(Ca, Mg, K and Na) in the BC.
+Phyllis 2 database68 gives mean ash content of straw, wood and bagasse as
+5.5 þ /  5.3% (1 s.d.), and base elements make up 41 þ /  34% (1 s.d.) of the ash
+
+elements by mass. To calculate ash content of the BC, it was assumed that ash was
+conserved during pyrolysis. The low end of the sensitivity range for liming value
+was set at zero, to represent situations in which the soil has no pH constraints, or
+when combustion ash from a BES might be used to provide an equivalent liming
+value. It was assumed that BC would not be used in situations that cause adverse
+pH impacts (for example, adding high pH BC to already alkaline soils).
+Value of BC nutrient content. A substantial fraction of biomass nitrogen can be
+volatilized during pyrolysis, predominantly as N2 (ref. 69). The nitrogen remaining
+in BC typically has negligible availability70. Therefore, no value was assumed for
+BC as a nitrogen fertilizer. Up to a maximum of 100% of biomass phosphorus and
+potassium was assumed to remain available in the BC. The low end of the
+sensitivity range for phosphorus and potassium fertilization value was set at zero,
+to represent situations in which combustion ash from a BES might be used to
+provide an equivalent nutrient value to BC. At the high end, lignocellulosic
+feedstocks of straw, wood or bagasse contain up to 800 mg P kg  1 and
+9,000 mg K kg  1 (95% conﬁdence)68. Nutrient use efﬁciency can be approximately
+20% lower for organic than mineral fertilizers71,72, therefore, we base nutrient
+values on 80% of the equivalent prices of phosphorus in Ca(H2PO4)2 (triple super
+phosphate) and potassium in KCl. We use the 2005–2014 price ranges of
+$220–860 Mg  1 triple super phosphate and $180–650 Mg  1 KCl (ref. 73).
+BC haulage and ﬁeld operations. It was estimated that BC haulage would cost
+between $0.26 to $14.17 per Mg feedstock (note that costs would be approximately
+four times greater per unit mass of BC), and that associated CO2–C emissions
+would be in the range 0.02–1.3 kg C per Mg feedstock, calculated as shown in
+Supplementary Table 11, and equations (15–19). Calculation of mean rectilinear
+distance (RD) between BEBCS plant and sites for application of BC followed
+equations (15–17) below:
+CA ¼ Pbc =ARbc
+
+ð15Þ
+
+LA ¼ CA=CD
+
+ð16Þ
+
+pﬃﬃﬃﬃﬃﬃ
+LA
+2
+
+ð17Þ
+
+RD ¼
+
+Where, CA is the area of cropland amended per year; Pbc is annual BC production;
+ARbc is the application rate (mass per unit area) of BC on cropland; LA is the
+geographic area over which BC application is dispersed (including both
+BC-amended cropland and other intervening land where BC is not applied); and
+CD is the cropland density (area of cropland per unit area of landscape).
+Then, haulage emissions (HE) and haulage cost (HC) per unit biomass feedstock
+are given by equations (18 and 19):
+HE ¼ RD EFT Ybc;py
+
+ð18Þ
+
+HC ¼ RD PT Ybc;py
+
+ð19Þ
+
+Where Ybc,py is the yield of BC, and EFT and PT are the haulage emissions and
+costs, respectively, per unit distance per Mg of BC.
+Field operations to incorporate BC may in some cases coincide with or
+substitute for normal tillage and spreading operations (for example, if BC is applied
+instead of agricultural lime). Therefore, we use zero cost as the low end of the
+sensitivity range for ﬁeld operations. At the high end, ﬁeld operations were
+estimated to cost up to $25 ha  1 for spreading, and $24 ha  1 for cultivation and
+incorporation (including labour, fuel, lubricant, and tractor and implement
+overheads) in cases when ﬁeld operations cannot be combined with normal
+operations (for example, in no-till systems) and when it is not possible to use idle
+machinery at off-peak times74,75.
+Pyrolysis mass and energy balance. Pyrolysis mass and energy balances were
+calculated according to the method in ref. 10 (equations (1–14) in Supporting
+Information of ref. 10). Pyrolysis temperature was in the range 450–650 °C. Process
+heat was assumed to be provided by combustion of a fraction of the combined
+gaseous and volatile pyrolysis products, with the remaining pyrolysis gases and
+volatiles used as fuel for power generation. Conversion efﬁciency of the power
+generation stage was assumed to be equal to that in the BES system. Parasitic power
+requirements were assumed to be provided by a fraction of the electricity generated.
+BC decomposition. Molar O:C ratio was used as a predictor variable of BC
+mineralization rate76. Data relating O:C ratio to estimated half-life were taken from
+the metastudy by ref. 76 (Supplementary Fig. 2). The regression of equation (20)
+thus yielded a value for the mineralization factor (fd) of 4.89 þ /  1.8 (1 s.d.).
+Mineralization rate in the Monte Carlo sensitivity analysis was, therefore, modelled
+using equation (20) with values of fd populated from a Gaussian distribution with
+mean ¼ 4.89, and s.d. ¼ 1.8. O:C ratio was calculated according to equations (6–8)
+in the supporting information of ref. 12. It was assumed that carbon credits would
+
+NATURE COMMUNICATIONS | 7:13160 | DOI: 10.1038/ncomms13160 | www.nature.com/naturecommunications
+
+9
+
+ARTICLE
+be applicable to BC carbon remaining after 100 years.
+ 
+log10 T12 ¼ fd ð1  BCOC Þ
+
+NATURE COMMUNICATIONS | DOI: 10.1038/ncomms13160
+
+ð20Þ
+
+N2O emissions from soil. Numerous studies have shown reduced N2O emissions
+from soil with BC application77. Reduction in soil N2O emissions is correlated with
+BC application rate, with the relative reduction varying between 0.17 to 0.91% of
+initial emissions per Mg ha  1 BC applied77. Unamended N2O emissions were
+calculated assuming the IPPC default N2O–N emission factor of 1.25% of applied
+fertilizer N, and N application rates to cropland were assumed to be in the range
+25–200 kg N ha  1 per year78. (Supplementary Table 12).
+Mechanisms and long-term dynamics of BC’s N2O impacts are still poorly
+understood and quantiﬁed. Some evidence suggests that N2O suppression could be
+short-lived, decaying over a few years79. We use a sensitivity range of 1–100 year
+for the time over which N2O suppression persists, with a logarithmic distribution
+to skew probability towards the lower end of this range.
+SOC feedback. BC can promote mineralization (an interaction sometimes referred
+to as ‘positive priming’) of easily mineralizable non-pyrogenic soil organic carbon
+(npSOC), and can also promote stabilization of npSOC, potentially leading to
+increased npSOC stocks in the long term (negative priming)21. Considerable
+uncertainty remains in the underlying mechanisms for both positive and negative
+priming, and in the sizes and longevity of these impacts under differing edaphic
+and environmental conditions22,23,80. Nonetheless, the ranges of published
+measurements of the magnitude of BC’s priming effect on npSOC turnover and
+stabilization can be used to modify rate constants in established SOC turnover
+models to estimate the possible range of priming impacts on long term npSOC
+stocks22. Applying this methodology to the RothC soil carbon model, while
+accounting also for impacts of BC on NPP, indicates that BC could potentially alter
+npSOC stocks over 100 years by up to  0.03 to þ 0.3 Mg npSOC per Mg BC C
+added. We adopt this method from Woolf and Lehmann22, applied over a 100 year
+time frame, to estimate the potential impact on npSOC within the sensitivity range
+of  0.03 to þ 0.3 mg npSOC per mg BC-C. The net magnitude of BEBCS
+sequestered carbon was then adjusted by adding the (positive or negative) npSOC
+feedback to the quantity of BC remaining in the soil. We note, however, that the
+value of any possible increase in npSOC may be challenging to internalize into
+carbon markets unless signiﬁcant advances in understanding of the underlying
+mechanisms allow them to be predicted within tighter conﬁdence limits.
+Code availability. Computer code to reproduce these results is available under
+GNU General Public License Version 3, at https://github.com/domwoolf/nets1.
+Data availability. All data required to repeat this experiment are provided within
+the article and the Supplementary Information. The data are also included in the
+computer code available for download (see Code Availability).
+
+References
+1. Azar, C. & Rodhe, H. Targets for stabilization of atmospheric CO2. Science 276,
+1818–1819 (1997).
+2. Randalls, S. History of the 2 °C climate target. Wiley Interdiscip. Rev. Clim.
+Change 1, 598–605 (2010).
+3. Clarke, L. et al.in Climate Change 2014: Mitigation of Climate Change.
+Contribution of Working Group III to the Fifth Assessment Report of the
+Intergovernmental Panel on Climate Change. (eds Edenhofer, O. R. et al.)
+413–510 (Cambridge University Press, 2014).
+4. Fuss, S., Reuter, W. H., Szolgayová, J. & Obersteiner, M. Optimal mitigation
+strategies with negative emission technologies and carbon sinks under
+uncertainty. Clim. Change 118, 73–87 (2013).
+5. van Vuuren, D. P. et al. The role of negative CO2 emissions for reaching
+2 °C—insights from integrated assessment modelling. Clim. Change 118, 15–27
+(2013).
+6. Fuss, S. et al. Betting on negative emissions. Nat. Clim. Change 4, 850–853
+(2014).
+7. Woolf, D., Amonette, J. E., Street-Perrott, F. A., Lehmann, J. & Joseph, S.
+Sustainable biochar to mitigate global climate change. Nat. Commun. 1, 1–9
+(2010).
+8. Glaser, B. Prehistorically modiﬁed soils of central Amazonia: a model for
+sustainable agriculture in the twenty-ﬁrst century. Philos. Trans. R. Soc. B Biol.
+Sci. 362, 187–196 (2007).
+9. Lehmann, J. A handful of carbon. Nature 447, 143–144 (2007).
+10. Woolf, D., Lehmann, J., Fisher, E. M. & Angenent, L. T. Biofuels from pyrolysis
+in perspective: trade-offs between energy yields and soil-carbon additions.
+Environ. Sci. Technol. 48, 6492–6499 (2014).
+11. Gaunt, J. L. & Lehmann, J. Energy balance and emissions associated with
+biochar sequestration and pyrolysis bioenergy production. Environ. Sci.
+Technol. 42, 4152–4158 (2008).
+10
+
+12. Field, J. L., Keske, C. M. H., Birch, G. L., DeFoort, M. W. & Cotrufo, M. F.
+Distributed biochar and bioenergy coproduction: a regionally speciﬁc case
+study of environmental beneﬁts and economic impacts. GCB Bioenergy 5,
+177–191 (2013).
+13. Azar, C. et al. The feasibility of low CO2 concentration targets and the role
+of bio-energy with carbon capture and storage (BECCS). Clim. Change 100,
+195–202 (2010).
+14. Koelbl, B. S., van den Broek, M. A., van Ruijven, B. J., Faaij, A. P. C. &
+van Vuuren, D. P. Uncertainty in the deployment of carbon capture and
+storage (CCS): a sensitivity analysis to techno-economic parameter uncertainty.
+Int. J. Greenh. Gas Control 27, 81–102 (2014).
+15. Rubin, E. S., Chen, C. & Rao, A. B. Cost and performance of fossil
+fuel power plants with CO2 capture and storage. Energ. Policy 35, 4444–4454
+(2007).
+16. Jeffery, S., Verheijen, F. G. A., van der Velde, M. & Bastos, A. C. A quantitative
+review of the effects of biochar application to soils on crop productivity using
+meta-analysis. Agric. Ecosyst. Environ. 144, 175–187 (2011).
+17. Crane-Droesch, A., Abiven, S., Jeffery, S. & Torn, M. S. Heterogeneous global
+crop yield response to biochar: a meta-regression analysis. Environ. Res. Lett. 8,
+44049 (2013).
+18. Cayuela, M. L. et al. Biochar and denitriﬁcation in soils: when, how much and
+why does biochar reduce N2O emissions? Sci. Rep. 3, 1732 (2013).
+19. Godfray, H. C. J. et al. Food security: the challenge of feeding 9 billion people.
+Science 327, 812–818 (2010).
+20. Spokas, K. A. & Reicosky, D. C. Impacts of sixteen different biochars on soil
+greenhouse gas production. Ann. Environ. Sci. 3, 4 (2009).
+21. Zimmerman, A. R., Gao, B. & Ahn, M.-Y. Positive and negative carbon
+mineralization priming effects among a variety of biochar-amended soils.
+Soil Biol. Biochem. 43, 1169–1179 (2011).
+22. Woolf, D. & Lehmann, J. Modelling the long-term response to positive and
+negative priming of soil organic carbon by black carbon. Biogeochemistry 111,
+83–95 (2012).
+23. Singh, B. P. & Cowie, A. L. Long-term inﬂuence of biochar on
+native organic carbon mineralisation in a low-carbon clayey soil. Sci. Rep. 4,
+3687 (2014).
+24. Breiman, L. Random forests. Mach. Learn. 45, 5–32 (2001).
+25. Mukherjee, A. & Lal, R. The biochar dilemma. Soil Res. 52, 217–230 (2014).
+26. Lehmann, J. & Rillig, M. Distinguishing variability from uncertainty. Nat. Clim.
+Change 4, 153–153 (2014).
+27. Jeffery, S., Verheijen, F. G. A., Bastos, A. C. & Van Der Velde, M. A comment
+on ‘Biochar and its effects on plant productivity and nutrient cycling: a
+meta-analysis’: on the importance of accurate reporting in supporting a
+fast-moving research ﬁeld with policy implications. GCB Bioenergy 6, 176–179
+(2014).
+28. Smith, P. et al. Biophysical and economic limits to negative CO2 emissions.
+Nat. Clim. Change 6, 42–50 (2016).
+29. Bustamante, M. et al. Co-beneﬁts, trade-offs, barriers and policies for
+greenhouse gas mitigation in the agriculture, forestry and other land use
+(AFOLU) sector. Glob. Change Biol. 20, 3270–3290 (2014).
+30. Creutzig, F. et al. Bioenergy and climate change mitigation: an assessment.
+GCB Bioenergy 7, 916–944 (2015).
+31. Smith, P. Soil carbon sequestration and biochar as negative emission
+technologies. Glob. Change Biol. 22, 1315–1324 (2016).
+32. Bonsch, M. et al. Trade-offs between land and water requirements for
+large-scale bioenergy production. GCB Bioenergy 8, 11–24 (2016).
+33. Krey, V. et al.in Climate Change 2014: Mitigation of Climate Change.
+Contribution of Working Group III to the Fifth Assessment Report of the
+Intergovernmental Panel on Climate Change. (eds Edenhofer, O. R. et al.)
+1308–1328 (Cambridge University Press, 2014).
+34. Myhre, G. et al.in Climate Change 2013: The Physical Science Basis.
+Contribution of Working Group I to the Fifth Assessment Report of the
+Intergovernmental Panel on Climate Change. (eds Stocker, T. F. et al.) 659–740
+(Cambridge University Press, 2013).
+35. Stern, N. H., Britain, G. & Treasury, H. M. Stern Review: The Economics of
+Climate Change (HM treasury, 2006).
+36. Nordhaus, W. D. A review of the stern review on the economics of climate
+change. J. Econ. Lit. 45, 686–702 (2007).
+37. Weitzman, M. L. A review of the stern review on the economics of climate
+change. J. Econ. Lit. 45, 703–724 (2007).
+38. Bruckner, T. et al.in Climate Change 2014: Mitigation of Climate Change.
+Contribution of Working Group III to the Fifth Assessment Report of the
+Intergovernmental Panel on Climate Change. (eds Edenhofer, O. R. et al.)
+511–597 (Cambridge University Press, 2013).
+39. IEA. Energy Prices and Taxes. Available at http://www.iea.org/statistics/topics/
+pricesandtaxes (2014).
+40. EnerData. Long Term Energy Scenarios. Available at http://www.enerdata.net/
+enerdatauk/press-and-publication/publications/understanding-energy-future.
+phpEnerData, 2014).
+
+NATURE COMMUNICATIONS | 7:13160 | DOI: 10.1038/ncomms13160 | www.nature.com/naturecommunications
+
+ARTICLE
+
+NATURE COMMUNICATIONS | DOI: 10.1038/ncomms13160
+
+41. Herzog, H. et al. in IPCC Special Report on Carbon Dioxide Capture and
+Storage. (eds Metz, B., Davidson, O., Coninck, H., Loos, M. & Meyer, L.) 339–
+362 (Cambridge University Press, 2005).
+42. Mott MacDonald. UK Electricity Generation Costs Update. Available at
+https://www.gov.uk/government/uploads/system/uploads/attachment_data/ﬁle/
+65716/71-uk-electricity-generation-costs-update-.pdf (2010).
+43. Finkenrath, M., & IEA. IEAGHG. Potential for Biomass and Carbon Dioxide
+Capture and Storage (IEAGHG, 2011).
+44. Finkenrath, M. & IEA. Cost and Performance of Carbon Dioxide Capture from
+Power Generation (OECD Publishing, 2011).
+45. NETL. Updated Costs (June 2011 Basis) for Selected Bituminous Baseline Cases
+(National Energy Technology Laboratory, 2012).
+46. Rubin, E. S., Davison, J. E. & Herzog, H. J. The cost of CO2 capture and storage.
+Int. J. Greenh. Gas Control 40, 378–400 (2015).
+47. Rubin, E. S. Understanding the pitfalls of CCS cost estimates. Int. J. Greenh. Gas
+Control 10, 181–190 (2012).
+48. NETL. Carbon Management GIS: CO2 Pipeline Transport Cost Estimation
+(Massachusetts Institute of Technology, 2009).
+49. Rubin, E. S., Yeh, S., Antes, M., Berkenpas, M. & Davison, J. Use of experience
+curves to estimate the future cost of power plants with CO2 capture. Int. J.
+Greenh. Gas Control 1, 188–197 (2007).
+50. Ganesh, A. & Banerjee, R. Biomass pyrolysis for power generation—a potential
+technology. Renew. Energy 22, 9–14 (2001).
+51. Bridgwater, A. V., Toft, A. J. & Brammer, J. G. A techno-economic comparison
+of power production by biomass fast pyrolysis with gasiﬁcation and
+combustion. Renew. Sustain. Energy Rev. 6, 181–246 (2002).
+52. Bridgwater, A. V. The technical and economic feasibility of biomass gasiﬁcation
+for power generation. Fuel 74, 631–653 (1995).
+53. Caputo, A. C., Palumbo, M., Pelagagge, P. M. & Scacchia, F. Economics
+of biomass energy utilization in combustion and gasiﬁcation plants: effects of
+logistic variables. Biomass Bioenergy 28, 35–51 (2005).
+54. Shabangu, S., Woolf, D., Fisher, E. M., Angenent, L. T. & Lehmann, J.
+Techno-economic assessment of biomass slow pyrolysis into different biochar
+and methanol concepts. Fuel 117, 742–748 (2014).
+55. Mathieu, P. & Dubuisson, R. Performance analysis of a biomass gasiﬁer.
+Energy Convers. Manag. 43, 1291–1299 (2002).
+56. Prins, M. J., Ptasinski, K. J. & Janssen, F. J. J. G. From coal to biomass
+gasiﬁcation: comparison of thermodynamic efﬁciency. Energy 32, 1248–1259
+(2007).
+57. Sohi, S. P., Krull, E., Lopez-Capel, E. & Bol, R. A review of biochar and its use
+and function in soil. Adv. Agron Vol. 105 (ed. Sparks, D. L.) 47–82 (Academic
+Press, 2010).
+58. Atkinson, C. J., Fitzgerald, J. D. & Hipps, N. A. Potential mechanisms for
+achieving agricultural beneﬁts from biochar application to temperate soils:
+a review. Plant Soil 337, 1–18 (2010).
+59. FAO. FAOSTAT. Available at http://faostat3.fao.org/ (2016).
+60. Hertel, T. W., Burke, M. B. & Lobell, D. B. The poverty implications of
+climate-induced crop yield changes by 2030. Glob. Environ. Change 20,
+577–585 (2010).
+61. Baldos, U. L. C. & Hertel, T. W. Global food security in 2050: the role of
+agricultural productivity and climate change. Aust. J. Agric. Resour. Econ. 58,
+554–570 (2014).
+62. Calzadilla, A. et al. Climate change impacts on global agriculture. Clim. Change
+120, 357–374 (2013).
+63. Lobell, D. B., Baldos, U. L. C. & Hertel, T. W. Climate adaptation as mitigation:
+the case of agricultural investments. Environ. Res. Lett. 8, 15012 (2013).
+64. Nelson, G. C. et al. Agriculture and climate change in global scenarios:
+why don’t the models agree. Agric. Econ. 45, 85–101 (2014).
+65. Nelson, G. et al. Food Security, Farming, and Climate Change to 2050:
+Scenarios, Results, Policy Options (International Food Policy Research Institute,
+2010).
+66. Porter, J. R. et al.in Climate Change 2014: Impacts, Adaptation, and
+Vulnerability. Part A: Global and Sectoral Aspects. Contribution of Working
+Group II to the Fifth Assessment Report of the Intergovernmental Panel of
+Climate Change (eds Field, C. B. et al.) 485–533 (Cambridge University Press,
+2014).
+
+67. Gerland, P. et al. World population stabilization unlikely this century.
+Science 346, 234–237 (2014).
+68. ECN. Phyllis2—Database for biomass and waste. Available at
+https://www.ecn.nl/phyllis2 (2015).
+69. Becidan, M., Skreiberg, Ø. & Hustad, J. E. Products distribution and gas release
+in pyrolysis of thermally thick biomass residues samples. J. Anal. Appl. Pyrolysis
+78, 207–213 (2007).
+70. Rajkovich, S. et al. Corn growth and nitrogen nutrition after additions of
+biochars with varying properties to a temperate soil. Biol. Fertil. Soils 48,
+271–284 (2012).
+71. Seufert, V., Ramankutty, N. & Foley, J. A. Comparing the yields of organic and
+conventional agriculture. Nature 485, 229–232 (2012).
+72. Ponisio, L. C. et al. Diversiﬁcation practices reduce organic to conventional
+yield gap. Proc. R. Soc. Lond. B Biol. Sci. 282, 20141396 (2015).
+73. World Bank. Prospects—Commodity Markets (Pink Sheets). Available at
+http://siteresources.worldbank.org/INTPROSPECTS/Resources/3349341304428586133/pink_data_a.xlsx (2015).
+74. Stein, D. Custom Machine and Work Rate Estimates (Michigan State University
+Extension, 2015).
+75. University of Illinois Extension. Machinery Cost Estimates: Summary. Available
+at http://farmdoc.illinois.edu/manage/machinery/summary_2015.pdfUniversity
+of Illinois, 2015).
+76. Spokas, K. Review of the stability of biochar in soils: predictability of O:C molar
+ratios. Carbon Manag. 1, 289–303 (2010).
+77. Cayuela, M. L. et al. Biochar’s role in mitigating soil nitrous oxide emissions:
+a review and meta-analysis. Agric. Ecosyst. Environ. 191, 5–16 (2014).
+78. Liu, J. et al. A high-resolution assessment on global nitrogen ﬂows in cropland.
+Proc. Natl Acad. Sci. 107, 8035–8040 (2010).
+79. Spokas, K. A. Impact of biochar ﬁeld aging on laboratory greenhouse gas
+production potentials. GCB Bioenergy 5, 165–176 (2013).
+80. Whitman, T., Enders, A. & Lehmann, J. Pyrogenic carbon additions to soil
+counteract positive priming of soil carbon mineralization by plants. Soil Biol.
+Biochem. 73, 33–41 (2014).
+
+Acknowledgements
+We would like to thank the Fondation des Fondateurs for supporting this work.
+
+Author contributions
+D.W. led the model development and manuscript preparation. J.L. and D.L. provided
+advisory support, checking of model assumptions, model validation and prooﬁng of the
+manuscript.
+
+Additional information
+Supplementary Information accompanies this paper at http://www.nature.com/
+naturecommunications
+Competing ﬁnancial interests: The authors declare no competing ﬁnancial interests.
+Reprints and permission information is available online at http://npg.nature.com/
+reprintsandpermissions/
+How to cite this article: Woolf, D. et al. Optimal bioenergy power generation for climate
+change mitigation with or without carbon sequestration. Nat. Commun. 7, 13160
+doi: 10.1038/ncomms13160 (2016).
+This work is licensed under a Creative Commons Attribution 4.0
+International License. The images or other third party material in this
+article are included in the article’s Creative Commons license, unless indicated otherwise
+in the credit line; if the material is not included under the Creative Commons license,
+users will need to obtain permission from the license holder to reproduce the material.
+To view a copy of this license, visit http://creativecommons.org/licenses/by/4.0/
+
+r The Author(s) 2016
+
+NATURE COMMUNICATIONS | 7:13160 | DOI: 10.1038/ncomms13160 | www.nature.com/naturecommunications
+
+11
+
+

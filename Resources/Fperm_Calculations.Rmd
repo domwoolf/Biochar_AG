@@ -1,0 +1,345 @@
+---
+title: "Q10 equation"
+author: "Dominic Woolf"
+date: "3/5/2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+opts_chunk$set(echo = TRUE)
+library(data.table)
+library(ggplot2)
+library(cowplot)
+library(ggpubr)
+theme_set(theme_cowplot())
+library(kableExtra)
+library(pander)
+panderOptions('table.alignment.default', function(df)
+    ifelse(sapply(df, is.numeric), 'right', 'left'))
+panderOptions('table.split.table', Inf)
+panderOptions('big.mark', ",")
+panderOptions('keep.trailing.zeros', TRUE)
+```
+
+## Relating Q10 to size of temperature differential
+
+The definition of Q10 is as follows:
+
+$$Q_{10} = \left(\frac{R_2}{R_1}\right)^{10/(T_2-T_1)}$$
+Where R1 & R2 are the reaction rates at temperatures T1, T2.
+
+Since, R2, and R1 are proportional to the rate constants, we can also write this as:
+
+$$Q_{10} = \left(\frac{k_2}{k_1}\right)^{10/(T_2-T_1)}$$
+Rearranging this equation, we get
+
+$$ln(Q_{10}) = \frac{10 ln\left(\frac{k_2}{k_1}\right)}{T_2 - T_1}$$
+
+$$ln\left(\frac{k_2}{k_1}\right) = \frac{ln(Q_{10})(T_2-T_1)}{10}$$
+$$ln(k_2) - ln(k_1) = \frac{ln(Q_{10})(T_2-T_1)}{10}$$
+$$ln(k_2) = \frac{ln(Q_{10})(T_2-T_1)}{10} + ln(k_1) $$
+$$k_2 = \exp{\left(\frac{ln(Q_{10})(T_2-T_1)}{10} + ln(k_1)\right)} $$
+Notice that when the temperature difference ($T_2-T_1$) is exactly 10 degrees, this simplifies to
+
+$$k_2 = e^{\left(ln(Q_{10}) + ln(k_1)\right)}$$
+$$k_2 = e^{ln(Q_{10} * k_1)}$$
+$$k_2 = Q_{10} * k_1$$
+Which is exactly the same as the simple equation for temperature increments of 10 degrees.
+
+# Dealing with non-linear variation of Q10 with temperature
+
+Since Q10 is not constant, we need to also decide what Q10 value to use as represenattive of the change in temperature. To always choose the Q10 at the starting or ending temperature would be logically inconsistent and irreversible (i.e. going from 20C to 10C and back to 20C we would end up with a different value than we began with). To always choose the Q10 at the higher (or lower) temperature, would bias the result.  Therefore we should use a Q10 value that is intermediate between the Q10 values at the start and end temperatures.  The simplist way to do this is to use the Q10 at the average temperature (i.e. midpoint between $T_1$ and $T_2$)  However, given that the variation of Q10 with temperature is non-liear, this will also produce a biased value.
+
+Better is to use the average Q10 within the temperature range, than the Q10 at the average temperature.
+
+To calculate the average Q10, we integrate the Q10 function over the temperature range then divde by the temperature difference.
+
+Our regression equation for Q10 is:
+
+
+$$Q_{10} = 1.1 + 12.0 e^{-0.19 T}$$
+Integrating we get
+
+$$\int(1.1 + 12.0 e^{-0.19 T}) dT = 1.1 T - \frac{12}{0.19} e^{-0.19 T} + c$$
+
+$$\int_{T_1}^{T_2}(1.1 + 12.0 e^{-0.19 T}) dT = 1.1 (T_2 - T_1) - 63.1579 \left(e^{-0.19 T_2} - e^{-0.19 T_1}\right)$$
+
+
+Thus, the mean $Q_{10}$ in the range $T_1$ to $T_2$ is given by:
+
+$$\overline{Q}_{10} = \frac{1.1 (T_2 - T_1) - 63.1579 \left(e^{-0.19 T_2} - e^{-0.19 T_1}\right)}{T_2-T_1}$$
+
+# Deriving Fperm values using the Q10 equation
+
+First, load the data
+
+```{r load_data}
+fperm_data = fread('FpermData.csv')
+setnames(fperm_data, c('H_to_Corg', 'Temp_of_experiment'), c('H_C', 'T_expt'))
+fperm_data[, c('C1','C2','C3') := lapply(.SD[,.(C1,C2,C3)], `/`,100)]
+```
+
+
+Now calculate Fperm values at a target soil temperature of 14.9 $\circ$ C.
+```{r}
+soil_temperature = 10.9
+FpermYears = 100
+fperm_data[, q10 :=(1.1 *(T_expt-soil_temperature) - 63.1579 * exp(-0.19*T_expt) + 63.1579 *exp(-0.19*soil_temperature)) / (T_expt-soil_temperature)]
+fperm_data[T_expt == soil_temperature, q10 := 1.1+12*exp(-0.19*T_expt)] # when there is no shift in temperature from experiment to Fperm, then we use simple q10 eqn at single temperature
+fperm_data[, fT := exp(log(q10) * (soil_temperature-T_expt)/10)]
+fperm_data[, k1_fperm := k1 * fT]
+fperm_data[, k2_fperm := k2 * fT]
+fperm_data[, k3_fperm := k3 * fT]
+fperm_data[, fperm := 
+             C1*exp(-k1_fperm*FpermYears) + 
+             C2*exp(-k2_fperm*FpermYears) + 
+             C3*exp(-k3_fperm*FpermYears)]
+fwrite(fperm_data, 'fperm_out.csv')
+kbl(fperm_data[, .(Reference, Feedstock, `H:Corg` = H_C, `Pyrolysis temperature` = Pyrolysis_temperature, fperm)], 
+    booktabs=TRUE, longtable = TRUE, digits = 2) %>%
+  column_spec(1:4, width = paste0(c(12,6,6,6),"em")) %>%
+  kable_styling(latex_options = c("repeat_header"))
+```
+
+```{r eval=FALSE,echo=FALSE}
+library(DT)
+tab = fperm_data[,.(Reference, C1,C2,C3,k1,k2,k3, T_expt,q10,fT,fperm)]
+datatable(tab) %>%
+  formatRound(which(sapply(tab, is.numeric)), digits=2)
+```
+
+
+Plot Fperm against H:Corg.
+
+```{r message=FALSE, warning=FALSE}
+eq <- function(x,y) {
+  m <- lm(y ~ x)
+      eq <- substitute(italic(F[perm]) == a - b * italic('('*H/C[org]*')'), 
+         list(a = format(unname(coef(m)[1]), digits = 3),
+              b = format(unname(-coef(m)[2]), digits = 3)))
+    as.character(as.expression(eq));
+}
+m <- lm(fperm ~ H_C, data = fperm_data)
+pp <- data.frame(H_C = fperm_data$H_C, predict(m, fperm_data, interval = 'confidence'))
+p.hc = ggplot(fperm_data, aes(H_C, fperm)) +
+  geom_point(shape=1, size=1, stroke=0.4) +
+  geom_smooth(method = 'lm', se = FALSE, color='black', size=0.5) +
+  geom_smooth(data = pp, aes(y = lwr), color = 'black', linetype=2, size=0.2) +
+  geom_smooth(data = pp, aes(y = upr), color = 'black', linetype=2, size=0.2) +
+  # stat_regline_equation(label.x = 0.1, label.y = 0.3) +
+  geom_text(x = 0, y = 0.5, label = eq(fperm_data$H_C,fperm_data$fperm), hjust=0, parse = TRUE, check_overlap = TRUE, size=3) +
+  stat_cor(aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")), 
+           label.x = 0, label.y = 0.42, p.accuracy = 0.001, digits = 3, size=3) +
+  scale_x_continuous(expression(H/C[org]~'('*mol/mol*')'), breaks = seq(0,1,0.2)) +
+  scale_y_continuous(expression(F[perm]), breaks = seq(0,1,0.2)) +
+  coord_cartesian(xlim=c(0,1.1), ylim=c(0,1))
+  ggsave2('../gfx/fperm.png',width = 6.5, height = 3.5)
+p.hc  
+```
+Plot Fperm against pyrolysis temperature.
+
+```{r message=FALSE, warning=FALSE}
+ggplot(fperm_data[Pyrolysis_temperature>350], aes(Pyrolysis_temperature, fperm)) +
+  geom_point() +
+  geom_smooth(method = 'lm') +
+  stat_regline_equation(label.x = 650, label.y = 0.3) +
+  stat_cor(aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")),
+           label.x = 650, label.y = 0.25)
+
+```
+
+```{r message=FALSE, warning=FALSE}
+Fpermdata_unknown = fread("Fperm_unknown_temp.csv", select = c('temp','Fperm'))
+setnames(Fpermdata_unknown,c('temp','Fperm'), c('Pyrolysis_temperature','fperm') )
+fperm_data = rbindlist(list(fperm_data, Fpermdata_unknown), fill = TRUE)
+fperm_data[, Tclass := as.character(cut(Pyrolysis_temperature, 
+      breaks = c(-Inf, 350,450,600,Inf), 
+      labels = c('too low', 'Low','Medium','High'), right = F))]
+fperm_data_T.ge.350 = fperm_data[Tclass != 'too low' | is.na(Tclass)]
+bins = fperm_data_T.ge.350[, .(Mean=mean(fperm)), by=Tclass]
+
+conf  = data.table()
+set.seed(123)
+for (i in 1:1000){
+  this.conf = fperm_data_T.ge.350[, t.test(sample(fperm,.N,T))$conf.int , by=Tclass][,t(V1)]
+  conf  = rbind(conf,this.conf)
+}
+
+setnames(conf,1:8, c('medium5', 'medium95', 'low5', 'low95', 'high5', 'high95', 'NA5', 'NA95'))
+CI = colMeans(conf)
+bins[, CI_lo := CI[c(1,3,5,7)]]
+bins[, CI_hi := CI[c(2,4,6,8)]]
+bins = bins[c(2,1,3,4)]
+bins[, Pyrolysis_temperature := c(400,525,700,NA)]
+bins[, tlo := c(350,450,600,NA)]
+bins[, thi := c(450,600,800,NA)]
+bins[, LowerInterval := Mean - CI_lo, Tclass]
+bins[, UpperInterval := CI_hi - Mean, Tclass]
+
+m <- lm(fperm ~ Pyrolysis_temperature, data = fperm_data_T.ge.350[!is.na(Tclass)])
+pp <- data.frame(Pyrolysis_temperature = fperm_data_T.ge.350[!is.na(Tclass)]$Pyrolysis_temperature, predict(m, fperm_data_T.ge.350[!is.na(Tclass)], interval = 'confidence'))
+eq <- function(x,y) {
+  m <- lm(y ~ x)
+      eq <- substitute(italic(F[perm]) == a + b * italic(T), 
+         list(a = format(unname(coef(m)[1]), digits = 2),
+              b = format(unname(coef(m)[2]), digits = 3, scientific=-9)))
+    as.character(as.expression(eq));
+}
+
+p.t = ggplot(fperm_data_T.ge.350[!is.na(Tclass)], mapping = aes(Pyrolysis_temperature, fperm)) +
+  geom_rect(aes(xmin = tlo, xmax=thi, ymin=0, ymax=Mean), data = bins[!is.na(Tclass)], fill='grey80', color='black',size=0.1, inherit.aes = F) +
+  geom_smooth(method = 'lm', se = FALSE, color='black', size=0.5) +
+  geom_smooth(data = pp, aes(y = lwr), color = 'black', linetype=2, size=0.2) +
+  geom_smooth(data = pp, aes(y = upr), color = 'black', linetype=2, size=0.2) +
+  geom_point(shape=1, size=1, stroke=0.4) +
+  geom_errorbar(data = bins[!is.na(Tclass)], size=0.5,
+    mapping = aes(Pyrolysis_temperature, ymin=CI_lo, ymax=CI_hi), inherit.aes = F, width=30) +
+  geom_text(x = 460, y = 0.21, size=3,
+              label = fperm_data_T.ge.350[!is.na(Tclass), eq(Pyrolysis_temperature, fperm)], 
+              hjust=0, parse = TRUE, check_overlap = TRUE) +
+  stat_cor(aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")), 
+           label.x = 460, label.y = 0.13, p.accuracy = 0.001, digits = 2, size=3) +
+  coord_cartesian(ylim=c(0,1)) +
+  scale_x_continuous(name='Temperature (°C)') +
+  scale_y_continuous(name=expression(F[perm]), breaks = seq(0,1,0.2)) +
+  theme(plot.margin = margin(5.5, 0, 5.5, 5.5))
+
+p.ut = ggplot(bins[is.na(Tclass)], aes('Unknown', Mean)) +
+  geom_bar(stat = 'Identity', fill='grey80', color='black', size=0.1) +
+  geom_point(aes(y = fperm), data=fperm_data_T.ge.350[is.na(Tclass)],
+    shape=1, size=1, stroke=0.4) +
+  geom_errorbar(size=0.5, 
+    mapping = aes('Unknown', ymin=CI_lo, ymax=CI_hi), 
+    inherit.aes = F, width=0.2) +
+  scale_x_discrete(name='') +
+  coord_cartesian(ylim=c(0,1)) +
+  theme(plot.margin = margin(5.5, 0, 5.5, 0),
+    # axis.ticks.y = element_blank(),
+    # axis.line.y = element_line(linetype=2),
+    axis.title.y = element_blank(), 
+    axis.text.y = element_blank()
+    )
+
+plot_grid(p.t, p.ut, rel_widths = c(3,1),  nrow = 1, axis = 'l', align='h')
+
+```
+
+```{r message=FALSE, warning=FALSE}
+p.hc = p.hc  +
+  theme(plot.margin = margin(5.5, 2, 5.5, 0),
+    # axis.ticks.y = element_blank(),
+    # axis.line.y = element_line(linetype=2),
+    axis.title.y = element_blank(), 
+    axis.text.y = element_blank()
+    )
+plot_grid(p.t, p.ut, p.hc, rel_widths = c(3,1,3),  nrow = 1, align='h')
+ggsave2('../gfx/Fperm_all.eps', height = 3,width = 6.50128)
+```
+
+
+
+```{r}
+#' 
+#' 
+#' Table 1: Confidence intervals (95% bootstrap)
+## ----stats, echo=FALSE---------------------------------------------------------------------
+pander(bins[, round(.SD,2), Tclass, .SDcols=c("Mean", "CI_lo", "CI_hi", "LowerInterval", "UpperInterval")])
+
+#' 
+#' Table 2: Significance levels (p values)
+## ----p_value, echo=FALSE, message=FALSE, warning=FALSE-------------------------------------
+pander(fperm_data_T.ge.350[, .(p.value = signif(t.test(fperm)$p.value,1)), by=Tclass][c(2,1,3,4)])
+
+#' The linear regression of Fperm (100 years basis) is shown below:
+#' 
+## ------------------------------------------------------------------------------------------
+fit = lm(fperm ~ Pyrolysis_temperature,  data=fperm_data_T.ge.350[!is.na(Tclass)])
+summary(fit)
+
+```
+
+Now calculate Fperm values at a range of soil temperatures.
+
+```{r}
+soil_temperature = seq(5,25,5)
+FpermYears = 100
+fperm_range = lapply(soil_temperature, function(soil_temperature){
+  fperm_data[, q10 :=(1.1 *(T_expt-soil_temperature) - 63.1579 * exp(-0.19*T_expt) + 63.1579 *exp(-0.19*soil_temperature)) / (T_expt-soil_temperature)]
+  fperm_data[T_expt == soil_temperature, q10 := 1.1+12*exp(-0.19*T_expt)]
+  fperm_data[, fT := exp(log(q10) * (soil_temperature-T_expt)/10)]
+  fperm_data[, k1_fperm := k1 * fT]
+  fperm_data[, k2_fperm := k2 * fT]
+  fperm_data[, k3_fperm := k3 * fT]
+  fperm_data[, fperm := 
+               C1*exp(-k1_fperm*FpermYears) + 
+               C2*exp(-k2_fperm*FpermYears) + 
+               C3*exp(-k3_fperm*FpermYears)]
+  copy(fperm_data)[, soil_temperature := soil_temperature]
+})
+fperm_range = rbindlist(fperm_range)
+fwrite(fperm_range, 'fperm_range_out.csv')
+kbl(head(fperm_range[, .(Reference, Feedstock, soil_temperature, fperm)]), 
+    booktabs=TRUE, longtable = TRUE, digits = 2) %>%
+  column_spec(1:4, width = paste0(c(12,6,6,6),"em")) %>%
+  kable_styling(latex_options = c("repeat_header"))
+fperm_range
+```
+
+Plot Fperm against H:Corg and temperature.
+
+```{r message=FALSE, warning=FALSE}
+ggplot(fperm_range, aes(H_C, fperm, color=factor(soil_temperature))) +
+  geom_point(size=0.2) +
+  geom_smooth(method = 'lm', alpha=0.2) +
+  scale_color_discrete('MAT') +
+  # coord_cartesian(xlim = range(fperm_range$H_C, na.rm = TRUE), ylim = c(0,100), expand = FALSE)
+  coord_cartesian(xlim = c(0.1,1.4), ylim = c(0,1), expand = FALSE) +
+  scale_x_continuous(breaks = seq(0.1,1.4,0.1)) +
+  scale_y_continuous(breaks = seq(0,1,0.1))
+```
+
+Calculate a table of Fperm values at a range of times and soil temperatures.
+
+```{r results='asis'}
+soil_temperature  = c(seq(5,25,5), 10.9, 14.9)
+FpermYears = c(100, 500, 1000)
+fperm.grid = setDT(expand.grid(soil_temperature=soil_temperature, FpermYears=FpermYears))
+fperm.calc = function (soil_temperature, FpermYears) {
+  fperm_data[, q10 :=(1.1 *(T_expt-soil_temperature) - 63.1579 * exp(-0.19*T_expt) + 63.1579 *exp(-0.19*soil_temperature)) / (T_expt-soil_temperature)]
+  fperm_data[T_expt == soil_temperature, q10 := 1.1+12*exp(-0.19*T_expt)]
+  fperm_data[, fT := exp(log(q10) * (soil_temperature-T_expt)/10)]
+  fperm_data[, k1_fperm := k1 * fT]
+  fperm_data[, k2_fperm := k2 * fT]
+  fperm_data[, k3_fperm := k3 * fT]
+  fperm_data[, fperm := 
+               C1*exp(-k1_fperm*FpermYears) + 
+               C2*exp(-k2_fperm*FpermYears) + 
+               C3*exp(-k3_fperm*FpermYears)]
+  fperm_low = fperm_data[Tclass == "Low", sprintf("%.2g (%.2g)", mean(fperm), sd(fperm)/sqrt(.N))]
+  fperm_med = fperm_data[Tclass == "Medium", sprintf("%.2g (%.2g)", mean(fperm), sd(fperm)/sqrt(.N))]
+  fperm_hi = fperm_data[Tclass == "High", sprintf("%.2g (%.2g)", mean(fperm), sd(fperm)/sqrt(.N))]
+  fit.t = summary(fperm_data[Pyrolysis_temperature >= 350, 
+                             lm(fperm ~ Pyrolysis_temperature)])
+  fit.hc = summary(fperm_data[, lm(fperm ~ H_C)])
+  return(list(
+    # C_t = fit.t$coefficients[,'Estimate'][1],
+    # m_t = sprintf('%.2e',fit.t$coefficients[,'Estimate'][2]),
+    # R2_t = fit.t$adj.r.squared,
+    fperm_low, fperm_med, fperm_hi,
+    C_hc = fit.hc$coefficients[,'Estimate'][1],
+    m_hc = fit.hc$coefficients[,'Estimate'][2],
+    R2_hc = fit.hc$adj.r.squared
+    # p = pf(fperm.fit$fstatistic[1],fperm.fit$fstatistic[2],fperm.fit$fstatistic[3], lower.tail=F)
+    ))
+}
+
+fperm.grid[, 
+           c('Low', 'Medium', 'High', 'C_hc', 'm_hc', 'R2_hc') := 
+             fperm.calc(soil_temperature, FpermYears), 
+           by = seq_len(NROW(fperm.grid))]
+
+fwrite(fperm.grid, 'fperm_grid.csv')
+# fperm.grid[, p := sprintf('%.1e', p)]
+cat(kbl(fperm.grid, booktabs=TRUE, digits = 2, format="latex"))
+```
