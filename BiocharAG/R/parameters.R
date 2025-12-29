@@ -7,8 +7,16 @@
 #' @export
 default_parameters <- function() {
   list(
-    # General
-    discount_rate = 0.03, # Excel F9
+    # BECCS / CCS
+    beccs_efficiency = 0.28, # Lower than BES due to capture penalty (35% -> 28%)
+    capture_rate = 0.90, # 90% capture efficiency
+    ccs_distance = 100, # Transport distance (km)
+    ccs_storage_cost = 15, # Injection/Monitoring cost ($/Mg CO2)
+    beccs_capital_cost = 4000, # Updated 2024 estimate ($/kW)
+    beccs_om_factor = 0.05,
+
+    # Financial
+    discount_rate = 0.10, 3, # Excel F9
 
     # Biomass
     bm_lhv = 18.6, # GJ/Mg (deduced from BES B7 ~ 7.3/0.39 approx or directly input?)

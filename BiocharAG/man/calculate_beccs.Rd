@@ -13,5 +13,10 @@ calculate_beccs(params)
 A list of calculated metrics for BECCS.
 }
 \description{
-Calculate Bioenergy Carbon Capture and Storage (BECCS) Metrics
+Modernizated logic (2024 Basis):
+\itemize{
+\item Uses distinct BECCS efficiency (accounting for capture penalty).
+\item Explicitly calculates Transport & Storage costs based on CO2 mass and distance.
+\item Updated Capital Costs estimates.
+}
 }
