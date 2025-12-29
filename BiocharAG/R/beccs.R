@@ -46,7 +46,10 @@ calculate_beccs <- function(params) {
     # Or add 'plant_capacity_mw' to parameters?
     # Defaulting to a standard 50 MW plant scale for cost estimation if not provided.
 
-    plant_mw <- 50
+    # Scale calculation
+    # Allow user to specify plant_mw (e.g. from spatial analysis of feedstock availability)
+    plant_mw <- if (!is.null(params$plant_mw)) params$plant_mw else 50
+
     # Annual Biomass = (MW * 8760 * CapacityFactor) / (MWh/Mg)
     # Elec_Prod (MWh/Mg)
     capacity_factor <- 0.85
@@ -67,7 +70,7 @@ calculate_beccs <- function(params) {
     ts_cost <- (transport_cost_per_ton + ccs_storage_cost) * co2_captured
 
     # 4. Plant Costs (CAPEX/OPEX)
-    # CAPEX ($/Mg Biomass)
+    # Scale calculation methodology identical to BECCS for consistency
     # Capital Cost parameter is usually $/kW (installed capacity).
     # Convert $/kW to $/Mg Biomass/yr ??
     # Or calculate Annual Capex Payment per Mg Biomass processed.

@@ -14,7 +14,8 @@ Imports:
     ggplot2,
     readxl,
     tidyr,
-    sf
+    sf,
+    terra
 Depends:
     R (>= 3.5)
 LazyData: true

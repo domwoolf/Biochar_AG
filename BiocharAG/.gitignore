@@ -1,0 +1,12 @@
+
+# Spatial Data
+*.tif
+
+# Images
+*.png
+
+# Standard R
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata

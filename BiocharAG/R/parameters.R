@@ -37,10 +37,11 @@ default_parameters <- function() {
     # Operations
     O_M_factor = 0.04, # % of Capex? or similar
 
-    # BES
+    # BES (Modernized 2024 Basis)
     bes_life = 30,
-    bes_energy_efficiency = 0.39, # Excel F20
-    bes_cc = 1000, # Capital cost (Placeholder)
+    bes_energy_efficiency = 0.30, # Updated from 0.39 to standard 30% for dedicated biomass
+    bes_capital_cost = 3000, # Updated to $3,000/kW (IRENA 2023/24)
+    bes_om_factor = 0.04, # 4% of Capex
     ff_c_intensity = 0.05,
     rebound = 0.0,
 

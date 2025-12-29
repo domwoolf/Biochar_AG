@@ -1,0 +1,13 @@
+
+# Root .gitignore
+
+# Large Data
+Resources/external/
+*.tif
+*.png
+
+# R
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
