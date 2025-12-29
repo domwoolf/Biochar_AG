@@ -9,15 +9,18 @@ calculate_bebcs <- function(params) {
   soil_temp <- if (!is.null(params$soil_temp)) params$soil_temp else 14.9
 
   with(params, {
-    # Pyrolysis Yields (from Excel B4, B5)
-    # Yield = 0.126... + ...
-    # Simplified for now or implement exact if essential.
-    # Excel B4: 0.1260917 + 0.27332*lignin + 0.5391409*EXP(-0.004*py_temp)
-    bc_yield <- 0.1260917 + 0.27332 * lignin + 0.5391409 * exp(-0.004 * py_temp)
+    # Pyrolysis Physics (Mass & Energy Balance)
+    # Uses sophisticated Woolf et al. (2016) / Excel logic
+    phys <- calculate_pyrolysis_physics(
+      py_temp = py_temp,
+      lignin = lignin,
+      bm_lhv = bm_lhv,
+      moisture = if (exists("bm_h2o")) bm_h2o else 0.1,
+      ash = if (exists("bm_ash")) bm_ash else 0.05
+    )
 
-    # Carbon in Char (Excel B5)
-    # 0.99 - 0.78 * EXP(-0.0042 * py_temp)
-    bc_c_content <- 0.99 - 0.78 * exp(-0.0042 * py_temp)
+    bc_yield <- phys$yield_bc
+    bc_c_content <- phys$bc_c_content_final
 
     # Stable Fraction using Fperm (Woolf et al. 2021)
     bc_stability <- calculate_fperm_approx(h_c_org, method = "HC", soil_temp = soil_temp)
@@ -25,20 +28,11 @@ calculate_bebcs <- function(params) {
     # C sequestered = bc_yield * bc_c_content * bc_stability
     c_sequestered <- bc_yield * bc_c_content * bc_stability
 
-    # Energy Output (Syngas/Oil)
-    # Assume remaining mass is volatile and converted to energy?
-    # Excel F7: feed_rate logic...
-    # Let's approximate Energy = (1 - bc_yield) * bm_lhv * efficiency ?
-    # Excel calculates Net Energy differently.
-
-    # Energy Output (Syngas/Oil)
-    # Assume remaining mass (volatiles) is converted to energy.
-    # Volatile fraction = 1 - bc_yield.
-    # Energy content of volatiles approx same as biomass per kg? (Simplified).
-    # Power generation efficiency assumed similar to BES (or slightly lower?).
-    # We apply bes_energy_efficiency to the volatile energy fraction.
-
-    energy_output <- bm_lhv * (1 - bc_yield) * bes_energy_efficiency
+    # Energy Output
+    # phys$energy_net is the Net Fuel Energy available (GJ/Mg feedstock)
+    # after satisfying process heat requirements.
+    # Convert to Electricity using BES efficiency.
+    energy_output <- phys$energy_net * bes_energy_efficiency
 
     elec_prod <- energy_output * 0.277778
     elec_revenue <- elec_prod * elec_price
