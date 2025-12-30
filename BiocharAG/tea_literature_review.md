@@ -77,6 +77,11 @@ These parameters strongly influence the viability of a project at a specific loc
     *   **Function**: Determines **Transport Distance** to nearest Sink.
     *   **Logic**: Derived automatically from raster cell coordinates.
 
+4.  **Electricity Price** (`elec_price`, $\$ \cdot MWh^{-1}$)
+    *   **Function**: Determines **Revenue** from electricity sales for BES, BECCS, and BEBCS.
+    *   **Logic**: Prices vary significantly by region/grid (e.g., California > 2x Midwest). High local prices favors energy production over sequestration (if C price is low).
+    *   **Source**: *EIA Annual Average Retail Price by State* (2023).
+
 ### B. Constant Parameters (Non-Spatial)
 These parameters are assumed to be dependent on the technology selected rather than the location, or spatial data is not yet granular enough to be useful.
 

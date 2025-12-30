@@ -59,6 +59,7 @@ default_parameters <- function() {
     time_frame = 100, # Years for stability
     bc_stab_factor = 4.6, # From Excel formula J6/J8 logic
     bc_ag_value = 0, # Figure 1 Base Case assumes 0 or low mean.
+    bc_valuation_method = "ag_value", # Options: "ag_value" (Shadow Price) or "market_price" (Sale)
     h_c_org = 0.35, # Molar ratio, typical for ~500-600C pyrolysis.
 
     # Soil / Ag factors

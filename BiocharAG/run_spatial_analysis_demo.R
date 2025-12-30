@@ -6,72 +6,85 @@ library(ggplot2)
 library(sf)
 
 # 1. Load Data
-# Cannot use .rda for SpatRaster (pointers invalid across sessions)
-# Load from TIFs created by processing script
-bm <- terra::rast("data/demo_biomass.tif")
-st <- terra::rast("data/demo_soil_temp.tif")
+# Load from GIS folder (Root/GIS/processed/)
+# Assuming working directory is BiocharAG/
+bm_path <- "../GIS/processed/demo_biomass.tif"
+st_path <- "../GIS/processed/demo_soil_temp.tif"
+ep_path <- "../GIS/processed/demo_elec_price.tif"
+
+bm <- terra::rast(bm_path)
+st <- terra::rast(st_path)
 
 processed_layers <- list(
     biomass_density = bm,
-    soil_temp = st
+    soil_temp = st,
+    elec_price = terra::rast(ep_path)
 )
 
 # Create Template from one of the layers
 template <- bm
 
 # 2. Setup Parameters
-params <- default_parameters()
-# Ensure we have carbon price range or fixed?
-# Fixed for map: $100/t CO2
-params$c_price <- 100
-params$bc_ag_value <- 50 # Assumption for BEBCS
+base_params <- default_parameters()
+base_params$bc_ag_value <- 50 # Assumption for BEBCS
 
-# 3. Run Spatial TEA
-message("Running BES Spatial Analysis...")
-bes_res <- run_spatial_tea(template, params, processed_layers, fun = calculate_bes)
-names(bes_res) <- paste0("BES_", names(bes_res))
+c_prices <- seq(0, 500, 100)
+pdf("spatial_sensitivity.pdf", width = 12, height = 10)
 
-message("Running BECCS Spatial Analysis...")
-beccs_res <- run_spatial_tea(template, params, processed_layers, fun = calculate_beccs)
-names(beccs_res) <- paste0("BECCS_", names(beccs_res))
+for (cp in c_prices) {
+    message("Running Spatial Analysis for Carbon Price: $", cp)
+    params <- base_params
+    params$c_price <- cp
 
-message("Running BEBCS Spatial Analysis...")
-bebcs_res <- run_spatial_tea(template, params, processed_layers, fun = calculate_bebcs)
-names(bebcs_res) <- paste0("BEBCS_", names(bebcs_res))
+    # 3. Run Spatial TEA
+    message("  Running BES...")
+    bes_res <- run_spatial_tea(template, params, processed_layers, fun = calculate_bes)
 
-# 4. Compare & Find Optimal
-# Stack Net Values
-net_val_stack <- c(
-    bes_res[["BES_Net_Value_USD"]],
-    beccs_res[["BECCS_Net_Value_USD"]],
-    bebcs_res[["BEBCS_Net_Value_USD"]]
-)
+    message("  Running BECCS...")
+    beccs_res <- run_spatial_tea(template, params, processed_layers, fun = calculate_beccs)
 
-names(net_val_stack) <- c("BES", "BECCS", "BEBCS")
+    message("  Running BEBCS...")
+    bebcs_res <- run_spatial_tea(template, params, processed_layers, fun = calculate_bebcs)
 
-# Find Max Tech
-# which.max returns index
-opt_idx <- terra::app(net_val_stack, which.max)
-# Map index to name
-# 1=BES, 2=BECCS, 3=BEBCS
+    # 4. Compare & Find Optimal
+    net_val_stack <- c(
+        bes_res[["Net_Value_USD"]],
+        beccs_res[["Net_Value_USD"]],
+        bebcs_res[["Net_Value_USD"]]
+    )
+    names(net_val_stack) <- c("BES", "BECCS", "BEBCS")
 
-# 5. Save Outputs
-terra::writeRaster(bes_res, "output_spatial_bes.tif", overwrite = TRUE)
-terra::writeRaster(beccs_res, "output_spatial_beccs.tif", overwrite = TRUE)
-terra::writeRaster(bebcs_res, "output_spatial_bebcs.tif", overwrite = TRUE)
-terra::writeRaster(opt_idx, "output_spatial_optimal.tif", overwrite = TRUE)
+    # Find Max Tech (1=BES, 2=BECCS, 3=BEBCS)
+    opt_idx <- terra::app(net_val_stack, which.max)
 
-# 6. simple Plot
-png("spatial_results_map.png", width = 1000, height = 800)
-par(mfrow = c(2, 2))
-plot(net_val_stack[["BES"]], main = "BES Net Value ($/Mg)", range = c(-100, 300))
-plot(net_val_stack[["BECCS"]], main = "BECCS Net Value ($/Mg)", range = c(-100, 300))
-plot(net_val_stack[["BEBCS"]], main = "BEBCS Net Value ($/Mg)", range = c(-100, 300))
+    # 5. Plot
+    par(mfrow = c(2, 2), oma = c(0, 0, 2, 0))
 
-# Optimal Map with Categorical Legend
-levels(opt_idx) <- data.frame(id = 1:3, technology = c("BES", "BECCS", "BEBCS"))
-col_pal <- c("blue", "red", "green")
-plot(opt_idx, main = "Optimal Tech ($100/t CO2)", col = col_pal)
+    # Determine common range for Net Value plots for comparability across pages?
+    # Or let them auto-scale? Auto-scale per page is safer for visibility.
+    # But consistently across the 3 techs on one page is good.
+
+    # v_range <- terra::minmax(net_val_stack)
+    # zlim <- c(min(v_range[1, ], na.rm = TRUE), max(v_range[2, ], na.rm = TRUE))
+    # User feedback: Shared scale hides spatial detail. Reverting to per-panel scaling.
+
+    terra::plot(net_val_stack[["BES"]], main = "BES Net Value ($/Mg)", col = map.pal("viridis"))
+    terra::plot(net_val_stack[["BECCS"]], main = "BECCS Net Value ($/Mg)", col = map.pal("viridis"))
+    terra::plot(net_val_stack[["BEBCS"]], main = "BEBCS Net Value ($/Mg)", col = map.pal("viridis"))
+
+    # Optimal Map
+    # Create categorical raster for plotting
+    # Explicitly set RAT (Raster Attribute Table) to ensure consistent colors
+    levels(opt_idx) <- data.frame(id = 1:3, technology = c("BES", "BECCS", "BEBCS"))
+    cols <- c("blue", "red", "green")
+
+    terra::plot(opt_idx,
+        main = paste0("Optimal Tech (C Price: $", cp, ")"),
+        col = cols
+    ) # Levels handled by object
+
+    mtext(paste0("Spatial Sensitivity: Carbon Price $", cp, "/tCO2"), outer = TRUE, cex = 1.5)
+}
+
 dev.off()
-
-message("Spatial Analysis Complete. Map saved to spatial_results_map.png")
+message("Sensitivity Analysis Complete. Saved to spatial_sensitivity.pdf")

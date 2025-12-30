@@ -2,13 +2,23 @@
 library(terra)
 library(sf)
 
-# 0. Setup
-# Source Paths
-src_biomass <- "../Resources/external/res_avail.tif"
-src_soil <- "../Resources/external/SBIO1_0_5cm_Annual_Mean_Temperature.tif"
+# 1. Paths
+# Input: Raw data in Root/GIS/raw/
+# Output: Processed data in Root/GIS/processed/
 
-if (!file.exists(src_biomass)) stop("Biomass file not found at ", src_biomass)
-if (!file.exists(src_soil)) stop("Soil Temp file not found at ", src_soil)
+raw_dir <- "../GIS/raw"
+proc_dir <- "../GIS/processed"
+
+if (!dir.exists(proc_dir)) dir.create(proc_dir, recursive = TRUE)
+
+# File names
+biomass_file <- file.path(raw_dir, "res_avail.tif")
+temp_file <- file.path(raw_dir, "SBIO1_0_5cm_Annual_Mean_Temperature.tif")
+
+# 2. Check Exists
+if (!file.exists(biomass_file) || !file.exists(temp_file)) {
+    stop("Input files not found in ", raw_dir)
+}
 
 # 1. Prepare Template
 message("Processing Layers from Local Source...")
@@ -22,7 +32,7 @@ processed_layers <- list()
 
 # 2. Process Biomass
 message("Processing Biomass...")
-r_bm <- rast(src_biomass)
+r_bm <- rast(biomass_file)
 r_bm_us <- project(r_bm, us_template)
 
 v_max <- global(r_bm_us, "max", na.rm = TRUE)$max
@@ -46,7 +56,7 @@ processed_layers$biomass_density <- r_bm_us
 
 # 3. Process Soil Temp
 message("Processing Soil Temp...")
-r_st <- rast(src_soil)
+r_st <- rast(temp_file)
 r_st_us <- project(r_st, us_template)
 
 v_mM <- minmax(r_st_us)
@@ -62,10 +72,10 @@ names(r_st_us) <- "soil_temp"
 processed_layers$soil_temp <- r_st_us
 
 # 4. Save
-save(processed_layers, file = "data/spatial_demo_layers.rda")
+# save(processed_layers, file = "data/spatial_demo_layers.rda") # Optional
 
 # Export Tifs for quick check
-terra::writeRaster(processed_layers$biomass_density, "data/demo_biomass.tif", overwrite = TRUE)
-terra::writeRaster(processed_layers$soil_temp, "data/demo_soil_temp.tif", overwrite = TRUE)
+terra::writeRaster(processed_layers$biomass_density, file.path(proc_dir, "demo_biomass.tif"), overwrite = TRUE)
+terra::writeRaster(processed_layers$soil_temp, file.path(proc_dir, "demo_soil_temp.tif"), overwrite = TRUE)
 
-message("Done. Layers saved to data/spatial_demo_layers.rda")
+message("Done. Layers saved to ", proc_dir)

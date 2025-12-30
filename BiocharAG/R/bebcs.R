@@ -59,7 +59,8 @@ calculate_bebcs <- function(params) {
     # We use bes_capital_cost ($/kW) to find cost per Mg.
 
     # Calculate Power Capex per Mg Biomass (same logic as BES)
-    plant_mw <- 50
+    # Calculate Power Capex per Mg Biomass (same logic as BES)
+    plant_mw <- if (!is.null(params$plant_mw)) params$plant_mw else 50
     capacity_factor <- 0.85
     # Elec Prod for pure BES:
     bes_elec_prod_ref <- bm_lhv * bes_energy_efficiency * 0.277778
@@ -110,20 +111,17 @@ calculate_bebcs <- function(params) {
     # Assume mean residence time (MRT) = 1/decay_rate.
     # Excel J12: EXP(-time * (LN(2)/J8)). So J8 is Half Life?
     # Yes, Half Life T1/2.
-    bc_half_life <- 10^(bc_stab_factor * (1 - 0.1)) # approximated from Excel J8 logic
-    decay_rate <- log(2) / bc_half_life
+    # Biochar Valuation
+    # Refactored to separate function (handling Market vs Ag Value switch)
+    bc_val_res <- calculate_biochar_value(params, bc_yield)
 
-    # Soil Fertility Value (Annual)
-    # This is R_f,bc in Equation 13.
-    # We need a parameter for this.
-    annual_ag_benefit <- bc_ag_value # $/Mg BC/year (Parameter)
+    # This value is already in $/Mg Feedstock
+    biochar_economic_value <- bc_val_res$value_usd_per_mg_feedstock
 
-    # NPV of Soil Fertility (Nbcf)
-    # Equation 13: R / (i + ln(2)/T1/2)
-    # i.e. R / (discount + decay)
-    nbcf <- annual_ag_benefit / (discount_rate + decay_rate)
+    # Note: For strict financial accounting, 'nbcf' (Ag Value) might be considered separate from 'sales revenue'
+    # but for TEA Net Value comparison, we sum them based on the selected mode.
 
-    total_revenue <- elec_revenue + bc_revenue + abatement_value + nbcf
+    total_revenue <- elec_revenue + biochar_economic_value + abatement_value
     net_value <- total_revenue - total_cost
 
     list(
@@ -136,7 +134,8 @@ calculate_bebcs <- function(params) {
       tot_c_abatement = tot_c_abatement,
       total_cost = total_cost,
       total_revenue = total_revenue,
-      nbcf = nbcf,
+      biochar_value = biochar_economic_value,
+      val_method = bc_val_res$method_used,
       net_value = net_value
     )
   })

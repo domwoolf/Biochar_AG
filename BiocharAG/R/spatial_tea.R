@@ -93,6 +93,12 @@ run_spatial_tea <- function(template_raster, params, spatial_layers = list(),
             p$plant_mw <- (annual_biomass_feedstock * ref_elec_prod) / (8760 * capacity_factor)
         }
 
+        # 3c. Electricity Price
+        if ("elec_price" %in% names(df)) {
+            pv <- df$elec_price[i]
+            if (!is.na(pv) && pv > 0) p$elec_price <- pv
+        }
+
         # Run TEA
         # Note: TEA function will handle finding nearest sink using p$lat/p$lon
         # if ccs_distance is NULL and it's BECCS.
