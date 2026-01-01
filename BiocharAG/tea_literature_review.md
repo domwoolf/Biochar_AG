@@ -79,8 +79,37 @@ These parameters strongly influence the viability of a project at a specific loc
 
 4.  **Electricity Price** (`elec_price`, $\$ \cdot MWh^{-1}$)
     *   **Function**: Determines **Revenue** from electricity sales for BES, BECCS, and BEBCS.
-    *   **Logic**: Prices vary significantly by region/grid (e.g., California > 2x Midwest). High local prices favors energy production over sequestration (if C price is low).
+    *   **Logic**: Prices vary significantly by region/grid.
     *   **Source**: *EIA Annual Average Retail Price by State* (2023).
+    *   **Adjustment (Wholesale)**: The model applies a **Wholesale Discount Factor** (Default: 0.4) to this retail layer.
+        *   *Reasoning*: Bioenergy plants act as **Generators** selling at wholesale/busbar rates. Retail prices include ~60% overhead for Transmission, Distribution (T&D), taxes, and utility profit, which the generator does not receive.
+        *   *Formula*: $P_{generator} = P_{retail} \times 0.4$.
+
+---
+
+## 6. Agricultural Substitute Data (2024/2025)
+
+Used for the "Advanced Valuation" mechanistic model. Prices reflect US Market averages.
+
+### A. Liming Agents
+*   **Ag Lime (Bulk)**: **~$60 USD / ton**.
+    *   *Range*: $30 - $90 depending on transport.
+    *   *Source*: Regional quarry price lists (2024/2025).
+
+### B. Fertilizers
+*   **Urea (46-0-0)**: **~$425 USD / ton**.
+    *   Derived N Price: **$0.92 / kg N**.
+*   **DAP (18-46-0)**: **~$675 USD / ton**.
+    *   Derived P2O5 Price: **$1.10 / kg P2O5** (Allocating N value first).
+*   **Potash (0-0-60)**: **~$375 USD / ton**.
+    *   Derived K2O Price: **$0.62 / kg K2O**.
+
+### C. Biochar Ag Properties (Defaults)
+*   **Liming Equivalence (CCE)**: **15% (0.15)**.
+    *   *Context*: Typical for woody biochar pyrolyzed >500°C. Range 5-20%[1].
+*   **Nutrient Content**: Conservative generic defaults.
+    *   N: 0.5%, P: 0.2%, K: 0.5%.
+
 
 ### B. Constant Parameters (Non-Spatial)
 These parameters are assumed to be dependent on the technology selected rather than the location, or spatial data is not yet granular enough to be useful.

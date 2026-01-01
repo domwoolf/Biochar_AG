@@ -3,24 +3,29 @@ library(shiny)
 library(terra)
 
 # Load Package (Development Mode)
-devtools::load_all(".")
+# Load Dependencies
+library(dplyr)
+library(sf)
 
-# 1. Load Data (Global Scope)
-# Load from GIS folder (Root/GIS/processed/)
-gis_path <- "../GIS/processed/"
-bm_file <- paste0(gis_path, "demo_biomass.tif")
-
-message("Loading Spatial Data from ", gis_path)
-
-if (file.exists(bm_file)) {
-    bm <- terra::rast(bm_file)
-    st <- terra::rast(paste0(gis_path, "demo_soil_temp.tif"))
-    ep <- terra::rast(paste0(gis_path, "demo_elec_price.tif"))
-    processed_layers <- list(biomass_density = bm, soil_temp = st, elec_price = ep)
-    template <- bm
-} else {
-    stop("Spatial data not found in ../GIS/processed/. Please run data processing scripts.")
+# Manually source all Package Functions to ensure visibility
+# (devtools::load_all can be flaky in some Shiny runtime contexts)
+r_files <- list.files("R", pattern = "\\.R$", full.names = TRUE)
+for (f in r_files) {
+    message("Sourcing ", f)
+    tryCatch(source(f), error = function(e) message("Failed to source ", f, ": ", e$message))
 }
+
+if (!exists("default_parameters")) {
+    stop("Failed to load default_parameters function. Please check R/ path and working directory.")
+}
+
+if (!exists("default_parameters")) {
+    stop("Failed to load default_parameters function. Please check package structure.")
+}
+
+# 1. Load Data (Moved to Server)
+# gis_path logic is handled inside server() to ensure scoping visibility.
+
 
 # 2. UI Definition
 ui <- fluidPage(
@@ -38,8 +43,12 @@ ui <- fluidPage(
                 value = 50, min = 0, step = 10
             ),
             selectInput("bc_valuation_method", "Biochar Value Source:",
-                choices = c("Agronomic Value" = "ag_value", "Market Price" = "market_price"),
-                selected = "ag_value"
+                choices = c(
+                    "Agronomic Value (Simplified)" = "ag_value",
+                    "Market Price (Sales)" = "market_price",
+                    "Mechanistic Substitution (Advanced)" = "advanced_mechanistic"
+                ),
+                selected = "advanced_mechanistic"
             ),
             hr(),
             h4("Technology Parameters"),
@@ -61,8 +70,57 @@ ui <- fluidPage(
 
 # 3. Server Logic
 server <- function(input, output, session) {
+    # 1. Load Data (Session Scope)
+    # Robust Path Detection
+    possible_paths <- c(
+        "../GIS/processed/",
+        "GIS/processed/",
+        "/media/dominic/Data/git/Biochar_AG/GIS/processed/"
+    )
+
+    gis_path <- NULL
+    for (p in possible_paths) {
+        if (file.exists(paste0(p, "demo_biomass.tif"))) {
+            gis_path <- p
+            break
+        }
+    }
+
+    if (is.null(gis_path)) {
+        message("Current WD: ", getwd())
+        stop("Spatial data not found. Checked: ", paste(possible_paths, collapse = ", "))
+    }
+
+    bm_file <- paste0(gis_path, "demo_biomass.tif")
+
+    bm <- terra::rast(bm_file)
+    st <- terra::rast(paste0(gis_path, "demo_soil_temp.tif"))
+    ep <- terra::rast(paste0(gis_path, "demo_elec_price.tif"))
+
+    # Load Advanced Layers (Real > Demo)
+    ph <- NULL
+    cec <- NULL
+
+    # Check for Real Data first
+    if (file.exists(paste0(gis_path, "soil_ph.tif"))) {
+        ph <- terra::rast(paste0(gis_path, "soil_ph.tif"))
+    } else if (file.exists(paste0(gis_path, "demo_soil_ph.tif"))) ph <- terra::rast(paste0(gis_path, "demo_soil_ph.tif"))
+
+    if (file.exists(paste0(gis_path, "soil_cec.tif"))) {
+        cec <- terra::rast(paste0(gis_path, "soil_cec.tif"))
+    } else if (file.exists(paste0(gis_path, "demo_soil_cec.tif"))) cec <- terra::rast(paste0(gis_path, "demo_soil_cec.tif"))
+
+    processed_layers <- list(biomass_density = bm, soil_temp = st, elec_price = ep)
+    if (!is.null(ph)) processed_layers$soil_ph <- ph
+    if (!is.null(cec)) processed_layers$soil_cec <- cec
+
+    template <- bm
+    message("Data loaded inside server session.")
     # Reactive values to modify params based on inputs
     params_r <- reactive({
+        message("Debug: Inside reactive. Default params exists? ", exists("default_parameters"))
+        if (!exists("default_parameters")) stop("CRITICAL: default_parameters is missing inside server scope!")
+
         p <- default_parameters()
         p$c_price <- input$c_price
         p$discount_rate <- input$discount_rate / 100
@@ -83,14 +141,17 @@ server <- function(input, output, session) {
             curr_params <- params_r()
 
             # 1. BES
+            message(Sys.time(), " - Starting BES...")
             incProgress(0.1, detail = "Calculating BES...")
             bes_res <- run_spatial_tea(template, curr_params, processed_layers, fun = calculate_bes)
 
             # 2. BECCS
+            message(Sys.time(), " - Starting BECCS...")
             incProgress(0.4, detail = "Calculating BECCS...")
             beccs_res <- run_spatial_tea(template, curr_params, processed_layers, fun = calculate_beccs)
 
             # 3. BEBCS
+            message(Sys.time(), " - Starting BEBCS...")
             incProgress(0.7, detail = "Calculating BEBCS...")
             bebcs_res <- run_spatial_tea(template, curr_params, processed_layers, fun = calculate_bebcs)
 

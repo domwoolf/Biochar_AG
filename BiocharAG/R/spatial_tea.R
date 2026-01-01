@@ -52,6 +52,7 @@ run_spatial_tea <- function(template_raster, params, spatial_layers = list(),
     is_lonlat <- terra::is.lonlat(template_raster)
 
     for (i in seq_len(n)) {
+        if (i %% 500 == 0) message("Processing cell ", i, " / ", n)
         # Copy baseline params
         p <- params
 
@@ -89,14 +90,25 @@ run_spatial_tea <- function(template_raster, params, spatial_layers = list(),
             ref_elec_prod <- p$bm_lhv * p$bes_energy_efficiency * 0.277778
 
             capacity_factor <- 0.85
-
-            p$plant_mw <- (annual_biomass_feedstock * ref_elec_prod) / (8760 * capacity_factor)
         }
 
         # 3c. Electricity Price
         if ("elec_price" %in% names(df)) {
             pv <- df$elec_price[i]
-            if (!is.na(pv) && pv > 0) p$elec_price <- pv
+            # Apply Wholesale Discount Factor to convert Retail Map to Generator Revenue
+            factor <- if (!is.null(p$wholesale_discount_factor)) p$wholesale_discount_factor else 0.4
+
+            if (!is.na(pv) && pv > 0) p$elec_price <- pv * factor
+        }
+
+        # 3d. Advanced Ag Parameters (pH, CEC)
+        if ("soil_ph" %in% names(df)) {
+            val <- df$soil_ph[i]
+            if (!is.na(val)) p$soil_ph <- val
+        }
+        if ("soil_cec" %in% names(df)) {
+            val <- df$soil_cec[i]
+            if (!is.na(val)) p$soil_cec <- val
         }
 
         # Run TEA

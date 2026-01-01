@@ -31,6 +31,7 @@ default_parameters <- function() {
 
     # Prices
     elec_price = 100, # $/MWh ? (In formula F14 it's ElecProd * Price)
+    wholesale_discount_factor = 0.4, # Ratio of Wholesale to Retail (Generator Revenue / Retail Rate)
     c_price = 50, # $/tCO2e
     bc_price = 100, # $/t Biochar
 
@@ -58,6 +59,21 @@ default_parameters <- function() {
     lignin = 0.2, # Fraction
     time_frame = 100, # Years for stability
     bc_stab_factor = 4.6, # From Excel formula J6/J8 logic
+
+    # Advanced Biochar Valuation (Substitutes)
+    # Prices based on 2024/2025 Market Averages (Source: tea_literature_review.md)
+    price_lime = 60, # $/Mg (Bulk Ag Lime)
+    price_n = 0.92, # $/kg N (Derived from Urea ~$425/t)
+    price_p = 1.10, # $/kg P2O5 (Derived from DAP ~$675/t)
+    price_k = 0.62, # $/kg K2O (Derived from Potash ~$375/t)
+
+    # Biochar Ag Properties (Defaults)
+    bc_cce = 0.15, # Calcium Carbonate Equivalent (15%)
+    bc_n_content = 0.005, # 0.5% N (Low availability often)
+    bc_p_content = 0.002, # 0.2% P (Available)
+    bc_k_content = 0.005, # 0.5% K
+    ag_impact_duration = 10, # Years (Liming/Nutrient effect duration, < Stability)
+
     bc_ag_value = 0, # Figure 1 Base Case assumes 0 or low mean.
     bc_valuation_method = "ag_value", # Options: "ag_value" (Shadow Price) or "market_price" (Sale)
     h_c_org = 0.35, # Molar ratio, typical for ~500-600C pyrolysis.
