@@ -24,6 +24,9 @@ calculate_beccs <- function(params) {
   if (is.null(params$ccs_storage_cost)) params$ccs_storage_cost <- 15
   if (is.null(params$beccs_capital_cost)) params$beccs_capital_cost <- 4000
 
+  # Apply Fuel Quality Penalties (High Ash -> Higher Cost)
+  params <- adjust_costs_for_fuel(params)
+
   with(params, {
     # 1. Energy Output
     # BECCS efficiency (e.g., 28%)

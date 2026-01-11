@@ -14,6 +14,9 @@ calculate_bes <- function(params) {
   if (is.null(params$bes_om_factor)) params$bes_om_factor <- 0.04
   if (is.null(params$bes_life)) params$bes_life <- 30
 
+  # Apply Fuel Quality Penalties (High Ash -> Higher Cost)
+  params <- adjust_costs_for_fuel(params)
+
   with(params, {
     # 1. Energy Output
     energy_output <- bm_lhv * bes_energy_efficiency

@@ -7,20 +7,14 @@ library(terra)
 library(dplyr)
 library(sf)
 
-# Manually source all Package Functions to ensure visibility
-# (devtools::load_all can be flaky in some Shiny runtime contexts)
-r_files <- list.files("R", pattern = "\\.R$", full.names = TRUE)
-for (f in r_files) {
-    message("Sourcing ", f)
-    tryCatch(source(f), error = function(e) message("Failed to source ", f, ": ", e$message))
-}
+# TODO: refactor next block to load package rather than source the files
+# Load Package
+library(BiocharAG)
 
+# Ensure data dictionary / parameters are available
 if (!exists("default_parameters")) {
-    stop("Failed to load default_parameters function. Please check R/ path and working directory.")
-}
-
-if (!exists("default_parameters")) {
-    stop("Failed to load default_parameters function. Please check package structure.")
+    # If for some reason library load didn't attach it (unlikely if exported)
+    message("Package loaded but default_parameters not found on search path.")
 }
 
 # 1. Load Data (Moved to Server)
@@ -41,6 +35,10 @@ ui <- fluidPage(
             ),
             numericInput("bc_ag_value", "Biochar Ag Value ($/Mg):",
                 value = 50, min = 0, step = 10
+            ),
+            selectInput("region", "Region:",
+                choices = c("USA (Midwest)" = "USA", "India" = "India"),
+                selected = "USA"
             ),
             selectInput("bc_valuation_method", "Biochar Value Source:",
                 choices = c(
@@ -71,57 +69,81 @@ ui <- fluidPage(
 # 3. Server Logic
 server <- function(input, output, session) {
     # 1. Load Data (Session Scope)
-    # Robust Path Detection
-    possible_paths <- c(
-        "../GIS/processed/",
-        "GIS/processed/",
-        "/media/dominic/Data/git/Biochar_AG/GIS/processed/"
-    )
+    # Reactive Data Loader
+    data_r <- reactive({
+        req(input$region)
 
-    gis_path <- NULL
-    for (p in possible_paths) {
-        if (file.exists(paste0(p, "demo_biomass.tif"))) {
-            gis_path <- p
-            break
+        # Robust Path Detection
+        possible_paths <- c(
+            "../GIS/processed/",
+            "GIS/processed/",
+            "/media/dominic/Data/git/Biochar_AG/GIS/processed/"
+        )
+        gis_path <- NULL
+        for (p in possible_paths) {
+            # Check for generic indicator file
+            if (file.exists(paste0(p, "demo_biomass.tif"))) {
+                gis_path <- p
+                break
+            }
         }
-    }
+        if (is.null(gis_path)) stop("Spatial data directory not found.")
 
-    if (is.null(gis_path)) {
-        message("Current WD: ", getwd())
-        stop("Spatial data not found. Checked: ", paste(possible_paths, collapse = ", "))
-    }
+        if (input$region == "India") {
+            prefix <- "india_"
+            if (!file.exists(paste0(gis_path, "india_biomass.tif"))) stop("India data not found.")
+        } else {
+            prefix <- "" # DEMO uses 'demo_' or 'soil_'
+        }
 
-    bm_file <- paste0(gis_path, "demo_biomass.tif")
+        message("Loading Data for Region: ", input$region)
 
-    bm <- terra::rast(bm_file)
-    st <- terra::rast(paste0(gis_path, "demo_soil_temp.tif"))
-    ep <- terra::rast(paste0(gis_path, "demo_elec_price.tif"))
+        if (input$region == "India") {
+            bm <- terra::rast(paste0(gis_path, "india_biomass.tif"))
+            st <- terra::rast(paste0(gis_path, "india_soil_temp.tif"))
+            ep <- terra::rast(paste0(gis_path, "india_elec_price.tif"))
+            ph <- terra::rast(paste0(gis_path, "india_soil_ph.tif"))
+            cec <- terra::rast(paste0(gis_path, "india_soil_cec.tif"))
+            processed_layers <- list(biomass_density = bm, soil_temp = st, elec_price = ep, soil_ph = ph, soil_cec = cec)
+            template <- bm
+        } else {
+            # USA / Demo Logic
+            bm <- terra::rast(paste0(gis_path, "demo_biomass.tif"))
+            st <- terra::rast(paste0(gis_path, "demo_soil_temp.tif"))
+            ep <- terra::rast(paste0(gis_path, "demo_elec_price.tif"))
 
-    # Load Advanced Layers (Real > Demo)
-    ph <- NULL
-    cec <- NULL
+            ph <- NULL
+            cec <- NULL
+            # Prefer Real Soil Data if available
+            if (file.exists(paste0(gis_path, "soil_ph.tif"))) {
+                ph <- terra::rast(paste0(gis_path, "soil_ph.tif"))
+            } else if (file.exists(paste0(gis_path, "demo_soil_ph.tif"))) ph <- terra::rast(paste0(gis_path, "demo_soil_ph.tif"))
 
-    # Check for Real Data first
-    if (file.exists(paste0(gis_path, "soil_ph.tif"))) {
-        ph <- terra::rast(paste0(gis_path, "soil_ph.tif"))
-    } else if (file.exists(paste0(gis_path, "demo_soil_ph.tif"))) ph <- terra::rast(paste0(gis_path, "demo_soil_ph.tif"))
+            if (file.exists(paste0(gis_path, "soil_cec.tif"))) {
+                cec <- terra::rast(paste0(gis_path, "soil_cec.tif"))
+            } else if (file.exists(paste0(gis_path, "demo_soil_cec.tif"))) cec <- terra::rast(paste0(gis_path, "demo_soil_cec.tif"))
 
-    if (file.exists(paste0(gis_path, "soil_cec.tif"))) {
-        cec <- terra::rast(paste0(gis_path, "soil_cec.tif"))
-    } else if (file.exists(paste0(gis_path, "demo_soil_cec.tif"))) cec <- terra::rast(paste0(gis_path, "demo_soil_cec.tif"))
+            processed_layers <- list(biomass_density = bm, soil_temp = st, elec_price = ep)
+            if (!is.null(ph)) processed_layers$soil_ph <- ph
+            if (!is.null(cec)) processed_layers$soil_cec <- cec
+            template <- bm
+        }
 
-    processed_layers <- list(biomass_density = bm, soil_temp = st, elec_price = ep)
-    if (!is.null(ph)) processed_layers$soil_ph <- ph
-    if (!is.null(cec)) processed_layers$soil_cec <- cec
-
-    template <- bm
-    message("Data loaded inside server session.")
+        list(layers = processed_layers, template = template)
+    })
     # Reactive values to modify params based on inputs
     params_r <- reactive({
         message("Debug: Inside reactive. Default params exists? ", exists("default_parameters"))
         if (!exists("default_parameters")) stop("CRITICAL: default_parameters is missing inside server scope!")
 
-        p <- default_parameters()
+        if (input$region == "India") {
+            tryCatch(p <- parameters_india(), error = function(e) {
+                message("Warning: parameters_india not found, falling back to default.")
+                p <- default_parameters()
+            })
+        } else {
+            p <- default_parameters()
+        }
         p$c_price <- input$c_price
         p$discount_rate <- input$discount_rate / 100
         p$bc_ag_value <- input$bc_ag_value
@@ -139,6 +161,11 @@ server <- function(input, output, session) {
         withProgress(message = "Running Spatial Analysis...", value = 0, {
             # Get current params
             curr_params <- params_r()
+
+            # Get Data
+            dat <- data_r()
+            template <- dat$template
+            processed_layers <- dat$layers
 
             # 1. BES
             message(Sys.time(), " - Starting BES...")
@@ -184,7 +211,7 @@ server <- function(input, output, session) {
 
                 # Optimal Map
                 terra::plot(opt_idx,
-                    main = paste0("Optimal Tech (C Price: $", input$c_price, ")"),
+                    main = paste0("Optimal Tech (", input$region, " | C Price: $", input$c_price, ")"),
                     col = cols
                 )
 
@@ -197,4 +224,6 @@ server <- function(input, output, session) {
 }
 
 # Run App
+options(shiny.host = "0.0.0.0")
+options(shiny.port = 8100)
 shinyApp(ui = ui, server = server)

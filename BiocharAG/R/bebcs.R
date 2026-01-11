@@ -67,6 +67,10 @@ calculate_bebcs <- function(params) {
     ref_annual_biomass <- (plant_mw * 8760 * capacity_factor) / bes_elec_prod_ref
 
     total_bes_capex <- bes_capital_cost * plant_mw * 1000
+    # Note: We use the base 'bes_capital_cost' (Wood/Stoker reference) here.
+    # We do NOT apply the 'high ash' penalty from adjust_costs_for_fuel() because
+    # BEBCS combusts syngas (clean), leaving the ash in the biochar.
+
     annuity_fac_bes <- calculate_annuity_factor(discount_rate, bes_life)
     annual_bes_payment <- total_bes_capex / annuity_fac_bes
 
