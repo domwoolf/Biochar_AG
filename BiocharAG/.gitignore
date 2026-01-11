@@ -1,8 +1,10 @@
 
 # Spatial Data
 *.tif
+/GIS/
 
 # Images
+/figures/
 *.png
 
 # Standard R
