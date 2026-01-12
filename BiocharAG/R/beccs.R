@@ -12,15 +12,39 @@ calculate_beccs <- function(params) {
   # Default to modern params if not present
   if (is.null(params$beccs_efficiency)) params$beccs_efficiency <- 0.28
   if (is.null(params$capture_rate)) params$capture_rate <- 0.90
-  if (is.null(params$ccs_distance)) {
+  # Determine CCS Distance
+  # Priority: 1. Spatial Raster (dist_sink_km) if passed
+  #           2. Explicit params$ccs_distance (if not the default placeholder or if meant to override)
+  #           3. Nearest Sink Calculation (if Lat/Lon provided)
+  #           4. Default (100 km)
+
+  # Check for EOR Toggle
+  allow_eor <- if (!is.null(params$allow_eor)) as.logical(params$allow_eor) else TRUE
+
+  # Check for Spatial Inputs
+  dist_spatial <- NULL
+  if (allow_eor) {
+    if (!is.null(params$dist_sink_km)) dist_spatial <- params$dist_sink_km
+  } else {
+    if (!is.null(params$dist_sink_saline_km)) dist_spatial <- params$dist_sink_saline_km
+  }
+
+  if (!is.null(dist_spatial)) {
+    # Spatial Input Wins
+    params$ccs_distance <- dist_spatial
+  } else if (is.null(params$ccs_distance)) {
+    # No spatial input AND no manual distance -> Calc from Lat/Lon or Default
     if (!is.null(params$lat) && !is.null(params$lon)) {
       geo <- find_nearest_sink(params$lat, params$lon)
       params$ccs_distance <- geo$distance_km
-      # Optional: Store sink name in params/results if useful
     } else {
       params$ccs_distance <- 100
     }
   }
+  # Else: params$ccs_distance exists and no spatial input -> Use it (Default behavior is 100)
+  # WARNING: default_parameters() sets ccs_distance = 100.
+  # If spatial inputs ARE provided (dist_spatial != NULL), we overwrite it above.
+  # This works.
   if (is.null(params$ccs_storage_cost)) params$ccs_storage_cost <- 15
   if (is.null(params$beccs_capital_cost)) params$beccs_capital_cost <- 4000
 

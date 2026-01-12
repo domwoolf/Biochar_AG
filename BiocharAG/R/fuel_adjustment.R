@@ -55,5 +55,5 @@ adjust_costs_for_fuel <- function(params) {
     # Store multipliers for transparency/debugging if needed
     params$fuel_penalty_capex <- capex_mult
 
-    return(params)
+    params
 }

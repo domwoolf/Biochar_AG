@@ -1,3 +1,109 @@
+#' Calculate CO2 Transport Costs (Pipeline vs. Shipping)
+#'
+#' Implements the technoeconomic cost functions from the "Global Geologic Carbon Storage Assessment".
+#' Uses a hybrid routing algorithm: Pipelines for short distance (<1000km), Shipping for long distance.
+#'
+#' @param mass_flow_mtpa Numeric. Annual CO2 mass flow in Million Tonnes Per Annum (Mtpa).
+#' @param distance_km Numeric. Transport distance in kilometers.
+#' @param region Character. One of "North America", "Europe", "China", "India".
+#' @param is_offshore Logical. If TRUE, applies offshore multipliers to pipeline costs.
+#' @param force_mode Character (optional). "pipeline" or "shipping" to override the optimization logic.
+#'
+#' @return A list containing Total Cost ($/tonne), CAPEX, OPEX, and selected Mode.
+#' @export
+calc_transport_cost <- function(mass_flow_mtpa, distance_km, region, is_offshore = FALSE, force_mode = NULL) {
+    # --- 1. Constants & Physics [cite: 223, 224, 225] ---
+    CO2_DENSITY_KG_M3 <- 800 # Dense phase density
+    VELOCITY_M_S <- 2.0 # Economic velocity (1.5 - 3.0 m/s)
+    PIPELINE_AVAIL <- 0.95 # Availability factor
+
+    # Convert Mass Flow to kg/s
+    # 1 Mtpa = 1e9 kg / (365 * 24 * 3600) seconds
+    mass_flow_kgs <- (mass_flow_mtpa * 1e9) / (365 * 24 * 3600)
+
+    # --- 2. Regional Factors [cite: 281] ---
+    # US = 1.0 (Base), EU = 1.2, China/India = 0.7
+    reg_factor <- dplyr::case_when(
+        region == "North America" ~ 1.0,
+        region == "Europe" ~ 1.2,
+        region %in% c("China", "India") ~ 0.7,
+        TRUE ~ 1.0
+    )
+
+    # --- 3. Mode Selection  ---
+    # Recommendation: Pipeline if < 1000km, Shipping if > 1000km (or if offshore distance is vast)
+    if (!is.null(force_mode)) {
+        mode <- force_mode
+    } else {
+        if (distance_km > 1000) {
+            mode <- "shipping"
+        } else {
+            mode <- "pipeline"
+        }
+    }
+
+    # --- 4. Pipeline Cost Model [cite: 222, 228, 230] ---
+    if (mode == "pipeline") {
+        # A. Hydraulic Design: Calculate Internal Diameter (meters)
+        # Area = Flow / (Density * Velocity) -> D = sqrt(4*Area/pi)
+        area_m2 <- mass_flow_kgs / (CO2_DENSITY_KG_M3 * VELOCITY_M_S)
+        diameter_m <- sqrt((4 * area_m2) / pi)
+
+        # B. CAPEX Calculation (Euro base converted to USD approx 1.1x)
+        # Formula: I_pipe (EUR) = (2157 * D_m + 18) * Length_m
+        # We convert L to meters
+        length_m <- distance_km * 1000
+
+        base_capex_usd <- (2157 * diameter_m + 18) * length_m * 1.1
+
+        # Apply Terrain/Offshore Multipliers
+        # Offshore multiplier 1.4 - 1.7
+        loc_factor <- if (is_offshore) 1.5 else 1.0
+
+        total_capex <- base_capex_usd * reg_factor * loc_factor
+
+        # C. OPEX Calculation
+        # Fixed OPEX: 2.5% of CAPEX [cite: 239]
+        opex_fixed <- 0.025 * total_capex
+
+        # Variable OPEX (Compression): ~90 kWh/t for initial, ~7.5 kWh/t/100km for booster [cite: 241, 242]
+        # Assuming electricity cost $0.06/kWh (US) to $0.15/kWh (EU). Simplified to $0.10 avg
+        elec_price <- 0.10
+        energy_per_tonne <- 90 + (7.5 * (distance_km / 100))
+        opex_variable_annual <- energy_per_tonne * elec_price * (mass_flow_mtpa * 1e6)
+
+        total_annual_cost <- (total_capex / 20) + opex_fixed + opex_variable_annual # 20yr depreciation
+        unit_cost <- total_annual_cost / (mass_flow_mtpa * 1e6)
+    } else {
+        # --- 5. Shipping Cost Model [cite: 245, 246] ---
+        if (mode == "shipping") {
+            # A. Liquefaction Cost ($15-$25/t) [cite: 249]
+            liq_cost <- 20.0
+
+            # B. Terminal Handling ($10-$20/t) [cite: 252]
+            term_cost <- 15.0
+
+            # C. Voyage Cost ($0.02 - $0.05 / t / km) [cite: 255]
+            voyage_rate <- 0.035
+            voyage_cost <- voyage_rate * distance_km
+
+            # Total Unit Cost
+            # Note: Shipping has high OPEX/Variables, lower infrastructure CAPEX scaling
+            unit_cost <- liq_cost + term_cost + voyage_cost
+
+            # Apply regional labor discounts to Terminal/Liquefaction operations
+            unit_cost <- unit_cost * reg_factor
+        }
+    }
+
+    return(list( # lintr:ok
+        mode = mode,
+        unit_cost_usd_per_tonne = round(unit_cost, 2),
+        details = paste0("Region: ", region, " | Dist: ", distance_km, "km")
+    ))
+}
+
+
 #' Calculate CCS Pipeline Transport Cost
 #'
 #' Estimates the cost of transporting CO2 via pipeline based on mass flow and distance.

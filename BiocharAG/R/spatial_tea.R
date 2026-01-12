@@ -43,6 +43,7 @@ run_spatial_tea <- function(template_raster, params, spatial_layers = list(),
     net_value_vec <- numeric(n)
     total_cost_vec <- numeric(n)
     abatement_vec <- numeric(n)
+    ts_cost_vec <- numeric(n) # NEW
     dist_vec <- numeric(n)
     scale_vec <- numeric(n)
 
@@ -111,31 +112,48 @@ run_spatial_tea <- function(template_raster, params, spatial_layers = list(),
             if (!is.na(val)) p$soil_cec <- val
         }
 
+        # 3e. CCS Transport Parameters
+        if ("dist_sink_km" %in% names(df)) {
+            val <- df$dist_sink_km[i]
+            if (!is.na(val)) p$dist_sink_km <- val
+        }
+        if ("dist_sink_saline_km" %in% names(df)) {
+            val <- df$dist_sink_saline_km[i]
+            if (!is.na(val)) p$dist_sink_saline_km <- val
+        }
+        if ("sink_is_offshore" %in% names(df)) {
+            val <- df$sink_is_offshore[i]
+            # Ensure logical
+            if (!is.na(val)) p$sink_is_offshore <- as.logical(val)
+        }
+
+
         # Run TEA
         # Note: TEA function will handle finding nearest sink using p$lat/p$lon
         # if ccs_distance is NULL and it's BECCS.
+        # Run TEA
         res <- tryCatch(fun(p), error = function(e) list(net_value = NA, total_cost = NA, tot_c_abatement = NA))
 
         net_value_vec[i] <- if (is.null(res$net_value)) NA else res$net_value
         total_cost_vec[i] <- if (is.null(res$total_cost)) NA else res$total_cost
         abatement_vec[i] <- if (is.null(res$tot_c_abatement)) NA else res$tot_c_abatement
+        # Capture Transport Cost (specific to BECCS)
+        ts_cost_vec[i] <- if (is.null(res$ts_cost)) NA else res$ts_cost
 
         # Store calculated scale/dist if relevant for debugging
         scale_vec[i] <- if (!is.null(p$plant_mw)) p$plant_mw else 50
-        # Store CCS distance?
-        # Not returned by all functions clearly, but could inspect p$ccs_distance if updated by ref?
-        # (R passes by value, so p modification inside fun doesn't persist unless returned)
     }
 
     # 4. Rasterize Results
-    out_r <- terra::rast(template_raster, nlyrs = 3)
-    names(out_r) <- c("Net_Value_USD", "Total_Cost_USD_Mg", "Abatement_tCO2")
+    out_r <- terra::rast(template_raster, nlyrs = 4)
+    names(out_r) <- c("Net_Value_USD", "Total_Cost_USD_Mg", "Abatement_tCO2", "Transport_Cost_USD_Mg")
 
     # Fill values
     # Using cell IDs to ensure alignment
     out_r[["Net_Value_USD"]][df$cell] <- net_value_vec
     out_r[["Total_Cost_USD_Mg"]][df$cell] <- total_cost_vec
     out_r[["Abatement_tCO2"]][df$cell] <- abatement_vec
+    out_r[["Transport_Cost_USD_Mg"]][df$cell] <- ts_cost_vec
 
     return(out_r)
 }
