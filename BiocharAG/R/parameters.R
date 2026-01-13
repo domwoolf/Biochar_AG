@@ -25,6 +25,8 @@ default_parameters <- function() {
     # Sheet "bebcs" B4 uses "lignin".
     # For now I will put placeholders closer to typical values.
     bm_c = 0.48, # Carbon fraction
+    bm_transport_fixed = 5.0, # $/Mg (Loading/Handling)
+    bm_transport_var = 0.15, # $/Mg/km (Trucking)
     bm_ash = 0.05,
     bm_h2o = 0.1, # Moisture content?
     bm_feed_rate = 250, # kg/hr?

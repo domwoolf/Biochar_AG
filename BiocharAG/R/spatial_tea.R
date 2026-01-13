@@ -59,7 +59,9 @@ run_spatial_tea <- function(template_raster, params, spatial_layers = list(),
 
         # Update with spatial params if they exist
         p$lat <- df$y[i]
+        p$lat <- df$y[i]
         p$lon <- df$x[i]
+        p$collection_radius <- collection_radius_km
 
         # 3a. Soil Temp (Permenance)
         if ("soil_temp" %in% names(df)) {
@@ -91,6 +93,12 @@ run_spatial_tea <- function(template_raster, params, spatial_layers = list(),
             ref_elec_prod <- p$bm_lhv * p$bes_energy_efficiency * 0.277778
 
             capacity_factor <- 0.85
+
+            # Calculate and Assign Scaled Plant Capacity
+            p$plant_mw <- (annual_biomass_feedstock * ref_elec_prod) / (8760 * capacity_factor)
+
+            # Cap minimum size to avoid divide-by-zero or tiny plants (e.g. 1 MW min)
+            if (p$plant_mw < 1) p$plant_mw <- 1
         }
 
         # 3c. Electricity Price

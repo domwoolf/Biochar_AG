@@ -128,6 +128,7 @@ calculate_ccs_transport <- function(co2_mass, distance, discount_rate = 0.10, li
 
     # Reference Project (Medium/Large Scale)
     # Ref: 1 Mt/y (1,000,000 Mg/y), 100 km
+
     ref_mass <- 1000000
     ref_dist <- 100
 
@@ -152,21 +153,54 @@ calculate_ccs_transport <- function(co2_mass, distance, discount_rate = 0.10, li
     # CAPEX_ref (100km, 1Mt) = $50,000,000
     base_capex_ref <- 50000000
     scale_factor <- 0.6 # Economies of scale exponent
+    opex_factor <- 0.04 # Annual O&M as % of CAPEX
 
-    # Calculate CAPEX for specific project
-    scaler <- (co2_mass / ref_mass)^scale_factor
-    capex <- base_capex_ref * (distance / ref_dist) * scaler
+    # --- Hub-and-Spoke Network Heuristic ---
+    # User feedback: Point-to-point assumption is too conservative.
+    # Reality: Small plants build short "feeder" pipes to a large regional "trunkline".
 
-    # Annualize CAPEX
+    # Heuristic Parameters
+    feeder_threshold_km <- 50
+    trunk_mass_flow <- max(co2_mass, 3000000) # Assume Trunkline is at least 3 Mtpa (Economies of Scale)
+
+    # Calculate Annuity Factor
     annuity_fac <- (1 - (1 + discount_rate)^(-lifetime)) / discount_rate
-    annual_capex <- capex / annuity_fac
 
-    # OPEX (Maintenance, Monitoring, Booster Energy)
-    # Typically 3-5% of CAPEX + Energy
-    # Energy: ~10 kWh/t/100km? (Liquid pumping is low energy)
-    # Let's assume flat rate % of CAPEX for O&M + Energy
-    opex_factor <- 0.05
-    annual_opex <- capex * opex_factor
+    if (distance > feeder_threshold_km) {
+        # Split Distance
+        dist_feeder <- feeder_threshold_km
+        dist_trunk <- distance - feeder_threshold_km
+
+        # 1. Feeder Leg (Site Specific Mass, Expensive)
+        scaler_f <- (co2_mass / ref_mass)^scale_factor
+        capex_f <- base_capex_ref * (dist_feeder / ref_dist) * scaler_f
+
+        # 2. Trunk Leg (Regional Mass, Efficient)
+        # Note: We pay for a share of the trunkline proportional to our mass?
+        # Or we pay the Unit Cost of the trunkline for that distance?
+        # Unit Cost approach:
+        scaler_t <- (trunk_mass_flow / ref_mass)^scale_factor
+        capex_t_total <- base_capex_ref * (dist_trunk / ref_dist) * scaler_t
+        # Annualize Total Trunk Capex
+        ann_capex_t_total <- capex_t_total / annuity_fac
+        # Calculate Share of TRUNK Total Capex (not annual)
+        capex_t_share <- capex_t_total * (co2_mass / trunk_mass_flow)
+
+        # Total Annual Capex for Project
+        annual_capex <- (capex_f / annuity_fac) + annual_capex_t_share
+
+        # OPEX (Applied to the 'effective' capex share)
+        # FIX: OPEX is % of Total Capex Share, not Annual Payment
+        total_capex_share <- capex_f + capex_t_share
+        annual_opex <- total_capex_share * opex_factor
+    } else {
+        # Distance < Feeder Threshold (Direct Pipeline)
+        scaler <- (co2_mass / ref_mass)^scale_factor
+        capex <- base_capex_ref * (distance / ref_dist) * scaler
+
+        annual_capex <- capex / annuity_fac
+        annual_opex <- capex * opex_factor # FIX: % of Total Capex
+    }
 
     # Total Annual Cost
     total_annual_cost <- annual_capex + annual_opex

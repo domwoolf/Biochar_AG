@@ -102,8 +102,12 @@ calculate_beccs <- function(params) {
     # Convert $/kW to $/Mg Biomass/yr ??
     # Or calculate Annual Capex Payment per Mg Biomass processed.
 
-    # Total Capex ($) = Cost/kW * MW * 1000
-    total_capex <- beccs_capital_cost * plant_mw * 1000
+    # Total Capex ($)
+    # Apply Scaling Factor (Economies of Scale)
+    scaling_factor <- 0.7
+    base_cost_beccs <- beccs_capital_cost * 50 * 1000
+
+    total_capex <- base_cost_beccs * ((plant_mw / 50)^scaling_factor)
 
     # Annual Capex ($/yr)
     annuity_fac <- calculate_annuity_factor(discount_rate, bes_life)
@@ -117,7 +121,14 @@ calculate_beccs <- function(params) {
     # Simplified: % of Capex per Mg
     opex_per_mg <- capex_per_mg * 0.05 # 5% O&M
 
-    total_cost <- capex_per_mg + opex_per_mg + ts_cost
+    # Logistics Cost (Biomass Transport)
+    radius <- if (!is.null(params$collection_radius)) params$collection_radius else 50
+    avg_dist <- (2 / 3) * radius
+    tf <- if (!is.null(params$bm_transport_fixed)) params$bm_transport_fixed else 5.0
+    tv <- if (!is.null(params$bm_transport_var)) params$bm_transport_var else 0.15
+    logistics_cost <- tf + (tv * avg_dist)
+
+    total_cost <- capex_per_mg + opex_per_mg + ts_cost + logistics_cost
 
     # 5. Revenue & Value
     elec_revenue <- elec_prod * elec_price

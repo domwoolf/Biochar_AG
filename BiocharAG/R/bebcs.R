@@ -66,7 +66,12 @@ calculate_bebcs <- function(params) {
     bes_elec_prod_ref <- bm_lhv * bes_energy_efficiency * 0.277778
     ref_annual_biomass <- (plant_mw * 8760 * capacity_factor) / bes_elec_prod_ref
 
-    total_bes_capex <- bes_capital_cost * plant_mw * 1000
+    today_bes_capex <- bes_capital_cost * plant_mw * 1000
+    # Apply Scaling Factor (Economies of Scale)
+    scaling_factor <- 0.7
+    base_cost_ref <- bes_capital_cost * 50 * 1000
+
+    total_bes_capex <- base_cost_ref * ((plant_mw / 50)^scaling_factor)
     # Note: We use the base 'bes_capital_cost' (Wood/Stoker reference) here.
     # We do NOT apply the 'high ash' penalty from adjust_costs_for_fuel() because
     # BEBCS combusts syngas (clean), leaving the ash in the biochar.
@@ -87,7 +92,14 @@ calculate_bebcs <- function(params) {
     # Pyrolysis O&M + Power O&M
     annual_om <- (py_cc * O_M_factor) + (base_power_capex_per_mg * (1 - bc_yield) * bes_om_factor)
 
-    total_cost <- annual_capex_py + annual_capex_power + annual_om
+    # Logistics Cost (Biomass Transport)
+    radius <- if (!is.null(params$collection_radius)) params$collection_radius else 50
+    avg_dist <- (2 / 3) * radius
+    tf <- if (!is.null(params$bm_transport_fixed)) params$bm_transport_fixed else 5.0
+    tv <- if (!is.null(params$bm_transport_var)) params$bm_transport_var else 0.15
+    logistics_cost <- tf + (tv * avg_dist)
+
+    total_cost <- annual_capex_py + annual_capex_power + annual_om + logistics_cost
 
     # Abatement
     # C sequestered + C displaced by energy
