@@ -17,8 +17,9 @@ ui <- fluidPage(
     titlePanel("BiocharAG Spatial TEA explorer"),
     sidebarLayout(
         sidebarPanel(
+            width = 3,
             selectInput("region", "Region:",
-                choices = c("USA (Midwest)" = "USA", "India" = "India"),
+                choices = c("USA" = "USA", "India" = "India"),
                 selected = "USA"
             ),
             numericInput("plant_mw", "Plant Capacity (MW) [Leave Empty for Auto]:",
@@ -44,8 +45,8 @@ ui <- fluidPage(
                 )
             ),
             div(
-                id = "food_price_wrapper",
-                sliderInput("food_price_scalar", "Food Price Scalar:",
+                id = "input_price_wrapper",
+                sliderInput("input_price_scalar", "Ag Input Price Scalar:",
                     min = 0.5, max = 2.0, value = 1.0, step = 0.1
                 )
             ),
@@ -72,182 +73,6 @@ ui <- fluidPage(
     )
 )
 
-# --- DEBUG: OVERRIDE PACKAGE FUNCTIONS ---
-
-calculate_ccs_transport <- function(co2_mass, distance, discount_rate = 0.10, lifetime = 20) {
-    if (co2_mass <= 0) {
-        return(0)
-    }
-
-    # Reference Project (Medium/Large Scale)
-    ref_mass <- 1000000
-    ref_dist <- 100
-
-    base_capex_ref <- 50000000
-    scale_factor <- 0.6 # Economies of scale exponent
-    opex_factor <- 0.04 # Annual O&M as % of CAPEX
-
-    # Heuristic Parameters
-    feeder_threshold_km <- 50
-    trunk_mass_flow <- max(co2_mass, 3000000) # Assume Trunkline is at least 3 Mtpa
-
-    # Calculate Annuity Factor
-    annuity_fac <- (1 - (1 + discount_rate)^(-lifetime)) / discount_rate
-
-    if (distance > feeder_threshold_km) {
-        # Split Distance
-        dist_feeder <- feeder_threshold_km
-        dist_trunk <- distance - feeder_threshold_km
-
-        # 1. Feeder Leg
-        scaler_f <- (co2_mass / ref_mass)^scale_factor
-        capex_f <- base_capex_ref * (dist_feeder / ref_dist) * scaler_f
-
-        # 2. Trunk Leg
-        scaler_t <- (trunk_mass_flow / ref_mass)^scale_factor
-        capex_t_total <- base_capex_ref * (dist_trunk / ref_dist) * scaler_t
-        ann_capex_t_total <- capex_t_total / annuity_fac
-        annual_capex_t_share <- ann_capex_t_total * (co2_mass / trunk_mass_flow)
-
-        # Calculate Share of TRUNK Total Capex (not annual)
-        capex_t_share <- capex_t_total * (co2_mass / trunk_mass_flow)
-
-        annual_capex <- (capex_f / annuity_fac) + annual_capex_t_share
-
-        # FIX: OPEX is % of Total Capex Share, not Annual Payment
-        total_capex_share <- capex_f + capex_t_share
-        annual_opex <- total_capex_share * opex_factor
-    } else {
-        # Distance < Feeder Threshold (Direct Pipeline)
-        scaler <- (co2_mass / ref_mass)^scale_factor
-        capex <- base_capex_ref * (distance / ref_dist) * scaler
-
-        annual_capex <- capex / annuity_fac
-        annual_opex <- capex * opex_factor # FIX: % of Total Capex
-    }
-
-    total_annual_cost <- annual_capex + annual_opex
-    cost_per_ton <- total_annual_cost / co2_mass
-
-    # DEBUG LOGGING (Sampled)
-    if (runif(1) < 0.001) {
-        message(sprintf("DEBUG BECCS TRANSPORT: Dist=%.1f km, Mass=%.1f t/y, Cost=%.2f $/t", distance, co2_mass, cost_per_ton))
-    }
-
-    return(cost_per_ton)
-}
-
-calculate_beccs <- function(params) {
-    # Default to modern params if not present
-    if (is.null(params$beccs_efficiency)) params$beccs_efficiency <- 0.28
-    if (is.null(params$capture_rate)) params$capture_rate <- 0.90
-
-    allow_eor <- if (!is.null(params$allow_eor)) as.logical(params$allow_eor) else TRUE
-
-    # Check for Spatial Inputs
-    dist_spatial <- NULL
-    if (allow_eor) {
-        if (!is.null(params$dist_sink_km)) dist_spatial <- params$dist_sink_km
-    } else {
-        if (!is.null(params$dist_sink_saline_km)) dist_spatial <- params$dist_sink_saline_km
-    }
-
-    if (!is.null(dist_spatial)) {
-        params$ccs_distance <- dist_spatial
-    } else if (is.null(params$ccs_distance)) {
-        if (!is.null(params$lat) && !is.null(params$lon)) {
-            # Cannot call pkg private function easily, assume 100 if missing
-            params$ccs_distance <- 100
-        } else {
-            params$ccs_distance <- 100
-        }
-    }
-
-    if (is.null(params$ccs_storage_cost)) params$ccs_storage_cost <- 15
-    if (is.null(params$beccs_capital_cost)) params$beccs_capital_cost <- 4000
-
-    # Apply Fuel Quality Penalties (High Ash -> Higher Cost)
-    # params <- adjust_costs_for_fuel(params) # Skipping for simplified debug
-
-    with(params, {
-        # 1. Energy Output
-        energy_output <- bm_lhv * beccs_efficiency
-        elec_prod <- energy_output * 0.277778 # MWh / Mg biomass
-
-        # 2. Carbon Capture
-        co2_produced <- bm_c * (44 / 12)
-        co2_captured <- co2_produced * capture_rate
-
-        # 3. Transport & Storage Costs
-        plant_mw <- if (!is.null(params$plant_mw)) params$plant_mw else 50
-        capacity_factor <- 0.85
-        annual_biomass <- (plant_mw * 8760 * capacity_factor) / elec_prod
-        annual_co2_total <- annual_biomass * co2_captured
-
-        # Explicit Transport Cost ($/Mg CO2)
-        transport_cost_per_ton <- calculate_ccs_transport(
-            co2_mass = annual_co2_total,
-            distance = ccs_distance,
-            discount_rate = discount_rate,
-            lifetime = bes_life
-        )
-
-        # Total T&S Cost ($/Mg Biomass)
-        ts_cost <- (transport_cost_per_ton + ccs_storage_cost) * co2_captured
-
-        # 4. Plant Costs (CAPEX/OPEX)
-        scaling_factor <- 0.7
-        base_cost_beccs <- beccs_capital_cost * 50 * 1000
-        total_capex <- base_cost_beccs * ((plant_mw / 50)^scaling_factor)
-
-        # Simple Annuity Factor inline
-        annuity_fac <- (1 - (1 + discount_rate)^(-bes_life)) / discount_rate
-        annual_capex_payment <- total_capex / annuity_fac
-        capex_per_mg <- annual_capex_payment / annual_biomass
-
-        opex_per_mg <- capex_per_mg * 0.05
-
-        # Logistics Cost (Biomass Transport)
-        radius <- if (!is.null(params$collection_radius)) params$collection_radius else 50
-        avg_dist <- (2 / 3) * radius
-        tf <- if (!is.null(params$bm_transport_fixed)) params$bm_transport_fixed else 5.0
-        tv <- if (!is.null(params$bm_transport_var)) params$bm_transport_var else 0.15
-        logistics_cost <- tf + (tv * avg_dist)
-
-        total_cost <- capex_per_mg + opex_per_mg + ts_cost + logistics_cost
-
-        # 5. Revenue & Value
-        elec_revenue <- elec_prod * elec_price
-
-        # Carbon Abatement
-        c_sequestered <- bm_c * capture_rate # C equivalent
-        c_displaced <- energy_output * ff_c_intensity
-        tot_c_abatement <- c_sequestered + c_displaced
-        abatement_value <- tot_c_abatement * c_price
-
-        total_revenue <- elec_revenue + abatement_value
-        net_value <- total_revenue - total_cost
-
-        if (runif(1) < 0.001) {
-            message(sprintf(
-                "DEBUG BECCS BREAKDOWN: Rev=%.1f (Elec=%.1f, Abate=%.1f), Capex=%.1f, Opex=%.1f, T&S=%.1f (Dist=%.1f, Unit=$%.1f/tCO2), Logist=%.1f | TOT Cost=%.1f -> Net=%.1f",
-                total_revenue, elec_revenue, abatement_value, capex_per_mg, opex_per_mg, ts_cost, ccs_distance, transport_cost_per_ton, logistics_cost, total_cost, net_value
-            ))
-        }
-
-        list(
-            technology = "BECCS",
-            energy_output = energy_output,
-            elec_prod = elec_prod,
-            c_sequestered = c_sequestered,
-            tot_c_abatement = tot_c_abatement,
-            total_cost = total_cost,
-            ts_cost = ts_cost,
-            total_revenue = total_revenue,
-            net_value = net_value
-        )
-    })
-}
 
 # 3. Server Logic
 server <- function(input, output, session) {
@@ -255,10 +80,10 @@ server <- function(input, output, session) {
     observe({
         if (input$bc_valuation_method == "ag_value") {
             shinyjs::show("ag_val_wrapper")
-            shinyjs::hide("food_price_wrapper")
+            shinyjs::hide("input_price_wrapper")
         } else {
             shinyjs::hide("ag_val_wrapper")
-            shinyjs::show("food_price_wrapper")
+            shinyjs::show("input_price_wrapper")
         }
     })
 
@@ -383,9 +208,10 @@ server <- function(input, output, session) {
         if (!is.null(p$elec_price)) p$elec_price <- p$elec_price * input$elec_price_scalar
 
         # 2. Food Price / Biochar Value
-        if (!is.null(p$bc_ag_value)) p$bc_ag_value <- p$bc_ag_value * input$food_price_scalar
+        # 2. Ag Input Price Scalar
+        # Multiplies the prices of substituted inputs (Fertilizer, Lime)
         keys <- c("price_lime", "price_n", "price_p", "price_k")
-        for (k in keys) if (!is.null(p[[k]])) p[[k]] <- p[[k]] * input$food_price_scalar
+        for (k in keys) if (!is.null(p[[k]])) p[[k]] <- p[[k]] * input$input_price_scalar
 
         # 3. BECCS Params
         p$capture_rate <- input$capture_eff
@@ -490,12 +316,21 @@ server <- function(input, output, session) {
             opt_rgb <- c(r, g, b)
             names(opt_rgb) <- c("red", "green", "blue")
 
+            # colorized version of opt_rgb
+            opt_colorize <- opt_rgb * 255
+            RGB(opt_colorize) <- 1:3
+            opt_colorize <- colorize(opt_colorize, "col", NAzero = TRUE)
+
             # Enforce Legend Consistency (Still needed for checking)
             levels(opt_idx) <- data.frame(id = 1:3, technology = c("BES", "BECCS", "BEBCS"))
             ct <- data.frame(value = 1:3, col = c("blue", "red", "green"))
             terra::coltab(opt_idx) <- ct
 
-            rv$map_data <- list(opt_idx = opt_idx, opt_rgb = opt_rgb, net_stack = net_stack, ts_cost = ts_cost_layer)
+            rv$map_data <- list(
+                opt_idx = opt_idx, opt_rgb = opt_rgb,
+                opt_colorize = opt_colorize, net_stack = net_stack,
+                ts_cost = ts_cost_layer
+            )
         }) # End Progress
     })
 
@@ -516,8 +351,13 @@ server <- function(input, output, session) {
         terra::plot(rv$map_data$net_stack[["BEBCS"]], main = "BEBCS Net Value ($)", range = common_range)
 
         # Optimal Technology (RGB)
-        terra::plotRGB(rv$map_data$opt_rgb, scale = 1, main = "Optimal Tech (Sat = Excess Value)")
-        legend("topright", legend = c("BES", "BECCS", "BEBCS"), fill = c("blue", "red", "green"), bg = "white")
+        # terra::plotRGB(rv$map_data$opt_rgb, scale = 1, main = "Optimal Tech (Sat = Excess Value)")
+        terra::plot(rv$map_data$opt_colorize, main = "Optimal Tech (Sat = Excess Value)", legend = FALSE)
+        legend("topright",
+            legend = c("BES", "BECCS", "BEBCS"),
+            fill = c("blue", "red", "green"), bg = "white",
+            xpd = TRUE, inset = 0.01
+        )
 
         # Row 3: Transport Cost & Spare
         # Using a distinct color palette

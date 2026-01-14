@@ -85,9 +85,13 @@ calculate_beccs <- function(params) {
     annual_co2_total <- annual_biomass * co2_captured
 
     # Explicit Transport Cost ($/Mg CO2)
+    # Extract is_offshore from params (populated by run_spatial_tea)
+    is_offshore <- if (!is.null(params$sink_is_offshore)) params$sink_is_offshore else FALSE
+
     transport_cost_per_ton <- calculate_ccs_transport(
       co2_mass = annual_co2_total,
       distance = ccs_distance,
+      is_offshore = is_offshore,
       discount_rate = discount_rate,
       lifetime = bes_life
     )

@@ -119,51 +119,31 @@ calc_transport_cost <- function(mass_flow_mtpa, distance_km, region, is_offshore
 #' @param lifetime Project lifetime (years). Default 20.
 #' @return Transport cost ($/Mg CO2).
 #' @export
-calculate_ccs_transport <- function(co2_mass, distance, discount_rate = 0.10, lifetime = 20) {
+calculate_ccs_transport <- function(co2_mass, distance, is_offshore = FALSE, discount_rate = 0.10, lifetime = 20) {
     if (co2_mass <= 0) {
         return(0)
     }
 
-    # --- Cost Model Assumptions (2024 USD) ---
+    # 1. Check for Shipping override (Offshore OR Dist > 1000km)
+    # [cite: 23, 258]
+    if (is_offshore || distance > 1000) {
+        # Shipping Logic (Simplified from calc_transport_cost)
+        liq_cost <- 20.0
+        term_cost <- 15.0
+        voyage_cost <- 0.035 * distance
+        # Shipping is mostly OPEX/Unit cost, treated here as $/t directly
+        return(liq_cost + term_cost + voyage_cost)
+    }
 
-    # Reference Project (Medium/Large Scale)
-    # Ref: 1 Mt/y (1,000,000 Mg/y), 100 km
-
+    # 2. Pipeline Hub-and-Spoke Logic (Onshore < 1000km)
     ref_mass <- 1000000
     ref_dist <- 100
-
-    # Reference LCOT (Levelized Cost of Transport) for 1Mt, 100km
-    # Literature: ~10-15 $/t for this scale/distance.
-    # Pipelines are expensive at small scale.
-    # Let's set a base cost parameter derived from ZEP:
-    # Base CAPEX for 100km, 1Mt/y ~ $50M - $80M -> Annual $8M -> $8/t
-    # + OPEX. Total ~ $10-12/t.
-    ref_cost_per_ton_km <- 0.12 # $0.12 / t / km at reference scale? No, transport is cheaper per km at long dist.
-
-    # Construction Cost Formula:
-    # Investment = A * Distance * (Capacity)^b
-    # A: Base cost coefficient
-    # b: Scale factor (typically 0.5 - 0.6 for diameter/capacity)
-
-    # Let's use a calibrated formula:
-    # CAPEX ($) = Base_Capex_Per_Km * Distance * (Capacity / Ref_Capacity)^0.6 / Ref_Capacity ??
-    # No, Capacity^0.6 is total cost.
-
-    # ZEP/NETL simple approximation:
-    # CAPEX_ref (100km, 1Mt) = $50,000,000
     base_capex_ref <- 50000000
-    scale_factor <- 0.6 # Economies of scale exponent
-    opex_factor <- 0.04 # Annual O&M as % of CAPEX
+    scale_factor <- 0.6
+    opex_factor <- 0.04
 
-    # --- Hub-and-Spoke Network Heuristic ---
-    # User feedback: Point-to-point assumption is too conservative.
-    # Reality: Small plants build short "feeder" pipes to a large regional "trunkline".
-
-    # Heuristic Parameters
     feeder_threshold_km <- 50
-    trunk_mass_flow <- max(co2_mass, 3000000) # Assume Trunkline is at least 3 Mtpa (Economies of Scale)
-
-    # Calculate Annuity Factor
+    trunk_mass_flow <- max(co2_mass, 3000000)
     annuity_fac <- (1 - (1 + discount_rate)^(-lifetime)) / discount_rate
 
     if (distance > feeder_threshold_km) {
@@ -171,42 +151,26 @@ calculate_ccs_transport <- function(co2_mass, distance, discount_rate = 0.10, li
         dist_feeder <- feeder_threshold_km
         dist_trunk <- distance - feeder_threshold_km
 
-        # 1. Feeder Leg (Site Specific Mass, Expensive)
+        # Feeder Leg (User Scale)
         scaler_f <- (co2_mass / ref_mass)^scale_factor
         capex_f <- base_capex_ref * (dist_feeder / ref_dist) * scaler_f
 
-        # 2. Trunk Leg (Regional Mass, Efficient)
-        # Note: We pay for a share of the trunkline proportional to our mass?
-        # Or we pay the Unit Cost of the trunkline for that distance?
-        # Unit Cost approach:
+        # Trunk Leg (Efficient Scale)
         scaler_t <- (trunk_mass_flow / ref_mass)^scale_factor
         capex_t_total <- base_capex_ref * (dist_trunk / ref_dist) * scaler_t
-        # Annualize Total Trunk Capex
-        ann_capex_t_total <- capex_t_total / annuity_fac
-        # Calculate Share of TRUNK Total Capex (not annual)
+
+        # User Share of Trunk Capex
         capex_t_share <- capex_t_total * (co2_mass / trunk_mass_flow)
 
-        # Total Annual Capex for Project
-        annual_capex <- (capex_f / annuity_fac) + annual_capex_t_share
-
-        # OPEX (Applied to the 'effective' capex share)
-        # FIX: OPEX is % of Total Capex Share, not Annual Payment
         total_capex_share <- capex_f + capex_t_share
-        annual_opex <- total_capex_share * opex_factor
     } else {
-        # Distance < Feeder Threshold (Direct Pipeline)
+        # Direct Pipeline
         scaler <- (co2_mass / ref_mass)^scale_factor
-        capex <- base_capex_ref * (distance / ref_dist) * scaler
-
-        annual_capex <- capex / annuity_fac
-        annual_opex <- capex * opex_factor # FIX: % of Total Capex
+        total_capex_share <- base_capex_ref * (distance / ref_dist) * scaler
     }
 
-    # Total Annual Cost
-    total_annual_cost <- annual_capex + annual_opex
+    annual_capex <- total_capex_share / annuity_fac
+    annual_opex <- total_capex_share * opex_factor
 
-    # Cost per Tonne
-    cost_per_ton <- total_annual_cost / co2_mass
-
-    return(cost_per_ton)
+    return((annual_capex + annual_opex) / co2_mass)
 }
