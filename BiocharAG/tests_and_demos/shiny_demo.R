@@ -19,7 +19,7 @@ ui <- fluidPage(
         sidebarPanel(
             width = 3,
             selectInput("region", "Region:",
-                choices = c("USA" = "USA", "India" = "India"),
+                choices = c("USA" = "USA", "India" = "India", "China" = "China", "Europe" = "Europe"),
                 selected = "USA"
             ),
             numericInput("plant_mw", "Plant Capacity (MW) [Leave Empty for Auto]:",
@@ -110,42 +110,59 @@ server <- function(input, output, session) {
         if (is.null(gis_path)) stop("Spatial data directory not found.")
 
 
-        if (input$region == "India") {
-            bm <- terra::rast(paste0(gis_path, "india_biomass.tif"))
-            st <- terra::rast(paste0(gis_path, "india_soil_temp.tif"))
-            ep <- terra::rast(paste0(gis_path, "india_elec_price.tif"))
-            ph <- terra::rast(paste0(gis_path, "india_soil_ph.tif"))
-            cec <- terra::rast(paste0(gis_path, "india_soil_cec.tif"))
+        if (input$region %in% c("India", "China", "Europe")) {
+            prefix <- tolower(input$region) # "india", "china", "europe"
+
+            bm <- terra::rast(paste0(gis_path, prefix, "_biomass.tif"))
+            st <- terra::rast(paste0(gis_path, prefix, "_soil_temp.tif"))
+            ep <- terra::rast(paste0(gis_path, prefix, "_elec_price.tif"))
+            
+            ph <- NULL
+            if (file.exists(paste0(gis_path, prefix, "_soil_ph.tif"))) {
+                ph <- terra::rast(paste0(gis_path, prefix, "_soil_ph.tif"))
+            }
+            cec <- NULL
+            if (file.exists(paste0(gis_path, prefix, "_soil_cec.tif"))) {
+                cec <- terra::rast(paste0(gis_path, prefix, "_soil_cec.tif"))
+            }
 
             # Transport Layers
-            ds <- terra::rast(paste0(gis_path, "india_dist_sink.tif"))
-            ds_saline <- terra::rast(paste0(gis_path, "india_dist_sink_saline.tif"))
-            stype <- terra::rast(paste0(gis_path, "india_sink_type.tif"))
+            ds_onshore <- terra::rast(paste0(gis_path, prefix, "_dist_onshore.tif"))
+            ds_offshore <- terra::rast(paste0(gis_path, prefix, "_dist_offshore.tif"))
 
             processed_layers <- list(
                 biomass_density = bm, soil_temp = st, elec_price = ep,
-                soil_ph = ph, soil_cec = cec,
-                dist_sink_km = ds, dist_sink_saline_km = ds_saline, sink_is_offshore = stype
+                dist_onshore = ds_onshore, dist_offshore = ds_offshore
             )
+            if (!is.null(ph)) processed_layers$soil_ph <- ph
+            if (!is.null(cec)) processed_layers$soil_cec <- cec
+
+            a0 <- NULL
+            a1 <- NULL
+            if (file.exists(paste0(gis_path, prefix, "_admin0.gpkg"))) a0 <- terra::vect(paste0(gis_path, prefix, "_admin0.gpkg"))
+            if (file.exists(paste0(gis_path, prefix, "_admin1.gpkg"))) a1 <- terra::vect(paste0(gis_path, prefix, "_admin1.gpkg"))
+
             template <- bm
         } else {
             # USA / Demo Logic
             bm <- terra::rast(paste0(gis_path, "demo_biomass.tif"))
             st <- terra::rast(paste0(gis_path, "demo_soil_temp.tif"))
-            ep <- terra::rast(paste0(gis_path, "demo_elec_price.tif"))
+            if (file.exists(paste0(gis_path, "us_elec_price.tif"))) {
+                ep <- terra::rast(paste0(gis_path, "us_elec_price.tif"))
+            } else {
+                ep <- terra::rast(paste0(gis_path, "demo_elec_price.tif"))
+            }
 
             # Transport (US Demo)
-            if (file.exists(paste0(gis_path, "us_dist_sink.tif"))) {
-                ds <- terra::rast(paste0(gis_path, "us_dist_sink.tif"))
-                ds_saline <- terra::rast(paste0(gis_path, "us_dist_sink_saline.tif"))
-                stype <- terra::rast(paste0(gis_path, "us_sink_type.tif"))
+            if (file.exists(paste0(gis_path, "us_dist_onshore.tif"))) {
+                ds_onshore <- terra::rast(paste0(gis_path, "us_dist_onshore.tif"))
+                ds_offshore <- terra::rast(paste0(gis_path, "us_dist_offshore.tif"))
             } else {
                 # Fallback if US Transport layers missing (use demo defaults)
-                ds <- terra::rast(bm)
-                values(ds) <- 100
-                ds_saline <- ds
-                stype <- terra::rast(bm)
-                values(stype) <- 0
+                ds_onshore <- terra::rast(bm)
+                values(ds_onshore) <- 100
+                ds_offshore <- terra::rast(bm)
+                values(ds_offshore) <- Inf
             }
             ph <- NULL
             cec <- NULL
@@ -164,19 +181,25 @@ server <- function(input, output, session) {
 
             processed_layers <- list(
                 biomass_density = bm, soil_temp = st, elec_price = ep,
-                dist_sink_km = ds, dist_sink_saline_km = ds_saline, sink_is_offshore = stype
+                dist_onshore = ds_onshore, dist_offshore = ds_offshore
             )
 
             # DEBUG: Print Check
-            r_min <- minmax(ds)[1]
-            r_max <- minmax(ds)[2]
+            r_min <- minmax(ds_onshore)[1]
+            r_max <- minmax(ds_onshore)[2]
 
             if (!is.null(ph)) processed_layers$soil_ph <- ph
             if (!is.null(cec)) processed_layers$soil_cec <- cec
+            
+            a0 <- NULL
+            a1 <- NULL
+            if (file.exists(paste0(gis_path, "us_admin0.gpkg"))) a0 <- terra::vect(paste0(gis_path, "us_admin0.gpkg"))
+            if (file.exists(paste0(gis_path, "us_admin1.gpkg"))) a1 <- terra::vect(paste0(gis_path, "us_admin1.gpkg"))
+
             template <- bm
         }
 
-        list(layers = processed_layers, template = template)
+        list(layers = processed_layers, template = template, admin0 = a0, admin1 = a1)
     })
     # Reactive values to modify params based on inputs
     params_r <- reactive({
@@ -329,7 +352,9 @@ server <- function(input, output, session) {
             rv$map_data <- list(
                 opt_idx = opt_idx, opt_rgb = opt_rgb,
                 opt_colorize = opt_colorize, net_stack = net_stack,
-                ts_cost = ts_cost_layer
+                ts_cost = ts_cost_layer,
+                admin0 = dat$admin0,
+                admin1 = dat$admin1
             )
         }) # End Progress
     })
@@ -344,16 +369,25 @@ server <- function(input, output, session) {
         # Calculate common range for Net Value maps
         common_range <- range(minmax(rv$map_data$net_stack))
 
+        # Helper to overlay borders
+        add_borders <- function() {
+            if (!is.null(rv$map_data$admin0)) terra::plot(rv$map_data$admin0, add = TRUE, lwd = 2, border = "black")
+            if (!is.null(rv$map_data$admin1)) terra::plot(rv$map_data$admin1, add = TRUE, lwd = 0.5, lty = "dashed", border = "black")
+        }
+
         # Row 1: BES & BECCS
         terra::plot(rv$map_data$net_stack[["BES"]], main = "BES Net Value ($)", range = common_range)
+        add_borders()
         terra::plot(rv$map_data$net_stack[["BECCS"]], main = "BECCS Net Value ($)", range = common_range)
+        add_borders()
 
         # Row 2: BEBCS & Optimal
         terra::plot(rv$map_data$net_stack[["BEBCS"]], main = "BEBCS Net Value ($)", range = common_range)
+        add_borders()
 
         # Optimal Technology (RGB)
-        # terra::plotRGB(rv$map_data$opt_rgb, scale = 1, main = "Optimal Tech (Sat = Excess Value)")
         terra::plot(rv$map_data$opt_colorize, main = "Optimal Tech (Sat = Excess Value)", legend = FALSE)
+        add_borders()
         legend("topright",
             legend = c("BES", "BECCS", "BEBCS"),
             fill = c("blue", "red", "green"), bg = "white",

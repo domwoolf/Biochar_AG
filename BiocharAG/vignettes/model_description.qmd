@@ -1,0 +1,161 @@
+---
+title: "BiocharAG Model Description & Equations"
+author: "BiocharAG Package Authors"
+date: "`r Sys.Date()`"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    theme: cosmo
+vignette: >
+  %\VignetteIndexEntry{BiocharAG Model Description & Equations}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{quarto::html}
+---
+
+# Introduction
+
+## Core Objective
+The `BiocharAG` package provides a spatially explicit Technoeconomic Analysis (TEA) framework designed to evaluate and compare the financial viability of biomass-driven carbon dioxide removal (CDR) and energy generation strategies. The model identifies the optimal use of regional biomass resources by calculating the net present value (NPV) of competing technology pathways at a highly granular, grid-cell level.
+
+## Technology Pathways Evaluated
+The model evaluates three distinct biomass utilization pathways. Each pathway processes the same initial biomass feedstock but yields different energy outputs, carbon sequestration profiles, and capital requirements:
+
+* **Bioenergy (BES):** The baseline scenario. Biomass is fully combusted to maximize energy export to the grid. Carbon is released back into the atmosphere (carbon neutral, but no active sequestration).
+* **Bioenergy with Carbon Capture and Storage (BECCS):** Biomass is combusted for energy, but the exhaust gas is routed through a carbon capture unit. The captured $CO_2$ is compressed, transported, and injected into a geological sink. This pathway imposes a severe "parasitic load" on energy generation but yields high tradable carbon credits.
+* **Bioenergy with Biochar Storage (BEBCS):** Biomass undergoes pyrolysis. A portion of the carbon is stabilized as biochar (a solid, recalcitrant carbon matrix applied to soils), while the volatile gases are combusted for energy. This pathway requires no geological storage infrastructure and provides secondary agronomic or substitution value, but yields less energy than BES.
+
+## Spatial and Technoeconomic Architecture
+Unlike traditional, site-specific TEAs, `BiocharAG` operates on a continuous spatial grid, recognizing that the optimal technology choice is geographically constrained.
+
+The architecture relies on two primary analytical engines:
+
+1.  **Spatial Routing and Logistics Engine:** Calculates the logistical constraints of each grid cell. For the BECCS pathway, the model routes captured $CO_2$ to the nearest viable geological sink (accounting for onshore vs. offshore status) and calculates the exact distance. It applies a terrain tortuosity multiplier and assigns the appropriate transport modality (e.g., hub-and-spoke pipeline networks or maritime shipping).
+2.  **Thermodynamic and Economic Engine:** Processes the physics and finances of the chosen plant capacity. It calculates the mass and energy balances for combustion and pyrolysis, accounts for capital expenditures (CAPEX), operational expenditures (OPEX), transport fees, injection costs, and revenue streams from electricity sales and carbon markets.
+
+The final output is a series of spatial layers that map the most profitable technology for every specific location, providing decision-makers with a nuanced view of regional carbon management strategies.
+
+
+# Technoeconomic Pathways
+
+## 1. Bioenergy Systems (BES)
+
+BES represents a traditional biomass power plant. The primary value stream is electricity generation, offsetting fossil fuel emissions.
+
+### Assumptions:
+
+-   **Capital Cost:** Sized around a reference \$3,000/kW at 50 MW capacity.
+-   **O&M:** Fixed percentage of Capital Cost (e.g., 4%).
+-   **Efficiency:** 30% electrical efficiency.
+
+## 2. Bioenergy with Carbon Capture and Storage (BECCS)
+
+BECCS builds upon BES by adding a carbon capture unit and a transport network to geologic storage sinks.
+
+### Capture Penalty & Costs
+
+BECCS comes with an efficiency penalty. The baseline electrical efficiency is reduced (e.g., from 30% to 28%) to account for the parasitic energy load of the capture process.
+
+### Transport & Storage Equations
+
+The cost of transporting $CO_2$ is broken into a hub-and-spoke pipeline model for onshore sinks and a shipping model for offshore/long-distance sinks.
+
+-   **Tortuosity Factor**: Pipeline distances account for real-world routing limitations by multiplying the Euclidean distance by $1.25$.
+-   **Mode Selection**:
+    -   If distance \> 1000 km (or 700 km for high volumes \> 6 Mtpa) or if the sink is offshore, maritime shipping is selected.
+    -   Else, a pipeline network is constructed.
+
+**Pipeline Cost (\$/Mg** $CO_2$): $$ Cost_{pipe} = CAPEX_{annual} + OPEX_{annual} $$ The CAPEX scales non-linearly using a diameter-based power law (typically $scale\_factor = 0.6$).
+
+**Dynamic Storage Cost**: Injection costs adjust dynamically based on the sink type: \* **Onshore**: \~\$12/Mg $CO_2$ \* **Offshore**: \~\$40/Mg $CO_2$
+
+## 3. Bioenergy with Biochar Storage (BEBCS)
+
+BEBCS utilizes pyrolysis/gasification to coproduce biochar and electricity.
+
+### Biomass Partitioning
+
+-   **Carbon Sequestration**: $C_{seq} = Yield_{bc} \times C\_content_{bc} \times F_{perm}$
+    -   Where $F_{perm}$ is the permanent stable fraction of biochar carbon in the soil, empirically derived from H:C ratios and soil temperature.
+
+### Biochar Agronomic Value
+
+The economic value of biochar can be modeled dynamically through mechanistic substitution rather than static market prices: $$ Value_{ag} = Value_{lime} + Value_{nutrients} + Value_{physical} $$
+
+# Regional & Spatial Adjustments
+
+## Fuel Quality Penalty (Ash Content)
+
+High-ash feedstocks (e.g., crop residues) suffer a penalty compared to clean wood chips due to slagging and boiler fouling. \* Triggers higher CAPEX multipliers (requires Fluidized Bed vs Stoker). \* Triggers higher O&M due to ash disposal and maintenance. \* Lowers overall electrical efficiency.
+
+## Logistical Sourcing
+
+Biomass transport (trucking) relies on the average transport distance, typically assumed as $\frac{2}{3}$ of the collection radius, utilizing both fixed loading/unloading rates and variable per-kilometer rates.
+
+# Economic Core Equations
+
+### Annuity Factor
+
+Capital investments are annualized over the project's lifetime: $$ Annuity Factor = \frac{1 - (1 + r)^{-t}}{r} $$ Where $r$ is the discount rate (e.g., 10%) and $t$ is the lifetime (e.g., 20 or 30 years).
+
+### Net Present Value (NPV)
+
+Each pathway resolves into a net value ($/Mg Feedstock):$\$ Net_Value = \sum Revenue (Electricity, Carbon, Agronomic) - \sum Costs (CAPEX, OPEX, Transport, Storage) \$\$
+
+
+
+
+# Data Sources
+
+## Industrial Electricity Prices
+
+**Data Source Manifest**: Industrial Electricity Prices
+**Units**: All values converted to USD/MWh (2024 Basis).
+**Sector**: Industrial / Non-Household (Medium-Scale).
+
+### 1. United States (State-Level Granularity)
+- **Agency**: U.S. Energy Information Administration (EIA)
+- **Dataset**: Electric Power Monthly & Form EIA-861M (Monthly Electric Industry Data)
+- **Table Reference**: Table 5.6.B. "Average Price of Electricity to Ultimate Customers by End-Use Sector, by State"
+- **Year/Period**: March 2024 – March 2025 (Trailing 12-Month Average)
+- **URL**: [https://www.eia.gov/electricity/monthly/](https://www.eia.gov/electricity/monthly/)
+- **Notes**: Captures the stark difference between low-cost hydro states (WA, ID: ~$60/MWh) and high-cost coastal states (MA, CA: >$180/MWh).
+
+### 2. China (Provincial/Regional Granularity)
+- **Agency**: National Development and Reform Commission (NDRC) & National Energy Administration (NEA)
+- **Dataset**: National/Provincial Grid Tariff Orders 2024 & China Energy Market Reports
+- **Secondary Source**: CEIC Data (China Premium Database: Energy Prices) & Climatescope
+- **Year/Period**: 2024
+- **Key Trend**: Captures the "West-to-East" price gradient.
+  - **West** (Xinjiang/Inner Mongolia): Low (~$55-$65/MWh) due to abundant coal/renewables and lower transmission fees.
+  - **East** (Jiangsu/Guangdong): High (~$100+/MWh) due to "Green Power Trading" premiums and imported power costs.
+- **URL**: [https://www.ndrc.gov.cn/](https://www.ndrc.gov.cn/) (Policy/Price Monitoring Center)
+
+### 3. India (State-Level Granularity)
+- **Agency**: Central Electricity Regulatory Commission (CERC) & State Electricity Regulatory Commissions (SERCs)
+- **Dataset**: State Tariff Orders for FY 2024-25
+- **Secondary Source**: NITI Aayog "Electricity Tariff Trends" & IEEFA/Ember "Indian States' Electricity Transition (SET) 2024"
+- **Year/Period**: FY 2024-25
+- **Notes**: India has significant cross-subsidization where industrial tariffs are artificially high to subsidize agricultural users.
+  - **High**: Maharashtra/Delhi (~$120-$130/MWh).
+  - **Low**: Odisha/Chhattisgarh (~$75-$80/MWh) near coal pit-heads.
+
+### 4. Europe (Country-Level Granularity)
+- **Agency**: Eurostat (European Commission)
+- **Dataset**: Electricity prices for non-household consumers (bi-annual)
+- **Table Code**: `nrg_pc_205`
+- **Year/Period**: 2024 (Semester 1 & 2 estimates)
+- **URL**: [https://ec.europa.eu/eurostat/databrowser/view/nrg_pc_205/](https://ec.europa.eu/eurostat/databrowser/view/nrg_pc_205/)
+- **Notes**: Prices include non-recoverable taxes and levies, which are substantial in Germany and Denmark.
+  - **High**: UK ($220+), Italy, Germany.
+  - **Low**: Norway/Sweden (Hydro-dominant, <$90/MWh).
+
+# Appendix: Key Default Parameters
+
+| Parameter | Default Value | Description |
+|---------------------|----------------------------|------------------------|
+| `discount_rate` | 0.10 | Baseline rate of return. |
+| `capture_rate` | 0.90 | 90% capture efficiency for BECCS. |
+| `ff_c_intensity` | Variable | Fossil fuel carbon intensity displaced by bioelectricity. |
+| `bc_stab_factor` | 4.6 | Factor for continuous degradation models. |

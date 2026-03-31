@@ -43,6 +43,13 @@ server <- function(input, output, session) {
         biomass_density = bm, soil_temp = st, elec_price = ep,
         soil_ph = ph, soil_cec = cec
     )
+
+    if (file.exists(paste0(gis_path, "india_dist_onshore.tif"))) {
+        processed_layers$dist_onshore <- terra::rast(paste0(gis_path, "india_dist_onshore.tif"))
+    }
+    if (file.exists(paste0(gis_path, "india_dist_offshore.tif"))) {
+        processed_layers$dist_offshore <- terra::rast(paste0(gis_path, "india_dist_offshore.tif"))
+    }
     template <- bm
 
     message("India Data Loaded. Grid: ", paste(dim(template), collapse = "x"))

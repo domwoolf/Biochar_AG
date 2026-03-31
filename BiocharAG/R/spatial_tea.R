@@ -121,18 +121,13 @@ run_spatial_tea <- function(template_raster, params, spatial_layers = list(),
         }
 
         # 3e. CCS Transport Parameters
-        if ("dist_sink_km" %in% names(df)) {
-            val <- df$dist_sink_km[i]
-            if (!is.na(val)) p$dist_sink_km <- val
+        if ("dist_onshore" %in% names(df)) {
+            val <- df$dist_onshore[i]
+            if (!is.na(val)) p$dist_onshore <- val
         }
-        if ("dist_sink_saline_km" %in% names(df)) {
-            val <- df$dist_sink_saline_km[i]
-            if (!is.na(val)) p$dist_sink_saline_km <- val
-        }
-        if ("sink_is_offshore" %in% names(df)) {
-            val <- df$sink_is_offshore[i]
-            # Ensure logical
-            if (!is.na(val)) p$sink_is_offshore <- as.logical(val)
+        if ("dist_offshore" %in% names(df)) {
+            val <- df$dist_offshore[i]
+            if (!is.na(val)) p$dist_offshore <- val
         }
 
 

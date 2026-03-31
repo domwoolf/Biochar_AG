@@ -29,85 +29,67 @@ if (!dir.exists(proc_dir)) dir.create(proc_dir, recursive = TRUE)
 process_transport_layers <- function(region_name, template_path, file_prefix) {
     message(paste0("\n=== Processing Transport Layers for: ", region_name, " ==="))
 
-    # 1. Load Template
+    # 1. Load spatial template
     if (!file.exists(template_path)) {
         warning(paste("Template not found:", template_path, "- Skipping."))
         return(NULL)
     }
     r_template <- terra::rast(template_path)
-
-    # 2. Filter Sinks for this Region
-    #    We accept sinks in the region AND global hubs that might be relevant?
-    #    Strict filtering is usually safer for TEA unless cross-border transport is explicit.
-    #    Note: For Europe, we treat the whole continent as one region.
-
-    sinks_sub <- co2_sinks %>%
-        filter(Region == region_name)
-
-    if (nrow(sinks_sub) == 0) {
+    
+    # 2. Filter Sinks for the Region
+    region_sinks <- co2_sinks %>% filter(Region == region_name)
+    
+    if (nrow(region_sinks) == 0) {
         warning("No sinks found for this region in co2_sinks database.")
         return(NULL)
     }
 
-    message(paste0("Found ", nrow(sinks_sub), " sinks. Calculating distances..."))
+    message(paste0("Found ", nrow(region_sinks), " sinks. Calculating distances..."))
 
-    # 3. Calculate Geodesic Distance (km)
-    #    terra::distance computes distance from each cell to the nearest geometry in 'y'
-    #    For Lon/Lat (EPSG:4326), unit is meters.
-    r_dist_m <- terra::distance(r_template, sinks_sub)
-    r_dist_km <- r_dist_m / 1000
-
-    names(r_dist_km) <- "dist_sink_km"
-
-    # 4. Identification of Nearest Sink (for Offshore Classification)
-    message("Identifying nearest sink types (Onshore vs. Offshore)...")
-
-    # Use Voronoi polygons to partition space by nearest sink
-    v_polys <- terra::voronoi(terra::vect(sinks_sub))
-
-    # Rasterize these polygons onto the template grid
-    # Field 'is_offshore' must be present in sinks_sub (derived from Type)
-
-    # Ensure is_offshore column exists in the vector data
-    # (Checking logical condition on Type)
-    v_polys$is_offshore <- ifelse(v_polys$Type == "Offshore", 1, 0)
-
-    # Rasterize
-    r_offshore_flag <- terra::rasterize(v_polys, r_template, field = "is_offshore")
-    names(r_offshore_flag) <- "sink_is_offshore"
-
-    # 5. Calculate Distance to NON-EOR Sinks (Saline Only)
-    message("Calculating distance to Saline (Non-EOR) sinks...")
-    sinks_saline <- sinks_sub %>% filter(Is_EOR == FALSE)
-
-    if (nrow(sinks_saline) > 0) {
-        r_dist_saline_m <- terra::distance(r_template, sinks_saline)
-        r_dist_saline_km <- r_dist_saline_m / 1000
+    # Split into Onshore and Offshore
+    onshore_sinks <- region_sinks %>% filter(Type != "Offshore")
+    offshore_sinks <- region_sinks %>% filter(Type == "Offshore")
+    
+    # 3. Calculate Onshore Distance
+    if (nrow(onshore_sinks) > 0) {
+        r_dist_onshore <- terra::distance(r_template, terra::vect(onshore_sinks))
+        r_dist_onshore_km <- r_dist_onshore / 1000
     } else {
-        # If no saline sinks exist in region, set distance to infinite/NA or very high?
-        # Setting to NA might break calculations. Setting to arbitrary high (5000km).
-        r_dist_saline_km <- terra::rast(r_template)
-        values(r_dist_saline_km) <- 5000
+        # If no onshore sinks exist in the region, create a raster of Inf
+        r_dist_onshore_km <- terra::init(r_template, Inf)
     }
-    names(r_dist_saline_km) <- "dist_sink_saline_km"
+    
+    # 4. Calculate Offshore Distance
+    if (nrow(offshore_sinks) > 0) {
+        r_dist_offshore <- terra::distance(r_template, terra::vect(offshore_sinks))
+        r_dist_offshore_km <- r_dist_offshore / 1000
+    } else {
+        # If no offshore sinks exist, create a raster of Inf
+        r_dist_offshore_km <- terra::init(r_template, Inf)
+    }
 
-    # 6. Save Outputs
-    out_dist <- file.path(proc_dir, paste0(file_prefix, "_dist_sink.tif"))
-    out_dist_saline <- file.path(proc_dir, paste0(file_prefix, "_dist_sink_saline.tif"))
-    out_type <- file.path(proc_dir, paste0(file_prefix, "_sink_type.tif"))
+    # 5. Define output paths
+    out_dist_onshore <- file.path(proc_dir, paste0(file_prefix, "_dist_onshore.tif"))
+    out_dist_offshore <- file.path(proc_dir, paste0(file_prefix, "_dist_offshore.tif"))
 
-    terra::writeRaster(r_dist_km, out_dist, overwrite = TRUE)
-    terra::writeRaster(r_dist_saline_km, out_dist_saline, overwrite = TRUE)
-    terra::writeRaster(r_offshore_flag, out_type, overwrite = TRUE)
+    # Name layers
+    names(r_dist_onshore_km) <- "dist_onshore"
+    names(r_dist_offshore_km) <- "dist_offshore"
 
-    message(paste("Saved:", out_dist))
-    message(paste("Saved:", out_dist_saline))
-    message(paste("Saved:", out_type))
+    # Ensure output directory exists
+    if (!dir.exists(proc_dir)) dir.create(proc_dir, recursive = TRUE)
 
+    # 6. Save Rasters
+    terra::writeRaster(r_dist_onshore_km, out_dist_onshore, overwrite = TRUE)
+    terra::writeRaster(r_dist_offshore_km, out_dist_offshore, overwrite = TRUE)
+
+    message(paste("Saved:", out_dist_onshore))
+    message(paste("Saved:", out_dist_offshore))
+
+    # Return as list for immediate use if needed
     list(
-        dist = r_dist_km,
-        dist_saline = r_dist_saline_km,
-        type = r_offshore_flag
+        dist_onshore = r_dist_onshore_km,
+        dist_offshore = r_dist_offshore_km
     )
 }
 

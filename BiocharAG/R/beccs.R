@@ -45,7 +45,6 @@ calculate_beccs <- function(params) {
   # WARNING: default_parameters() sets ccs_distance = 100.
   # If spatial inputs ARE provided (dist_spatial != NULL), we overwrite it above.
   # This works.
-  if (is.null(params$ccs_storage_cost)) params$ccs_storage_cost <- 15
   if (is.null(params$beccs_capital_cost)) params$beccs_capital_cost <- 4000
 
   # Apply Fuel Quality Penalties (High Ash -> Higher Cost)
@@ -84,21 +83,55 @@ calculate_beccs <- function(params) {
 
     annual_co2_total <- annual_biomass * co2_captured
 
-    # Explicit Transport Cost ($/Mg CO2)
-    # Extract is_offshore from params (populated by run_spatial_tea)
-    is_offshore <- if (!is.null(params$sink_is_offshore)) params$sink_is_offshore else FALSE
+    # --- CCS Transport & Storage Component (Lowest Cost Routing) ---
 
-    transport_cost_per_ton <- calculate_ccs_transport(
-      co2_mass = annual_co2_total,
-      distance = ccs_distance,
-      is_offshore = is_offshore,
-      discount_rate = discount_rate,
-      lifetime = bes_life
-    )
+    # 1. Extract distances from spatial parameters (default to Inf if missing)
+    dist_onshore <- if (!is.null(params$dist_onshore)) params$dist_onshore else Inf
+    dist_offshore <- if (!is.null(params$dist_offshore)) params$dist_offshore else Inf
 
-    # Total T&S Cost ($/Mg Biomass)
-    # (Transport + Storage) * CO2_Captured
-    ts_cost <- (transport_cost_per_ton + ccs_storage_cost) * co2_captured
+    # Fallback to single ccs_distance if spatial separate onshore/offshore is missing (e.g. non-spatial run)
+    if (is.infinite(dist_onshore) && is.infinite(dist_offshore) && !is.null(params$ccs_distance)) {
+        if (!is.null(params$sink_is_offshore) && params$sink_is_offshore) {
+            dist_offshore <- params$ccs_distance
+        } else {
+            dist_onshore <- params$ccs_distance
+        }
+    }
+
+    # Base storage costs (can be overridden by params$ccs_storage_cost for onshore if it exists)
+    base_cost_onshore_storage <- if (!is.null(params$ccs_storage_cost)) params$ccs_storage_cost else 12.0
+    base_cost_offshore_storage <- 40.0
+
+    # 2. Evaluate Route A: Onshore
+    if (is.infinite(dist_onshore)) {
+        ts_cost_onshore <- Inf
+    } else {
+        cost_onshore_trans <- calculate_ccs_transport(
+            co2_mass = annual_co2_total,
+            distance = dist_onshore,
+            is_offshore = FALSE,
+            discount_rate = discount_rate,
+            lifetime = bes_life
+        )
+        ts_cost_onshore <- (cost_onshore_trans + base_cost_onshore_storage) * co2_captured
+    }
+
+    # 3. Evaluate Route B: Offshore
+    if (is.infinite(dist_offshore)) {
+        ts_cost_offshore <- Inf
+    } else {
+        cost_offshore_trans <- calculate_ccs_transport(
+            co2_mass = annual_co2_total,
+            distance = dist_offshore,
+            is_offshore = TRUE, # Forces shipping logic
+            discount_rate = discount_rate,
+            lifetime = bes_life
+        )
+        ts_cost_offshore <- (cost_offshore_trans + base_cost_offshore_storage) * co2_captured
+    }
+
+    # 4. Select the Lowest Cost Route
+    ts_cost <- min(ts_cost_onshore, ts_cost_offshore)
 
     # 4. Plant Costs (CAPEX/OPEX)
     # Scale calculation methodology identical to BECCS for consistency

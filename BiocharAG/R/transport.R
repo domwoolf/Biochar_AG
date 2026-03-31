@@ -120,22 +120,36 @@ calc_transport_cost <- function(mass_flow_mtpa, distance_km, region, is_offshore
 #' @return Transport cost ($/Mg CO2).
 #' @export
 calculate_ccs_transport <- function(co2_mass, distance, is_offshore = FALSE, discount_rate = 0.10, lifetime = 20) {
-    if (co2_mass <= 0) {
-        return(0)
-    }
+  if (co2_mass <= 0) return(0)
 
-    # 1. Check for Shipping override (Offshore OR Dist > 1000km)
-    # [cite: 23, 258]
-    if (is_offshore || distance > 1000) {
-        # Shipping Logic (Simplified from calc_transport_cost)
-        liq_cost <- 20.0
-        term_cost <- 15.0
-        voyage_cost <- 0.035 * distance
-        # Shipping is mostly OPEX/Unit cost, treated here as $/t directly
-        return(liq_cost + term_cost + voyage_cost)
-    }
+  # --- 1. Apply Tortuosity Factor ---
+  effective_dist <- distance * 1.25
 
-    # 2. Pipeline Hub-and-Spoke Logic (Onshore < 1000km)
+  # --- 2. Determine Transport Mode ---
+  high_vol_threshold <- 6000000 # 6 Mtpa
+  dist_limit_high_vol <- 700    # km
+  dist_limit_low_vol <- 1000    # km
+
+  use_shipping <- FALSE
+
+  if (is_offshore) {
+    use_shipping <- TRUE
+  } else {
+    if (co2_mass >= high_vol_threshold) {
+       if (effective_dist > dist_limit_high_vol) use_shipping <- TRUE
+    } else {
+       if (effective_dist > dist_limit_low_vol) use_shipping <- TRUE
+    }
+  }
+
+  # --- 3. Cost Calculation ---
+  if (use_shipping) {
+    cost_liq <- 20.0
+    cost_term <- 15.0
+    cost_voyage <- 0.035 * effective_dist
+    return(cost_liq + cost_term + cost_voyage)
+
+  } else {
     ref_mass <- 1000000
     ref_dist <- 100
     base_capex_ref <- 50000000
@@ -144,33 +158,34 @@ calculate_ccs_transport <- function(co2_mass, distance, is_offshore = FALSE, dis
 
     feeder_threshold_km <- 50
     trunk_mass_flow <- max(co2_mass, 3000000)
+
     annuity_fac <- (1 - (1 + discount_rate)^(-lifetime)) / discount_rate
 
-    if (distance > feeder_threshold_km) {
-        # Split Distance
-        dist_feeder <- feeder_threshold_km
-        dist_trunk <- distance - feeder_threshold_km
+    if (effective_dist > feeder_threshold_km) {
+      dist_feeder <- feeder_threshold_km
+      dist_trunk <- effective_dist - feeder_threshold_km
 
         # Feeder Leg (User Scale)
-        scaler_f <- (co2_mass / ref_mass)^scale_factor
-        capex_f <- base_capex_ref * (dist_feeder / ref_dist) * scaler_f
+      scaler_f <- (co2_mass / ref_mass)^scale_factor
+      capex_f <- base_capex_ref * (dist_feeder / ref_dist) * scaler_f
 
         # Trunk Leg (Efficient Scale)
-        scaler_t <- (trunk_mass_flow / ref_mass)^scale_factor
-        capex_t_total <- base_capex_ref * (dist_trunk / ref_dist) * scaler_t
+      scaler_t <- (trunk_mass_flow / ref_mass)^scale_factor
+      capex_t_total <- base_capex_ref * (dist_trunk / ref_dist) * scaler_t
 
         # User Share of Trunk Capex
-        capex_t_share <- capex_t_total * (co2_mass / trunk_mass_flow)
+      capex_t_share <- capex_t_total * (co2_mass / trunk_mass_flow)
 
-        total_capex_share <- capex_f + capex_t_share
+      total_capex_share <- capex_f + capex_t_share
     } else {
         # Direct Pipeline
-        scaler <- (co2_mass / ref_mass)^scale_factor
-        total_capex_share <- base_capex_ref * (distance / ref_dist) * scaler
+      scaler <- (co2_mass / ref_mass)^scale_factor
+      total_capex_share <- base_capex_ref * (effective_dist / ref_dist) * scaler
     }
 
     annual_capex <- total_capex_share / annuity_fac
     annual_opex <- total_capex_share * opex_factor
 
     return((annual_capex + annual_opex) / co2_mass)
+  }
 }
