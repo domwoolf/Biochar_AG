@@ -338,7 +338,8 @@ server <- function(input, output, session) {
         req(rv$map_data)
 
         # Setup 3x2 layout
-        par(mfrow = c(3, 2))
+        # par(mfrow = c(3, 2))
+        par(mfrow = c(2, 2))
 
         # Calculate common range for Net Value maps
         common_range <- range(minmax(rv$map_data$net_stack))
@@ -361,7 +362,7 @@ server <- function(input, output, session) {
 
         # Row 3: Transport Cost & Spare
         # Using a distinct color palette
-        terra::plot(rv$map_data$ts_cost, main = "BECCS Transport Cost ($/Mg)", col = terra::map.pal("viridis", 100))
+        # terra::plot(rv$map_data$ts_cost, main = "BECCS Transport Cost ($/Mg)", col = terra::map.pal("viridis", 100))
         # Empty plot for the spare slot (optional, or just leave blank)
         # plot.new()
     })

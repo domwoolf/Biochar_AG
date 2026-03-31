@@ -4,7 +4,13 @@
 \alias{calculate_ccs_transport}
 \title{Calculate CCS Pipeline Transport Cost}
 \usage{
-calculate_ccs_transport(co2_mass, distance, discount_rate = 0.1, lifetime = 20)
+calculate_ccs_transport(
+  co2_mass,
+  distance,
+  is_offshore = FALSE,
+  discount_rate = 0.1,
+  lifetime = 20
+)
 }
 \arguments{
 \item{co2_mass}{Annual CO2 mass to transport (Mg/year).}
