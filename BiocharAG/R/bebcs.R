@@ -45,32 +45,26 @@ calculate_bebcs <- function(params) {
     # Assume 50 MW Scale reference for unit cost derivation
     # (Consistent with BES/BECCS modern logic)
 
-    # 1. Pyrolysis Unit Cost
-    # Assume py_cc is capital cost per Mg capacity? Or $/kW equiv?
-    # Original logic used py_cc directly. Let's keep py_cc as $/Mg annual capacity?
-    # Or modernize: Pyrolysis Plant Cost ~ $500-800 / annual ton?
-    # For now, let's treat py_cc as $/Mg Annual Capacity constant.
-
-    annuity_fac_py <- calculate_annuity_factor(discount_rate, py_life)
-    annual_capex_py <- py_cc / annuity_fac_py
-
-    # 2. Power Generation Unit Cost (for Volatiles)
-    # Volatiles Mass = (1 - bc_yield) * Feed
-    # We use bes_capital_cost ($/kW) to find cost per Mg.
-
-    # Calculate Power Capex per Mg Biomass (same logic as BES)
-    # Calculate Power Capex per Mg Biomass (same logic as BES)
     plant_mw <- if (!is.null(params$plant_mw)) params$plant_mw else 50
     capacity_factor <- 0.85
-    # Elec Prod for pure BES:
-    bes_elec_prod_ref <- bm_lhv * bes_energy_efficiency * 0.277778
-    ref_annual_biomass <- (plant_mw * 8760 * capacity_factor) / bes_elec_prod_ref
-
-    today_bes_capex <- bes_capital_cost * plant_mw * 1000
-    # Apply Scaling Factor (Economies of Scale)
     scaling_factor <- 0.7
-    base_cost_ref <- bes_capital_cost * 50 * 1000
 
+    # Biomass throughput
+    bes_elec_prod_ref <- bm_lhv * bes_energy_efficiency * 0.277778
+    ref_50mw_biomass <- (50 * 8760 * capacity_factor) / bes_elec_prod_ref
+    actual_annual_biomass <- (plant_mw * 8760 * capacity_factor) / bes_elec_prod_ref
+
+    # 1. Pyrolysis Unit Cost (with Economies of Scale)
+    # py_cc is capital cost per Mg annual capacity at reference 50MW scale
+    base_py_capex <- py_cc * ref_50mw_biomass
+    total_py_capex <- base_py_capex * ((plant_mw / 50)^scaling_factor)
+
+    annuity_fac_py <- calculate_annuity_factor(discount_rate, py_life)
+    annual_py_payment <- total_py_capex / annuity_fac_py
+    annual_capex_py <- annual_py_payment / actual_annual_biomass
+
+    # 2. Power Generation Unit Cost (for Volatiles)
+    base_cost_ref <- bes_capital_cost * 50 * 1000
     total_bes_capex <- base_cost_ref * ((plant_mw / 50)^scaling_factor)
     # Note: We use the base 'bes_capital_cost' (Wood/Stoker reference) here.
     # We do NOT apply the 'high ash' penalty from adjust_costs_for_fuel() because
@@ -78,19 +72,13 @@ calculate_bebcs <- function(params) {
 
     annuity_fac_bes <- calculate_annuity_factor(discount_rate, bes_life)
     annual_bes_payment <- total_bes_capex / annuity_fac_bes
+    base_power_capex_per_mg <- annual_bes_payment / actual_annual_biomass
 
-    # Base Power Capex per Mg Input
-    base_power_capex_per_mg <- annual_bes_payment / ref_annual_biomass
-
-    # BEBCS Power Unit handles only (1 - bc_yield) fraction?
-    # Or is it sized for the volatiles energy?
-    # Volatiles Energy approx proportional to mass? (Simplification)
-    # Let's scale by mass fraction of volatiles.
+    # Scale by mass fraction of volatiles
     annual_capex_power <- base_power_capex_per_mg * (1 - bc_yield)
 
     # O&M
-    # Pyrolysis O&M + Power O&M
-    annual_om <- (py_cc * O_M_factor) + (base_power_capex_per_mg * (1 - bc_yield) * bes_om_factor)
+    annual_om <- ((total_py_capex / actual_annual_biomass) * O_M_factor) + (base_power_capex_per_mg * (1 - bc_yield) * bes_om_factor)
 
     # Logistics Cost (Biomass Transport)
     radius <- if (!is.null(params$collection_radius)) params$collection_radius else 50

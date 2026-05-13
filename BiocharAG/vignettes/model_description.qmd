@@ -104,7 +104,42 @@ Capital investments are annualized over the project's lifetime: $$ Annuity Facto
 Each pathway resolves into a net value ($/Mg Feedstock):$\$ Net_Value = \sum Revenue (Electricity, Carbon, Agronomic) - \sum Costs (CAPEX, OPEX, Transport, Storage) \$\$
 
 
+## CO2 Transport and Routing Logistics
 
+The spatial routing of captured $CO_2$ is governed by an economic optimization algorithm that dynamically selects the lowest-cost transport modality—pipeline or maritime shipping—for every grid cell. To account for terrain avoidance and right-of-way routing, all Euclidean distances are adjusted by a standard tortuosity multiplier of 1.25.
+
+### Maritime Shipping Modality
+For offshore geological sinks, or for highly isolated onshore sources, $CO_2$ is transported via maritime or rail networks. This modality is modeled with a step-cost function dominated by the capital-intensive fixed entry costs of liquefaction and terminal buffering, paired with highly efficient variable voyage costs:
+
+$$C_{shipping} = C_{liquefaction} + C_{terminal} + (c_{voyage} \cdot d_{effective})$$
+
+### Hub-and-Spoke Pipeline Modality (Piecewise Linear)
+Standard length-invariant TEA cost functions for $CO_2$ pipelines (e.g., using a 0.6 capacity scaling factor) adequately model regional networks but fundamentally underestimate the capital and energetic burdens of long-distance transport. Specifically, maintaining $CO_2$ in a dense/supercritical phase over extended distances requires the deployment of intermediate booster compression stations to overcome frictional pressure drop (McCoy & Rubin, 2008).
+
+To model this without computationally intensive grid-level pump topology, pipeline CAPEX is calculated using a piecewise linear hub-and-spoke framework.
+
+**1. The Feeder Leg:** Sources build a dedicated feeder pipeline for the first 50 km ($d_{feeder}$), bearing the full capacity-scaled CAPEX.
+**2. The Trunk Leg (Base Phase):** For distances up to 700 km, the source connects to a regional trunkline operating at an efficient scale (3 Mtpa), paying only a proportional mass share of the CAPEX.
+**3. The Trunk Leg (Booster Phase):** For distances exceeding 700 km, the marginal cost of the trunkline increases by a penalty factor ($P_{booster} = 2.0$) to approximate the compounding capital and operational costs of intermediate booster stations.
+
+The trunkline CAPEX share ($CAPEX_{trunk}$) is calculated as:
+
+$$
+CAPEX_{trunk} =
+\begin{cases}
+C_{base} \cdot (d_{effective} - 50) & \text{if } d_{effective} \le 700 \\
+C_{base} \cdot (700 - 50) + (C_{base} \cdot P_{booster}) \cdot (d_{effective} - 700) & \text{if } d_{effective} > 700
+\end{cases}
+$$
+
+*Where $C_{base}$ is the unit length cost of the efficient-scale trunkline, scaled to the user's proportional mass.*
+
+### Spatial Economic Optimization
+To eliminate artifactual spatial boundaries, the model does not enforce rigid distance limits. For all onshore sinks, the algorithm evaluates both modalities and selects the optimal route:
+
+$$Cost_{transport} = \min(C_{pipeline}, C_{shipping})$$
+
+Because of the piecewise booster penalty, the $C_{pipeline}$ curve steepens significantly beyond 700 km, guaranteeing a natural, continuous mathematical intersection with the flat $C_{shipping}$ cost floor. This allows the model to smoothly transition to shipping modalities at distances consistent with the break-even thresholds identified by the Zero Emissions Platform (ZEP, 2011).
 
 # Data Sources
 
