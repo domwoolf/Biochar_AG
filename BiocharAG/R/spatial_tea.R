@@ -16,9 +16,115 @@
 #' @export
 #' @importFrom terra as.data.frame rast
 run_spatial_tea <- function(template_raster, params, spatial_layers = list(),
-                            fun = calculate_beccs, collection_radius_km = 50) {
+                            fun = calculate_beccs, collection_radius_km = 50,
+                            optimize_scale = FALSE, plant_sizes_mw_th = c(5, 25, 50, 100, 250, 500)) {
     if (!inherits(template_raster, "SpatRaster")) {
         stop("template_raster must be a terra SpatRaster object.")
+    }
+
+    if (optimize_scale) {
+        if (!"biomass_density" %in% names(spatial_layers)) {
+            stop("biomass_density spatial layer is required for scale optimization.")
+        }
+
+        p <- params
+
+        # Map spatial layers directly to SpatRaster parameters
+        if ("soil_temp" %in% names(spatial_layers)) p$soil_temp <- spatial_layers$soil_temp
+        if ("elec_price" %in% names(spatial_layers)) {
+            factor <- if (!is.null(p$wholesale_discount_factor)) p$wholesale_discount_factor else 0.4
+            p$elec_price <- spatial_layers$elec_price * factor
+        }
+        if ("soil_ph" %in% names(spatial_layers)) p$soil_ph <- spatial_layers$soil_ph
+        if ("soil_cec" %in% names(spatial_layers)) p$soil_cec <- spatial_layers$soil_cec
+        if ("dist_onshore" %in% names(spatial_layers)) p$dist_onshore <- spatial_layers$dist_onshore
+        if ("dist_offshore" %in% names(spatial_layers)) p$dist_offshore <- spatial_layers$dist_offshore
+
+        dens <- spatial_layers$biomass_density
+
+        if (is.null(p$bm_lhv)) p$bm_lhv <- 18.6
+        capacity_factor <- 0.85
+
+        npv_list <- list()
+        tc_list <- list()
+        abat_list <- list()
+        ts_list <- list()
+
+        message("Optimizing Scale for ", length(plant_sizes_mw_th), " sizes using raster algebra...")
+
+        for (sz in plant_sizes_mw_th) {
+            p_sz <- p
+            p_sz$plant_mw_th <- sz
+
+            # Use precalculated spatial transport distance
+            dist_layer_name <- paste0("dist_", sz, "MWth")
+            if (!dist_layer_name %in% names(spatial_layers)) {
+                stop("Missing precalculated distance raster in spatial_layers: ", dist_layer_name)
+            }
+            p_sz$avg_dist <- spatial_layers[[dist_layer_name]]
+
+            # Run TEA Math on SpatRasters
+            res <- fun(p_sz)
+
+            npv_list[[as.character(sz)]] <- if (inherits(res$net_value, "SpatRaster")) {
+                res$net_value
+            } else {
+                terra::rast(template_raster, vals = res$net_value)
+            }
+
+            tc_list[[as.character(sz)]] <- if (inherits(res$total_cost, "SpatRaster")) {
+                res$total_cost
+            } else {
+                terra::rast(template_raster, vals = res$total_cost)
+            }
+
+            abat_list[[as.character(sz)]] <- if (inherits(res$tot_c_abatement, "SpatRaster")) {
+                res$tot_c_abatement
+            } else {
+                terra::rast(template_raster, vals = res$tot_c_abatement)
+            }
+
+            ts_list[[as.character(sz)]] <- if (!is.null(res$ts_cost)) {
+                if (inherits(res$ts_cost, "SpatRaster")) {
+                    res$ts_cost
+                } else {
+                    terra::rast(template_raster, vals = res$ts_cost)
+                }
+            } else {
+                terra::rast(template_raster, nlyrs = 1, vals = NA)
+            }
+        }
+
+        npv_stack <- terra::rast(npv_list)
+        tc_stack <- terra::rast(tc_list)
+        abat_stack <- terra::rast(abat_list)
+        ts_stack <- terra::rast(ts_list)
+
+        opt_idx <- terra::which.max(npv_stack)
+
+        out_npv <- terra::rast(template_raster, nlyrs = 1, vals = NA)
+        out_tc <- terra::rast(template_raster, nlyrs = 1, vals = NA)
+        out_abat <- terra::rast(template_raster, nlyrs = 1, vals = NA)
+        out_ts <- terra::rast(template_raster, nlyrs = 1, vals = NA)
+        out_scale <- terra::rast(template_raster, nlyrs = 1, vals = NA)
+
+        for (i in seq_along(plant_sizes_mw_th)) {
+            sz <- plant_sizes_mw_th[i]
+            mask_i <- (opt_idx == i)
+            out_npv <- terra::ifel(mask_i, npv_stack[[i]], out_npv)
+            out_tc <- terra::ifel(mask_i, tc_stack[[i]], out_tc)
+            out_abat <- terra::ifel(mask_i, abat_stack[[i]], out_abat)
+            out_ts <- terra::ifel(mask_i, ts_stack[[i]], out_ts)
+            out_scale <- terra::ifel(mask_i, sz, out_scale)
+        }
+
+        out_r <- c(out_npv, out_tc, out_abat, out_ts, out_scale)
+        names(out_r) <- c("Net_Value_USD", "Total_Cost_USD_Mg", "Abatement_tCO2", "Transport_Cost_USD_Mg", "Optimal_Plant_MW_th")
+
+        # Apply Strict Biomass Mask (Removes Oceans, Lakes, and Zero-Biomass Deserts)
+        bm_mask <- spatial_layers$biomass_density > 0
+        out_r <- terra::mask(out_r, bm_mask, maskvalue = FALSE)
+        return(out_r)
     }
 
     # 1. Prepare Data Frame from Raster Grid
@@ -44,13 +150,7 @@ run_spatial_tea <- function(template_raster, params, spatial_layers = list(),
     total_cost_vec <- numeric(n)
     abatement_vec <- numeric(n)
     ts_cost_vec <- numeric(n) # NEW
-    dist_vec <- numeric(n)
     scale_vec <- numeric(n)
-
-    # Lat/Lon detection
-    # Assuming x = Lon, y = Lat (EPSG:4326). If projected, need conversion.
-    # Check CRS? For now assume User provides Lat/Lon raster or acceptable coords.
-    is_lonlat <- terra::is.lonlat(template_raster)
 
     for (i in seq_len(n)) {
         if (i %% 500 == 0) message("Processing cell ", i, " / ", n)

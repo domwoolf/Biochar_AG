@@ -47,10 +47,7 @@ calculate_biochar_value <- function(params, bc_yield) {
         price_lime <- if (!is.null(params$price_lime)) params$price_lime else 60
         bc_cce <- if (!is.null(params$bc_cce)) params$bc_cce else 0.15
 
-        v_lime_per_mg_char <- 0
-        if (soil_ph < target_ph) {
-            v_lime_per_mg_char <- bc_cce * price_lime
-        }
+        v_lime_per_mg_char <- ifelse_raster(soil_ph < target_ph, bc_cce * price_lime, 0)
 
         # 2. Nutrient Value (Substitution)
         p_n <- if (!is.null(params$price_n)) params$price_n else 0.92
@@ -75,7 +72,7 @@ calculate_biochar_value <- function(params, bc_yield) {
         # Heuristic: Value is proportional to CEC deficit (Sandier = More value)
         # Assume $50/Mg annual benefit in pure sand (CEC=5), $0 in clay (CEC>30)
         # Linear ramp: (30 - CEC) * 2
-        cec_val_annual <- max(0, (30 - soil_cec) * 2)
+        cec_val_annual <- pmax_raster(0, (30 - soil_cec) * 2)
 
         # Discounted over impact duration
         dur <- if (!is.null(params$ag_impact_duration)) params$ag_impact_duration else 10

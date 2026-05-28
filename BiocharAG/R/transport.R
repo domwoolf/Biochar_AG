@@ -120,9 +120,8 @@ calc_transport_cost <- function(mass_flow_mtpa, distance_km, region, is_offshore
 #' @return Transport cost ($/Mg CO2).
 #' @export
 calculate_ccs_transport <- function(co2_mass, distance, is_offshore = FALSE, discount_rate = 0.10, lifetime = 20) {
-  if (co2_mass <= 0) {
-    return(0)
-  }
+  # Prevent division by zero and handle co2_mass <= 0 at the end
+  safe_co2_mass <- pmax(co2_mass, 1e-6)
 
   # --- 1. Apply Tortuosity Factor ---
   effective_dist <- distance * 1.25
@@ -141,54 +140,53 @@ calculate_ccs_transport <- function(co2_mass, distance, is_offshore = FALSE, dis
   opex_factor <- 0.04
 
   feeder_threshold_km <- 50
-  trunk_mass_flow <- max(co2_mass, 3000000)
+  trunk_mass_flow <- pmax(safe_co2_mass, 3000000)
   annuity_fac <- (1 - (1 + discount_rate)^(-lifetime)) / discount_rate
 
-  if (effective_dist > feeder_threshold_km) {
-    dist_feeder <- feeder_threshold_km
+  # Path A: Dist > feeder_threshold_km (Hub & Spoke)
+  dist_feeder <- feeder_threshold_km
+  scaler_f <- (safe_co2_mass / ref_mass)^scale_factor
+  capex_f <- base_capex_ref * (dist_feeder / ref_dist) * scaler_f
 
-    # Feeder Leg
-    scaler_f <- (co2_mass / ref_mass)^scale_factor
-    capex_f <- base_capex_ref * (dist_feeder / ref_dist) * scaler_f
+  scaler_t <- (trunk_mass_flow / ref_mass)^scale_factor
+  booster_threshold_km <- 700
+  booster_penalty <- 2.0
 
-    # Trunk Leg (Piecewise Booster Logic)
-    scaler_t <- (trunk_mass_flow / ref_mass)^scale_factor
-    booster_threshold_km <- 700
-    booster_penalty <- 2.0
+  # Trunk (Standard vs Dogleg)
+  dist_trunk_std <- effective_dist - feeder_threshold_km
+  capex_t_std <- base_capex_ref * (dist_trunk_std / ref_dist) * scaler_t
 
-    if (effective_dist <= booster_threshold_km) {
-      # Standard Trunk
-      dist_trunk <- effective_dist - feeder_threshold_km
-      capex_t_total <- base_capex_ref * (dist_trunk / ref_dist) * scaler_t
-    } else {
-      # Dogleg / Booster Trunk
-      dist_base_trunk <- booster_threshold_km - feeder_threshold_km
-      dist_booster_trunk <- effective_dist - booster_threshold_km
+  dist_base_trunk <- booster_threshold_km - feeder_threshold_km
+  dist_booster_trunk <- effective_dist - booster_threshold_km
+  capex_t_base <- base_capex_ref * (dist_base_trunk / ref_dist) * scaler_t
+  capex_t_booster <- (base_capex_ref * booster_penalty) * (dist_booster_trunk / ref_dist) * scaler_t
+  capex_t_dogleg <- capex_t_base + capex_t_booster
 
-      capex_t_base <- base_capex_ref * (dist_base_trunk / ref_dist) * scaler_t
-      capex_t_booster <- (base_capex_ref * booster_penalty) * (dist_booster_trunk / ref_dist) * scaler_t
+  capex_t_total <- ifelse_raster(effective_dist <= booster_threshold_km, capex_t_std, capex_t_dogleg)
+  capex_t_share <- capex_t_total * (safe_co2_mass / trunk_mass_flow)
+  total_capex_share_far <- capex_f + capex_t_share
 
-      capex_t_total <- capex_t_base + capex_t_booster
-    }
+  # Path B: Direct pipeline < 50km
+  scaler_direct <- (safe_co2_mass / ref_mass)^scale_factor
+  total_capex_share_close <- base_capex_ref * (effective_dist / ref_dist) * scaler_direct
 
-    # User Share of Trunk
-    capex_t_share <- capex_t_total * (co2_mass / trunk_mass_flow)
-    total_capex_share <- capex_f + capex_t_share
-  } else {
-    # Direct pipeline < 50km
-    scaler <- (co2_mass / ref_mass)^scale_factor
-    total_capex_share <- base_capex_ref * (effective_dist / ref_dist) * scaler
-  }
+  # Combine Paths
+  total_capex_share <- ifelse_raster(effective_dist > feeder_threshold_km, total_capex_share_far, total_capex_share_close)
 
   annual_capex <- total_capex_share / annuity_fac
   annual_opex <- total_capex_share * opex_factor
-
-  pipeline_cost <- (annual_capex + annual_opex) / co2_mass
+  pipeline_cost <- (annual_capex + annual_opex) / safe_co2_mass
 
   # --- 4. Economic Optimizer ---
-  if (is_offshore) {
-    return(shipping_cost)
+  # If is_offshore is a scalar TRUE or all TRUE, return shipping
+  if (all(is_offshore)) {
+    final_cost <- shipping_cost
+  } else if (any(is_offshore)) {
+    # If vector of mixed TRUE/FALSE
+    final_cost <- ifelse_raster(is_offshore, shipping_cost, pmin_raster(pipeline_cost, shipping_cost))
   } else {
-    return(min(pipeline_cost, shipping_cost))
+    final_cost <- pmin_raster(pipeline_cost, shipping_cost)
   }
+
+  return(ifelse_raster(co2_mass <= 0, 0, final_cost))
 }

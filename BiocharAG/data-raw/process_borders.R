@@ -61,7 +61,7 @@ regions <- list(
     USA = list(
         prefix = "us",
         filter = "United States",
-        template = file.path(gis_proc, "demo_biomass.tif")
+        template = file.path(gis_proc, "us_biomass.tif")
     ),
     India = list(
         prefix = "india",

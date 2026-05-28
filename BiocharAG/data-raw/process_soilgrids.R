@@ -1,7 +1,7 @@
 # Process SoilGrids VRTs (CEC, pH) to match Project Grid
 #
 # Inputs:
-# - GIS/processed/demo_biomass.tif (Template)
+# - GIS/processed/us_biomass.tif (Template)
 # - GIS/raw/soilgrids/.../cec_0-5cm_mean.vrt
 # - GIS/raw/soilgrids/.../phh2o_0-5cm_mean.vrt
 #
@@ -15,7 +15,7 @@ library(terra)
 gis_proc <- "../GIS/processed"
 gis_raw <- "../GIS/raw/soilgrids/files.isric.org/soilgrids/latest/data"
 
-template_path <- file.path(gis_proc, "demo_biomass.tif")
+template_path <- file.path(gis_proc, "us_biomass.tif")
 if (!file.exists(template_path)) stop("Template raster missing!")
 
 cec_vrt <- file.path(gis_raw, "cec/cec_0-5cm_mean.vrt")

@@ -149,44 +149,84 @@ calculate_fperm_approx <- function(val, method = "HC", soil_temp) {
     }
 
     y_grid <- lut$soil_temps
-    soil_temp <- pmax(min(y_grid), pmin(max(y_grid), soil_temp))
+    is_raster <- inherits(soil_temp, "SpatRaster")
+    if (is_raster) {
+        soil_temp <- pmax_raster(min(y_grid), pmin_raster(max(y_grid), soil_temp))
+        
+        # Warning: terra::app is slow for simple intervals, but necessary for pure raster algebra
+        idx_y <- terra::app(soil_temp, function(x) findInterval(x, y_grid, all.inside = TRUE))
+        
+        # val is typically scalar (H:C ratio), but just in case
+        if (inherits(val, "SpatRaster")) {
+            idx_x <- terra::app(val, function(x) findInterval(x, x_grid, all.inside = TRUE))
+        } else {
+            idx_x <- findInterval(val, x_grid, all.inside = TRUE)
+        }
+        
+        x0 <- x_grid[idx_x]
+        x1 <- x_grid[idx_x + 1]
 
-    # Bilinear Interpolation
+        y0 <- terra::subst(idx_y, from = seq_along(y_grid), to = y_grid)
+        y1 <- terra::subst(idx_y + 1, from = seq_along(y_grid), to = y_grid)
 
-    # Find indices
-    # findInterval returns index i such that vec[i] <= x < vec[i+1]
-    # We need x0 and x1
+        # Values at 4 corners
+        # Grid structure: Rows = X (Val), Cols = Y (Temp)
+        q11 <- terra::subst(idx_y, from = seq_along(y_grid), to = grid_z[idx_x, ])
+        q21 <- terra::subst(idx_y, from = seq_along(y_grid), to = grid_z[idx_x + 1, ])
+        q12 <- terra::subst(idx_y + 1, from = seq_along(y_grid), to = grid_z[idx_x, ])
+        q22 <- terra::subst(idx_y + 1, from = seq_along(y_grid), to = grid_z[idx_x + 1, ])
 
-    idx_x <- findInterval(val, x_grid, all.inside = TRUE)
-    idx_y <- findInterval(soil_temp, y_grid, all.inside = TRUE)
+        # Weights
+        wx <- (val - x0) / (x1 - x0)
+        wy <- (soil_temp - y0) / (y1 - y0)
 
-    x0 <- x_grid[idx_x]
-    x1 <- x_grid[idx_x + 1]
+        # Interpolate
+        # Linear in X at y0
+        r1 <- q11 * (1 - wx) + q21 * wx
+        # Linear in X at y1
+        r2 <- q12 * (1 - wx) + q22 * wx
 
-    y0 <- y_grid[idx_y]
-    y1 <- y_grid[idx_y + 1]
+        # Linear in Y
+        res <- r1 * (1 - wy) + r2 * wy
+        return(res)
+    } else {
+        soil_temp <- pmax(min(y_grid), pmin(max(y_grid), soil_temp))
+        idx_y <- findInterval(soil_temp, y_grid, all.inside = TRUE)
+        
+        # val is typically scalar (H:C ratio), but just in case
+        if (inherits(val, "SpatRaster")) {
+            idx_x <- terra::app(val, function(x) findInterval(x, x_grid, all.inside = TRUE))
+        } else {
+            idx_x <- findInterval(val, x_grid, all.inside = TRUE)
+        }
 
-    # Values at 4 corners
-    # Grid structure: Rows = X (Val), Cols = Y (Temp)
-    q11 <- grid_z[idx_x, idx_y] # x0, y0
-    q21 <- grid_z[idx_x + 1, idx_y] # x1, y0
-    q12 <- grid_z[idx_x, idx_y + 1] # x0, y1
-    q22 <- grid_z[idx_x + 1, idx_y + 1] # x1, y1
+        x0 <- x_grid[idx_x]
+        x1 <- x_grid[idx_x + 1]
 
-    # Weights
-    wx <- (val - x0) / (x1 - x0)
-    wy <- (soil_temp - y0) / (y1 - y0)
+        y0 <- y_grid[idx_y]
+        y1 <- y_grid[idx_y + 1]
 
-    # Interpolate
-    # Linear in X at y0
-    r1 <- q11 * (1 - wx) + q21 * wx
-    # Linear in X at y1
-    r2 <- q12 * (1 - wx) + q22 * wx
+        # Values at 4 corners
+        # Grid structure: Rows = X (Val), Cols = Y (Temp)
+        q11 <- grid_z[idx_x, idx_y] # x0, y0
+        q21 <- grid_z[idx_x + 1, idx_y] # x1, y0
+        q12 <- grid_z[idx_x, idx_y + 1] # x0, y1
+        q22 <- grid_z[idx_x + 1, idx_y + 1] # x1, y1
 
-    # Linear in Y
-    res <- r1 * (1 - wy) + r2 * wy
+        # Weights
+        wx <- (val - x0) / (x1 - x0)
+        wy <- (soil_temp - y0) / (y1 - y0)
 
-    return(as.numeric(res))
+        # Interpolate
+        # Linear in X at y0
+        r1 <- q11 * (1 - wx) + q21 * wx
+        # Linear in X at y1
+        r2 <- q12 * (1 - wx) + q22 * wx
+
+        # Linear in Y
+        res <- r1 * (1 - wy) + r2 * wy
+        return(as.numeric(res))
+    }
 }
 
 #' Prepare Fperm 1D Vector (Optimization)

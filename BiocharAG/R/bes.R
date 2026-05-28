@@ -1,8 +1,9 @@
 #' Calculate Bioenergy System (BES) Metrics
 #'
-#' Modernizated logic (2024 Basis):
+#' Modernized logic (2024 Basis):
 #' - Uses modernized Capital Cost ($3,000/kW) and Efficiency (30%) defaults.
 #' - Calculates Levelized Cost of Electricity components (CAPEX/OPEX).
+#' - Explicitly tracks Scope 3 transport emissions and road tortuosity.
 #'
 #' @param params A list of parameters.
 #' @return A list of calculated metrics for BES.
@@ -23,50 +24,58 @@ calculate_bes <- function(params) {
     elec_prod <- energy_output * 0.277778 # MWh / Mg biomass
 
     # 2. Plant Costs (CAPEX/OPEX)
-    # Scale calculation methodology identical to BECCS for consistency
-    plant_mw <- if (!is.null(params$plant_mw)) params$plant_mw else 50
+    if (!is.null(params$plant_mw_th)) {
+      plant_mw_th <- params$plant_mw_th
+      plant_mw <- plant_mw_th * bes_energy_efficiency
+    } else {
+      plant_mw <- if (!is.null(params$plant_mw)) params$plant_mw else 50
+      plant_mw_th <- plant_mw / bes_energy_efficiency
+    }
+
     capacity_factor <- 0.85
-    annual_biomass <- (plant_mw * 8760 * capacity_factor) / elec_prod
+    annual_biomass <- (plant_mw_th * 8760 * capacity_factor) / (bm_lhv * 0.277778)
 
     # Total Capex ($)
-    # Apply Scaling Factor (Economies of Scale)
-    # Reference: 50 MW
-    # Scaling Factor: 0.7 (typical for thermal plants)
     scaling_factor <- 0.7
     base_cost <- bes_capital_cost * 50 * 1000 # Cost of 50 MW plant
-
     total_capex <- base_cost * ((plant_mw / 50)^scaling_factor)
 
     # Annual Capex ($/yr)
     annuity_fac <- calculate_annuity_factor(discount_rate, bes_life)
     annual_capex_payment <- total_capex / annuity_fac
 
-    # Capex per Mg Biomass
+    # Capex and OPEX per Mg Biomass
     capex_per_mg <- annual_capex_payment / annual_biomass
-
-    # OPEX ($/Mg)
     opex_per_mg <- capex_per_mg * bes_om_factor
 
-    # Logistics Cost (Biomass Transport)
-    # Default radius 50km if not provided
-    radius <- if (!is.null(params$collection_radius)) params$collection_radius else 50
-    avg_dist <- (2 / 3) * radius
+    # --- 3. Logistics Cost & Transport Emissions ---
+    if (!is.null(params$avg_dist)) {
+      avg_dist <- params$avg_dist
+    } else {
+      radius <- if (!is.null(params$collection_radius)) params$collection_radius else 50
+      avg_dist <- (2 / 3) * radius
+    }
 
-    # Defaults in case params missing
+    # Apply tortuosity to get actual road distance
+    tort <- if (!is.null(params$tortuosity)) params$tortuosity else 1.3
+    effective_dist <- avg_dist * tort
+
     tf <- if (!is.null(params$bm_transport_fixed)) params$bm_transport_fixed else 5.0
     tv <- if (!is.null(params$bm_transport_var)) params$bm_transport_var else 0.15
+    logistics_cost <- tf + (tv * effective_dist)
 
-    logistics_cost <- tf + (tv * avg_dist)
+    # Calculate Scope 3 Transport Emissions (Default: 0.0001 Mg CO2e / Mg-km for heavy diesel truck)
+    trans_em_factor <- if (!is.null(params$transport_emissions_factor)) params$transport_emissions_factor else 0.0001
+    transport_emissions_co2e <- effective_dist * trans_em_factor
 
     total_cost <- capex_per_mg + opex_per_mg + logistics_cost
 
-    # 3. Revenue & Value
+    # 4. Revenue & Value
     elec_revenue <- elec_prod * elec_price
 
-    # Carbon Abatement (No Sequestration, only displacement)
-    c_sequestered <- 0
+    # Carbon Abatement (No Sequestration, only displacement minus transport penalty)
     c_displaced <- energy_output * ff_c_intensity
-    tot_c_abatement <- c_sequestered + c_displaced
+    tot_c_abatement <- c_displaced - transport_emissions_co2e
     abatement_value <- tot_c_abatement * c_price
 
     total_revenue <- elec_revenue + abatement_value
@@ -76,7 +85,7 @@ calculate_bes <- function(params) {
       technology = "BES",
       energy_output = energy_output,
       elec_prod = elec_prod,
-      c_sequestered = c_sequestered,
+      c_sequestered = 0,
       tot_c_abatement = tot_c_abatement,
       total_cost = total_cost,
       total_revenue = total_revenue,

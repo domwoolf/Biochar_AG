@@ -91,9 +91,9 @@ merge_prices <- function(v, lut) {
 # ==============================================================================
 gis_proc <- "../GIS/processed"
 
-# Note: US uses "demo" prefix for its template.
+# Note: US uses "us" prefix for its template.
 region_config <- list(
-    USA = list(prefix = "us", tpl = "demo", admin = "admin1", default = 90),
+    USA = list(prefix = "us", tpl = "us", admin = "admin1", default = 90),
     China = list(prefix = "china", tpl = "china", admin = "admin1", default = 85),
     India = list(prefix = "india", tpl = "india", admin = "admin1", default = 95),
     Europe = list(prefix = "europe", tpl = "europe", admin = "admin0", default = 160)

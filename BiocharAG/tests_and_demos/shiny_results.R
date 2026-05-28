@@ -8,6 +8,11 @@ library(BiocharAG)
 library(ggplot2)
 library(tidyr)
 
+# Silence linter warnings
+if (getRversion() >= "2.15.1") {
+    utils::globalVariables(c("x", "y", "tech"))
+}
+
 # Ensure data dictionary / parameters are available
 if (!exists("default_parameters")) {
     message("Package loaded but default_parameters not found on search path.")
@@ -75,6 +80,7 @@ ui <- fluidPage(
                 sliderInput("eff_penalty", "BECCS Efficiency Penalty:",
                     min = 0.0, max = 0.20, value = 0.08, step = 0.01
                 ),
+                checkboxInput("optimize_scale", "Optimize Plant Scale?", value = TRUE),
                 hr(),
                 actionButton("run_btn", "Run Analysis", class = "btn-primary", width = "100%"),
                 p(
@@ -162,18 +168,18 @@ server <- function(input, output, session) {
 
             a0 <- NULL
             a1 <- NULL
-            if (file.exists(paste0(gis_path, prefix, "_admin0.gpkg"))) a0 <- terra::vect(paste0(gis_path, prefix, "_admin0.gpkg"))
-            if (file.exists(paste0(gis_path, prefix, "_admin1.gpkg"))) a1 <- terra::vect(paste0(gis_path, prefix, "_admin1.gpkg"))
+            if (file.exists(paste0(gis_path, prefix, "_admin0.gpkg"))) a0 <- sf::st_read(paste0(gis_path, prefix, "_admin0.gpkg"), quiet = TRUE)
+            if (file.exists(paste0(gis_path, prefix, "_admin1.gpkg"))) a1 <- sf::st_read(paste0(gis_path, prefix, "_admin1.gpkg"), quiet = TRUE)
 
             template <- bm
         } else {
-            # USA / Demo Logic
-            bm <- terra::rast(paste0(gis_path, "demo_biomass.tif"))
-            st <- terra::rast(paste0(gis_path, "demo_soil_temp.tif"))
+            # USA Logic
+            bm <- terra::rast(paste0(gis_path, "us_biomass.tif"))
+            st <- terra::rast(paste0(gis_path, "us_soil_temp.tif"))
             if (file.exists(paste0(gis_path, "us_elec_price.tif"))) {
                 ep <- terra::rast(paste0(gis_path, "us_elec_price.tif"))
             } else {
-                ep <- terra::rast(paste0(gis_path, "demo_elec_price.tif"))
+                ep <- terra::rast(paste0(gis_path, "us_elec_price.tif")) # This logic is redundant now, but harmless
             }
 
             # Transport (US Demo)
@@ -193,13 +199,13 @@ server <- function(input, output, session) {
             if (file.exists(paste0(gis_path, "soil_ph.tif"))) {
                 ph <- terra::rast(paste0(gis_path, "soil_ph.tif"))
             } else {
-                if (file.exists(paste0(gis_path, "demo_soil_ph.tif"))) ph <- terra::rast(paste0(gis_path, "demo_soil_ph.tif"))
+                if (file.exists(paste0(gis_path, "us_soil_ph.tif"))) ph <- terra::rast(paste0(gis_path, "us_soil_ph.tif"))
             }
 
             if (file.exists(paste0(gis_path, "soil_cec.tif"))) {
                 cec <- terra::rast(paste0(gis_path, "soil_cec.tif"))
             } else {
-                if (file.exists(paste0(gis_path, "demo_soil_cec.tif"))) cec <- terra::rast(paste0(gis_path, "demo_soil_cec.tif"))
+                if (file.exists(paste0(gis_path, "us_soil_cec.tif"))) cec <- terra::rast(paste0(gis_path, "us_soil_cec.tif"))
             }
 
             processed_layers <- list(
@@ -208,16 +214,13 @@ server <- function(input, output, session) {
             )
 
             # DEBUG: Print Check
-            r_min <- minmax(ds_onshore)[1]
-            r_max <- minmax(ds_onshore)[2]
-
             if (!is.null(ph)) processed_layers$soil_ph <- ph
             if (!is.null(cec)) processed_layers$soil_cec <- cec
             
             a0 <- NULL
             a1 <- NULL
-            if (file.exists(paste0(gis_path, "us_admin0.gpkg"))) a0 <- terra::vect(paste0(gis_path, "us_admin0.gpkg"))
-            if (file.exists(paste0(gis_path, "us_admin1.gpkg"))) a1 <- terra::vect(paste0(gis_path, "us_admin1.gpkg"))
+            if (file.exists(paste0(gis_path, "us_admin0.gpkg"))) a0 <- sf::st_read(paste0(gis_path, "us_admin0.gpkg"), quiet = TRUE)
+            if (file.exists(paste0(gis_path, "us_admin1.gpkg"))) a1 <- sf::st_read(paste0(gis_path, "us_admin1.gpkg"), quiet = TRUE)
 
             template <- bm
         }
@@ -228,13 +231,12 @@ server <- function(input, output, session) {
     params_r <- reactive({
         if (!exists("default_parameters")) stop("CRITICAL: default_parameters is missing inside server scope!")
 
+        p <- default_parameters()
         if (input$region == "India") {
-            tryCatch(p <- parameters_india(), error = function(e) {
+            p <- tryCatch(parameters_india(), error = function(e) {
                 message("Warning: parameters_india not found, falling back to default.")
-                p <- default_parameters()
+                default_parameters()
             })
-        } else {
-            p <- default_parameters()
         }
         p$c_price <- input$c_price
         p$discount_rate <- input$discount_rate / 100
@@ -281,17 +283,17 @@ server <- function(input, output, session) {
             # 1. BES (Standard Radius: 50km)
             message(Sys.time(), " - Starting BES...")
             incProgress(0.1, detail = "Calculating BES...")
-            bes_res <- run_spatial_tea(template, curr_params, processed_layers, fun = calculate_bes, collection_radius_km = 50)
+            bes_res <- run_spatial_tea(template, curr_params, processed_layers, fun = calculate_bes, collection_radius_km = 50, optimize_scale = input$optimize_scale)
 
             # 2. BECCS (Large Radius: 100km to leverage economies of scale against CCS cost)
             message(Sys.time(), " - Starting BECCS...")
             incProgress(0.4, detail = "Calculating BECCS...")
-            beccs_res <- run_spatial_tea(template, curr_params, processed_layers, fun = calculate_beccs, collection_radius_km = 50)
+            beccs_res <- run_spatial_tea(template, curr_params, processed_layers, fun = calculate_beccs, collection_radius_km = 50, optimize_scale = input$optimize_scale)
 
             # 3. BEBCS (Distributed Radius: 50km)
             message(Sys.time(), " - Starting BEBCS...")
             incProgress(0.7, detail = "Calculating BEBCS...")
-            bebcs_res <- run_spatial_tea(template, curr_params, processed_layers, fun = calculate_bebcs, collection_radius_km = 50)
+            bebcs_res <- run_spatial_tea(template, curr_params, processed_layers, fun = calculate_bebcs, collection_radius_km = 50, optimize_scale = input$optimize_scale)
 
             incProgress(0.9, detail = "Rendering Maps...")
 
@@ -407,9 +409,9 @@ server <- function(input, output, session) {
                     p$bc_valuation_method <- "advanced_mechanistic"
                     
                     # Run spatial TEA
-                    bes <- run_spatial_tea(dat$template, p, dat$layers, fun = calculate_bes, collection_radius_km = 50)
-                    beccs <- run_spatial_tea(dat$template, p, dat$layers, fun = calculate_beccs, collection_radius_km = 50)
-                    bebcs <- run_spatial_tea(dat$template, p, dat$layers, fun = calculate_bebcs, collection_radius_km = 50)
+                    bes <- run_spatial_tea(dat$template, p, dat$layers, fun = calculate_bes, collection_radius_km = 50, optimize_scale = TRUE)
+                    beccs <- run_spatial_tea(dat$template, p, dat$layers, fun = calculate_beccs, collection_radius_km = 50, optimize_scale = TRUE)
+                    bebcs <- run_spatial_tea(dat$template, p, dat$layers, fun = calculate_bebcs, collection_radius_km = 50, optimize_scale = TRUE)
                     
                     net_stack <- c(bes[["Net_Value_USD"]], beccs[["Net_Value_USD"]], bebcs[["Net_Value_USD"]])
                     names(net_stack) <- c("BES", "BECCS", "BEBCS")
@@ -438,9 +440,19 @@ server <- function(input, output, session) {
 
     output$fig3_plot <- renderPlot({
         req(rv$fig3_data)
+        dat <- data_r()
         
-        ggplot(rv$fig3_data, aes(x=x, y=y, fill=tech)) +
-            geom_tile() +
+        plt <- ggplot() +
+            geom_tile(data = rv$fig3_data, aes(x=x, y=y, fill=tech))
+        if (!is.null(dat$admin0)) {
+            plt <- plt + geom_sf(data = dat$admin0, fill = NA, color = "black", linewidth = 0.5)
+        }
+        if (!is.null(dat$admin1)) {
+            plt <- plt + geom_sf(data = dat$admin1, fill = NA, color = "black", linetype = "dotted", linewidth = 0.2)
+        }
+        
+        plt +
+            coord_sf(crs = 4326) +
             scale_fill_manual(values = c("BES" = "#1f77b4", "BECCS" = "#d62728", "BEBCS" = "#2ca02c")) +
             facet_grid(cp_label ~ dr_label) +
             theme_void(base_size = 14) +
@@ -461,8 +473,8 @@ server <- function(input, output, session) {
 
         # Helper to overlay borders
         add_borders <- function() {
-            if (!is.null(rv$map_data$admin0)) terra::plot(rv$map_data$admin0, add = TRUE, lwd = 2, border = "black")
-            if (!is.null(rv$map_data$admin1)) terra::plot(rv$map_data$admin1, add = TRUE, lwd = 0.5, lty = "dashed", border = "black")
+            if (!is.null(rv$map_data$admin0)) plot(sf::st_geometry(rv$map_data$admin0), add = TRUE, lwd = 2, border = "black")
+            if (!is.null(rv$map_data$admin1)) plot(sf::st_geometry(rv$map_data$admin1), add = TRUE, lwd = 0.5, lty = "dashed", border = "black")
         }
 
         # Row 1: BES & BECCS

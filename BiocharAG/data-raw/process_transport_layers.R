@@ -101,7 +101,7 @@ process_transport_layers <- function(region_name, template_path, file_prefix) {
 #    Template: Assumed from process_local_spatial.R
 process_transport_layers(
     region_name = "North America",
-    template_path = "../GIS/processed/demo_biomass.tif", # Or us_biomass.tif
+    template_path = "../GIS/processed/us_biomass.tif",
     file_prefix = "us"
 )
 

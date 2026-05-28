@@ -8,9 +8,9 @@ library(sf)
 # 1. Load Data
 # Load from GIS folder (Root/GIS/processed/)
 # Assuming working directory is BiocharAG/
-bm_path <- "../GIS/processed/demo_biomass.tif"
-st_path <- "../GIS/processed/demo_soil_temp.tif"
-ep_path <- "../GIS/processed/demo_elec_price.tif"
+bm_path <- "../GIS/processed/us_biomass.tif"
+st_path <- "../GIS/processed/us_soil_temp.tif"
+ep_path <- "../GIS/processed/us_elec_price.tif"
 
 bm <- terra::rast(bm_path)
 st <- terra::rast(st_path)

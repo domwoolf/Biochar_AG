@@ -144,13 +144,13 @@ server <- function(input, output, session) {
 
             template <- bm
         } else {
-            # USA / Demo Logic
-            bm <- terra::rast(paste0(gis_path, "demo_biomass.tif"))
-            st <- terra::rast(paste0(gis_path, "demo_soil_temp.tif"))
+            # USA Logic
+            bm <- terra::rast(paste0(gis_path, "us_biomass.tif"))
+            st <- terra::rast(paste0(gis_path, "us_soil_temp.tif"))
             if (file.exists(paste0(gis_path, "us_elec_price.tif"))) {
                 ep <- terra::rast(paste0(gis_path, "us_elec_price.tif"))
             } else {
-                ep <- terra::rast(paste0(gis_path, "demo_elec_price.tif"))
+                ep <- terra::rast(paste0(gis_path, "us_elec_price.tif"))
             }
 
             # Transport (US Demo)
@@ -170,13 +170,13 @@ server <- function(input, output, session) {
             if (file.exists(paste0(gis_path, "soil_ph.tif"))) {
                 ph <- terra::rast(paste0(gis_path, "soil_ph.tif"))
             } else {
-                if (file.exists(paste0(gis_path, "demo_soil_ph.tif"))) ph <- terra::rast(paste0(gis_path, "demo_soil_ph.tif"))
+                if (file.exists(paste0(gis_path, "us_soil_ph.tif"))) ph <- terra::rast(paste0(gis_path, "us_soil_ph.tif"))
             }
 
             if (file.exists(paste0(gis_path, "soil_cec.tif"))) {
                 cec <- terra::rast(paste0(gis_path, "soil_cec.tif"))
             } else {
-                if (file.exists(paste0(gis_path, "demo_soil_cec.tif"))) cec <- terra::rast(paste0(gis_path, "demo_soil_cec.tif"))
+                if (file.exists(paste0(gis_path, "us_soil_cec.tif"))) cec <- terra::rast(paste0(gis_path, "us_soil_cec.tif"))
             }
 
             processed_layers <- list(

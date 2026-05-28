@@ -16,7 +16,7 @@ default_parameters <- function() {
     beccs_om_factor = 0.05,
 
     # Financial
-    discount_rate = 0.10, 3, # Excel F9
+    discount_rate = 0.10, # Excel F9
 
     # Biomass
     bm_lhv = 18.6, # GJ/Mg (deduced from BES B7 ~ 7.3/0.39 approx or directly input?)
