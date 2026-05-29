@@ -16,8 +16,9 @@
 #' @export
 #' @importFrom terra as.data.frame rast
 run_spatial_tea <- function(template_raster, params, spatial_layers = list(),
-                            fun = calculate_beccs, collection_radius_km = 50,
-                            optimize_scale = FALSE, plant_sizes_mw_th = c(5, 25, 50, 100, 250, 500)) {
+                            fun = calculate_beccs, plant_mw_th = 50,
+                            optimize_scale = FALSE, plant_sizes_mw_th = c(5, 25, 50, 100, 250, 500),
+                            region = NULL, gis_dir = NULL) {
     if (!inherits(template_raster, "SpatRaster")) {
         stop("template_raster must be a terra SpatRaster object.")
     }
@@ -99,7 +100,8 @@ run_spatial_tea <- function(template_raster, params, spatial_layers = list(),
         tc_stack <- terra::rast(tc_list)
         abat_stack <- terra::rast(abat_list)
         ts_stack <- terra::rast(ts_list)
-
+        # Identify the index (1 to length(plant_sizes_mw_th)) of the layer with the maximum NPV for each pixel
+        # This is the step that selects the optimal scale per pixel
         opt_idx <- terra::which.max(npv_stack)
 
         out_npv <- terra::rast(template_raster, nlyrs = 1, vals = NA)
@@ -125,6 +127,31 @@ run_spatial_tea <- function(template_raster, params, spatial_layers = list(),
         bm_mask <- spatial_layers$biomass_density > 0
         out_r <- terra::mask(out_r, bm_mask, maskvalue = FALSE)
         return(out_r)
+    }
+
+    if (!optimize_scale) {
+        # Determine target plant size, rounded to nearest 5 MW (min 5 MW)
+        sz <- max(5, round(plant_mw_th / 5) * 5)
+        params$plant_mw_th <- sz
+
+        if ("biomass_density" %in% names(spatial_layers)) {
+            dist_layer_name <- paste0("dist_", sz, "MWth")
+            if (dist_layer_name %in% names(spatial_layers)) {
+                spatial_layers$avg_dist <- spatial_layers[[dist_layer_name]]
+            } else {
+                if (is.null(region)) {
+                    stop("region must be provided to dynamically generate a missing distance raster.")
+                }
+                # Generate missing distance raster dynamically
+                spatial_layers$avg_dist <- calculate_distance_raster(
+                    dens_wgs84 = spatial_layers$biomass_density,
+                    target_mw_th = sz,
+                    region = region,
+                    gis_dir = gis_dir,
+                    save_to_disk = !is.null(gis_dir)
+                )
+            }
+        }
     }
 
     # 1. Prepare Data Frame from Raster Grid
@@ -159,46 +186,17 @@ run_spatial_tea <- function(template_raster, params, spatial_layers = list(),
 
         # Update with spatial params if they exist
         p$lat <- df$y[i]
-        p$lat <- df$y[i]
         p$lon <- df$x[i]
-        p$collection_radius <- collection_radius_km
 
         # 3a. Soil Temp (Permenance)
         if ("soil_temp" %in% names(df)) {
             p$soil_temp <- df$soil_temp[i]
         }
 
-        # 3b. Plant Scale from Biomass Density
-        if ("biomass_density" %in% names(df)) {
-            # Density in Mg/km2
-            dens <- df$biomass_density[i]
-            if (is.na(dens) || dens <= 0) dens <- 0.1 # Minimum
-
-            # Calculate Annual Feedstock (Mg)
-            # Area = pi * r^2
-            area_km2 <- pi * collection_radius_km^2
-            annual_biomass_feedstock <- dens * area_km2
-
-            # Determine Plant MW Capacity from Feedstock
-            # Reverse the logic: Annual = (MW * 8760 * CF) / ElecProd
-            # MW = (Annual * ElecProd) / (8760 * CF)
-
-            # We need ElecProd (MWh/Mg).
-            # If not in params, use standard approximation.
-            # BECCS/BES typical: ~1 MWh/Mg (very roughly).
-            # Actually calculated inside the function (bm_lhv * eff * 0.277).
-            # Let's pre-calc a reference elec_prod for sizing.
-            if (is.null(p$bm_lhv)) p$bm_lhv <- 18.6
-            if (is.null(p$bes_energy_efficiency)) p$bes_energy_efficiency <- 0.30
-            ref_elec_prod <- p$bm_lhv * p$bes_energy_efficiency * 0.277778
-
-            capacity_factor <- 0.85
-
-            # Calculate and Assign Scaled Plant Capacity
-            p$plant_mw <- (annual_biomass_feedstock * ref_elec_prod) / (8760 * capacity_factor)
-
-            # Cap minimum size to avoid divide-by-zero or tiny plants (e.g. 1 MW min)
-            if (p$plant_mw < 1) p$plant_mw <- 1
+        # 3b. Plant Scale and Feedstock Distance
+        if ("avg_dist" %in% names(df)) {
+            val <- df$avg_dist[i]
+            if (!is.na(val)) p$avg_dist <- val
         }
 
         # 3c. Electricity Price
@@ -244,7 +242,7 @@ run_spatial_tea <- function(template_raster, params, spatial_layers = list(),
         ts_cost_vec[i] <- if (is.null(res$ts_cost)) NA else res$ts_cost
 
         # Store calculated scale/dist if relevant for debugging
-        scale_vec[i] <- if (!is.null(p$plant_mw)) p$plant_mw else 50
+        scale_vec[i] <- if (!is.null(p$plant_mw_th)) p$plant_mw_th else 50
     }
 
     # 4. Rasterize Results

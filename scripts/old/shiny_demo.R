@@ -258,17 +258,17 @@ server <- function(input, output, session) {
             # 1. BES (Standard Radius: 50km)
             message(Sys.time(), " - Starting BES...")
             incProgress(0.1, detail = "Calculating BES...")
-            bes_res <- run_spatial_tea(template, curr_params, processed_layers, fun = calculate_bes, collection_radius_km = 50)
+            bes_res <- run_spatial_tea(template, curr_params, processed_layers, fun = calculate_bes, plant_mw_th = 50, region = "us")
 
             # 2. BECCS (Large Radius: 100km to leverage economies of scale against CCS cost)
             message(Sys.time(), " - Starting BECCS...")
             incProgress(0.4, detail = "Calculating BECCS...")
-            beccs_res <- run_spatial_tea(template, curr_params, processed_layers, fun = calculate_beccs, collection_radius_km = 50)
+            beccs_res <- run_spatial_tea(template, curr_params, processed_layers, fun = calculate_beccs, plant_mw_th = 50, region = "us")
 
             # 3. BEBCS (Distributed Radius: 40km)
             message(Sys.time(), " - Starting BEBCS...")
             incProgress(0.7, detail = "Calculating BEBCS...")
-            bebcs_res <- run_spatial_tea(template, curr_params, processed_layers, fun = calculate_bebcs, collection_radius_km = 40)
+            bebcs_res <- run_spatial_tea(template, curr_params, processed_layers, fun = calculate_bebcs, plant_mw_th = 50, region = "us")
 
             incProgress(0.9, detail = "Rendering Maps...")
 

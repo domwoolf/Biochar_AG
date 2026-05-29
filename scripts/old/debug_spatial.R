@@ -1,5 +1,5 @@
 devtools::load_all(".")
-source("figures/generate_manuscript_figures.R")
+source("../figures/generate_manuscript_figures.R")
 dat <- load_region_data("US")
 
 params <- BiocharAG::default_parameters()

@@ -283,17 +283,18 @@ server <- function(input, output, session) {
             # 1. BES (Standard Radius: 50km)
             message(Sys.time(), " - Starting BES...")
             incProgress(0.1, detail = "Calculating BES...")
-            bes_res <- run_spatial_tea(template, curr_params, processed_layers, fun = calculate_bes, collection_radius_km = 50, optimize_scale = input$optimize_scale)
+            plant_sz <- if (!is.na(input$plant_mw)) input$plant_mw else 50
+            bes_res <- run_spatial_tea(template, curr_params, processed_layers, fun = calculate_bes, plant_mw_th = plant_sz, region = input$region, optimize_scale = input$optimize_scale)
 
             # 2. BECCS (Large Radius: 100km to leverage economies of scale against CCS cost)
             message(Sys.time(), " - Starting BECCS...")
             incProgress(0.4, detail = "Calculating BECCS...")
-            beccs_res <- run_spatial_tea(template, curr_params, processed_layers, fun = calculate_beccs, collection_radius_km = 50, optimize_scale = input$optimize_scale)
+            beccs_res <- run_spatial_tea(template, curr_params, processed_layers, fun = calculate_beccs, plant_mw_th = plant_sz, region = input$region, optimize_scale = input$optimize_scale)
 
             # 3. BEBCS (Distributed Radius: 50km)
             message(Sys.time(), " - Starting BEBCS...")
             incProgress(0.7, detail = "Calculating BEBCS...")
-            bebcs_res <- run_spatial_tea(template, curr_params, processed_layers, fun = calculate_bebcs, collection_radius_km = 50, optimize_scale = input$optimize_scale)
+            bebcs_res <- run_spatial_tea(template, curr_params, processed_layers, fun = calculate_bebcs, plant_mw_th = plant_sz, region = input$region, optimize_scale = input$optimize_scale)
 
             incProgress(0.9, detail = "Rendering Maps...")
 
@@ -409,9 +410,9 @@ server <- function(input, output, session) {
                     p$bc_valuation_method <- "advanced_mechanistic"
                     
                     # Run spatial TEA
-                    bes <- run_spatial_tea(dat$template, p, dat$layers, fun = calculate_bes, collection_radius_km = 50, optimize_scale = TRUE)
-                    beccs <- run_spatial_tea(dat$template, p, dat$layers, fun = calculate_beccs, collection_radius_km = 50, optimize_scale = TRUE)
-                    bebcs <- run_spatial_tea(dat$template, p, dat$layers, fun = calculate_bebcs, collection_radius_km = 50, optimize_scale = TRUE)
+                    bes <- run_spatial_tea(dat$template, p, dat$layers, fun = calculate_bes, plant_mw_th = 50, region = input$region, optimize_scale = TRUE)
+                    beccs <- run_spatial_tea(dat$template, p, dat$layers, fun = calculate_beccs, plant_mw_th = 50, region = input$region, optimize_scale = TRUE)
+                    bebcs <- run_spatial_tea(dat$template, p, dat$layers, fun = calculate_bebcs, plant_mw_th = 50, region = input$region, optimize_scale = TRUE)
                     
                     net_stack <- c(bes[["Net_Value_USD"]], beccs[["Net_Value_USD"]], bebcs[["Net_Value_USD"]])
                     names(net_stack) <- c("BES", "BECCS", "BEBCS")
