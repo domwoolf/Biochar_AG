@@ -42,8 +42,11 @@ ui <- fluidPage(
             ),
             conditionalPanel(
                 condition = "input.main_tabs == 'Interactive Map'",
-                numericInput("plant_mw", "Plant Capacity (MW) [Leave Empty for Auto]:",
-                    value = NA
+                conditionalPanel(
+                    condition = "input.optimize_scale == false",
+                    numericInput("bes_plant_mw", "BES Plant Capacity (MWth):", value = 50, min = 5, step = 5),
+                    numericInput("beccs_plant_mw", "BECCS Plant Capacity (MWth):", value = 250, min = 5, step = 5),
+                    numericInput("bebcs_plant_mw", "BEBCS Plant Capacity (MWth):", value = 50, min = 5, step = 5)
                 ),
                 sliderInput("c_price", "Carbon Price ($/Mg CO2e):",
                     min = 0, max = 500, value = 100, step = 10
@@ -90,11 +93,14 @@ ui <- fluidPage(
             )
         ),
         mainPanel(
-            tabsetPanel(id = "main_tabs",
-                tabPanel("Evaporation Maps", 
+            tabsetPanel(
+                id = "main_tabs",
+                tabPanel(
+                    "Evaporation Maps",
                     plotOutput("fig3_plot", height = "800px")
                 ),
-                tabPanel("Interactive Map",
+                tabPanel(
+                    "Interactive Map",
                     plotOutput("map_plot", height = "800px")
                 )
             )
@@ -145,7 +151,7 @@ server <- function(input, output, session) {
             bm <- terra::rast(paste0(gis_path, prefix, "_biomass.tif"))
             st <- terra::rast(paste0(gis_path, prefix, "_soil_temp.tif"))
             ep <- terra::rast(paste0(gis_path, prefix, "_elec_price.tif"))
-            
+
             ph <- NULL
             if (file.exists(paste0(gis_path, prefix, "_soil_ph.tif"))) {
                 ph <- terra::rast(paste0(gis_path, prefix, "_soil_ph.tif"))
@@ -156,12 +162,13 @@ server <- function(input, output, session) {
             }
 
             # Transport Layers
-            ds_onshore <- terra::rast(paste0(gis_path, prefix, "_dist_onshore.tif"))
-            ds_offshore <- terra::rast(paste0(gis_path, prefix, "_dist_offshore.tif"))
+            dist_sink <- terra::rast(paste0(gis_path, prefix, "_dist_sink.tif"))
+            dist_sink_saline <- terra::rast(paste0(gis_path, prefix, "_dist_sink_saline.tif"))
+            sink_type <- terra::rast(paste0(gis_path, prefix, "_sink_type.tif"))
 
             processed_layers <- list(
                 biomass_density = bm, soil_temp = st, elec_price = ep,
-                dist_onshore = ds_onshore, dist_offshore = ds_offshore
+                dist_sink_km = dist_sink, dist_sink_saline_km = dist_sink_saline, sink_is_offshore = sink_type
             )
             if (!is.null(ph)) processed_layers$soil_ph <- ph
             if (!is.null(cec)) processed_layers$soil_cec <- cec
@@ -183,15 +190,18 @@ server <- function(input, output, session) {
             }
 
             # Transport (US Demo)
-            if (file.exists(paste0(gis_path, "us_dist_onshore.tif"))) {
-                ds_onshore <- terra::rast(paste0(gis_path, "us_dist_onshore.tif"))
-                ds_offshore <- terra::rast(paste0(gis_path, "us_dist_offshore.tif"))
+            if (file.exists(paste0(gis_path, "us_dist_sink.tif"))) {
+                dist_sink <- terra::rast(paste0(gis_path, "us_dist_sink.tif"))
+                dist_sink_saline <- terra::rast(paste0(gis_path, "us_dist_sink_saline.tif"))
+                sink_type <- terra::rast(paste0(gis_path, "us_sink_type.tif"))
             } else {
                 # Fallback if US Transport layers missing (use demo defaults)
-                ds_onshore <- terra::rast(bm)
-                values(ds_onshore) <- 100
-                ds_offshore <- terra::rast(bm)
-                values(ds_offshore) <- Inf
+                dist_sink <- terra::rast(bm)
+                values(dist_sink) <- 100
+                dist_sink_saline <- terra::rast(bm)
+                values(dist_sink_saline) <- 100
+                sink_type <- terra::rast(bm)
+                values(sink_type) <- 0
             }
             ph <- NULL
             cec <- NULL
@@ -210,13 +220,13 @@ server <- function(input, output, session) {
 
             processed_layers <- list(
                 biomass_density = bm, soil_temp = st, elec_price = ep,
-                dist_onshore = ds_onshore, dist_offshore = ds_offshore
+                dist_sink_km = dist_sink, dist_sink_saline_km = dist_sink_saline, sink_is_offshore = sink_type
             )
 
             # DEBUG: Print Check
             if (!is.null(ph)) processed_layers$soil_ph <- ph
             if (!is.null(cec)) processed_layers$soil_cec <- cec
-            
+
             a0 <- NULL
             a1 <- NULL
             if (file.exists(paste0(gis_path, "us_admin0.gpkg"))) a0 <- sf::st_read(paste0(gis_path, "us_admin0.gpkg"), quiet = TRUE)
@@ -225,7 +235,16 @@ server <- function(input, output, session) {
             template <- bm
         }
 
-        list(layers = processed_layers, template = template, admin0 = a0, admin1 = a1)
+        prefix_for_dist <- if (input$region == "USA") "us" else tolower(input$region)
+        for (sz in c(5, 25, 50, 100, 250, 500)) {
+            dist_name <- paste0("dist_", sz, "MWth")
+            dist_file <- file.path(gis_path, paste0(prefix_for_dist, "_", dist_name, ".tif"))
+            if (file.exists(dist_file)) {
+                processed_layers[[dist_name]] <- terra::rast(dist_file)
+            }
+        }
+
+        list(layers = processed_layers, template = template, admin0 = a0, admin1 = a1, gis_dir = gis_path, region_id = prefix_for_dist)
     })
     # Reactive values to modify params based on inputs
     params_r <- reactive({
@@ -247,9 +266,7 @@ server <- function(input, output, session) {
         p$region <- if (input$region == "USA") "North America" else input$region
         p$allow_eor <- input$allow_eor
 
-        if (!is.na(input$plant_mw)) {
-            p$plant_mw <- input$plant_mw
-        }
+
 
         # --- SCALARS ---
         # 1. Electricity Price
@@ -283,18 +300,21 @@ server <- function(input, output, session) {
             # 1. BES (Standard Radius: 50km)
             message(Sys.time(), " - Starting BES...")
             incProgress(0.1, detail = "Calculating BES...")
-            plant_sz <- if (!is.na(input$plant_mw)) input$plant_mw else 50
-            bes_res <- run_spatial_tea(template, curr_params, processed_layers, fun = calculate_bes, plant_mw_th = plant_sz, region = input$region, optimize_scale = input$optimize_scale)
+            bes_sz <- if (!is.null(input$bes_plant_mw) && !is.na(input$bes_plant_mw)) input$bes_plant_mw else 50
+            beccs_sz <- if (!is.null(input$beccs_plant_mw) && !is.na(input$beccs_plant_mw)) input$beccs_plant_mw else 250
+            bebcs_sz <- if (!is.null(input$bebcs_plant_mw) && !is.na(input$bebcs_plant_mw)) input$bebcs_plant_mw else 50
+
+            bes_res <- run_spatial_tea(template, curr_params, processed_layers, fun = calculate_bes, plant_mw_th = bes_sz, region = dat$region_id, gis_dir = dat$gis_dir, optimize_scale = input$optimize_scale)
 
             # 2. BECCS (Large Radius: 100km to leverage economies of scale against CCS cost)
             message(Sys.time(), " - Starting BECCS...")
             incProgress(0.4, detail = "Calculating BECCS...")
-            beccs_res <- run_spatial_tea(template, curr_params, processed_layers, fun = calculate_beccs, plant_mw_th = plant_sz, region = input$region, optimize_scale = input$optimize_scale)
+            beccs_res <- run_spatial_tea(template, curr_params, processed_layers, fun = calculate_beccs, plant_mw_th = beccs_sz, region = dat$region_id, gis_dir = dat$gis_dir, optimize_scale = input$optimize_scale)
 
             # 3. BEBCS (Distributed Radius: 50km)
             message(Sys.time(), " - Starting BEBCS...")
             incProgress(0.7, detail = "Calculating BEBCS...")
-            bebcs_res <- run_spatial_tea(template, curr_params, processed_layers, fun = calculate_bebcs, plant_mw_th = plant_sz, region = input$region, optimize_scale = input$optimize_scale)
+            bebcs_res <- run_spatial_tea(template, curr_params, processed_layers, fun = calculate_bebcs, plant_mw_th = bebcs_sz, region = dat$region_id, gis_dir = dat$gis_dir, optimize_scale = input$optimize_scale)
 
             incProgress(0.9, detail = "Rendering Maps...")
 
@@ -389,52 +409,52 @@ server <- function(input, output, session) {
     observeEvent(input$run_fig3_btn, {
         withProgress(message = "Generating Evaporation Maps...", value = 0, {
             dat <- data_r()
-            
+
             c_prices <- c(input$cp_range[1], input$cp_range[2])
             d_rates <- c(input$dr_range[1], (input$dr_range[1] + input$dr_range[2]) / 2, input$dr_range[2]) / 100
-            
+
             all_df <- data.frame()
-            
+
             total_runs <- length(c_prices) * length(d_rates)
             run_count <- 0
-            
+
             for (cp in c_prices) {
                 for (dr in d_rates) {
                     run_count <- run_count + 1
-                    incProgress(1/total_runs, detail = paste0("Running DR: ", dr*100, "%, CP: $", cp))
-                    
+                    incProgress(1 / total_runs, detail = paste0("Running DR: ", dr * 100, "%, CP: $", cp))
+
                     p <- default_parameters()
                     p$c_price <- cp
                     p$discount_rate <- dr
                     p$region <- if (input$region == "USA") "North America" else input$region
                     p$bc_valuation_method <- "advanced_mechanistic"
-                    
+
                     # Run spatial TEA
-                    bes <- run_spatial_tea(dat$template, p, dat$layers, fun = calculate_bes, plant_mw_th = 50, region = input$region, optimize_scale = TRUE)
-                    beccs <- run_spatial_tea(dat$template, p, dat$layers, fun = calculate_beccs, plant_mw_th = 50, region = input$region, optimize_scale = TRUE)
-                    bebcs <- run_spatial_tea(dat$template, p, dat$layers, fun = calculate_bebcs, plant_mw_th = 50, region = input$region, optimize_scale = TRUE)
-                    
+                    bes <- run_spatial_tea(dat$template, p, dat$layers, fun = calculate_bes, plant_mw_th = 50, region = dat$region_id, gis_dir = dat$gis_dir, optimize_scale = TRUE)
+                    beccs <- run_spatial_tea(dat$template, p, dat$layers, fun = calculate_beccs, plant_mw_th = 50, region = dat$region_id, gis_dir = dat$gis_dir, optimize_scale = TRUE)
+                    bebcs <- run_spatial_tea(dat$template, p, dat$layers, fun = calculate_bebcs, plant_mw_th = 50, region = dat$region_id, gis_dir = dat$gis_dir, optimize_scale = TRUE)
+
                     net_stack <- c(bes[["Net_Value_USD"]], beccs[["Net_Value_USD"]], bebcs[["Net_Value_USD"]])
                     names(net_stack) <- c("BES", "BECCS", "BEBCS")
-                    
+
                     opt_idx <- terra::app(net_stack, which.max)
-                    
-                    df <- terra::as.data.frame(opt_idx, xy=TRUE, na.rm=TRUE)
+
+                    df <- terra::as.data.frame(opt_idx, xy = TRUE, na.rm = TRUE)
                     names(df)[3] <- "opt_tech"
                     tech_levels <- c("1" = "BES", "2" = "BECCS", "3" = "BEBCS")
                     df$tech <- tech_levels[as.character(df$opt_tech)]
-                    df$dr_label <- paste0("Discount Rate: ", dr*100, "%")
+                    df$dr_label <- paste0("Discount Rate: ", dr * 100, "%")
                     df$cp_label <- paste0("Carbon Price: $", cp, "/t")
                     all_df <- bind_rows(all_df, df)
                 }
             }
-            
-            dr_levels <- paste0("Discount Rate: ", d_rates*100, "%")
+
+            dr_levels <- paste0("Discount Rate: ", d_rates * 100, "%")
             all_df$dr_label <- factor(all_df$dr_label, levels = dr_levels)
-            
+
             cp_levels <- paste0("Carbon Price: $", c_prices, "/t")
             all_df$cp_label <- factor(all_df$cp_label, levels = cp_levels)
-            
+
             rv$fig3_data <- all_df
         })
     })
@@ -442,24 +462,26 @@ server <- function(input, output, session) {
     output$fig3_plot <- renderPlot({
         req(rv$fig3_data)
         dat <- data_r()
-        
+
         plt <- ggplot() +
-            geom_tile(data = rv$fig3_data, aes(x=x, y=y, fill=tech))
+            geom_tile(data = rv$fig3_data, aes(x = x, y = y, fill = tech))
         if (!is.null(dat$admin0)) {
             plt <- plt + geom_sf(data = dat$admin0, fill = NA, color = "black", linewidth = 0.5)
         }
         if (!is.null(dat$admin1)) {
             plt <- plt + geom_sf(data = dat$admin1, fill = NA, color = "black", linetype = "dotted", linewidth = 0.2)
         }
-        
+
         plt +
             coord_sf(crs = 4326) +
             scale_fill_manual(values = c("BES" = "#1f77b4", "BECCS" = "#d62728", "BEBCS" = "#2ca02c")) +
             facet_grid(cp_label ~ dr_label) +
             theme_void(base_size = 14) +
-            theme(strip.text = element_text(face="bold", margin=margin(b=5, t=5)),
-                  legend.position = "bottom") +
-            labs(fill = "Optimal Technology", title=paste0("Financial Gravity: Evaporation of BECCS - ", input$region))
+            theme(
+                strip.text = element_text(face = "bold", margin = margin(b = 5, t = 5)),
+                legend.position = "bottom"
+            ) +
+            labs(fill = "Optimal Technology", title = paste0("Financial Gravity: Evaporation of BECCS - ", input$region))
     })
 
     output$map_plot <- renderPlot({

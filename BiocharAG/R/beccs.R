@@ -62,8 +62,17 @@ calculate_beccs <- function(params) {
     is_inf_onshore <- !inherits(dist_onshore, "SpatRaster") && is.infinite(dist_onshore)
     is_inf_offshore <- !inherits(dist_offshore, "SpatRaster") && is.infinite(dist_offshore)
     if (is_inf_onshore && is_inf_offshore && !is.null(params$ccs_distance)) {
-      if (!is.null(params$sink_is_offshore) && params$sink_is_offshore) {
-        dist_offshore <- params$ccs_distance
+      if (!is.null(params$sink_is_offshore)) {
+        if (inherits(params$sink_is_offshore, "SpatRaster")) {
+          dist_offshore <- terra::ifel(params$sink_is_offshore == 1, params$ccs_distance, Inf)
+          dist_onshore <- terra::ifel(params$sink_is_offshore == 0, params$ccs_distance, Inf)
+        } else {
+          if (params$sink_is_offshore) {
+            dist_offshore <- params$ccs_distance
+          } else {
+            dist_onshore <- params$ccs_distance
+          }
+        }
       } else {
         dist_onshore <- params$ccs_distance
       }

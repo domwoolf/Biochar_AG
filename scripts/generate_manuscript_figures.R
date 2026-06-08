@@ -21,7 +21,7 @@ if (dir.exists("BiocharAG")) {
 }
 
 # --- GLOBAL CONFIGURATION ---
-GLOBAL_OPTIMIZE_SCALE <- TRUE
+GLOBAL_OPTIMIZE_SCALE <- FALSE
 
 # Figure Output Directory
 OUT_DIR <- if (dir.exists("figures")) "figures/" else if (dir.exists("../figures")) "../figures/" else "figures/"
@@ -58,11 +58,14 @@ load_region_data <- function(region_name) {
         file.exists(file.path(gis_path, "us_elec_price.tif"))) {
         ep <- terra::rast(file.path(gis_path, "us_elec_price.tif"))
     }
-    ds_onshore <- terra::rast(
-        file.path(gis_path, paste0(p_dist, "_dist_onshore.tif"))
+    dist_sink <- terra::rast(
+        file.path(gis_path, paste0(p_dist, "_dist_sink.tif"))
     )
-    ds_offshore <- terra::rast(
-        file.path(gis_path, paste0(p_dist, "_dist_offshore.tif"))
+    dist_sink_saline <- terra::rast(
+        file.path(gis_path, paste0(p_dist, "_dist_sink_saline.tif"))
+    )
+    sink_type <- terra::rast(
+        file.path(gis_path, paste0(p_dist, "_sink_type.tif"))
     )
     ph <- terra::rast(file.path(gis_path, paste0(p_base, "_soil_ph.tif")))
     if (region_name == "US" &&
@@ -92,13 +95,14 @@ load_region_data <- function(region_name) {
         biomass_density = bm,
         soil_temp = st,
         elec_price = ep,
-        dist_onshore = ds_onshore,
-        dist_offshore = ds_offshore,
+        dist_sink_km = dist_sink,
+        dist_sink_saline_km = dist_sink_saline,
+        sink_is_offshore = sink_type,
         soil_ph = ph,
         soil_cec = cec
     )
 
-    for (sz in c(5, 25, 50, 100, 250, 500)) {
+    for (sz in c(5, 25, 50, 100, 250, 500, 1000)) {
         dist_name <- paste0("dist_", sz, "MWth")
         dist_file <- file.path(gis_path, paste0(p_dist, "_", dist_name, ".tif"))
         if (file.exists(dist_file)) {
@@ -114,19 +118,19 @@ run_scenario <- function(template, layers, params) {
     bes <- BiocharAG::run_spatial_tea(
         template, params, layers,
         fun = BiocharAG::calculate_bes,
-        plant_mw_th = 50,
+        plant_mw_th = 250,
         optimize_scale = GLOBAL_OPTIMIZE_SCALE
     )
     beccs <- BiocharAG::run_spatial_tea(
         template, params, layers,
         fun = BiocharAG::calculate_beccs,
-        plant_mw_th = 50,
+        plant_mw_th = 250,
         optimize_scale = GLOBAL_OPTIMIZE_SCALE
     )
     bebcs <- BiocharAG::run_spatial_tea(
         template, params, layers,
         fun = BiocharAG::calculate_bebcs,
-        plant_mw_th = 50,
+        plant_mw_th = 250,
         optimize_scale = GLOBAL_OPTIMIZE_SCALE
     )
 
@@ -149,7 +153,7 @@ run_scenario <- function(template, layers, params) {
     list(net = net_stack, abate = abate_stack, opt = opt_idx)
 }
 
-# Linear Extrapolation for fast sweeps
+# Linear interpolation for fast sweeps
 # Net_Value(C) = Net_Value(0) + C * Abatement
 get_linear_baseline <- function(template, layers, base_params) {
     p0 <- base_params
@@ -172,7 +176,7 @@ generate_fig1_phys_boundary <- function(dat, region_name, save_map = FALSE) {
     res <- run_scenario(dat$template, dat$layers, params)
 
     stack_df <- terra::as.data.frame(
-        c(dat$layers$biomass_density, dat$layers$dist_onshore, res$opt),
+        c(dat$layers$biomass_density, dat$layers$dist_sink_km, res$opt),
         xy = TRUE,
         na.rm = TRUE
     )
@@ -233,7 +237,7 @@ generate_fig2_booster_penalty <- function(dat, region_name, save_map = FALSE) {
     cell_area <- terra::cellSize(dat$template, unit = "km")
 
     stack_df <- terra::as.data.frame(
-        c(dat$layers$biomass_density, dat$layers$dist_onshore, res$opt, cell_area),
+        c(dat$layers$biomass_density, dat$layers$dist_sink_km, res$opt, cell_area),
         na.rm = TRUE
     )
     names(stack_df) <- c("biomass_density", "dist", "opt_tech", "area_km2")
@@ -788,13 +792,13 @@ if (sys.nframe() == 0) {
 
         save_map <- TRUE
 
-        generate_fig1_phys_boundary(dat, r, save_map)
-        generate_fig2_booster_penalty(dat, r, save_map)
+        #        generate_fig1_phys_boundary(dat, r, save_map)
+        #        generate_fig2_booster_penalty(dat, r, save_map)
         generate_fig3_evaporation(dat, r, save_map)
-        generate_fig4_capital_wedge(dat, r, save_map)
-        generate_fig5_cprice_threshold(dat, r, save_map)
-        generate_fig6_macc(dat, r, save_map)
-        generate_fig7_agronomic_bridge(dat, r, save_map)
+        #        generate_fig4_capital_wedge(dat, r, save_map)
+        #        generate_fig5_cprice_threshold(dat, r, save_map)
+        #        generate_fig6_macc(dat, r, save_map)
+        #        generate_fig7_agronomic_bridge(dat, r, save_map)
     }
     message("All figures generated successfully for all regions.")
 }

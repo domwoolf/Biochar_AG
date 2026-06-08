@@ -38,8 +38,9 @@ run_spatial_tea <- function(template_raster, params, spatial_layers = list(),
         }
         if ("soil_ph" %in% names(spatial_layers)) p$soil_ph <- spatial_layers$soil_ph
         if ("soil_cec" %in% names(spatial_layers)) p$soil_cec <- spatial_layers$soil_cec
-        if ("dist_onshore" %in% names(spatial_layers)) p$dist_onshore <- spatial_layers$dist_onshore
-        if ("dist_offshore" %in% names(spatial_layers)) p$dist_offshore <- spatial_layers$dist_offshore
+        if ("dist_sink_km" %in% names(spatial_layers)) p$dist_sink_km <- spatial_layers$dist_sink_km
+        if ("dist_sink_saline_km" %in% names(spatial_layers)) p$dist_sink_saline_km <- spatial_layers$dist_sink_saline_km
+        if ("sink_is_offshore" %in% names(spatial_layers)) p$sink_is_offshore <- spatial_layers$sink_is_offshore
 
         dens <- spatial_layers$biomass_density
 
@@ -219,13 +220,17 @@ run_spatial_tea <- function(template_raster, params, spatial_layers = list(),
         }
 
         # 3e. CCS Transport Parameters
-        if ("dist_onshore" %in% names(df)) {
-            val <- df$dist_onshore[i]
-            if (!is.na(val)) p$dist_onshore <- val
+        if ("dist_sink_km" %in% names(df)) {
+            val <- df$dist_sink_km[i]
+            if (!is.na(val)) p$dist_sink_km <- val
         }
-        if ("dist_offshore" %in% names(df)) {
-            val <- df$dist_offshore[i]
-            if (!is.na(val)) p$dist_offshore <- val
+        if ("dist_sink_saline_km" %in% names(df)) {
+            val <- df$dist_sink_saline_km[i]
+            if (!is.na(val)) p$dist_sink_saline_km <- val
+        }
+        if ("sink_is_offshore" %in% names(df)) {
+            val <- df$sink_is_offshore[i]
+            if (!is.na(val)) p$sink_is_offshore <- val
         }
 
 

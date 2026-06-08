@@ -1,0 +1,6 @@
+library(terra)
+library(sf)
+source("data-raw/generate_sinks.R")
+r_template <- terra::rast("../GIS/processed/us_biomass.tif")
+print(crs(r_template, proj=TRUE))
+print(st_crs(co2_sinks)$proj4string)
