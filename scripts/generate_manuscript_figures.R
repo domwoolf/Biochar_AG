@@ -54,29 +54,11 @@ load_region_data <- function(region_name) {
     bm <- terra::rast(file.path(gis_path, paste0(p_base, "_biomass.tif")))
     st <- terra::rast(file.path(gis_path, paste0(p_base, "_soil_temp.tif")))
     ep <- terra::rast(file.path(gis_path, paste0(p_base, "_elec_price.tif")))
-    if (region_name == "US" &&
-        file.exists(file.path(gis_path, "us_elec_price.tif"))) {
-        ep <- terra::rast(file.path(gis_path, "us_elec_price.tif"))
-    }
-    dist_sink <- terra::rast(
-        file.path(gis_path, paste0(p_dist, "_dist_sink.tif"))
-    )
-    dist_sink_saline <- terra::rast(
-        file.path(gis_path, paste0(p_dist, "_dist_sink_saline.tif"))
-    )
-    sink_type <- terra::rast(
-        file.path(gis_path, paste0(p_dist, "_sink_type.tif"))
-    )
+    ds <- terra::rast(file.path(gis_path, paste0(p_dist, "_dist_sink.tif")))
+    dss <- terra::rast(file.path(gis_path, paste0(p_dist, "_dist_sink_saline.tif")))
+    stype <- terra::rast(file.path(gis_path, paste0(p_dist, "_sink_type.tif")))
     ph <- terra::rast(file.path(gis_path, paste0(p_base, "_soil_ph.tif")))
-    if (region_name == "US" &&
-        file.exists(file.path(gis_path, "soil_ph.tif"))) {
-        ph <- terra::rast(file.path(gis_path, "soil_ph.tif"))
-    }
     cec <- terra::rast(file.path(gis_path, paste0(p_base, "_soil_cec.tif")))
-    if (region_name == "US" &&
-        file.exists(file.path(gis_path, "soil_cec.tif"))) {
-        cec <- terra::rast(file.path(gis_path, "soil_cec.tif"))
-    }
 
     a0_path <- file.path(gis_path, paste0(p_dist, "_admin0.gpkg"))
     a1_path <- file.path(gis_path, paste0(p_dist, "_admin1.gpkg"))
@@ -95,9 +77,9 @@ load_region_data <- function(region_name) {
         biomass_density = bm,
         soil_temp = st,
         elec_price = ep,
-        dist_sink_km = dist_sink,
-        dist_sink_saline_km = dist_sink_saline,
-        sink_is_offshore = sink_type,
+        dist_sink_km = ds,
+        dist_sink_saline_km = dss,
+        sink_is_offshore = stype,
         soil_ph = ph,
         soil_cec = cec
     )
@@ -295,14 +277,12 @@ generate_fig2_booster_penalty <- function(dat, region_name, save_map = FALSE) {
 }
 
 # Figure 3: Evaporation Maps
-generate_fig3_evaporation <- function(dat, region_name, save_map = FALSE) {
+generate_fig3_evaporation <- function(
+  dat, region_name, save_map = FALSE,
+  d_rates = c(0.02, 0.08, 0.15), c_prices = c(30, 100, 150)
+) {
     message("Generating Figure 3: Evaporation Maps for ", region_name, "...")
-
-    d_rates <- c(0.02, 0.08, 0.15)
-    c_prices <- c(100, 150)
-
     all_df <- data.frame()
-
     for (cp in c_prices) {
         for (dr in d_rates) {
             message("  Running DR: ", dr * 100, "%, C Price: $", cp)

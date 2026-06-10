@@ -84,7 +84,20 @@ process_transport_layers <- function(region_name, template_path, file_prefix,
                 
                 message("Cleaning cropped WDPA data (this may take a minute)...")
                 if (requireNamespace("wdpar", quietly = TRUE)) {
-                    pa_clean <- wdpar::wdpa_clean(pa_raw_cropped)
+                    # S2 geometry engine frequently throws topology errors on messy WDPA polygons
+                    # Disable it temporarily and rely on GEOS planar geometry instead
+                    old_s2 <- sf::sf_use_s2()
+                    sf::sf_use_s2(FALSE)
+                    
+                    pa_clean <- tryCatch({
+                        # Avoid 24+ hour execution time by skipping erase_overlaps (not needed for rasterization)
+                        # Pass the template CRS to prevent wdpa_clean from defaulting back to ESRI:54017
+                        wdpar::wdpa_clean(pa_raw_cropped, 
+                                          crs = terra::crs(r_template),
+                                          erase_overlaps = FALSE)
+                    }, finally = {
+                        sf::sf_use_s2(old_s2)
+                    })
                 } else {
                     warning("wdpar package not installed. Using simple st_make_valid.")
                     pa_clean <- sf::st_make_valid(pa_raw_cropped)
