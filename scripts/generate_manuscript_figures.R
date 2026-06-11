@@ -295,7 +295,11 @@ generate_fig3_evaporation <- function(
 
             res <- run_scenario(dat$template, dat$layers, p)
 
-            df <- terra::as.data.frame(res$opt, xy = TRUE, na.rm = TRUE)
+            opt_raster <- res$opt
+            if (!is.null(dat$admin0)) {
+                opt_raster <- terra::mask(opt_raster, terra::vect(dat$admin0))
+            }
+            df <- terra::as.data.frame(opt_raster, xy = TRUE, na.rm = TRUE)
             names(df)[3] <- "opt_tech"
             tech_levels <- c("1" = "BES", "2" = "BECCS", "3" = "BEBCS")
             df$tech <- tech_levels[as.character(df$opt_tech)]
@@ -308,6 +312,10 @@ generate_fig3_evaporation <- function(
     all_df$dr_label <- factor(
         all_df$dr_label,
         levels = c("Discount Rate: 2%", "Discount Rate: 8%", "Discount Rate: 15%")
+    )
+    all_df$cp_label <- factor(
+        all_df$cp_label,
+        levels = paste0("Carbon Price: $", sort(unique(c_prices)), "/t")
     )
 
     plt <- ggplot() +
@@ -477,6 +485,9 @@ generate_fig5_cprice_threshold <- function(dat, region_name, save_map = FALSE) {
     min_p <- min(c(p_bebcs, p_beccs), na.rm = TRUE)
     min_p[min_p > 500] <- NA # Cap for plotting
 
+    if (!is.null(dat$admin0)) {
+        min_p <- terra::mask(min_p, terra::vect(dat$admin0))
+    }
     df_map <- terra::as.data.frame(min_p, xy = TRUE, na.rm = TRUE)
     names(df_map)[3] <- "threshold"
 
@@ -681,8 +692,12 @@ generate_fig7_agronomic_bridge <- function(dat, region_name, save_map = FALSE) {
 
     res_no <- run_scenario(dat$template, dat$layers, p_no)
 
+    opt_stack <- c(res_no$opt, res_ag$opt)
+    if (!is.null(dat$admin0)) {
+        opt_stack <- terra::mask(opt_stack, terra::vect(dat$admin0))
+    }
     stack_df <- terra::as.data.frame(
-        c(res_no$opt, res_ag$opt),
+        opt_stack,
         xy = TRUE,
         na.rm = TRUE
     )
@@ -773,12 +788,12 @@ if (sys.nframe() == 0) {
 
         save_map <- TRUE
 
-        generate_fig1_phys_boundary(dat, r, save_map)
-        generate_fig2_booster_penalty(dat, r, save_map)
+        # generate_fig1_phys_boundary(dat, r, save_map)
+        # generate_fig2_booster_penalty(dat, r, save_map)
         generate_fig3_evaporation(dat, r, save_map)
-        generate_fig4_capital_wedge(dat, r, save_map)
+        # generate_fig4_capital_wedge(dat, r, save_map)
         generate_fig5_cprice_threshold(dat, r, save_map)
-        generate_fig6_macc(dat, r, save_map)
+        # generate_fig6_macc(dat, r, save_map)
         generate_fig7_agronomic_bridge(dat, r, save_map)
     }
     message("All figures generated successfully for all regions.")

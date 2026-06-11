@@ -68,7 +68,8 @@ calculate_bes <- function(params) {
     trans_em_factor <- if (!is.null(params$transport_emissions_factor)) params$transport_emissions_factor else 0.0001
     transport_emissions_co2e <- effective_dist * trans_em_factor
 
-    total_cost <- capex_per_mg + opex_per_mg + logistics_cost
+    feedstock_cost <- if (!is.null(params$feedstock_cost)) params$feedstock_cost else 0
+    total_cost <- capex_per_mg + opex_per_mg + logistics_cost + feedstock_cost
 
     # 4. Revenue & Value
     elec_revenue <- elec_prod * elec_price

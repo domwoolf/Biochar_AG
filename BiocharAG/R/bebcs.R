@@ -75,7 +75,8 @@ calculate_bebcs <- function(params) {
     trans_em_factor <- if (!is.null(params$transport_emissions_factor)) params$transport_emissions_factor else 0.0001
     transport_emissions_co2e <- effective_dist * trans_em_factor
 
-    total_cost <- annual_capex_py + annual_capex_power + annual_om + logistics_cost
+    feedstock_cost <- if (!is.null(params$feedstock_cost)) params$feedstock_cost else 0
+    total_cost <- annual_capex_py + annual_capex_power + annual_om + logistics_cost + feedstock_cost
 
     # 4. Abatement & Value
     # Explicit conversion to CO2e
