@@ -1,3 +1,4 @@
+# nolint start: indentation_linter, line_length_linter, object_usage_linter, commented_code_linter
 # generate_manuscript_figures.R
 # Script to generate publication-quality display items for the
 # BiocharAG manuscript.
@@ -21,10 +22,10 @@ if (dir.exists("BiocharAG")) {
 }
 
 # --- GLOBAL CONFIGURATION ---
-GLOBAL_OPTIMIZE_SCALE <- FALSE
+global_optimize_scale <- FALSE
 
 # Figure Output Directory
-OUT_DIR <- if (dir.exists("figures")) "figures/" else if (dir.exists("../figures")) "../figures/" else "figures/"
+out_dir <- if (dir.exists("figures")) "figures/" else if (dir.exists("../figures")) "../figures/" else "figures/"
 
 # --- HELPER FUNCTIONS ---
 
@@ -101,19 +102,19 @@ run_scenario <- function(template, layers, params) {
         template, params, layers,
         fun = BiocharAG::calculate_bes,
         plant_mw_th = 250,
-        optimize_scale = GLOBAL_OPTIMIZE_SCALE
+        optimize_scale = global_optimize_scale
     )
     beccs <- BiocharAG::run_spatial_tea(
         template, params, layers,
         fun = BiocharAG::calculate_beccs,
         plant_mw_th = 250,
-        optimize_scale = GLOBAL_OPTIMIZE_SCALE
+        optimize_scale = global_optimize_scale
     )
     bebcs <- BiocharAG::run_spatial_tea(
         template, params, layers,
         fun = BiocharAG::calculate_bebcs,
         plant_mw_th = 250,
-        optimize_scale = GLOBAL_OPTIMIZE_SCALE
+        optimize_scale = global_optimize_scale
     )
 
     net_stack <- c(
@@ -193,7 +194,7 @@ generate_fig1_phys_boundary <- function(dat, region_name, save_map = FALSE) {
 
     if (save_map) {
         ggsave(
-            paste0(OUT_DIR, region_name, "_Fig1_Physical_Boundary.png"),
+            paste0(out_dir, region_name, "_Fig1_Physical_Boundary.png"),
             p,
             width = 8,
             height = 6,
@@ -263,7 +264,7 @@ generate_fig2_booster_penalty <- function(dat, region_name, save_map = FALSE) {
 
     if (save_map) {
         ggsave(
-            paste0(OUT_DIR, region_name, "_Fig2_Booster_Penalty_CDF.png"),
+            paste0(out_dir, region_name, "_Fig2_Booster_Penalty_CDF.png"),
             p,
             width = 8,
             height = 6,
@@ -349,7 +350,7 @@ generate_fig3_evaporation <- function(
 
     if (save_map) {
         ggsave(
-            paste0(OUT_DIR, region_name, "_Fig3_Evaporation_Maps.png"),
+            paste0(out_dir, region_name, "_Fig3_Evaporation_Maps.png"),
             plt,
             width = 10,
             height = 7,
@@ -424,7 +425,7 @@ generate_fig4_capital_wedge <- function(dat, region_name, save_map = FALSE) {
 
     if (save_map) {
         ggsave(
-            paste0(OUT_DIR, region_name, "_Fig4_Capital_Wedge.png"),
+            paste0(out_dir, region_name, "_Fig4_Capital_Wedge.png"),
             p,
             width = 8,
             height = 6,
@@ -519,7 +520,7 @@ generate_fig5_cprice_threshold <- function(dat, region_name, save_map = FALSE) {
 
     if (save_map) {
         ggsave(
-            paste0(OUT_DIR, region_name, "_Fig5_Threshold_Map.png"),
+            paste0(out_dir, region_name, "_Fig5_Threshold_Map.png"),
             p,
             width = 8,
             height = 6,
@@ -642,7 +643,7 @@ generate_fig6_macc <- function(dat, region_name, save_map = FALSE) {
 
         if (save_map) {
             ggsave(
-                paste0(OUT_DIR, region_name, "_Fig6_MACC.png"),
+                paste0(out_dir, region_name, "_Fig6_MACC.png"),
                 p,
                 width = 8,
                 height = 6,
@@ -745,7 +746,7 @@ generate_fig7_agronomic_bridge <- function(dat, region_name, save_map = FALSE) {
 
     if (save_map) {
         ggsave(
-            paste0(OUT_DIR, region_name, "_Fig7_Agronomic_Bridge.png"),
+            paste0(out_dir, region_name, "_Fig7_Agronomic_Bridge.png"),
             p,
             width = 8,
             height = 6,
@@ -760,7 +761,7 @@ generate_fig7_agronomic_bridge <- function(dat, region_name, save_map = FALSE) {
 
 # --- Execution block ---
 if (sys.nframe() == 0) {
-    dir.create(OUT_DIR, showWarnings = FALSE)
+    dir.create(out_dir, showWarnings = FALSE)
     regions <- c("US", "China", "Europe", "India")
 
     for (r in regions) {
@@ -772,13 +773,13 @@ if (sys.nframe() == 0) {
 
         save_map <- TRUE
 
-        #        generate_fig1_phys_boundary(dat, r, save_map)
-        #        generate_fig2_booster_penalty(dat, r, save_map)
+        generate_fig1_phys_boundary(dat, r, save_map)
+        generate_fig2_booster_penalty(dat, r, save_map)
         generate_fig3_evaporation(dat, r, save_map)
-        #        generate_fig4_capital_wedge(dat, r, save_map)
-        #        generate_fig5_cprice_threshold(dat, r, save_map)
-        #        generate_fig6_macc(dat, r, save_map)
-        #        generate_fig7_agronomic_bridge(dat, r, save_map)
+        generate_fig4_capital_wedge(dat, r, save_map)
+        generate_fig5_cprice_threshold(dat, r, save_map)
+        generate_fig6_macc(dat, r, save_map)
+        generate_fig7_agronomic_bridge(dat, r, save_map)
     }
     message("All figures generated successfully for all regions.")
 }

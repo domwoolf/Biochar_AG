@@ -1,4 +1,3 @@
-# data-raw/download_and_process_spatial.R
 library(jsonlite)
 library(terra)
 library(sf)
@@ -68,11 +67,9 @@ if (file.exists(dest_biomass)) {
     v_max <- global(r_bm_us, "max", na.rm = TRUE)$max
     message("Biomass Max Value: ", v_max)
 
-    # Biomass Unit Logic
-    # Value ~15219. Assuming kg/ha.
-    # Goal: Mg/km2.
+    # Assuming kg/ha. Goal: Mg/km2.
     # 1 kg/ha = 0.001 Mg / 0.01 km2 = 0.1 Mg/km2.
-    # Factor = 0.1
+    # Using Factor = 0.1
     if (v_max > 10000 && v_max < 50000) {
         r_bm_us <- r_bm_us * 0.1
         message("Assuming kg/ha input. Converting to Mg/km2 (Factor 0.1). Max: ", global(r_bm_us, "max", na.rm = TRUE)$max)
@@ -93,11 +90,11 @@ if (file.exists(dest_soil) && file.size(dest_soil) > 1000000) {
     # Unit Check
     # SBIO1 is usually x10 degC? Or just degC?
     # Chelsa/WorldClim often x10.
-    v_mM <- minmax(r_st_us)
-    message("Soil Temp Range: ", v_mM[1], " - ", v_mM[2])
+    v_mm <- minmax(r_st_us)
+    message("Soil Temp Range: ", v_mm[1], " - ", v_mm[2])
 
     # If range is 0 - 300, divide by 10.
-    if (v_mM[2] > 60) {
+    if (v_mm[2] > 60) {
         r_st_us <- r_st_us / 10
         message("Dividing Soil Temp by 10")
     }
