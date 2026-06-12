@@ -42,7 +42,7 @@ run_spatial_tea <- function(template_raster, params, spatial_layers = list(),
         if ("dist_sink_saline_km" %in% names(spatial_layers)) p$dist_sink_saline_km <- spatial_layers$dist_sink_saline_km
         if ("sink_is_offshore" %in% names(spatial_layers)) p$sink_is_offshore <- spatial_layers$sink_is_offshore
 
-        for (layer_name in c("is_high_cattle", "cn_weather_risk", "cn_expansion_risk")) {
+        for (layer_name in c("cn_weather_risk", "cn_expansion_risk", "eu_base_eur", "us_base_cost")) {
             if (layer_name %in% names(spatial_layers)) p[[layer_name]] <- spatial_layers[[layer_name]]
         }
 
@@ -178,7 +178,7 @@ run_spatial_tea <- function(template_raster, params, spatial_layers = list(),
     if ("avg_dist" %in% names(spatial_layers)) p$avg_dist <- spatial_layers$avg_dist
 
     # Map additional spatial layers for feedstock cost logic
-    for (layer_name in c("is_high_cattle", "cn_weather_risk", "cn_expansion_risk")) {
+    for (layer_name in c("cn_weather_risk", "cn_expansion_risk", "eu_base_eur", "us_base_cost")) {
         if (layer_name %in% names(spatial_layers)) p[[layer_name]] <- spatial_layers[[layer_name]]
     }
 
@@ -229,23 +229,11 @@ calculate_regional_feedstock_cost <- function(region, params) {
   cost_usd <- 0
 
   if (region == "US") {
-    # Baseline US Farm-gate ($50 - $70 range)
-    base_cost <- if (!is.null(params$us_base_cost)) params$us_base_cost else 60.0
+    # Baseline US Farm-gate
+    base_cost <- if (!is.null(params$us_base_cost)) params$us_base_cost else 70.0
 
     # Nutrient Replacement (average ~$25.06/Mg for corn stover)
     nutrient_cost <- if (!is.null(params$us_nutrient_cost)) params$us_nutrient_cost else 25.06
-
-    # Opportunity Cost: Livestock Feed Substitution Penalty in high-density cattle counties
-    is_high_cattle <- if (!is.null(params$is_high_cattle)) params$is_high_cattle else FALSE
-    
-    price_hay <- if (!is.null(params$price_hay)) params$price_hay else 100.0
-    price_ddgs <- if (!is.null(params$price_ddgs)) params$price_ddgs else 150.0
-    # Stover replaces 1.16t hay minus 0.22t DDGS
-    opp_cost <- (price_hay * 1.16) - (price_ddgs * 0.22)
-    
-    # Base cost must meet or exceed the feed replacement valuation
-    base_cost_w_opp <- pmax_raster(base_cost, opp_cost)
-    base_cost <- ifelse_raster(is_high_cattle, base_cost_w_opp, base_cost)
 
     cost_usd <- base_cost + nutrient_cost
   }
@@ -255,7 +243,7 @@ calculate_regional_feedstock_cost <- function(region, params) {
 
     # Temporal Volatility: Interim Storage Cost Multiplier
     # 3 months = +22.2%, 6 months = +36.4%
-    storage_months <- if (!is.null(params$eu_storage_months)) params$eu_storage_months else 3
+    storage_months <- if (!is.null(params$eu_storage_months)) params$eu_storage_months else 6
     storage_mult <- ifelse_raster(storage_months >= 6, 1.364, 1.222)
 
     cost_usd <- (base_eur * storage_mult) * xr_eur
@@ -280,7 +268,7 @@ calculate_regional_feedstock_cost <- function(region, params) {
     # Exogenous Risk Modifiers
     weather_risk_val <- if (!is.null(params$cn_weather_risk)) params$cn_weather_risk else FALSE
     expansion_risk_val <- if (!is.null(params$cn_expansion_risk)) params$cn_expansion_risk else FALSE
-    
+
     weather_risk <- ifelse_raster(weather_risk_val, 1.13, 1.0)
     expansion_risk <- ifelse_raster(expansion_risk_val, 1.53, 1.0)
 

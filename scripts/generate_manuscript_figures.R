@@ -24,6 +24,13 @@ if (dir.exists("BiocharAG")) {
 # --- GLOBAL CONFIGURATION ---
 global_optimize_scale <- FALSE
 
+# Global Tech Colors
+TECH_COLORS <- c(
+    "BES" = "#1f77b4", # Blue
+    "BECCS" = "#d62728", # Red
+    "BEBCS" = "#2ca02c" # Green
+)
+
 # Figure Output Directory
 out_dir <- if (dir.exists("figures")) "figures/" else if (dir.exists("../figures")) "../figures/" else "figures/"
 
@@ -719,9 +726,9 @@ generate_fig7_agronomic_bridge <- function(dat, region_name, save_map = FALSE) {
         "BES (Baseline)" = "#aec7e8", # Faded blue
         "BECCS (Baseline)" = "#ff9896", # Faded red
         "BEBCS (Baseline)" = "#98df8a", # Faded green
-        "Switched to BEBCS" = "#2ca02c", # Bold green
-        "Switched to BECCS" = "#d62728", # Bold red
-        "Switched to BES" = "#1f77b4" # Bold blue
+        "Switched to BEBCS" = unname(TECH_COLORS["BEBCS"]),
+        "Switched to BECCS" = unname(TECH_COLORS["BECCS"]),
+        "Switched to BES" = unname(TECH_COLORS["BES"])
     )
 
     p <- ggplot() +
@@ -774,6 +781,221 @@ generate_fig7_agronomic_bridge <- function(dat, region_name, save_map = FALSE) {
     p
 }
 
+# Figure 8: Global Break-Even Carbon Price Grid
+generate_fig8_breakeven_cprice <- function(save_map = FALSE) {
+    message("Generating Figure 8: Break-Even Carbon Price Grid...")
+
+    # Ordered regions for columns
+    regions_ordered <- c("India", "China", "US", "Europe")
+
+    # Rows definitions
+    techs <- c("BES", "BECCS", "BEBCS", "Best_C", "Best_Tech")
+    row_labels <- c(
+        "BES" = "Bioenergy", "BECCS" = "BECCS", "BEBCS" = "Biochar",
+        "Best_C" = "Best C Price", "Best_Tech" = "Best Technology"
+    )
+
+    df_list <- list()
+    admin_list <- list()
+
+    for (r in regions_ordered) {
+        message("  Processing Region for Fig 8: ", r)
+        dat <- load_region_data(r)
+
+        # Prepare parameters
+        p0 <- BiocharAG::default_parameters()
+        p0$region <- r
+        p0$bc_valuation_method <- "advanced_mechanistic"
+
+        # Get baseline NPV(0) and Abatement
+        base_res <- get_linear_baseline(dat$template, dat$layers, p0)
+
+        bes_npv <- base_res$net[["BES"]]
+        beccs_npv <- base_res$net[["BECCS"]]
+        bebcs_npv <- base_res$net[["BEBCS"]]
+
+        bes_abt <- base_res$abate[["BES"]]
+        beccs_abt <- base_res$abate[["BECCS"]]
+        bebcs_abt <- base_res$abate[["BEBCS"]]
+
+        calc_breakeven <- function(npv, abt) {
+            c_req <- -npv / abt
+            # Pixels physically impossible or strictly unprofitable
+            c_req <- terra::ifel(abt <= 0, NA, c_req)
+            return(c_req)
+        }
+
+        bes_c <- calc_breakeven(bes_npv, bes_abt)
+        beccs_c <- calc_breakeven(beccs_npv, beccs_abt)
+        bebcs_c <- calc_breakeven(bebcs_npv, bebcs_abt)
+
+        c_stack <- c(bes_c, beccs_c, bebcs_c)
+        names(c_stack) <- c("BES", "BECCS", "BEBCS")
+
+        # Find minimum break-even price across the 3 techs
+        best_c <- min(c_stack, na.rm = TRUE)
+        names(best_c) <- "Best_C"
+
+        # Find which tech has that minimum
+        best_idx <- terra::which.min(c_stack)
+        names(best_idx) <- "Best_Tech"
+
+        full_stack <- c(c_stack, best_c, best_idx)
+
+        if (!is.null(dat$admin0)) {
+            full_stack <- terra::mask(full_stack, terra::vect(dat$admin0))
+            # Save admin boundaries for plotting
+            admin_r <- dat$admin0
+            admin_r$Region <- r
+            admin_list[[r]] <- admin_r
+        }
+
+        # Convert to dataframe
+        df_r <- terra::as.data.frame(full_stack, xy = TRUE, na.rm = TRUE)
+
+        # Map integer best_tech back to strings
+        tech_names <- c("BES", "BECCS", "BEBCS")
+        if ("Best_Tech" %in% names(df_r)) {
+            df_r$Best_Tech <- factor(tech_names[df_r$Best_Tech], levels = tech_names)
+        }
+
+        # Pivot numeric columns
+        df_num <- tidyr::pivot_longer(df_r,
+            cols = c("BES", "BECCS", "BEBCS", "Best_C"),
+            names_to = "Technology", values_to = "Breakeven_C",
+            values_drop_na = TRUE
+        )
+        df_num$Tech_Factor <- factor(NA, levels = tech_names)
+
+        # Format categorical column
+        if ("Best_Tech" %in% names(df_r)) {
+            df_cat <- df_r[!is.na(df_r$Best_Tech), c("x", "y", "Best_Tech")]
+            df_cat$Technology <- "Best_Tech"
+            names(df_cat)[names(df_cat) == "Best_Tech"] <- "Tech_Factor"
+            df_cat$Breakeven_C <- NA_real_
+
+            df_long <- rbind(
+                as.data.frame(df_num[, c("x", "y", "Technology", "Breakeven_C", "Tech_Factor")]),
+                as.data.frame(df_cat[, c("x", "y", "Technology", "Breakeven_C", "Tech_Factor")])
+            )
+        } else {
+            df_long <- as.data.frame(df_num[, c("x", "y", "Technology", "Breakeven_C", "Tech_Factor")])
+        }
+
+        df_long$Region <- r
+        df_list[[r]] <- df_long
+    }
+
+    message("  Combining data and rendering plot...")
+
+    # Combine all regions
+    df_all <- dplyr::bind_rows(df_list)
+
+    # Fix factor levels for desired ordering
+    df_all$Region <- factor(df_all$Region, levels = regions_ordered)
+    df_all$Technology <- factor(df_all$Technology, levels = techs)
+
+    if (length(admin_list) > 0) {
+        admin_all <- do.call(rbind, lapply(admin_list, function(x) x[, "Region", drop = FALSE]))
+        admin_all$Region <- factor(admin_all$Region, levels = regions_ordered)
+    } else {
+        admin_all <- NULL
+    }
+
+    # Plotting using patchwork to avoid coord_sf() free scaling issues
+    library(patchwork)
+    plot_list <- list()
+
+    # Define fixed limits for the color scale
+    scale_limits <- c(-50, 200)
+
+    for (t in techs) {
+        for (r in regions_ordered) {
+            sub_df <- df_all[df_all$Technology == t & df_all$Region == r, ]
+            sub_admin <- if (!is.null(admin_all)) admin_all[admin_all$Region == r, ] else NULL
+
+            p <- ggplot()
+
+            # Map fills depending on row type
+            if (t == "Best_Tech") {
+                p <- p + geom_tile(data = sub_df[!is.na(sub_df$Tech_Factor), ], aes(x = x, y = y, fill = Tech_Factor))
+            } else {
+                p <- p + geom_tile(data = sub_df, aes(x = x, y = y, fill = Breakeven_C))
+            }
+
+            if (!is.null(sub_admin)) {
+                p <- p + geom_sf(data = sub_admin, fill = NA, color = "black", linewidth = 0.2)
+            }
+
+            p <- p + coord_sf(crs = 4326) + theme_void(base_size = 10)
+
+            # Scales
+            if (t == "Best_Tech") {
+                p <- p + scale_fill_manual(
+                    values = TECH_COLORS,
+                    na.translate = FALSE,
+                    name = "Optimal Technology"
+                )
+            } else {
+                p <- p + scale_fill_gradientn(
+                    colors = c("#00008B", "#006400", "#FFD700", "#FF8C00", "#8B0000"),
+                    na.value = "transparent",
+                    limits = scale_limits,
+                    oob = scales::squish,
+                    breaks = c(-50, 0, 50, 100, 150, 200),
+                    labels = c("\u2264 -50", "0", "50", "100", "150", "\u2265 200"),
+                    name = "Break-Even C-Price ($/tCO2e)"
+                )
+            }
+
+            # --- Layout Adjustments ---
+            theme_adj <- theme()
+
+            # Top Headers (Region Names)
+            if (t == techs[1]) {
+                p <- p + ggtitle(r)
+                theme_adj <- theme_adj + theme(plot.title = element_text(hjust = 0.5, face = "bold", size = 12))
+            }
+
+            # Right Headers (Technology Names)
+            if (r == regions_ordered[length(regions_ordered)]) {
+                # Add a secondary axis to trick the facet label on the right
+                p <- p + scale_y_continuous(position = "right", name = row_labels[t])
+                theme_adj <- theme_adj + theme(
+                    axis.title.y.right = element_text(angle = -90, face = "bold", size = 12, margin = margin(l = 10))
+                )
+            }
+
+            p <- p + theme_adj
+            plot_list[[paste(t, r, sep = "_")]] <- p
+        }
+    }
+
+    # Combine with patchwork
+    combined_plot <- patchwork::wrap_plots(plot_list, nrow = length(techs), ncol = length(regions_ordered)) +
+        plot_layout(guides = "collect") &
+        theme(
+            legend.position = "bottom",
+            legend.key.width = unit(2, "cm"),
+            legend.title = element_text(vjust = 0.8)
+        )
+
+    if (save_map) {
+        ggsave(
+            paste0(out_dir, "Global_Fig8_Breakeven_CPrice.png"),
+            combined_plot,
+            width = 8,
+            height = 10,
+            bg = "white",
+            dpi = 300
+        )
+        message("Saved: Global_Fig8_Breakeven_CPrice.png")
+    } else {
+        print(combined_plot)
+    }
+    return(combined_plot)
+}
+
 # --- Execution block ---
 if (sys.nframe() == 0) {
     dir.create(out_dir, showWarnings = FALSE)
@@ -793,8 +1015,12 @@ if (sys.nframe() == 0) {
         generate_fig3_evaporation(dat, r, save_map)
         # generate_fig4_capital_wedge(dat, r, save_map)
         generate_fig5_cprice_threshold(dat, r, save_map)
-        # generate_fig6_macc(dat, r, save_map)
+        generate_fig6_macc(dat, r, save_map)
         generate_fig7_agronomic_bridge(dat, r, save_map)
     }
+
+    # Generate the combined 4x3 small multiples grid for break-even c-price
+    generate_fig8_breakeven_cprice(save_map = TRUE)
+
     message("All figures generated successfully for all regions.")
 }
