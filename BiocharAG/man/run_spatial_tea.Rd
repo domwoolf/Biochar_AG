@@ -9,9 +9,11 @@ run_spatial_tea(
   params,
   spatial_layers = list(),
   fun = calculate_beccs,
-  collection_radius_km = 50,
+  plant_mw_th = NULL,
   optimize_scale = FALSE,
-  plant_sizes_mw_th = c(5, 25, 50, 100, 250, 500)
+  plant_sizes_mw_th = c(5, 25, 50, 100, 250, 500),
+  region = NULL,
+  gis_dir = NULL
 )
 }
 \arguments{

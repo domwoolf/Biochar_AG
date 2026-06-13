@@ -24,7 +24,7 @@ test_that("BEBCS returns valid metrics and soil benefits", {
     res <- calculate_bebcs(params)
 
     expect_equal(res$technology, "BEBCS")
-    expect_true(res$nbcf >= 0) # Soil benefit can be 0 or positive
+    expect_true(res$biochar_value >= 0) # Soil benefit can be 0 or positive
     expect_true(res$bc_yield > 0 && res$bc_yield < 1)
     expect_equal(res$net_value, res$total_revenue - res$total_cost)
 })
@@ -52,4 +52,31 @@ test_that("RPV comparison works", {
     # The "Winner" will have positive RPV.
     winner <- res[which.max(res$NPV), ]
     expect_true(winner$RPV >= 0)
+})
+
+test_that("plant_mw_th accepts named vector and resolves correctly", {
+    params <- default_parameters()
+    
+    # 1. Individual runs
+    p_bes <- params; p_bes$plant_mw_th <- 10
+    res_bes_indiv <- calculate_bes(p_bes)
+    
+    p_beccs <- params; p_beccs$plant_mw_th <- 20
+    res_beccs_indiv <- calculate_beccs(p_beccs)
+    
+    p_bebcs <- params; p_bebcs$plant_mw_th <- 30
+    res_bebcs_indiv <- calculate_bebcs(p_bebcs)
+    
+    # 2. Vectorized run
+    p_vector <- params
+    p_vector$plant_mw_th <- c(BES = 10, BECCS = 20, BEBCS = 30)
+    
+    res_bes_vector <- calculate_bes(p_vector)
+    res_beccs_vector <- calculate_beccs(p_vector)
+    res_bebcs_vector <- calculate_bebcs(p_vector)
+    
+    # Compare
+    expect_equal(res_bes_vector$total_cost, res_bes_indiv$total_cost)
+    expect_equal(res_beccs_vector$total_cost, res_beccs_indiv$total_cost)
+    expect_equal(res_bebcs_vector$total_cost, res_bebcs_indiv$total_cost)
 })

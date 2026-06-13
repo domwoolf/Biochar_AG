@@ -36,6 +36,47 @@ out_dir <- if (dir.exists("figures")) "figures/" else if (dir.exists("../figures
 
 # --- HELPER FUNCTIONS ---
 
+ggsave_with_params <- function(filename, plot, width, height, bg = "white", dpi = 300, params = NULL) {
+    if (!is.null(params)) {
+        defaults <- BiocharAG::default_parameters()
+        diffs <- character()
+
+        for (nm in names(params)) {
+            if (nm %in% c("region")) next # Already part of base filename
+
+            val_def <- defaults[[nm]]
+            val_p <- params[[nm]]
+
+            if (!is.null(val_p) && (is.null(val_def) || !identical(val_p, val_def))) {
+                parts <- strsplit(nm, "_")[[1]]
+                abbr <- paste0(substr(parts, 1, 1), collapse = "")
+
+                val_str <- as.character(val_p)
+                if (is.character(val_p)) {
+                    v_parts <- strsplit(val_str, "_")[[1]]
+                    if (length(v_parts) > 1) {
+                        val_str <- paste0(substr(v_parts, 1, 1), collapse = "")
+                    }
+                }
+                diffs <- c(diffs, paste0(abbr, val_str))
+            }
+        }
+
+        if (length(diffs) > 0) {
+            ext_idx <- regexpr("\\.[^\\.]*$", filename)
+            if (ext_idx > 0) {
+                base_name <- substr(filename, 1, ext_idx - 1)
+                ext <- substr(filename, ext_idx, nchar(filename))
+                filename <- paste0(base_name, "_", paste(diffs, collapse = "_"), ext)
+            } else {
+                filename <- paste0(filename, "_", paste(diffs, collapse = "_"))
+            }
+        }
+    }
+
+    ggplot2::ggsave(filename = filename, plot = plot, width = width, height = height, bg = bg, dpi = dpi)
+}
+
 load_region_data <- function(region_name) {
     gis_path <- "../GIS/processed/"
     if (!dir.exists(gis_path)) {
@@ -155,14 +196,10 @@ get_linear_baseline <- function(template, layers, base_params) {
 # --- FIGURE GENERATORS ---
 
 # Figure 1: Scale vs. Sink Bivariate Map
-generate_fig1_phys_boundary <- function(dat, region_name, save_map = FALSE) {
+generate_fig1_phys_boundary <- function(dat, region_name, save_map = FALSE,
+                                        params = BiocharAG::default_parameters()) {
     message("Generating Figure 1: Physical Boundary for ", region_name, "...")
-
-    params <- BiocharAG::default_parameters()
-    params$c_price <- 150
     params$region <- region_name
-    params$bc_valuation_method <- "advanced_mechanistic"
-
     res <- run_scenario(dat$template, dat$layers, params)
 
     stack_df <- terra::as.data.frame(
@@ -200,9 +237,10 @@ generate_fig1_phys_boundary <- function(dat, region_name, save_map = FALSE) {
     }
 
     if (save_map) {
-        ggsave(
+        ggsave_with_params(
             paste0(out_dir, region_name, "_Fig1_Physical_Boundary.png"),
             p,
+            params = params,
             width = 8,
             height = 6,
             bg = "white",
@@ -215,13 +253,10 @@ generate_fig1_phys_boundary <- function(dat, region_name, save_map = FALSE) {
 }
 
 # Figure 2: Booster Penalty CDF
-generate_fig2_booster_penalty <- function(dat, region_name, save_map = FALSE) {
+generate_fig2_booster_penalty <- function(dat, region_name, save_map = FALSE,
+                                          params = BiocharAG::default_parameters()) {
     message("Generating Figure 2: Booster Penalty CDF for ", region_name, "...")
-
-    params <- BiocharAG::default_parameters()
-    params$c_price <- 150
     params$region <- region_name
-    params$bc_valuation_method <- "advanced_mechanistic"
 
     res <- run_scenario(dat$template, dat$layers, params)
     cell_area <- terra::cellSize(dat$template, unit = "km")
@@ -270,9 +305,10 @@ generate_fig2_booster_penalty <- function(dat, region_name, save_map = FALSE) {
         )
 
     if (save_map) {
-        ggsave(
+        ggsave_with_params(
             paste0(out_dir, region_name, "_Fig2_Booster_Penalty_CDF.png"),
             p,
+            params = params,
             width = 8,
             height = 6,
             bg = "white",
@@ -287,20 +323,20 @@ generate_fig2_booster_penalty <- function(dat, region_name, save_map = FALSE) {
 # Figure 3: Evaporation Maps
 generate_fig3_evaporation <- function(
   dat, region_name, save_map = FALSE,
-  d_rates = c(0.02, 0.08, 0.15), c_prices = c(30, 100, 150)
+  d_rates = c(0.02, 0.08, 0.15), c_prices = c(30, 100, 150),
+  params = BiocharAG::default_parameters()
 ) {
     message("Generating Figure 3: Evaporation Maps for ", region_name, "...")
+    params$region <- region_name
     all_df <- data.frame()
     for (cp in c_prices) {
         for (dr in d_rates) {
             message("  Running DR: ", dr * 100, "%, C Price: $", cp)
-            p <- BiocharAG::default_parameters()
-            p$c_price <- cp
-            p$discount_rate <- dr
-            p$region <- region_name
-            p$bc_valuation_method <- "advanced_mechanistic"
+            params$c_price <- cp
+            params$discount_rate <- dr
+            params$bc_valuation_method <- "advanced_mechanistic"
 
-            res <- run_scenario(dat$template, dat$layers, p)
+            res <- run_scenario(dat$template, dat$layers, params)
 
             opt_raster <- res$opt
             if (!is.null(dat$admin0)) {
@@ -364,9 +400,10 @@ generate_fig3_evaporation <- function(
         )
 
     if (save_map) {
-        ggsave(
+        ggsave_with_params(
             paste0(out_dir, region_name, "_Fig3_Evaporation_Maps.png"),
             plt,
+            params = params,
             width = 10,
             height = 7,
             bg = "white",
@@ -379,24 +416,19 @@ generate_fig3_evaporation <- function(
 }
 
 # Figure 4: Capital Lock-Out Wedge
-generate_fig4_capital_wedge <- function(dat, region_name, save_map = FALSE) {
+generate_fig4_capital_wedge <- function(dat, region_name, save_map = FALSE,
+                                        params = BiocharAG::default_parameters()) {
     message("Generating Figure 4: Capital Lock-Out Wedge for ", region_name, "...")
     cell_area <- terra::cellSize(dat$template, unit = "km")
 
-    # We loop over discount rates. C price fixed at $150.
+    # We loop over discount rates. C price fixed.
     dr_seq <- seq(0, 0.20, by = 0.02)
     results <- list()
-
+    params$region <- region_name
     for (dr in dr_seq) {
         message("  Calculating DR: ", dr * 100, "%")
-        p <- BiocharAG::default_parameters()
-        p$c_price <- 150
-        p$discount_rate <- dr
-        p$region <- region_name
-        p$bc_valuation_method <- "advanced_mechanistic"
-
-        res <- run_scenario(dat$template, dat$layers, p)
-
+        params$discount_rate <- dr
+        res <- run_scenario(dat$template, dat$layers, params)
         stack_df <- terra::as.data.frame(
             c(dat$layers$biomass_density, res$opt, cell_area),
             na.rm = TRUE
@@ -439,9 +471,10 @@ generate_fig4_capital_wedge <- function(dat, region_name, save_map = FALSE) {
         )
 
     if (save_map) {
-        ggsave(
+        ggsave_with_params(
             paste0(out_dir, region_name, "_Fig4_Capital_Wedge.png"),
             p,
+            params = params,
             width = 8,
             height = 6,
             bg = "white",
@@ -454,17 +487,16 @@ generate_fig4_capital_wedge <- function(dat, region_name, save_map = FALSE) {
 }
 
 # Figure 5: Carbon Price Threshold Map
-generate_fig5_cprice_threshold <- function(dat, region_name, save_map = FALSE) {
+generate_fig5_cprice_threshold <- function(dat, region_name, save_map = FALSE,
+                                           params = BiocharAG::default_parameters()) {
     message(
         "Generating Figure 5: Carbon Price Threshold Map for ",
         region_name, "..."
     )
 
     # Get base NPV (at C=0) and Abatement using linear baseline
-    p0 <- BiocharAG::default_parameters()
-    p0$region <- region_name
-    p0$bc_valuation_method <- "advanced_mechanistic"
-    base_res <- get_linear_baseline(dat$template, dat$layers, p0)
+    params$region <- region_name
+    base_res <- get_linear_baseline(dat$template, dat$layers, params)
 
     npv0 <- base_res$net
     abate <- base_res$abate
@@ -537,9 +569,10 @@ generate_fig5_cprice_threshold <- function(dat, region_name, save_map = FALSE) {
         )
 
     if (save_map) {
-        ggsave(
+        ggsave_with_params(
             paste0(out_dir, region_name, "_Fig5_Threshold_Map.png"),
             p,
+            params = params,
             width = 8,
             height = 6,
             bg = "white",
@@ -552,14 +585,13 @@ generate_fig5_cprice_threshold <- function(dat, region_name, save_map = FALSE) {
 }
 
 # Figure 6: Fractured Regional MACC
-generate_fig6_macc <- function(dat, region_name, save_map = FALSE) {
+generate_fig6_macc <- function(dat, region_name, save_map = FALSE,
+                               params = BiocharAG::default_parameters()) {
     message("Generating Figure 6: Fractured Regional MACC for ", region_name, "...")
     cell_area <- terra::cellSize(dat$template, unit = "km")
 
-    p0 <- BiocharAG::default_parameters()
-    p0$region <- region_name
-    p0$bc_valuation_method <- "advanced_mechanistic"
-    base_res <- get_linear_baseline(dat$template, dat$layers, p0)
+    params$region <- region_name
+    base_res <- get_linear_baseline(dat$template, dat$layers, params)
 
     npv0 <- base_res$net
     abate <- base_res$abate
@@ -577,92 +609,88 @@ generate_fig6_macc <- function(dat, region_name, save_map = FALSE) {
 
     stack_df$cell_bm <- stack_df$biomass * stack_df$area
 
-    # Sweep C price from 0 to 250
-    c_prices <- seq(0, 250, by = 2)
-    macc_points <- list()
-
-    # We will compute the winning tech for every cell at every C price step
-    # and then identify transitions to calculate exact marginal steps.
-    # A vectorized approach over prices:
+    # Sweep C price from -50 to 250
+    c_prices <- seq(-50, 250, by = 1)
+    results <- list()
 
     message("  Sweeping C Prices for MACC...")
-    # Initialize state at C=0
-    val0_bes <- stack_df$NPV0_BES
-    val0_beccs <- stack_df$NPV0_BECCS
-    val0_bebcs <- stack_df$NPV0_BEBCS
 
-    vals0 <- cbind(val0_bes, val0_beccs, val0_bebcs)
-    best_idx0 <- max.col(vals0, ties.method = "first")
-    current_tech <- c("BES", "BECCS", "BEBCS")[best_idx0]
+    # Extract columns to vectors for faster vectorized operations
+    npv0_bes <- stack_df$NPV0_BES
+    npv0_beccs <- stack_df$NPV0_BECCS
+    npv0_bebcs <- stack_df$NPV0_BEBCS
+
+    a_bes <- stack_df$A_BES
+    a_beccs <- stack_df$A_BECCS
+    a_bebcs <- stack_df$A_BEBCS
+
+    # Abatement amounts pre-multiplied by cell biomass
+    total_a_bes <- a_bes * stack_df$cell_bm
+    total_a_beccs <- a_beccs * stack_df$cell_bm
+    total_a_bebcs <- a_bebcs * stack_df$cell_bm
 
     for (cp in c_prices) {
-        # Calculate NPVs at this C price
-        val_bes <- stack_df$NPV0_BES + cp * stack_df$A_BES
-        val_beccs <- stack_df$NPV0_BECCS + cp * stack_df$A_BECCS
-        val_bebcs <- stack_df$NPV0_BEBCS + cp * stack_df$A_BEBCS
+        val_bes <- npv0_bes + cp * a_bes
+        val_beccs <- npv0_beccs + cp * a_beccs
+        val_bebcs <- npv0_bebcs + cp * a_bebcs
 
-        # Matrix of values
-        vals <- cbind(val_bes, val_beccs, val_bebcs)
-        best_idx <- max.col(vals, ties.method = "first")
-        techs <- c("BES", "BECCS", "BEBCS")
-        new_tech <- techs[best_idx]
+        # Max NPV across the 3 techs
+        max_val <- pmax(val_bes, val_beccs, val_bebcs, na.rm = TRUE)
 
-        # Find cells that transitioned
-        switched <- which(new_tech != current_tech)
+        # A pixel is adopted if max_val >= 0
+        adopted <- !is.na(max_val) & (max_val >= 0)
 
-        for (idx in switched) {
-            old_t <- current_tech[idx]
-            new_t <- new_tech[idx]
+        # Which tech is the max? Ties handled sequentially.
+        is_bes <- adopted & (max_val == val_bes)
+        is_beccs <- adopted & (!is_bes) & (max_val == val_beccs)
+        is_bebcs <- adopted & (!is_bes) & (!is_beccs) & (max_val == val_bebcs)
 
-            # Marginal abatement = A_new - A_old
-            a_old <- stack_df[[paste0("A_", old_t)]][idx]
-            a_new <- stack_df[[paste0("A_", new_t)]][idx]
-            marg_abate_rate <- a_new - a_old
+        # Sum total abatement for the adopted pixels of each tech
+        sum_bes <- sum(total_a_bes[is_bes], na.rm = TRUE)
+        sum_beccs <- sum(total_a_beccs[is_beccs], na.rm = TRUE)
+        sum_bebcs <- sum(total_a_bebcs[is_bebcs], na.rm = TRUE)
 
-            # Only record if it actually increases abatement
-            if (marg_abate_rate > 0) {
-                marg_abate_total <- marg_abate_rate * stack_df$cell_bm[idx]
-
-                macc_points[[length(macc_points) + 1]] <- data.frame(
-                    price = cp,
-                    abatement = marg_abate_total,
-                    transition = paste0(old_t, "->", new_t)
-                )
-            }
-        }
-
-        current_tech <- new_tech
+        results[[length(results) + 1]] <- data.frame(
+            Price = cp,
+            BES = sum_bes,
+            BECCS = sum_beccs,
+            BEBCS = sum_bebcs
+        )
     }
 
-    if (length(macc_points) > 0) {
-        macc_df <- bind_rows(macc_points)
+    macc_df <- dplyr::bind_rows(results)
 
-        # Aggregate by price
-        agg_macc <- macc_df |>
-            group_by(.data$price) |>
-            summarize(
-                marginal_abatement = sum(.data$abatement, na.rm = TRUE),
-                .groups = "drop"
-            ) |>
-            arrange(.data$price) |>
-            mutate(cumulative_abatement = cumsum(.data$marginal_abatement))
+    # Pivot to long format for stacked area plot
+    macc_long <- tidyr::pivot_longer(macc_df,
+        cols = c("BES", "BECCS", "BEBCS"),
+        names_to = "Technology", values_to = "Abatement"
+    )
 
-        p <- ggplot(
-            agg_macc,
-            aes(x = .data$cumulative_abatement / 1e6, y = .data$price)
-        ) +
-            geom_step(direction = "vh", color = "darkblue", linewidth = 1) +
+    # Convert Abatement to Million tCO2e
+    macc_long$Abatement <- macc_long$Abatement / 1e6
+
+    # Factor levels to control stacking order
+    macc_long$Technology <- factor(macc_long$Technology, levels = c("BES", "BECCS", "BEBCS"))
+
+    if (sum(macc_long$Abatement, na.rm = TRUE) > 0) {
+        p <- ggplot(macc_long, aes(x = Price, y = Abatement, fill = Technology)) +
+            geom_area(alpha = 0.9, color = "black", linewidth = 0.2) +
+            scale_fill_manual(values = TECH_COLORS) +
             theme_minimal(base_size = 14) +
             labs(
-                # title = paste0("Marginal Abatement Cost Curve - ", region_name),
-                x = "Cumulative Marginal Abatement (Million tCO2e)",
-                y = "Carbon Price ($/t)"
+                x = "Carbon Price ($/t)",
+                y = "Total Annual Abatement Potential (Million tCO2e/yr)"
+            ) +
+            theme(
+                legend.position = "bottom",
+                legend.title = element_blank()
             )
 
         if (save_map) {
-            ggsave(
+            ggsave_with_params(
                 paste0(out_dir, region_name, "_Fig6_MACC.png"),
                 p,
+                params = params,
                 width = 8,
                 height = 6,
                 bg = "white",
@@ -679,25 +707,20 @@ generate_fig6_macc <- function(dat, region_name, save_map = FALSE) {
 }
 
 # Figure 7: Agronomic Bridge
-generate_fig7_agronomic_bridge <- function(dat, region_name, save_map = FALSE) {
+generate_fig7_agronomic_bridge <- function(dat, region_name, save_map = FALSE,
+                                           params = BiocharAG::default_parameters(),
+                                           c_price = 30) {
     message("Generating Figure 7: Agronomic Bridge for ", region_name, "...")
 
     # 1. With Ag Value
-    p_ag <- BiocharAG::default_parameters()
-    p_ag$c_price <- 30
-    p_ag$region <- region_name
-    p_ag$bc_valuation_method <- "advanced_mechanistic"
-
-    res_ag <- run_scenario(dat$template, dat$layers, p_ag)
+    params$c_price <- c_price
+    params$region <- region_name
+    res_ag <- run_scenario(dat$template, dat$layers, params)
 
     # 2. Without Ag Value
-    p_no <- BiocharAG::default_parameters()
-    p_no$c_price <- 30
-    p_no$region <- region_name
-    p_no$bc_valuation_method <- "ag_value"
-    p_no$bc_ag_value <- 0
-
-    res_no <- run_scenario(dat$template, dat$layers, p_no)
+    params$bc_valuation_method <- "ag_value"
+    params$bc_ag_value <- 0
+    res_no <- run_scenario(dat$template, dat$layers, params)
 
     opt_stack <- c(res_no$opt, res_ag$opt)
     if (!is.null(dat$admin0)) {
@@ -767,9 +790,10 @@ generate_fig7_agronomic_bridge <- function(dat, region_name, save_map = FALSE) {
         )
 
     if (save_map) {
-        ggsave(
+        ggsave_with_params(
             paste0(out_dir, region_name, "_Fig7_Agronomic_Bridge.png"),
             p,
+            params = params,
             width = 8,
             height = 6,
             bg = "white",
@@ -782,7 +806,8 @@ generate_fig7_agronomic_bridge <- function(dat, region_name, save_map = FALSE) {
 }
 
 # Figure 8: Global Break-Even Carbon Price Grid
-generate_fig8_breakeven_cprice <- function(save_map = FALSE) {
+generate_fig8_breakeven_cprice <- function(save_map = FALSE,
+                                           params = BiocharAG::default_parameters()) {
     message("Generating Figure 8: Break-Even Carbon Price Grid...")
 
     # Ordered regions for columns
@@ -803,12 +828,10 @@ generate_fig8_breakeven_cprice <- function(save_map = FALSE) {
         dat <- load_region_data(r)
 
         # Prepare parameters
-        p0 <- BiocharAG::default_parameters()
-        p0$region <- r
-        p0$bc_valuation_method <- "advanced_mechanistic"
+        params$region <- r
 
         # Get baseline NPV(0) and Abatement
-        base_res <- get_linear_baseline(dat$template, dat$layers, p0)
+        base_res <- get_linear_baseline(dat$template, dat$layers, params)
 
         bes_npv <- base_res$net[["BES"]]
         beccs_npv <- base_res$net[["BECCS"]]
@@ -981,9 +1004,10 @@ generate_fig8_breakeven_cprice <- function(save_map = FALSE) {
         )
 
     if (save_map) {
-        ggsave(
+        ggsave_with_params(
             paste0(out_dir, "Global_Fig8_Breakeven_CPrice.png"),
             combined_plot,
+            params = params,
             width = 8,
             height = 10,
             bg = "white",
@@ -998,6 +1022,10 @@ generate_fig8_breakeven_cprice <- function(save_map = FALSE) {
 
 # --- Execution block ---
 if (sys.nframe() == 0) {
+    params <- BiocharAG::default_parameters()
+    params$c_price <- 100
+    params$bc_valuation_method <- "advanced_mechanistic"
+    params$plant_mw_th <- c(BES = 50, BECCS = 50, BEBCS = 50)
     dir.create(out_dir, showWarnings = FALSE)
     regions <- c("US", "China", "Europe", "India")
 
@@ -1010,17 +1038,17 @@ if (sys.nframe() == 0) {
 
         save_map <- TRUE
 
-        # generate_fig1_phys_boundary(dat, r, save_map)
-        # generate_fig2_booster_penalty(dat, r, save_map)
-        generate_fig3_evaporation(dat, r, save_map)
-        # generate_fig4_capital_wedge(dat, r, save_map)
-        generate_fig5_cprice_threshold(dat, r, save_map)
-        generate_fig6_macc(dat, r, save_map)
-        generate_fig7_agronomic_bridge(dat, r, save_map)
+        generate_fig1_phys_boundary(dat, r, save_map, params = params)
+        generate_fig2_booster_penalty(dat, r, save_map, params = params)
+        generate_fig3_evaporation(dat, r, save_map, params = params)
+        generate_fig4_capital_wedge(dat, r, save_map, params = params)
+        generate_fig5_cprice_threshold(dat, r, save_map, params = params)
+        generate_fig6_macc(dat, r, save_map, params = params)
+        generate_fig7_agronomic_bridge(dat, r, save_map, params = params)
     }
 
     # Generate the combined 4x3 small multiples grid for break-even c-price
-    generate_fig8_breakeven_cprice(save_map = TRUE)
+    generate_fig8_breakeven_cprice(save_map = TRUE, params = params)
 
     message("All figures generated successfully for all regions.")
 }

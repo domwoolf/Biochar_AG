@@ -44,7 +44,7 @@ calculate_beccs <- function(params) {
 
     # 3. Scale & Total Mass Flow
     if (!is.null(params$plant_mw_th)) {
-      plant_mw_th <- params$plant_mw_th
+      plant_mw_th <- resolve_plant_mw_th(params$plant_mw_th, "BECCS")
       plant_mw <- plant_mw_th * beccs_efficiency
     } else {
       plant_mw <- if (!is.null(params$plant_mw)) params$plant_mw else 50

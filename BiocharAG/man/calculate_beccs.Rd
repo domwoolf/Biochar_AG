@@ -13,10 +13,9 @@ calculate_beccs(params)
 A list of calculated metrics for BECCS.
 }
 \description{
-Modernizated logic (2024 Basis):
+Modernized logic (2024 Basis):
 \itemize{
-\item Uses distinct BECCS efficiency (accounting for capture penalty).
-\item Explicitly calculates Transport & Storage costs based on CO2 mass and distance.
-\item Updated Capital Costs estimates.
+\item Explicitly tracks Scope 3 transport emissions and road tortuosity.
+\item Converts sequestered carbon pools to CO2e ratios accurately (44/12).
 }
 }

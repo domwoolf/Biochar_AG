@@ -16,14 +16,10 @@ default_parameters <- function() {
     beccs_om_factor = 0.05,
 
     # Financial
-    discount_rate = 0.10, # Excel F9
+    discount_rate = 0.08,
 
     # Biomass
-    bm_lhv = 18.6, # GJ/Mg (deduced from BES B7 ~ 7.3/0.39 approx or directly input?)
-    # Wait, B7 = bm_lhv * eff. If B7=7.32 and eff=0.39 (BECCS B4), then bm_lhv = 7.32/0.39 = 18.76?
-    # Actually let's trust common values or precise extraction later.
-    # Sheet "bebcs" B4 uses "lignin".
-    # For now I will put placeholders closer to typical values.
+    bm_lhv = 18.6, # GJ/Mg
     bm_c = 0.48, # Carbon fraction
     bm_transport_fixed = 5.0, # $/Mg (Loading/Handling)
     bm_transport_var = 0.15, # $/Mg/km (Trucking)
@@ -32,7 +28,7 @@ default_parameters <- function() {
     bm_feed_rate = 250, # kg/hr?
 
     # Prices
-    elec_price = 100, # $/MWh ? (In formula F14 it's ElecProd * Price)
+    elec_price = 100, # $/MWh
     wholesale_discount_factor = 0.4, # Ratio of Wholesale to Retail (Generator Revenue / Retail Rate)
     c_price = 50, # $/tCO2e
     bc_price = 100, # $/t Biochar
@@ -77,11 +73,29 @@ default_parameters <- function() {
     ag_impact_duration = 10, # Years (Liming/Nutrient effect duration, < Stability)
 
     bc_ag_value = 0, # Figure 1 Base Case assumes 0 or low mean.
-    bc_valuation_method = "ag_value", # Options: "ag_value" (Shadow Price) or "market_price" (Sale)
+    bc_valuation_method = "advanced_mechanistic", # Options: "ag_value" (Shadow Price) or "market_price" (Sale)
     h_c_org = 0.35, # Molar ratio, typical for ~500-600C pyrolysis.
 
     # Soil / Ag factors
     n_app_rate = 100,
-    n2o_factor = 0.01
+    n2o_factor = 0.01,
+    plant_mw_th = 50
   )
 }
+
+#' Resolve plant_mw_th for a specific technology
+#' @param plant_mw_th A single numeric value or named vector of numeric values.
+#' @param tech Character string ("BES", "BECCS", or "BEBCS").
+#' @return A single numeric value.
+resolve_plant_mw_th <- function(plant_mw_th, tech) {
+  if (is.null(plant_mw_th)) return(50)
+  if (length(plant_mw_th) > 1 && !is.null(names(plant_mw_th))) {
+    if (!is.na(tech) && tech %in% names(plant_mw_th)) {
+      return(plant_mw_th[[tech]])
+    } else {
+      return(plant_mw_th[1])
+    }
+  }
+  return(plant_mw_th)
+}
+

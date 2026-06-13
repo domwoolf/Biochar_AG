@@ -28,7 +28,7 @@ calculate_bebcs <- function(params) {
 
     # 2. Costs (Scale & CAPEX)
     if (!is.null(params$plant_mw_th)) {
-      plant_mw_th <- params$plant_mw_th
+      plant_mw_th <- resolve_plant_mw_th(params$plant_mw_th, "BEBCS")
       plant_mw <- plant_mw_th * bes_energy_efficiency
     } else {
       plant_mw <- if (!is.null(params$plant_mw)) params$plant_mw else 50

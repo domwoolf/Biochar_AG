@@ -10,7 +10,11 @@ test_that("run_spatial_tea works with dummy raster", {
     bd <- r
     values(bd) <- c(100, 200, 50, 0) # Mg/km2
 
-    spatial_layers <- list(biomass_density = bd)
+    # Create dummy distance raster
+    dist_r <- r
+    values(dist_r) <- 10 # 10 km average collection distance
+
+    spatial_layers <- list(biomass_density = bd, dist_50MWth = dist_r)
     params <- default_parameters()
 
     # Run BECCS
@@ -18,7 +22,7 @@ test_that("run_spatial_tea works with dummy raster", {
 
     expect_s4_class(out, "SpatRaster")
     d <- dim(out) # nrows, ncols, nlyrs
-    expect_equal(d[3], 3) # Net_Value, Total_Cost, Abatement
+    expect_equal(d[3], 4) # Net_Value, Total_Cost, Abatement, Transport_Cost
 
     # Check values
     vals <- terra::values(out)

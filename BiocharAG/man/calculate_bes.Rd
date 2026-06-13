@@ -13,9 +13,10 @@ calculate_bes(params)
 A list of calculated metrics for BES.
 }
 \description{
-Modernizated logic (2024 Basis):
+Modernized logic (2024 Basis):
 \itemize{
 \item Uses modernized Capital Cost ($3,000/kW) and Efficiency (30\%) defaults.
 \item Calculates Levelized Cost of Electricity components (CAPEX/OPEX).
+\item Explicitly tracks Scope 3 transport emissions and road tortuosity.
 }
 }

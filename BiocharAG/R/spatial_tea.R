@@ -16,12 +16,27 @@
 #' @export
 #' @importFrom terra as.data.frame rast
 run_spatial_tea <- function(template_raster, params, spatial_layers = list(),
-                            fun = calculate_beccs, plant_mw_th = 50,
+                            fun = calculate_beccs, plant_mw_th = NULL,
                             optimize_scale = FALSE, plant_sizes_mw_th = c(5, 25, 50, 100, 250, 500),
                             region = NULL, gis_dir = NULL) {
     if (!inherits(template_raster, "SpatRaster")) {
         stop("template_raster must be a terra SpatRaster object.")
     }
+
+    # Determine tech name for resolving vector parameters
+    tech_name <- NA
+    if (identical(fun, BiocharAG::calculate_bes) || identical(fun, calculate_bes)) {
+        tech_name <- "BES"
+    } else if (identical(fun, BiocharAG::calculate_beccs) || identical(fun, calculate_beccs)) {
+        tech_name <- "BECCS"
+    } else if (identical(fun, BiocharAG::calculate_bebcs) || identical(fun, calculate_bebcs)) {
+        tech_name <- "BEBCS"
+    }
+
+    if (is.null(plant_mw_th)) {
+        plant_mw_th <- if (!is.null(params$plant_mw_th)) params$plant_mw_th else 50
+    }
+    plant_mw_th <- resolve_plant_mw_th(plant_mw_th, tech_name)
 
     if (optimize_scale) {
         if (!"biomass_density" %in% names(spatial_layers)) {
