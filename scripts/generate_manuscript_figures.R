@@ -805,6 +805,84 @@ generate_fig7_agronomic_bridge <- function(dat, region_name, save_map = FALSE,
     p
 }
 
+# Figure 9: Optimal Scale per Tech Map
+generate_fig9_optimal_scale_map <- function(dat, region_name, save_map = FALSE,
+                                            params = BiocharAG::default_parameters()) {
+    message("Generating Figure 9: Optimal Scale Map for ", region_name, "...")
+    params$region <- region_name
+
+    # Run for each tech with optimize_scale = TRUE
+    res_bes <- BiocharAG::run_spatial_tea(
+        dat$template, params, dat$layers,
+        fun = BiocharAG::calculate_bes,
+        optimize_scale = TRUE
+    )
+    res_beccs <- BiocharAG::run_spatial_tea(
+        dat$template, params, dat$layers,
+        fun = BiocharAG::calculate_beccs,
+        optimize_scale = TRUE
+    )
+    res_bebcs <- BiocharAG::run_spatial_tea(
+        dat$template, params, dat$layers,
+        fun = BiocharAG::calculate_bebcs,
+        optimize_scale = TRUE
+    )
+
+    # Extract Optimal_Plant_MW_th layer
+    sz_bes <- res_bes[["Optimal_Plant_MW_th"]]
+    sz_beccs <- res_beccs[["Optimal_Plant_MW_th"]]
+    sz_bebcs <- res_bebcs[["Optimal_Plant_MW_th"]]
+
+    # Combine into a stack
+    stack_r <- c(sz_bes, sz_beccs, sz_bebcs)
+    names(stack_r) <- c("BES", "BECCS", "BEBCS")
+
+    # Apply admin0 mask if available
+    if (!is.null(dat$admin0)) {
+        stack_r <- terra::mask(stack_r, terra::vect(dat$admin0))
+    }
+
+    # Convert to dataframe
+    df <- terra::as.data.frame(stack_r, xy = TRUE, na.rm = TRUE)
+    df_long <- tidyr::pivot_longer(df, cols = c("BES", "BECCS", "BEBCS"), names_to = "Technology", values_to = "Optimal_Size_MWth")
+
+    # Ensure Optimal_Size_MWth is treated as a factor for discrete colors
+    df_long$Optimal_Size_MWth <- factor(df_long$Optimal_Size_MWth, levels = c(5, 25, 50, 100, 250, 500))
+
+    # Plot
+    p <- ggplot(df_long, aes(x = x, y = y, fill = Optimal_Size_MWth)) +
+        geom_tile() +
+        facet_wrap(~Technology, ncol = 3) +
+        scale_fill_viridis_d(option = "plasma", drop = FALSE) +
+        theme_minimal(base_size = 14) +
+        coord_fixed() +
+        labs(
+            x = "", y = "",
+            fill = "Optimal Size (MWth)"
+        ) +
+        theme(
+            axis.text = element_blank(),
+            axis.ticks = element_blank(),
+            panel.grid = element_blank(),
+            strip.text = element_text(face = "bold", size = 16)
+        )
+
+    if (save_map) {
+        ggsave_with_params(
+            paste0(out_dir, region_name, "_Fig9_Optimal_Scale_Map.png"),
+            p,
+            params = params,
+            width = 12,
+            height = 5,
+            bg = "white",
+            dpi = 300
+        )
+    } else {
+        print(p)
+    }
+    p
+}
+
 # Figure 8: Global Break-Even Carbon Price Grid
 generate_fig8_breakeven_cprice <- function(save_map = FALSE,
                                            params = BiocharAG::default_parameters()) {
@@ -1028,6 +1106,7 @@ if (sys.nframe() == 0) {
     params$plant_mw_th <- c(BES = 50, BECCS = 50, BEBCS = 50)
     dir.create(out_dir, showWarnings = FALSE)
     regions <- c("US", "China", "Europe", "India")
+    regions <- c("China")
 
     for (r in regions) {
         message("\n==========================================")
@@ -1045,6 +1124,7 @@ if (sys.nframe() == 0) {
         generate_fig5_cprice_threshold(dat, r, save_map, params = params)
         generate_fig6_macc(dat, r, save_map, params = params)
         generate_fig7_agronomic_bridge(dat, r, save_map, params = params)
+        generate_fig9_optimal_scale_map(dat, r, save_map, params = params)
     }
 
     # Generate the combined 4x3 small multiples grid for break-even c-price
