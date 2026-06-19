@@ -11,6 +11,8 @@
 #' @param fun The TEA function to run (default: `calculate_beccs`).
 #' @param collection_radius_km Radius of biomass collection zone to calculate plant scale
 #'   (default: 50 km). Used with `biomass_density` to determine `plant_mw`.
+#' @param use_flat_ci Logical. If TRUE, uses a flat rate for carbon intensity instead of spatial marginal CI.
+#' @param flat_ci_gCO2_kWh Numeric. Flat carbon intensity rate in gCO2eq/kWh. Default is 12 (IPCC Nuclear).
 #'
 #' @return A `SpatRaster` with layers for key outputs (NPV, Total Cost, Abatement, etc.).
 #' @export
@@ -18,7 +20,8 @@
 run_spatial_tea <- function(template_raster, params, spatial_layers = list(),
                             fun = calculate_beccs, plant_mw_th = NULL,
                             optimize_scale = FALSE, plant_sizes_mw_th = c(5, 25, 50, 100, 250, 500),
-                            region = NULL, gis_dir = NULL) {
+                            region = NULL, gis_dir = NULL,
+                            use_flat_ci = FALSE, flat_ci_gCO2_kWh = 12) {
     if (!inherits(template_raster, "SpatRaster")) {
         stop("template_raster must be a terra SpatRaster object.")
     }
@@ -56,6 +59,12 @@ run_spatial_tea <- function(template_raster, params, spatial_layers = list(),
         if ("dist_sink_km" %in% names(spatial_layers)) p$dist_sink_km <- spatial_layers$dist_sink_km
         if ("dist_sink_saline_km" %in% names(spatial_layers)) p$dist_sink_saline_km <- spatial_layers$dist_sink_saline_km
         if ("sink_is_offshore" %in% names(spatial_layers)) p$sink_is_offshore <- spatial_layers$sink_is_offshore
+        
+        if (use_flat_ci) {
+            p$ff_c_intensity <- flat_ci_gCO2_kWh / 3600
+        } else if ("ff_c_intensity" %in% names(spatial_layers)) {
+            p$ff_c_intensity <- spatial_layers$ff_c_intensity
+        }
 
         for (layer_name in c("cn_weather_risk", "cn_expansion_risk", "eu_base_eur", "us_base_cost")) {
             if (layer_name %in% names(spatial_layers)) p[[layer_name]] <- spatial_layers[[layer_name]]
@@ -191,6 +200,12 @@ run_spatial_tea <- function(template_raster, params, spatial_layers = list(),
     if ("dist_sink_saline_km" %in% names(spatial_layers)) p$dist_sink_saline_km <- spatial_layers$dist_sink_saline_km
     if ("sink_is_offshore" %in% names(spatial_layers)) p$sink_is_offshore <- spatial_layers$sink_is_offshore
     if ("avg_dist" %in% names(spatial_layers)) p$avg_dist <- spatial_layers$avg_dist
+
+    if (use_flat_ci) {
+        p$ff_c_intensity <- flat_ci_gCO2_kWh / 3600
+    } else if ("ff_c_intensity" %in% names(spatial_layers)) {
+        p$ff_c_intensity <- spatial_layers$ff_c_intensity
+    }
 
     # Map additional spatial layers for feedstock cost logic
     for (layer_name in c("cn_weather_risk", "cn_expansion_risk", "eu_base_eur", "us_base_cost")) {

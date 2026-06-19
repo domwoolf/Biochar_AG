@@ -107,8 +107,29 @@ window.Quarto = {
   <ul class="collapse">
   <li><a href="#annuity-factor" id="toc-annuity-factor" class="nav-link" data-scroll-target="#annuity-factor"><span class="header-section-number">4.0.1</span> Annuity Factor</a></li>
   <li><a href="#net-present-value-npv" id="toc-net-present-value-npv" class="nav-link" data-scroll-target="#net-present-value-npv"><span class="header-section-number">4.0.2</span> Net Present Value (NPV)</a></li>
+  <li><a href="#co2-transport-and-routing-logistics" id="toc-co2-transport-and-routing-logistics" class="nav-link" data-scroll-target="#co2-transport-and-routing-logistics"><span class="header-section-number">4.1</span> CO2 Transport and Routing Logistics</a>
+  <ul class="collapse">
+  <li><a href="#maritime-shipping-modality" id="toc-maritime-shipping-modality" class="nav-link" data-scroll-target="#maritime-shipping-modality"><span class="header-section-number">4.1.1</span> Maritime Shipping Modality</a></li>
+  <li><a href="#hub-and-spoke-pipeline-modality-piecewise-linear" id="toc-hub-and-spoke-pipeline-modality-piecewise-linear" class="nav-link" data-scroll-target="#hub-and-spoke-pipeline-modality-piecewise-linear"><span class="header-section-number">4.1.2</span> Hub-and-Spoke Pipeline Modality (Piecewise Linear)</a></li>
+  <li><a href="#spatial-economic-optimization" id="toc-spatial-economic-optimization" class="nav-link" data-scroll-target="#spatial-economic-optimization"><span class="header-section-number">4.1.3</span> Spatial Economic Optimization</a></li>
   </ul></li>
-  <li><a href="#appendix-key-default-parameters" id="toc-appendix-key-default-parameters" class="nav-link" data-scroll-target="#appendix-key-default-parameters"><span class="header-section-number">5</span> Appendix: Key Default Parameters</a></li>
+  </ul></li>
+  <li><a href="#data-sources" id="toc-data-sources" class="nav-link" data-scroll-target="#data-sources"><span class="header-section-number">5</span> Data Sources</a>
+  <ul class="collapse">
+  <li><a href="#industrial-electricity-prices" id="toc-industrial-electricity-prices" class="nav-link" data-scroll-target="#industrial-electricity-prices"><span class="header-section-number">5.1</span> Industrial Electricity Prices</a>
+  <ul class="collapse">
+  <li><a href="#united-states-state-level-granularity" id="toc-united-states-state-level-granularity" class="nav-link" data-scroll-target="#united-states-state-level-granularity"><span class="header-section-number">5.1.1</span> 1. United States (State-Level Granularity)</a></li>
+  <li><a href="#china-provincialregional-granularity" id="toc-china-provincialregional-granularity" class="nav-link" data-scroll-target="#china-provincialregional-granularity"><span class="header-section-number">5.1.2</span> 2. China (Provincial/Regional Granularity)</a></li>
+  <li><a href="#india-state-level-granularity" id="toc-india-state-level-granularity" class="nav-link" data-scroll-target="#india-state-level-granularity"><span class="header-section-number">5.1.3</span> 3. India (State-Level Granularity)</a></li>
+  <li><a href="#europe-country-level-granularity" id="toc-europe-country-level-granularity" class="nav-link" data-scroll-target="#europe-country-level-granularity"><span class="header-section-number">5.1.4</span> 4. Europe (Country-Level Granularity)</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#appendix-key-default-parameters" id="toc-appendix-key-default-parameters" class="nav-link" data-scroll-target="#appendix-key-default-parameters"><span class="header-section-number">6</span> Appendix: Key Default Parameters</a></li>
+  <li><a href="#carbon-intensity-of-displaced-electricity" id="toc-carbon-intensity-of-displaced-electricity" class="nav-link" data-scroll-target="#carbon-intensity-of-displaced-electricity"><span class="header-section-number">7</span> Carbon Intensity of Displaced Electricity</a>
+  <ul class="collapse">
+  <li><a href="#empirical-baseline-short-run-marginal-capacity" id="toc-empirical-baseline-short-run-marginal-capacity" class="nav-link" data-scroll-target="#empirical-baseline-short-run-marginal-capacity"><span class="header-section-number">7.1</span> Empirical Baseline (Short-Run Marginal Capacity)</a></li>
+  <li><a href="#paris-aligned-counterfactual-long-run-structural-shift" id="toc-paris-aligned-counterfactual-long-run-structural-shift" class="nav-link" data-scroll-target="#paris-aligned-counterfactual-long-run-structural-shift"><span class="header-section-number">7.2</span> Paris-Aligned Counterfactual (Long-Run Structural Shift)</a></li>
+  </ul></li>
   </ul>
 </nav>
 </div>
@@ -246,9 +267,101 @@ window.Quarto = {
 <h3 data-number="4.0.2" class="anchored" data-anchor-id="net-present-value-npv"><span class="header-section-number">4.0.2</span> Net Present Value (NPV)</h3>
 <p>Each pathway resolves into a net value (<span class="math inline">\(/Mg Feedstock):\)</span>$ Net_Value = Revenue (Electricity, Carbon, Agronomic) - Costs (CAPEX, OPEX, Transport, Storage) $$</p>
 </section>
+<section id="co2-transport-and-routing-logistics" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="co2-transport-and-routing-logistics"><span class="header-section-number">4.1</span> CO2 Transport and Routing Logistics</h2>
+<p>The spatial routing of captured <span class="math inline">\(CO_2\)</span> is governed by an economic optimization algorithm that dynamically selects the lowest-cost transport modality—pipeline or maritime shipping—for every grid cell. To account for terrain avoidance and right-of-way routing, all Euclidean distances are adjusted by a standard tortuosity multiplier of 1.25.</p>
+<section id="maritime-shipping-modality" class="level3" data-number="4.1.1">
+<h3 data-number="4.1.1" class="anchored" data-anchor-id="maritime-shipping-modality"><span class="header-section-number">4.1.1</span> Maritime Shipping Modality</h3>
+<p>For offshore geological sinks, or for highly isolated onshore sources, <span class="math inline">\(CO_2\)</span> is transported via maritime or rail networks. This modality is modeled with a step-cost function dominated by the capital-intensive fixed entry costs of liquefaction and terminal buffering, paired with highly efficient variable voyage costs:</p>
+<p><span class="math display">\[C_{shipping} = C_{liquefaction} + C_{terminal} + (c_{voyage} \cdot d_{effective})\]</span></p>
 </section>
-<section id="appendix-key-default-parameters" class="level1" data-number="5">
-<h1 data-number="5"><span class="header-section-number">5</span> Appendix: Key Default Parameters</h1>
+<section id="hub-and-spoke-pipeline-modality-piecewise-linear" class="level3" data-number="4.1.2">
+<h3 data-number="4.1.2" class="anchored" data-anchor-id="hub-and-spoke-pipeline-modality-piecewise-linear"><span class="header-section-number">4.1.2</span> Hub-and-Spoke Pipeline Modality (Piecewise Linear)</h3>
+<p>Standard length-invariant TEA cost functions for <span class="math inline">\(CO_2\)</span> pipelines (e.g., using a 0.6 capacity scaling factor) adequately model regional networks but fundamentally underestimate the capital and energetic burdens of long-distance transport. Specifically, maintaining <span class="math inline">\(CO_2\)</span> in a dense/supercritical phase over extended distances requires the deployment of intermediate booster compression stations to overcome frictional pressure drop (McCoy &amp; Rubin, 2008).</p>
+<p>To model this without computationally intensive grid-level pump topology, pipeline CAPEX is calculated using a piecewise linear hub-and-spoke framework.</p>
+<p><strong>1. The Feeder Leg:</strong> Sources build a dedicated feeder pipeline for the first 50 km (<span class="math inline">\(d_{feeder}\)</span>), bearing the full capacity-scaled CAPEX. <strong>2. The Trunk Leg (Base Phase):</strong> For distances up to 700 km, the source connects to a regional trunkline operating at an efficient scale (3 Mtpa), paying only a proportional mass share of the CAPEX. <strong>3. The Trunk Leg (Booster Phase):</strong> For distances exceeding 700 km, the marginal cost of the trunkline increases by a penalty factor (<span class="math inline">\(P_{booster} = 2.0\)</span>) to approximate the compounding capital and operational costs of intermediate booster stations.</p>
+<p>The trunkline CAPEX share (<span class="math inline">\(CAPEX_{trunk}\)</span>) is calculated as:</p>
+<p><span class="math display">\[
+CAPEX_{trunk} =
+\begin{cases}
+C_{base} \cdot (d_{effective} - 50) &amp; \text{if } d_{effective} \le 700 \\
+C_{base} \cdot (700 - 50) + (C_{base} \cdot P_{booster}) \cdot (d_{effective} - 700) &amp; \text{if } d_{effective} &gt; 700
+\end{cases}
+\]</span></p>
+<p><em>Where <span class="math inline">\(C_{base}\)</span> is the unit length cost of the efficient-scale trunkline, scaled to the user’s proportional mass.</em></p>
+</section>
+<section id="spatial-economic-optimization" class="level3" data-number="4.1.3">
+<h3 data-number="4.1.3" class="anchored" data-anchor-id="spatial-economic-optimization"><span class="header-section-number">4.1.3</span> Spatial Economic Optimization</h3>
+<p>To eliminate artifactual spatial boundaries, the model does not enforce rigid distance limits. For all onshore sinks, the algorithm evaluates both modalities and selects the optimal route:</p>
+<p><span class="math display">\[Cost_{transport} = \min(C_{pipeline}, C_{shipping})\]</span></p>
+<p>Because of the piecewise booster penalty, the <span class="math inline">\(C_{pipeline}\)</span> curve steepens significantly beyond 700 km, guaranteeing a natural, continuous mathematical intersection with the flat <span class="math inline">\(C_{shipping}\)</span> cost floor. This allows the model to smoothly transition to shipping modalities at distances consistent with the break-even thresholds identified by the Zero Emissions Platform (ZEP, 2011).</p>
+</section>
+</section>
+</section>
+<section id="data-sources" class="level1" data-number="5">
+<h1 data-number="5"><span class="header-section-number">5</span> Data Sources</h1>
+<section id="industrial-electricity-prices" class="level2" data-number="5.1">
+<h2 data-number="5.1" class="anchored" data-anchor-id="industrial-electricity-prices"><span class="header-section-number">5.1</span> Industrial Electricity Prices</h2>
+<p><strong>Data Source Manifest</strong>: Industrial Electricity Prices <strong>Units</strong>: All values converted to USD/MWh (2024 Basis). <strong>Sector</strong>: Industrial / Non-Household (Medium-Scale).</p>
+<section id="united-states-state-level-granularity" class="level3" data-number="5.1.1">
+<h3 data-number="5.1.1" class="anchored" data-anchor-id="united-states-state-level-granularity"><span class="header-section-number">5.1.1</span> 1. United States (State-Level Granularity)</h3>
+<ul>
+<li><strong>Agency</strong>: U.S. Energy Information Administration (EIA)</li>
+<li><strong>Dataset</strong>: Electric Power Monthly &amp; Form EIA-861M (Monthly Electric Industry Data)</li>
+<li><strong>Table Reference</strong>: Table 5.6.B. “Average Price of Electricity to Ultimate Customers by End-Use Sector, by State”</li>
+<li><strong>Year/Period</strong>: March 2024 – March 2025 (Trailing 12-Month Average)</li>
+<li><strong>URL</strong>: <a href="https://www.eia.gov/electricity/monthly/">https://www.eia.gov/electricity/monthly/</a></li>
+<li><strong>Notes</strong>: Captures the stark difference between low-cost hydro states (WA, ID: ~$60/MWh) and high-cost coastal states (MA, CA: &gt;$180/MWh).</li>
+</ul>
+</section>
+<section id="china-provincialregional-granularity" class="level3" data-number="5.1.2">
+<h3 data-number="5.1.2" class="anchored" data-anchor-id="china-provincialregional-granularity"><span class="header-section-number">5.1.2</span> 2. China (Provincial/Regional Granularity)</h3>
+<ul>
+<li><strong>Agency</strong>: National Development and Reform Commission (NDRC) &amp; National Energy Administration (NEA)</li>
+<li><strong>Dataset</strong>: National/Provincial Grid Tariff Orders 2024 &amp; China Energy Market Reports</li>
+<li><strong>Secondary Source</strong>: CEIC Data (China Premium Database: Energy Prices) &amp; Climatescope</li>
+<li><strong>Year/Period</strong>: 2024</li>
+<li><strong>Key Trend</strong>: Captures the “West-to-East” price gradient.
+<ul>
+<li><strong>West</strong> (Xinjiang/Inner Mongolia): Low (~$55-$65/MWh) due to abundant coal/renewables and lower transmission fees.</li>
+<li><strong>East</strong> (Jiangsu/Guangdong): High (~$100+/MWh) due to “Green Power Trading” premiums and imported power costs.</li>
+</ul></li>
+<li><strong>URL</strong>: <a href="https://www.ndrc.gov.cn/">https://www.ndrc.gov.cn/</a> (Policy/Price Monitoring Center)</li>
+</ul>
+</section>
+<section id="india-state-level-granularity" class="level3" data-number="5.1.3">
+<h3 data-number="5.1.3" class="anchored" data-anchor-id="india-state-level-granularity"><span class="header-section-number">5.1.3</span> 3. India (State-Level Granularity)</h3>
+<ul>
+<li><strong>Agency</strong>: Central Electricity Regulatory Commission (CERC) &amp; State Electricity Regulatory Commissions (SERCs)</li>
+<li><strong>Dataset</strong>: State Tariff Orders for FY 2024-25</li>
+<li><strong>Secondary Source</strong>: NITI Aayog “Electricity Tariff Trends” &amp; IEEFA/Ember “Indian States’ Electricity Transition (SET) 2024”</li>
+<li><strong>Year/Period</strong>: FY 2024-25</li>
+<li><strong>Notes</strong>: India has significant cross-subsidization where industrial tariffs are artificially high to subsidize agricultural users.
+<ul>
+<li><strong>High</strong>: Maharashtra/Delhi (~$120-$130/MWh).</li>
+<li><strong>Low</strong>: Odisha/Chhattisgarh (~$75-$80/MWh) near coal pit-heads.</li>
+</ul></li>
+</ul>
+</section>
+<section id="europe-country-level-granularity" class="level3" data-number="5.1.4">
+<h3 data-number="5.1.4" class="anchored" data-anchor-id="europe-country-level-granularity"><span class="header-section-number">5.1.4</span> 4. Europe (Country-Level Granularity)</h3>
+<ul>
+<li><strong>Agency</strong>: Eurostat (European Commission)</li>
+<li><strong>Dataset</strong>: Electricity prices for non-household consumers (bi-annual)</li>
+<li><strong>Table Code</strong>: <code>nrg_pc_205</code></li>
+<li><strong>Year/Period</strong>: 2024 (Semester 1 &amp; 2 estimates)</li>
+<li><strong>URL</strong>: <a href="https://ec.europa.eu/eurostat/databrowser/view/nrg_pc_205/">https://ec.europa.eu/eurostat/databrowser/view/nrg_pc_205/</a></li>
+<li><strong>Notes</strong>: Prices include non-recoverable taxes and levies, which are substantial in Germany and Denmark.
+<ul>
+<li><strong>High</strong>: UK ($220+), Italy, Germany.</li>
+<li><strong>Low</strong>: Norway/Sweden (Hydro-dominant, &lt;$90/MWh).</li>
+</ul></li>
+</ul>
+</section>
+</section>
+</section>
+<section id="appendix-key-default-parameters" class="level1" data-number="6">
+<h1 data-number="6"><span class="header-section-number">6</span> Appendix: Key Default Parameters</h1>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 28%">
@@ -285,6 +398,90 @@ window.Quarto = {
 </tr>
 </tbody>
 </table>
+</section>
+<section id="carbon-intensity-of-displaced-electricity" class="level1" data-number="7">
+<h1 data-number="7"><span class="header-section-number">7</span> Carbon Intensity of Displaced Electricity</h1>
+<p>To robustly account for the climate mitigation benefit of bioenergy generation, we employed a consequential Life Cycle Assessment (LCA) framework. Rather than assuming new generation offsets the historical average grid mix—which often overestimates carbon savings by including legacy fossil baseload—we estimated the Marginal Carbon Intensity (MCI) of displaced energy. For each fixed 250 MWth plant archetype evaluated (encompassing Bioenergy, BECCS, and BEBCS configurations), the emissions offset was parameterized under two bounding scenarios: an empirical Business-as-Usual (BAU) baseline and a Paris-aligned counterfactual.</p>
+<section id="empirical-baseline-short-run-marginal-capacity" class="level2" data-number="7.1">
+<h2 data-number="7.1" class="anchored" data-anchor-id="empirical-baseline-short-run-marginal-capacity"><span class="header-section-number">7.1</span> Empirical Baseline (Short-Run Marginal Capacity)</h2>
+<p>Under the BAU scenario, we assumed that new bioenergy capacity displaces the technologies currently actively expanding on the regional grid. We derived empirical MCIs by isolating generation sources that experienced positive generation growth (<span class="math inline">\(\Delta G &gt; 0\)</span>) over the five-year window from 2018 to 2023.</p>
+<p>Historical electricity supply data were obtained from Ember. This dataset aggregates multi-country inventories, including the EIA, Eurostat, the Energy Institute, and the UN, alongside primary national sources such as China’s National Bureau of Statistics. The generation pathways mapped in this dataset were cross-referenced against standardized Intergovernmental Panel on Climate Change (IPCC) lifecycle carbon intensities. The regional MCI was subsequently calculated as the generation-weighted average of these expanding sources:</p>
+<p><span class="math display">\[MCI = \frac{\sum ( \Delta G_{i} \times CI_{i} )}{\sum \Delta G_{i}}\]</span></p>
+<p>where <span class="math inline">\(\Delta G_{i}\)</span> represents the net positive generation added for source <span class="math inline">\(i\)</span> over the selected timeframe, and <span class="math inline">\(CI_{i}\)</span> represents the static IPCC greenhouse gas intensity for that specific technology.</p>
+<div id="tbl-carbon-intensity" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-carbon-intensity-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;1: IPCC default values of lifecycle carbon intensity by generation type (<span class="math inline">\(\text{gCO}_2\text{eq kWh}^{-1}\)</span>).
+</figcaption>
+<div aria-describedby="tbl-carbon-intensity-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Minimum</th>
+<th style="text-align: left;">Average</th>
+<th style="text-align: left;">Maximum</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Coal</td>
+<td style="text-align: left;">740</td>
+<td style="text-align: left;">820</td>
+<td style="text-align: left;">910</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Gas</td>
+<td style="text-align: left;">410</td>
+<td style="text-align: left;">490</td>
+<td style="text-align: left;">650</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Biomass (dedicated)</td>
+<td style="text-align: left;">130</td>
+<td style="text-align: left;">230</td>
+<td style="text-align: left;">420</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Geothermal</td>
+<td style="text-align: left;">6.0</td>
+<td style="text-align: left;">38</td>
+<td style="text-align: left;">79</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Hydropower</td>
+<td style="text-align: left;">1.0</td>
+<td style="text-align: left;">24</td>
+<td style="text-align: left;">2200</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Nuclear</td>
+<td style="text-align: left;">3.7</td>
+<td style="text-align: left;">12</td>
+<td style="text-align: left;">110</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Solar (PV Utility)</td>
+<td style="text-align: left;">18</td>
+<td style="text-align: left;">48</td>
+<td style="text-align: left;">180</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Wind (onshore/offshore)</td>
+<td style="text-align: left;">7.0</td>
+<td style="text-align: left;">11.5</td>
+<td style="text-align: left;">56</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="paris-aligned-counterfactual-long-run-structural-shift" class="level2" data-number="7.2">
+<h2 data-number="7.2" class="anchored" data-anchor-id="paris-aligned-counterfactual-long-run-structural-shift"><span class="header-section-number">7.2</span> Paris-Aligned Counterfactual (Long-Run Structural Shift)</h2>
+<p>To account for structural shifts in energy systems operating under strict carbon budgets (e.g., <span class="math inline">\(1.5^\circ\text{C}\)</span> or <span class="math inline">\(2.0^\circ\text{C}\)</span> targets), we introduced a secondary counterfactual bounding scenario. In deep mitigation pathways, the deployment of carbon-negative technologies does not primarily displace high-emission fossil fuels, as these are inherently phased out by policy caps. Instead, integrated assessment modeling suggests that the introduction of baseload BECCS frequently displaces the most capital-intensive low-carbon alternatives. Under this sensitivity scenario, we assumed the displaced marginal generation is nuclear power, which reduces the grid displacement credit to a lifecycle equivalent of <span class="math inline">\(12\text{ gCO}_2\text{eq kWh}^{-1}\)</span>.</p>
+</section>
 </section>
 
 </main>

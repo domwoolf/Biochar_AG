@@ -41,7 +41,7 @@ default_parameters <- function() {
     bes_energy_efficiency = 0.30, # Updated from 0.39 to standard 30% for dedicated biomass
     bes_capital_cost = 3000, # Updated to $3,000/kW (IRENA 2023/24)
     bes_om_factor = 0.04, # 4% of Capex
-    ff_c_intensity = 0.05,
+    ff_c_intensity = 12 / 3600, # IPCC Nuclear CI (tCO2eq/GJ)
     rebound = 0.0,
 
     # BECCS

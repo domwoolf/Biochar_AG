@@ -28,7 +28,7 @@ calculate_bebcs <- function(params) {
 
     # 2. Costs (Scale & CAPEX)
     if (!is.null(params$plant_mw_th)) {
-      plant_mw_th <- params$plant_mw_th
+      plant_mw_th <- resolve_plant_mw_th(params$plant_mw_th, "BEBCS")
       plant_mw <- plant_mw_th * bes_energy_efficiency
     } else {
       plant_mw <- if (!is.null(params$plant_mw)) params$plant_mw else 50
@@ -75,7 +75,8 @@ calculate_bebcs <- function(params) {
     trans_em_factor <- if (!is.null(params$transport_emissions_factor)) params$transport_emissions_factor else 0.0001
     transport_emissions_co2e <- effective_dist * trans_em_factor
 
-    total_cost <- annual_capex_py + annual_capex_power + annual_om + logistics_cost
+    feedstock_cost <- if (!is.null(params$feedstock_cost)) params$feedstock_cost else 0
+    total_cost <- annual_capex_py + annual_capex_power + annual_om + logistics_cost + feedstock_cost
 
     # 4. Abatement & Value
     # Explicit conversion to CO2e
@@ -154,7 +155,7 @@ calculate_beccs <- function(params) {
 
     # 3. Scale & Total Mass Flow
     if (!is.null(params$plant_mw_th)) {
-      plant_mw_th <- params$plant_mw_th
+      plant_mw_th <- resolve_plant_mw_th(params$plant_mw_th, "BECCS")
       plant_mw <- plant_mw_th * beccs_efficiency
     } else {
       plant_mw <- if (!is.null(params$plant_mw)) params$plant_mw else 50
@@ -242,7 +243,8 @@ calculate_beccs <- function(params) {
     trans_em_factor <- if (!is.null(params$transport_emissions_factor)) params$transport_emissions_factor else 0.0001
     transport_emissions_co2e <- effective_dist * trans_em_factor
 
-    total_cost <- capex_per_mg + opex_per_mg + ts_cost + logistics_cost
+    feedstock_cost <- if (!is.null(params$feedstock_cost)) params$feedstock_cost else 0
+    total_cost <- capex_per_mg + opex_per_mg + ts_cost + logistics_cost + feedstock_cost
 
     # 6. Revenue & Value
     elec_revenue <- elec_prod * elec_price
@@ -296,7 +298,7 @@ calculate_bes <- function(params) {
 
     # 2. Plant Costs (CAPEX/OPEX)
     if (!is.null(params$plant_mw_th)) {
-      plant_mw_th <- params$plant_mw_th
+      plant_mw_th <- resolve_plant_mw_th(params$plant_mw_th, "BES")
       plant_mw <- plant_mw_th * bes_energy_efficiency
     } else {
       plant_mw <- if (!is.null(params$plant_mw)) params$plant_mw else 50
@@ -339,7 +341,8 @@ calculate_bes <- function(params) {
     trans_em_factor <- if (!is.null(params$transport_emissions_factor)) params$transport_emissions_factor else 0.0001
     transport_emissions_co2e <- effective_dist * trans_em_factor
 
-    total_cost <- capex_per_mg + opex_per_mg + logistics_cost
+    feedstock_cost <- if (!is.null(params$feedstock_cost)) params$feedstock_cost else 0
+    total_cost <- capex_per_mg + opex_per_mg + logistics_cost + feedstock_cost
 
     # 4. Revenue & Value
     elec_revenue <- elec_prod * elec_price
@@ -827,14 +830,10 @@ default_parameters <- function() {
     beccs_om_factor = 0.05,
 
     # Financial
-    discount_rate = 0.10, # Excel F9
+    discount_rate = 0.08,
 
     # Biomass
-    bm_lhv = 18.6, # GJ/Mg (deduced from BES B7 ~ 7.3/0.39 approx or directly input?)
-    # Wait, B7 = bm_lhv * eff. If B7=7.32 and eff=0.39 (BECCS B4), then bm_lhv = 7.32/0.39 = 18.76?
-    # Actually let's trust common values or precise extraction later.
-    # Sheet "bebcs" B4 uses "lignin".
-    # For now I will put placeholders closer to typical values.
+    bm_lhv = 18.6, # GJ/Mg
     bm_c = 0.48, # Carbon fraction
     bm_transport_fixed = 5.0, # $/Mg (Loading/Handling)
     bm_transport_var = 0.15, # $/Mg/km (Trucking)
@@ -843,7 +842,7 @@ default_parameters <- function() {
     bm_feed_rate = 250, # kg/hr?
 
     # Prices
-    elec_price = 100, # $/MWh ? (In formula F14 it's ElecProd * Price)
+    elec_price = 100, # $/MWh
     wholesale_discount_factor = 0.4, # Ratio of Wholesale to Retail (Generator Revenue / Retail Rate)
     c_price = 50, # $/tCO2e
     bc_price = 100, # $/t Biochar
@@ -888,14 +887,32 @@ default_parameters <- function() {
     ag_impact_duration = 10, # Years (Liming/Nutrient effect duration, < Stability)
 
     bc_ag_value = 0, # Figure 1 Base Case assumes 0 or low mean.
-    bc_valuation_method = "ag_value", # Options: "ag_value" (Shadow Price) or "market_price" (Sale)
+    bc_valuation_method = "advanced_mechanistic", # Options: "ag_value" (Shadow Price) or "market_price" (Sale)
     h_c_org = 0.35, # Molar ratio, typical for ~500-600C pyrolysis.
 
     # Soil / Ag factors
     n_app_rate = 100,
-    n2o_factor = 0.01
+    n2o_factor = 0.01,
+    plant_mw_th = 50
   )
 }
+
+#' Resolve plant_mw_th for a specific technology
+#' @param plant_mw_th A single numeric value or named vector of numeric values.
+#' @param tech Character string ("BES", "BECCS", or "BEBCS").
+#' @return A single numeric value.
+resolve_plant_mw_th <- function(plant_mw_th, tech) {
+  if (is.null(plant_mw_th)) return(50)
+  if (length(plant_mw_th) > 1 && !is.null(names(plant_mw_th))) {
+    if (!is.na(tech) && tech %in% names(plant_mw_th)) {
+      return(plant_mw_th[[tech]])
+    } else {
+      return(plant_mw_th[1])
+    }
+  }
+  return(plant_mw_th)
+}
+
 #' Calculate Biochar Permanence (Fperm)
 #'
 #' Calculates the fraction of biochar carbon remaining after a specified time frame (Fperm),
@@ -1441,12 +1458,27 @@ calculate_pyrolysis_physics <- function(py_temp, lignin, bm_lhv, moisture = 0.1,
 #' @export
 #' @importFrom terra as.data.frame rast
 run_spatial_tea <- function(template_raster, params, spatial_layers = list(),
-                            fun = calculate_beccs, plant_mw_th = 50,
+                            fun = calculate_beccs, plant_mw_th = NULL,
                             optimize_scale = FALSE, plant_sizes_mw_th = c(5, 25, 50, 100, 250, 500),
                             region = NULL, gis_dir = NULL) {
     if (!inherits(template_raster, "SpatRaster")) {
         stop("template_raster must be a terra SpatRaster object.")
     }
+
+    # Determine tech name for resolving vector parameters
+    tech_name <- NA
+    if (identical(fun, BiocharAG::calculate_bes) || identical(fun, calculate_bes)) {
+        tech_name <- "BES"
+    } else if (identical(fun, BiocharAG::calculate_beccs) || identical(fun, calculate_beccs)) {
+        tech_name <- "BECCS"
+    } else if (identical(fun, BiocharAG::calculate_bebcs) || identical(fun, calculate_bebcs)) {
+        tech_name <- "BEBCS"
+    }
+
+    if (is.null(plant_mw_th)) {
+        plant_mw_th <- if (!is.null(params$plant_mw_th)) params$plant_mw_th else 50
+    }
+    plant_mw_th <- resolve_plant_mw_th(plant_mw_th, tech_name)
 
     if (optimize_scale) {
         if (!"biomass_density" %in% names(spatial_layers)) {
@@ -1466,6 +1498,10 @@ run_spatial_tea <- function(template_raster, params, spatial_layers = list(),
         if ("dist_sink_km" %in% names(spatial_layers)) p$dist_sink_km <- spatial_layers$dist_sink_km
         if ("dist_sink_saline_km" %in% names(spatial_layers)) p$dist_sink_saline_km <- spatial_layers$dist_sink_saline_km
         if ("sink_is_offshore" %in% names(spatial_layers)) p$sink_is_offshore <- spatial_layers$sink_is_offshore
+
+        for (layer_name in c("cn_weather_risk", "cn_expansion_risk", "eu_base_eur", "us_base_cost")) {
+            if (layer_name %in% names(spatial_layers)) p[[layer_name]] <- spatial_layers[[layer_name]]
+        }
 
         dens <- spatial_layers$biomass_density
 
@@ -1489,6 +1525,10 @@ run_spatial_tea <- function(template_raster, params, spatial_layers = list(),
                 stop("Missing precalculated distance raster in spatial_layers: ", dist_layer_name)
             }
             p_sz$avg_dist <- spatial_layers[[dist_layer_name]]
+
+            if (!is.null(region)) {
+                p_sz$feedstock_cost <- calculate_regional_feedstock_cost(region, p_sz)
+            }
 
             # Run TEA Math on SpatRasters
             res <- fun(p_sz)
@@ -1580,113 +1620,122 @@ run_spatial_tea <- function(template_raster, params, spatial_layers = list(),
         }
     }
 
-    # 1. Prepare Data Frame from Raster Grid
-    # Extract coordinates
-    # We process as a data.frame for flexibility with 'sf' distance calcs logic.
-    # For very large rasters, 'terra::app' or 'focal' is better, but this wrapper
-    # is designed for complexity (calling full TEA models) rather than vectorized speed.
+    # Map spatial layers directly to SpatRaster parameters
+    p <- params
+    if ("soil_temp" %in% names(spatial_layers)) p$soil_temp <- spatial_layers$soil_temp
+    if ("elec_price" %in% names(spatial_layers)) {
+        factor <- if (!is.null(p$wholesale_discount_factor)) p$wholesale_discount_factor else 0.4
+        p$elec_price <- spatial_layers$elec_price * factor
+    }
+    if ("soil_ph" %in% names(spatial_layers)) p$soil_ph <- spatial_layers$soil_ph
+    if ("soil_cec" %in% names(spatial_layers)) p$soil_cec <- spatial_layers$soil_cec
+    if ("dist_sink_km" %in% names(spatial_layers)) p$dist_sink_km <- spatial_layers$dist_sink_km
+    if ("dist_sink_saline_km" %in% names(spatial_layers)) p$dist_sink_saline_km <- spatial_layers$dist_sink_saline_km
+    if ("sink_is_offshore" %in% names(spatial_layers)) p$sink_is_offshore <- spatial_layers$sink_is_offshore
+    if ("avg_dist" %in% names(spatial_layers)) p$avg_dist <- spatial_layers$avg_dist
 
-    df <- terra::as.data.frame(template_raster, xy = TRUE, cells = TRUE, na.rm = TRUE)
-
-    # 2. Extract Spatial Layer Values
-    for (layer_name in names(spatial_layers)) {
-        # Extract values for these cells
-        # Improve speed by assuming aligned rasters, or extracting by xy
-        vals <- terra::extract(spatial_layers[[layer_name]], df[, c("x", "y")], ID = FALSE)
-        df[[layer_name]] <- vals[, 1]
+    # Map additional spatial layers for feedstock cost logic
+    for (layer_name in c("cn_weather_risk", "cn_expansion_risk", "eu_base_eur", "us_base_cost")) {
+        if (layer_name %in% names(spatial_layers)) p[[layer_name]] <- spatial_layers[[layer_name]]
     }
 
-    # 3. Iterate and Calculate
-    # Initialize output vectors
-    n <- nrow(df)
-    net_value_vec <- numeric(n)
-    total_cost_vec <- numeric(n)
-    abatement_vec <- numeric(n)
-    ts_cost_vec <- numeric(n) # NEW
-    scale_vec <- numeric(n)
-
-    for (i in seq_len(n)) {
-        if (i %% 500 == 0) message("Processing cell ", i, " / ", n)
-        # Copy baseline params
-        p <- params
-
-        # Update with spatial params if they exist
-        p$lat <- df$y[i]
-        p$lon <- df$x[i]
-
-        # 3a. Soil Temp (Permenance)
-        if ("soil_temp" %in% names(df)) {
-            p$soil_temp <- df$soil_temp[i]
-        }
-
-        # 3b. Plant Scale and Feedstock Distance
-        if ("avg_dist" %in% names(df)) {
-            val <- df$avg_dist[i]
-            if (!is.na(val)) p$avg_dist <- val
-        }
-
-        # 3c. Electricity Price
-        if ("elec_price" %in% names(df)) {
-            pv <- df$elec_price[i]
-            # Apply Wholesale Discount Factor to convert Retail Map to Generator Revenue
-            factor <- if (!is.null(p$wholesale_discount_factor)) p$wholesale_discount_factor else 0.4
-
-            if (!is.na(pv) && pv > 0) p$elec_price <- pv * factor
-        }
-
-        # 3d. Advanced Ag Parameters (pH, CEC)
-        if ("soil_ph" %in% names(df)) {
-            val <- df$soil_ph[i]
-            if (!is.na(val)) p$soil_ph <- val
-        }
-        if ("soil_cec" %in% names(df)) {
-            val <- df$soil_cec[i]
-            if (!is.na(val)) p$soil_cec <- val
-        }
-
-        # 3e. CCS Transport Parameters
-        if ("dist_sink_km" %in% names(df)) {
-            val <- df$dist_sink_km[i]
-            if (!is.na(val)) p$dist_sink_km <- val
-        }
-        if ("dist_sink_saline_km" %in% names(df)) {
-            val <- df$dist_sink_saline_km[i]
-            if (!is.na(val)) p$dist_sink_saline_km <- val
-        }
-        if ("sink_is_offshore" %in% names(df)) {
-            val <- df$sink_is_offshore[i]
-            if (!is.na(val)) p$sink_is_offshore <- val
-        }
-
-
-        # Run TEA
-        # Note: TEA function will handle finding nearest sink using p$lat/p$lon
-        # if ccs_distance is NULL and it's BECCS.
-        # Run TEA
-        res <- tryCatch(fun(p), error = function(e) list(net_value = NA, total_cost = NA, tot_c_abatement = NA))
-
-        net_value_vec[i] <- if (is.null(res$net_value)) NA else res$net_value
-        total_cost_vec[i] <- if (is.null(res$total_cost)) NA else res$total_cost
-        abatement_vec[i] <- if (is.null(res$tot_c_abatement)) NA else res$tot_c_abatement
-        # Capture Transport Cost (specific to BECCS)
-        ts_cost_vec[i] <- if (is.null(res$ts_cost)) NA else res$ts_cost
-
-        # Store calculated scale/dist if relevant for debugging
-        scale_vec[i] <- if (!is.null(p$plant_mw_th)) p$plant_mw_th else 50
+    if (!is.null(region)) {
+        p$feedstock_cost <- calculate_regional_feedstock_cost(region, p)
     }
 
-    # 4. Rasterize Results
-    out_r <- terra::rast(template_raster, nlyrs = 4)
+    # Run TEA Math on SpatRasters directly
+    res <- fun(p)
+
+    # Rasterize constants and extract results
+    out_npv <- if (inherits(res$net_value, "SpatRaster")) res$net_value else terra::rast(template_raster, vals = res$net_value)
+    out_tc <- if (inherits(res$total_cost, "SpatRaster")) res$total_cost else terra::rast(template_raster, vals = res$total_cost)
+    out_abat <- if (inherits(res$tot_c_abatement, "SpatRaster")) res$tot_c_abatement else terra::rast(template_raster, vals = res$tot_c_abatement)
+    out_ts <- if (!is.null(res$ts_cost)) {
+        if (inherits(res$ts_cost, "SpatRaster")) res$ts_cost else terra::rast(template_raster, vals = res$ts_cost)
+    } else {
+        terra::rast(template_raster, nlyrs = 1, vals = NA)
+    }
+
+    out_r <- c(out_npv, out_tc, out_abat, out_ts)
     names(out_r) <- c("Net_Value_USD", "Total_Cost_USD_Mg", "Abatement_tCO2", "Transport_Cost_USD_Mg")
 
-    # Fill values
-    # Using cell IDs to ensure alignment
-    out_r[["Net_Value_USD"]][df$cell] <- net_value_vec
-    out_r[["Total_Cost_USD_Mg"]][df$cell] <- total_cost_vec
-    out_r[["Abatement_tCO2"]][df$cell] <- abatement_vec
-    out_r[["Transport_Cost_USD_Mg"]][df$cell] <- ts_cost_vec
+    # Apply Strict Biomass Mask (Removes Oceans, Lakes, and Zero-Biomass Deserts) if available
+    if ("biomass_density" %in% names(spatial_layers)) {
+        bm_mask <- spatial_layers$biomass_density > 0
+        out_r <- terra::mask(out_r, bm_mask, maskvalue = FALSE)
+    }
 
     return(out_r)
+}
+
+#' Calculate Spatially Explicit Feedstock Cost
+#'
+#' Implements regional pricing logic for crop residues based on spatial shadow pricing.
+#' Converts regional currencies to a normalized USD/Mg value for NPV calculations.
+#'
+#' @param region Character string: "US", "EU", "India", or "China".
+#' @param params List of parameters including base prices, distances, and local flags.
+#' @return Delivered feedstock cost in USD/Mg.
+#' @export
+calculate_regional_feedstock_cost <- function(region, params) {
+  # Standard Exchange Rates (Defaults to be overridden by global params if needed)
+  xr_eur <- if (!is.null(params$xr_eur)) params$xr_eur else 1.10
+  xr_inr <- if (!is.null(params$xr_inr)) params$xr_inr else 0.012  # ~1/83
+  xr_cny <- if (!is.null(params$xr_cny)) params$xr_cny else 0.14   # ~1/7.2
+
+  cost_usd <- 0
+
+  if (region == "US") {
+    # Baseline US Farm-gate
+    base_cost <- if (!is.null(params$us_base_cost)) params$us_base_cost else 70.0
+
+    # Nutrient Replacement (average ~$25.06/Mg for corn stover)
+    nutrient_cost <- if (!is.null(params$us_nutrient_cost)) params$us_nutrient_cost else 25.06
+
+    cost_usd <- base_cost + nutrient_cost
+  }
+  else if (region == "EU") {
+    # Baseline NUTS-3 Road-side cost (EUR)
+    base_eur <- if (!is.null(params$eu_base_eur)) params$eu_base_eur else 40.0
+
+    # Temporal Volatility: Interim Storage Cost Multiplier
+    # 3 months = +22.2%, 6 months = +36.4%
+    storage_months <- if (!is.null(params$eu_storage_months)) params$eu_storage_months else 6
+    storage_mult <- ifelse_raster(storage_months >= 6, 1.364, 1.222)
+
+    cost_usd <- (base_eur * storage_mult) * xr_eur
+  }
+  else if (region == "India") {
+    # Paddy straw focus. Excludes high-value wheat straw fodder.
+    # Uses avg_dist generated by the distance rasters
+    distance_km <- if (!is.null(params$avg_dist)) params$avg_dist else 25.0
+
+    # Optimal zone vs Distance Penalty
+    cost_inr_bale <- if (!is.null(params$inr_bale_cost)) params$inr_bale_cost else 2750
+    cost_inr_pellet <- if (!is.null(params$inr_pellet_cost)) params$inr_pellet_cost else 5200
+
+    cost_inr <- ifelse_raster(distance_km <= 50, cost_inr_bale, cost_inr_pellet)
+
+    cost_usd <- cost_inr * xr_inr
+  }
+  else if (region == "China") {
+    # Baseline plant-gate cost (CNY), incorporating rural broker discounts
+    base_cny <- if (!is.null(params$cn_base_cny)) params$cn_base_cny else 250
+
+    # Exogenous Risk Modifiers
+    weather_risk_val <- if (!is.null(params$cn_weather_risk)) params$cn_weather_risk else FALSE
+    expansion_risk_val <- if (!is.null(params$cn_expansion_risk)) params$cn_expansion_risk else FALSE
+
+    weather_risk <- ifelse_raster(weather_risk_val, 1.13, 1.0)
+    expansion_risk <- ifelse_raster(expansion_risk_val, 1.53, 1.0)
+
+    cost_usd <- (base_cny * weather_risk * expansion_risk) * xr_cny
+  }
+  else {
+    stop("Region not supported. Use US, EU, India, or China.")
+  }
+
+  return(cost_usd)
 }
 #' Calculate CO2 Transport Costs (Pipeline vs. Shipping)
 #'
