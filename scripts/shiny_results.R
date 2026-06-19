@@ -173,6 +173,9 @@ server <- function(input, output, session) {
             if (!is.null(ph)) processed_layers$soil_ph <- ph
             if (!is.null(cec)) processed_layers$soil_cec <- cec
 
+            ci_path <- paste0(gis_path, prefix, "_ff_c_intensity.tif")
+            if (file.exists(ci_path)) processed_layers$ff_c_intensity <- terra::rast(ci_path)
+
             a0 <- NULL
             a1 <- NULL
             if (file.exists(paste0(gis_path, prefix, "_admin0.gpkg"))) a0 <- sf::st_read(paste0(gis_path, prefix, "_admin0.gpkg"), quiet = TRUE)
@@ -226,6 +229,9 @@ server <- function(input, output, session) {
             # DEBUG: Print Check
             if (!is.null(ph)) processed_layers$soil_ph <- ph
             if (!is.null(cec)) processed_layers$soil_cec <- cec
+
+            ci_path <- paste0(gis_path, "us_ff_c_intensity.tif")
+            if (file.exists(ci_path)) processed_layers$ff_c_intensity <- terra::rast(ci_path)
 
             a0 <- NULL
             a1 <- NULL
@@ -297,24 +303,27 @@ server <- function(input, output, session) {
             template <- dat$template
             processed_layers <- dat$layers
 
-            # 1. BES (Standard Radius: 50km)
-            message(Sys.time(), " - Starting BES...")
-            incProgress(0.1, detail = "Calculating BES...")
             bes_sz <- if (!is.null(input$bes_plant_mw) && !is.na(input$bes_plant_mw)) input$bes_plant_mw else 50
             beccs_sz <- if (!is.null(input$beccs_plant_mw) && !is.na(input$beccs_plant_mw)) input$beccs_plant_mw else 250
             bebcs_sz <- if (!is.null(input$bebcs_plant_mw) && !is.na(input$bebcs_plant_mw)) input$bebcs_plant_mw else 50
 
-            bes_res <- run_spatial_tea(template, curr_params, processed_layers, fun = calculate_bes, plant_mw_th = bes_sz, region = dat$region_id, gis_dir = dat$gis_dir, optimize_scale = input$optimize_scale)
+            curr_params$plant_mw_th <- c(BES = bes_sz, BECCS = beccs_sz, BEBCS = bebcs_sz)
+            curr_params$optimize_scale <- input$optimize_scale
+
+            # 1. BES (Standard Radius: 50km)
+            message(Sys.time(), " - Starting BES...")
+            incProgress(0.1, detail = "Calculating BES...")
+            bes_res <- run_spatial_tea(template, curr_params, processed_layers, fun = calculate_bes, region = dat$region_id, gis_dir = dat$gis_dir)
 
             # 2. BECCS (Large Radius: 100km to leverage economies of scale against CCS cost)
             message(Sys.time(), " - Starting BECCS...")
             incProgress(0.4, detail = "Calculating BECCS...")
-            beccs_res <- run_spatial_tea(template, curr_params, processed_layers, fun = calculate_beccs, plant_mw_th = beccs_sz, region = dat$region_id, gis_dir = dat$gis_dir, optimize_scale = input$optimize_scale)
+            beccs_res <- run_spatial_tea(template, curr_params, processed_layers, fun = calculate_beccs, region = dat$region_id, gis_dir = dat$gis_dir)
 
             # 3. BEBCS (Distributed Radius: 50km)
             message(Sys.time(), " - Starting BEBCS...")
             incProgress(0.7, detail = "Calculating BEBCS...")
-            bebcs_res <- run_spatial_tea(template, curr_params, processed_layers, fun = calculate_bebcs, plant_mw_th = bebcs_sz, region = dat$region_id, gis_dir = dat$gis_dir, optimize_scale = input$optimize_scale)
+            bebcs_res <- run_spatial_tea(template, curr_params, processed_layers, fun = calculate_bebcs, region = dat$region_id, gis_dir = dat$gis_dir)
 
             incProgress(0.9, detail = "Rendering Maps...")
 
@@ -429,10 +438,13 @@ server <- function(input, output, session) {
                     p$region <- if (input$region == "USA") "North America" else input$region
                     p$bc_valuation_method <- "advanced_mechanistic"
 
+                    p$plant_mw_th <- 50
+                    p$optimize_scale <- TRUE
+
                     # Run spatial TEA
-                    bes <- run_spatial_tea(dat$template, p, dat$layers, fun = calculate_bes, plant_mw_th = 50, region = dat$region_id, gis_dir = dat$gis_dir, optimize_scale = TRUE)
-                    beccs <- run_spatial_tea(dat$template, p, dat$layers, fun = calculate_beccs, plant_mw_th = 50, region = dat$region_id, gis_dir = dat$gis_dir, optimize_scale = TRUE)
-                    bebcs <- run_spatial_tea(dat$template, p, dat$layers, fun = calculate_bebcs, plant_mw_th = 50, region = dat$region_id, gis_dir = dat$gis_dir, optimize_scale = TRUE)
+                    bes <- run_spatial_tea(dat$template, p, dat$layers, fun = calculate_bes, region = dat$region_id, gis_dir = dat$gis_dir)
+                    beccs <- run_spatial_tea(dat$template, p, dat$layers, fun = calculate_beccs, region = dat$region_id, gis_dir = dat$gis_dir)
+                    bebcs <- run_spatial_tea(dat$template, p, dat$layers, fun = calculate_bebcs, region = dat$region_id, gis_dir = dat$gis_dir)
 
                     net_stack <- c(bes[["Net_Value_USD"]], beccs[["Net_Value_USD"]], bebcs[["Net_Value_USD"]])
                     names(net_stack) <- c("BES", "BECCS", "BEBCS")

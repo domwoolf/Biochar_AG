@@ -42,6 +42,10 @@ default_parameters <- function() {
     bes_capital_cost = 3000, # Updated to $3,000/kW (IRENA 2023/24)
     bes_om_factor = 0.04, # 4% of Capex
     ff_c_intensity = 12 / 3600, # IPCC Nuclear CI (tCO2eq/GJ)
+    use_flat_ci = FALSE,
+    flat_ci_tCO2_GJ = 12 / 3600, # Default to Nuclear
+    optimize_scale = FALSE,
+    plant_sizes_mw_th = c(5, 25, 50, 100, 250, 500),
     rebound = 0.0,
 
     # BECCS

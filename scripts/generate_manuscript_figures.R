@@ -22,8 +22,6 @@ if (dir.exists("BiocharAG")) {
 }
 
 # --- GLOBAL CONFIGURATION ---
-global_optimize_scale <- FALSE
-
 # Global Tech Colors
 TECH_COLORS <- c(
     "BES" = "#1f77b4", # Blue
@@ -109,6 +107,9 @@ load_region_data <- function(region_name) {
     ph <- terra::rast(file.path(gis_path, paste0(p_base, "_soil_ph.tif")))
     cec <- terra::rast(file.path(gis_path, paste0(p_base, "_soil_cec.tif")))
 
+    ci_path <- file.path(gis_path, paste0(p_base, "_ff_c_intensity.tif"))
+    ci <- if (file.exists(ci_path)) terra::rast(ci_path) else NULL
+
     a0_path <- file.path(gis_path, paste0(p_dist, "_admin0.gpkg"))
     a1_path <- file.path(gis_path, paste0(p_dist, "_admin1.gpkg"))
     admin0 <- if (file.exists(a0_path)) {
@@ -133,6 +134,10 @@ load_region_data <- function(region_name) {
         soil_cec = cec
     )
 
+    if (!is.null(ci)) {
+        layers$ff_c_intensity <- ci
+    }
+
     for (sz in c(5, 25, 50, 100, 250, 500, 1000)) {
         dist_name <- paste0("dist_", sz, "MWth")
         dist_file <- file.path(gis_path, paste0(p_dist, "_", dist_name, ".tif"))
@@ -148,21 +153,15 @@ run_scenario <- function(template, layers, params) {
     # Run the base TEA (which takes ~10-20 seconds per tech)
     bes <- BiocharAG::run_spatial_tea(
         template, params, layers,
-        fun = BiocharAG::calculate_bes,
-        plant_mw_th = 250,
-        optimize_scale = global_optimize_scale
+        fun = BiocharAG::calculate_bes
     )
     beccs <- BiocharAG::run_spatial_tea(
         template, params, layers,
-        fun = BiocharAG::calculate_beccs,
-        plant_mw_th = 250,
-        optimize_scale = global_optimize_scale
+        fun = BiocharAG::calculate_beccs
     )
     bebcs <- BiocharAG::run_spatial_tea(
         template, params, layers,
-        fun = BiocharAG::calculate_bebcs,
-        plant_mw_th = 250,
-        optimize_scale = global_optimize_scale
+        fun = BiocharAG::calculate_bebcs
     )
 
     net_stack <- c(
@@ -670,7 +669,7 @@ generate_fig6_macc <- function(dat, region_name, save_map = FALSE,
     macc_long$Abatement <- macc_long$Abatement / 1e6
 
     # Factor levels to control stacking order
-    macc_long$Technology <- factor(macc_long$Technology, levels = c("BES", "BECCS", "BEBCS"))
+    macc_long$Technology <- factor(macc_long$Technology, levels = c("BECCS", "BEBCS", "BES"))
 
     if (sum(macc_long$Abatement, na.rm = TRUE) > 0) {
         p <- ggplot(macc_long, aes(x = Price, y = Abatement, fill = Technology)) +
@@ -812,20 +811,19 @@ generate_fig9_optimal_scale_map <- function(dat, region_name, save_map = FALSE,
     params$region <- region_name
 
     # Run for each tech with optimize_scale = TRUE
+    params$optimize_scale <- TRUE
+
     res_bes <- BiocharAG::run_spatial_tea(
         dat$template, params, dat$layers,
-        fun = BiocharAG::calculate_bes,
-        optimize_scale = TRUE
+        fun = BiocharAG::calculate_bes
     )
     res_beccs <- BiocharAG::run_spatial_tea(
         dat$template, params, dat$layers,
-        fun = BiocharAG::calculate_beccs,
-        optimize_scale = TRUE
+        fun = BiocharAG::calculate_beccs
     )
     res_bebcs <- BiocharAG::run_spatial_tea(
         dat$template, params, dat$layers,
-        fun = BiocharAG::calculate_bebcs,
-        optimize_scale = TRUE
+        fun = BiocharAG::calculate_bebcs
     )
 
     # Extract Optimal_Plant_MW_th layer
@@ -892,10 +890,10 @@ generate_fig8_breakeven_cprice <- function(save_map = FALSE,
     regions_ordered <- c("India", "China", "US", "Europe")
 
     # Rows definitions
-    techs <- c("BES", "BECCS", "BEBCS", "Best_C", "Best_Tech")
+    techs <- c("BES", "BECCS", "BEBCS", "Best_Tech", "Best_C")
     row_labels <- c(
         "BES" = "Bioenergy", "BECCS" = "BECCS", "BEBCS" = "Biochar",
-        "Best_C" = "Best C Price", "Best_Tech" = "Best Technology"
+        "Best_Tech" = "Best Tech.", "Best_C" = "Best C Price"
     )
 
     df_list <- list()
@@ -951,8 +949,9 @@ generate_fig8_breakeven_cprice <- function(save_map = FALSE,
             admin_list[[r]] <- admin_r
         }
 
-        # Convert to dataframe
-        df_r <- terra::as.data.frame(full_stack, xy = TRUE, na.rm = TRUE)
+        # Convert to dataframe (keep NAs initially to allow independent NA patterns per tech)
+        df_r <- terra::as.data.frame(full_stack, xy = TRUE, na.rm = FALSE)
+        df_r <- df_r[!is.na(df_r$BES) | !is.na(df_r$BECCS) | !is.na(df_r$BEBCS), ]
 
         # Map integer best_tech back to strings
         tech_names <- c("BES", "BECCS", "BEBCS")
@@ -1015,6 +1014,10 @@ generate_fig8_breakeven_cprice <- function(save_map = FALSE,
             sub_df <- df_all[df_all$Technology == t & df_all$Region == r, ]
             sub_admin <- if (!is.null(admin_all)) admin_all[admin_all$Region == r, ] else NULL
 
+            if (r == regions_ordered[length(regions_ordered)]) {
+                sub_df$RowLabel <- row_labels[t]
+            }
+
             p <- ggplot()
 
             # Map fills depending on row type
@@ -1028,24 +1031,23 @@ generate_fig8_breakeven_cprice <- function(save_map = FALSE,
                 p <- p + geom_sf(data = sub_admin, fill = NA, color = "black", linewidth = 0.2)
             }
 
-            p <- p + coord_sf(crs = 4326) + theme_void(base_size = 10)
+            p <- p + coord_sf(crs = 4326) + theme_void(base_size = 10) +
+                theme(legend.position = "none")
 
             # Scales
             if (t == "Best_Tech") {
                 p <- p + scale_fill_manual(
                     values = TECH_COLORS,
+                    limits = c("BES", "BECCS", "BEBCS"),
                     na.translate = FALSE,
-                    name = "Optimal Technology"
+                    drop = FALSE
                 )
             } else {
                 p <- p + scale_fill_gradientn(
                     colors = c("#00008B", "#006400", "#FFD700", "#FF8C00", "#8B0000"),
                     na.value = "transparent",
                     limits = scale_limits,
-                    oob = scales::squish,
-                    breaks = c(-50, 0, 50, 100, 150, 200),
-                    labels = c("\u2264 -50", "0", "50", "100", "150", "\u2265 200"),
-                    name = "Break-Even C-Price ($/tCO2e)"
+                    oob = scales::squish
                 )
             }
 
@@ -1060,10 +1062,11 @@ generate_fig8_breakeven_cprice <- function(save_map = FALSE,
 
             # Right Headers (Technology Names)
             if (r == regions_ordered[length(regions_ordered)]) {
-                # Add a secondary axis to trick the facet label on the right
-                p <- p + scale_y_continuous(position = "right", name = row_labels[t])
+                # Use a facet strip to place the label on the right side, as theme_void drops axis titles
+                p <- p + facet_grid(RowLabel ~ .)
                 theme_adj <- theme_adj + theme(
-                    axis.title.y.right = element_text(angle = -90, face = "bold", size = 12, margin = margin(l = 10))
+                    strip.text.y = element_text(angle = -90, face = "bold", size = 12, margin = margin(l = 10)),
+                    strip.background = element_blank()
                 )
             }
 
@@ -1072,14 +1075,37 @@ generate_fig8_breakeven_cprice <- function(save_map = FALSE,
         }
     }
 
-    # Combine with patchwork
-    combined_plot <- patchwork::wrap_plots(plot_list, nrow = length(techs), ncol = length(regions_ordered)) +
-        plot_layout(guides = "collect") &
-        theme(
-            legend.position = "bottom",
-            legend.key.width = unit(2, "cm"),
-            legend.title = element_text(vjust = 0.8)
-        )
+    # Render with patchwork
+    n_regions <- length(regions_ordered)
+    main_plot <- patchwork::wrap_plots(plot_list, ncol = n_regions)
+
+    # Generate isolated legends using cowplot
+    p_leg_cat <- ggplot(data.frame(x = 1, y = 1, Tech = factor(c("BES", "BECCS", "BEBCS"), levels = c("BES", "BECCS", "BEBCS"))), aes(x, y, fill = Tech)) +
+        geom_tile() +
+        scale_fill_manual(values = TECH_COLORS, name = "Optimal\nTechnology") +
+        theme_void() +
+        theme(legend.position = "bottom", legend.title = element_text(vjust = 0.8), legend.margin = margin(t = 0, b = 0))
+
+    p_leg_cont <- ggplot(data.frame(x = 1, y = 1, z = c(-50, 200)), aes(x, y, fill = z)) +
+        geom_tile() +
+        scale_fill_gradientn(
+            colors = c("#00008B", "#006400", "#FFD700", "#FF8C00", "#8B0000"),
+            limits = scale_limits,
+            oob = scales::squish,
+            breaks = c(-50, 0, 50, 100, 150, 200),
+            labels = c("\u2264 -50", "0", "50", "100", "150", "\u2265 200"),
+            name = "Break-Even C-Price\n($/tCO2e)"
+        ) +
+        theme_void() +
+        theme(legend.position = "bottom", legend.key.width = unit(1, "cm"), legend.title = element_text(vjust = 0.8), legend.margin = margin(t = 0, b = 0))
+
+    leg_cat <- cowplot::get_legend(p_leg_cat)
+    leg_cont <- cowplot::get_legend(p_leg_cont)
+
+    combined_legends <- cowplot::plot_grid(leg_cont, leg_cat, nrow = 1, rel_widths = c(1.5, 1)) + theme(margin = margin(t = -1))
+
+    combined_plot <- patchwork::wrap_elements(main_plot) / patchwork::wrap_elements(combined_legends) +
+        patchwork::plot_layout(heights = c(1, 0.04))
 
     if (save_map) {
         ggsave_with_params(
@@ -1087,7 +1113,7 @@ generate_fig8_breakeven_cprice <- function(save_map = FALSE,
             combined_plot,
             params = params,
             width = 8,
-            height = 10,
+            height = 9,
             bg = "white",
             dpi = 300
         )
@@ -1103,20 +1129,16 @@ if (sys.nframe() == 0) {
     params <- BiocharAG::default_parameters()
     params$c_price <- 100
     params$bc_valuation_method <- "advanced_mechanistic"
-    params$plant_mw_th <- c(BES = 50, BECCS = 50, BEBCS = 50)
+    params$plant_mw_th <- c(BES = 250, BECCS = 250, BEBCS = 250)
     dir.create(out_dir, showWarnings = FALSE)
     regions <- c("US", "China", "Europe", "India")
-    regions <- c("China")
 
     for (r in regions) {
         message("\n==========================================")
         message("Processing Region: ", r)
         message("==========================================\n")
-
         dat <- load_region_data(r)
-
         save_map <- TRUE
-
         generate_fig1_phys_boundary(dat, r, save_map, params = params)
         generate_fig2_booster_penalty(dat, r, save_map, params = params)
         generate_fig3_evaporation(dat, r, save_map, params = params)
@@ -1126,9 +1148,6 @@ if (sys.nframe() == 0) {
         generate_fig7_agronomic_bridge(dat, r, save_map, params = params)
         generate_fig9_optimal_scale_map(dat, r, save_map, params = params)
     }
-
-    # Generate the combined 4x3 small multiples grid for break-even c-price
     generate_fig8_breakeven_cprice(save_map = TRUE, params = params)
-
     message("All figures generated successfully for all regions.")
 }

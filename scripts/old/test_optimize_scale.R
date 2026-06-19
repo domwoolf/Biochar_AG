@@ -28,13 +28,17 @@ params <- default_parameters()
 
 message("Running with optimize_scale = FALSE")
 t1 <- system.time({
-  res_false <- run_spatial_tea(r, params, spatial_layers, fun = calculate_beccs, optimize_scale = FALSE)
+  params_false <- params
+  params_false$optimize_scale <- FALSE
+  res_false <- run_spatial_tea(r, params_false, spatial_layers, fun = calculate_beccs)
 })
 print(t1)
 
 message("Running with optimize_scale = TRUE")
 t2 <- system.time({
-  res_true <- run_spatial_tea(r, params, spatial_layers, fun = calculate_beccs, optimize_scale = TRUE)
+  params_true <- params
+  params_true$optimize_scale <- TRUE
+  res_true <- run_spatial_tea(r, params_true, spatial_layers, fun = calculate_beccs)
 })
 print(t2)
 
