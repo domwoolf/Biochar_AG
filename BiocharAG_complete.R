@@ -1,3 +1,4 @@
+==> BiocharAG/R/bebcs.R <==
 #' Calculate Biochar-Energy (BEBCS) Metrics
 #'
 #' @param params A list of parameters.
@@ -109,6 +110,8 @@ calculate_bebcs <- function(params) {
     )
   })
 }
+
+==> BiocharAG/R/beccs.R <==
 #' Calculate Bioenergy Carbon Capture and Storage (BECCS) Metrics
 #'
 #' Modernized logic (2024 Basis):
@@ -271,6 +274,8 @@ calculate_beccs <- function(params) {
     )
   })
 }
+
+==> BiocharAG/R/bes.R <==
 #' Calculate Bioenergy System (BES) Metrics
 #'
 #' Modernized logic (2024 Basis):
@@ -367,6 +372,8 @@ calculate_bes <- function(params) {
     )
   })
 }
+
+==> BiocharAG/R/biochar_valuation.R <==
 #' Calculate Biochar Economic Value
 #'
 #' Determines the economic value of the biochar fraction based on the selected valuation method.
@@ -468,6 +475,8 @@ calculate_biochar_value <- function(params, bc_yield) {
         detail = detail
     )
 }
+
+==> BiocharAG/R/comparison.R <==
 #' Calculate Relative Present Value (RPV)
 #'
 #' @param results_list List of result objects from calculate_bes, calculate_beccs, calculate_bebcs.
@@ -494,6 +503,8 @@ calculate_rpv <- function(results_list) {
         RPV = unlist(rpv_res)
     )
 }
+
+==> BiocharAG/R/data.R <==
 #' Biochar Permanence Reference Data
 #'
 #' A dataset containing experimental biochar stability data from Woolf et al. (2021).
@@ -525,6 +536,8 @@ calculate_rpv <- function(results_list) {
 #'   \item{py_temps}{Vector of pyrolysis temperatures}
 #' }
 "fperm_lut"
+
+==> BiocharAG/R/distance.R <==
 #' Calculate and optionally save a distance raster for a given plant capacity
 #'
 #' @param dens_wgs84 SpatRaster of biomass density in WGS84
@@ -620,6 +633,8 @@ calculate_distance_raster <- function(dens_wgs84, target_mw_th, region, gis_dir 
 
     return(avg_dist_wgs84)
 }
+
+==> BiocharAG/R/fuel_adjustment.R <==
 #' Adjust TEA Costs based on Fuel Quality (Ash Content)
 #'
 #' Applies cost penalties for high-ash biomass (e.g., crop residues) which require
@@ -679,6 +694,8 @@ adjust_costs_for_fuel <- function(params) {
 
     params
 }
+
+==> BiocharAG/R/geospatial.R <==
 #' Find Nearest CO2 Sink
 #'
 #' Calculates the geodesic distance from a given projected location to the nearest
@@ -721,6 +738,8 @@ find_nearest_sink <- function(lat, lon) {
         sink_region = nearest_sink$Region
     )
 }
+
+==> BiocharAG/R/npv.R <==
 #' Calculate Annuity Factor
 #'
 #' Calculates the Present Value of an Annuity Factor.
@@ -745,6 +764,8 @@ calculate_npv <- function(cash_flows, discount_rate) {
   # This function is a placeholder for direct cash flow streams if needed.
   sum(cash_flows / (1 + discount_rate)^t)
 }
+
+==> BiocharAG/R/parameters_india.R <==
 #' Default Parameters for India (North-West)
 #'
 #' Returns a list of parameters customized for the Indian context (Punjab/Haryana).
@@ -812,6 +833,8 @@ parameters_india <- function() {
 
     return(p)
 }
+
+==> BiocharAG/R/parameters.R <==
 #' Default Parameters
 #'
 #' Returns a list of default parameters used in the BiocharAG model.
@@ -855,7 +878,11 @@ default_parameters <- function() {
     bes_energy_efficiency = 0.30, # Updated from 0.39 to standard 30% for dedicated biomass
     bes_capital_cost = 3000, # Updated to $3,000/kW (IRENA 2023/24)
     bes_om_factor = 0.04, # 4% of Capex
-    ff_c_intensity = 0.05,
+    ff_c_intensity = 12 / 3600, # IPCC Nuclear CI (tCO2eq/GJ)
+    use_flat_ci = FALSE,
+    flat_ci_tCO2_GJ = 12 / 3600, # Default to Nuclear
+    optimize_scale = FALSE,
+    plant_sizes_mw_th = c(5, 25, 50, 100, 250, 500),
     rebound = 0.0,
 
     # BECCS
@@ -913,6 +940,8 @@ resolve_plant_mw_th <- function(plant_mw_th, tech) {
   return(plant_mw_th)
 }
 
+
+==> BiocharAG/R/permanence.R <==
 #' Calculate Biochar Permanence (Fperm)
 #'
 #' Calculates the fraction of biochar carbon remaining after a specified time frame (Fperm),
@@ -1227,6 +1256,8 @@ calculate_fperm_vectorized <- function(prep, soil_temp) {
     res <- v0 * (1 - wy) + v1 * wy
     return(as.numeric(res))
 }
+
+==> BiocharAG/R/plotting.R <==
 #' Plot RPV vs Carbon Price
 #'
 #' Generates a plot of Net Present Value (or RPV) for BES, BECCS, and BEBCS
@@ -1284,6 +1315,8 @@ plot_rpv_vs_c_price <- function(params, c_price_range = seq(0, 150, 10), metric 
 
     return(p)
 }
+
+==> BiocharAG/R/pyrolysis.R <==
 #' Calculate Pyrolysis Yields and Energy Balance (Woolf et al. 2016)
 #'
 #' Implements the sophisticated mass and energy balance from op_space_2.41.xlsm.
@@ -1440,6 +1473,8 @@ calculate_pyrolysis_physics <- function(py_temp, lignin, bm_lhv, moisture = 0.1,
         energy_char = e_net_bc
     )
 }
+
+==> BiocharAG/R/spatial_tea.R <==
 #' Run Spatial TEA Analysis
 #'
 #' Runs the Techno-Economic Assessment over a spatial grid defined by a template raster.
@@ -1453,14 +1488,15 @@ calculate_pyrolysis_physics <- function(py_temp, lignin, bm_lhv, moisture = 0.1,
 #' @param fun The TEA function to run (default: `calculate_beccs`).
 #' @param collection_radius_km Radius of biomass collection zone to calculate plant scale
 #'   (default: 50 km). Used with `biomass_density` to determine `plant_mw`.
+#' @param use_flat_ci Logical. If TRUE, uses a flat rate for carbon intensity instead of spatial marginal CI.
+#' @param flat_ci_gCO2_kWh Numeric. Flat carbon intensity rate in gCO2eq/kWh. Default is 12 (IPCC Nuclear).
 #'
 #' @return A `SpatRaster` with layers for key outputs (NPV, Total Cost, Abatement, etc.).
 #' @export
 #' @importFrom terra as.data.frame rast
+# nolint start: indentation_linter, line_length_linter, object_usage_linter, commented_code_linter
 run_spatial_tea <- function(template_raster, params, spatial_layers = list(),
-                            fun = calculate_beccs, plant_mw_th = NULL,
-                            optimize_scale = FALSE, plant_sizes_mw_th = c(5, 25, 50, 100, 250, 500),
-                            region = NULL, gis_dir = NULL) {
+                            fun = calculate_beccs, region = NULL, gis_dir = NULL) {
     if (!inherits(template_raster, "SpatRaster")) {
         stop("template_raster must be a terra SpatRaster object.")
     }
@@ -1475,10 +1511,13 @@ run_spatial_tea <- function(template_raster, params, spatial_layers = list(),
         tech_name <- "BEBCS"
     }
 
-    if (is.null(plant_mw_th)) {
-        plant_mw_th <- if (!is.null(params$plant_mw_th)) params$plant_mw_th else 50
-    }
+    plant_mw_th <- if (!is.null(params$plant_mw_th)) params$plant_mw_th else 50
     plant_mw_th <- resolve_plant_mw_th(plant_mw_th, tech_name)
+
+    optimize_scale <- if (!is.null(params$optimize_scale)) params$optimize_scale else FALSE
+    plant_sizes_mw_th <- if (!is.null(params$plant_sizes_mw_th)) params$plant_sizes_mw_th else c(5, 25, 50, 100, 250, 500)
+    use_flat_ci <- if (!is.null(params$use_flat_ci)) params$use_flat_ci else FALSE
+    flat_ci_tCO2_GJ <- if (!is.null(params$flat_ci_tCO2_GJ)) params$flat_ci_tCO2_GJ else 12 / 3600
 
     if (optimize_scale) {
         if (!"biomass_density" %in% names(spatial_layers)) {
@@ -1498,6 +1537,12 @@ run_spatial_tea <- function(template_raster, params, spatial_layers = list(),
         if ("dist_sink_km" %in% names(spatial_layers)) p$dist_sink_km <- spatial_layers$dist_sink_km
         if ("dist_sink_saline_km" %in% names(spatial_layers)) p$dist_sink_saline_km <- spatial_layers$dist_sink_saline_km
         if ("sink_is_offshore" %in% names(spatial_layers)) p$sink_is_offshore <- spatial_layers$sink_is_offshore
+
+        if (use_flat_ci) {
+            p$ff_c_intensity <- flat_ci_tCO2_GJ
+        } else if ("ff_c_intensity" %in% names(spatial_layers)) {
+            p$ff_c_intensity <- spatial_layers$ff_c_intensity
+        }
 
         for (layer_name in c("cn_weather_risk", "cn_expansion_risk", "eu_base_eur", "us_base_cost")) {
             if (layer_name %in% names(spatial_layers)) p[[layer_name]] <- spatial_layers[[layer_name]]
@@ -1634,6 +1679,12 @@ run_spatial_tea <- function(template_raster, params, spatial_layers = list(),
     if ("sink_is_offshore" %in% names(spatial_layers)) p$sink_is_offshore <- spatial_layers$sink_is_offshore
     if ("avg_dist" %in% names(spatial_layers)) p$avg_dist <- spatial_layers$avg_dist
 
+    if (use_flat_ci) {
+        p$ff_c_intensity <- flat_ci_tCO2_GJ
+    } else if ("ff_c_intensity" %in% names(spatial_layers)) {
+        p$ff_c_intensity <- spatial_layers$ff_c_intensity
+    }
+
     # Map additional spatial layers for feedstock cost logic
     for (layer_name in c("cn_weather_risk", "cn_expansion_risk", "eu_base_eur", "us_base_cost")) {
         if (layer_name %in% names(spatial_layers)) p[[layer_name]] <- spatial_layers[[layer_name]]
@@ -1678,65 +1729,63 @@ run_spatial_tea <- function(template_raster, params, spatial_layers = list(),
 #' @return Delivered feedstock cost in USD/Mg.
 #' @export
 calculate_regional_feedstock_cost <- function(region, params) {
-  # Standard Exchange Rates (Defaults to be overridden by global params if needed)
-  xr_eur <- if (!is.null(params$xr_eur)) params$xr_eur else 1.10
-  xr_inr <- if (!is.null(params$xr_inr)) params$xr_inr else 0.012  # ~1/83
-  xr_cny <- if (!is.null(params$xr_cny)) params$xr_cny else 0.14   # ~1/7.2
+    # Standard Exchange Rates (Defaults to be overridden by global params if needed)
+    xr_eur <- if (!is.null(params$xr_eur)) params$xr_eur else 1.10
+    xr_inr <- if (!is.null(params$xr_inr)) params$xr_inr else 0.012 # ~1/83
+    xr_cny <- if (!is.null(params$xr_cny)) params$xr_cny else 0.14 # ~1/7.2
 
-  cost_usd <- 0
+    cost_usd <- 0
 
-  if (region == "US") {
-    # Baseline US Farm-gate
-    base_cost <- if (!is.null(params$us_base_cost)) params$us_base_cost else 70.0
+    if (region == "US") {
+        # Baseline US Farm-gate
+        base_cost <- if (!is.null(params$us_base_cost)) params$us_base_cost else 70.0
 
-    # Nutrient Replacement (average ~$25.06/Mg for corn stover)
-    nutrient_cost <- if (!is.null(params$us_nutrient_cost)) params$us_nutrient_cost else 25.06
+        # Nutrient Replacement (average ~$25.06/Mg for corn stover)
+        nutrient_cost <- if (!is.null(params$us_nutrient_cost)) params$us_nutrient_cost else 25.06
 
-    cost_usd <- base_cost + nutrient_cost
-  }
-  else if (region == "EU") {
-    # Baseline NUTS-3 Road-side cost (EUR)
-    base_eur <- if (!is.null(params$eu_base_eur)) params$eu_base_eur else 40.0
+        cost_usd <- base_cost + nutrient_cost
+    } else if (region == "EU") {
+        # Baseline NUTS-3 Road-side cost (EUR)
+        base_eur <- if (!is.null(params$eu_base_eur)) params$eu_base_eur else 40.0
 
-    # Temporal Volatility: Interim Storage Cost Multiplier
-    # 3 months = +22.2%, 6 months = +36.4%
-    storage_months <- if (!is.null(params$eu_storage_months)) params$eu_storage_months else 6
-    storage_mult <- ifelse_raster(storage_months >= 6, 1.364, 1.222)
+        # Temporal Volatility: Interim Storage Cost Multiplier
+        # 3 months = +22.2%, 6 months = +36.4%
+        storage_months <- if (!is.null(params$eu_storage_months)) params$eu_storage_months else 6
+        storage_mult <- ifelse_raster(storage_months >= 6, 1.364, 1.222)
 
-    cost_usd <- (base_eur * storage_mult) * xr_eur
-  }
-  else if (region == "India") {
-    # Paddy straw focus. Excludes high-value wheat straw fodder.
-    # Uses avg_dist generated by the distance rasters
-    distance_km <- if (!is.null(params$avg_dist)) params$avg_dist else 25.0
+        cost_usd <- (base_eur * storage_mult) * xr_eur
+    } else if (region == "India") {
+        # Paddy straw focus. Excludes high-value wheat straw fodder.
+        # Uses avg_dist generated by the distance rasters
+        distance_km <- if (!is.null(params$avg_dist)) params$avg_dist else 25.0
 
-    # Optimal zone vs Distance Penalty
-    cost_inr_bale <- if (!is.null(params$inr_bale_cost)) params$inr_bale_cost else 2750
-    cost_inr_pellet <- if (!is.null(params$inr_pellet_cost)) params$inr_pellet_cost else 5200
+        # Optimal zone vs Distance Penalty
+        cost_inr_bale <- if (!is.null(params$inr_bale_cost)) params$inr_bale_cost else 2750
+        cost_inr_pellet <- if (!is.null(params$inr_pellet_cost)) params$inr_pellet_cost else 5200
 
-    cost_inr <- ifelse_raster(distance_km <= 50, cost_inr_bale, cost_inr_pellet)
+        cost_inr <- ifelse_raster(distance_km <= 50, cost_inr_bale, cost_inr_pellet)
 
-    cost_usd <- cost_inr * xr_inr
-  }
-  else if (region == "China") {
-    # Baseline plant-gate cost (CNY), incorporating rural broker discounts
-    base_cny <- if (!is.null(params$cn_base_cny)) params$cn_base_cny else 250
+        cost_usd <- cost_inr * xr_inr
+    } else if (region == "China") {
+        # Baseline plant-gate cost (CNY), incorporating rural broker discounts
+        base_cny <- if (!is.null(params$cn_base_cny)) params$cn_base_cny else 250
 
-    # Exogenous Risk Modifiers
-    weather_risk_val <- if (!is.null(params$cn_weather_risk)) params$cn_weather_risk else FALSE
-    expansion_risk_val <- if (!is.null(params$cn_expansion_risk)) params$cn_expansion_risk else FALSE
+        # Exogenous Risk Modifiers
+        weather_risk_val <- if (!is.null(params$cn_weather_risk)) params$cn_weather_risk else FALSE
+        expansion_risk_val <- if (!is.null(params$cn_expansion_risk)) params$cn_expansion_risk else FALSE
 
-    weather_risk <- ifelse_raster(weather_risk_val, 1.13, 1.0)
-    expansion_risk <- ifelse_raster(expansion_risk_val, 1.53, 1.0)
+        weather_risk <- ifelse_raster(weather_risk_val, 1.13, 1.0)
+        expansion_risk <- ifelse_raster(expansion_risk_val, 1.53, 1.0)
 
-    cost_usd <- (base_cny * weather_risk * expansion_risk) * xr_cny
-  }
-  else {
-    stop("Region not supported. Use US, EU, India, or China.")
-  }
+        cost_usd <- (base_cny * weather_risk * expansion_risk) * xr_cny
+    } else {
+        stop("Region not supported. Use US, EU, India, or China.")
+    }
 
-  return(cost_usd)
+    return(cost_usd)
 }
+
+==> BiocharAG/R/transport.R <==
 #' Calculate CO2 Transport Costs (Pipeline vs. Shipping)
 #'
 #' Implements the technoeconomic cost functions from the "Global Geologic Carbon Storage Assessment".
@@ -1929,6 +1978,8 @@ calculate_ccs_transport <- function(co2_mass, distance, is_offshore = FALSE, dis
 
   return(ifelse_raster(co2_mass <= 0, 0, final_cost))
 }
+
+==> BiocharAG/R/utils.R <==
 #' Raster-Aware Conditional Element Selection (ifelse)
 #'
 #' Internal helper that delegates to terra::ifel if the test is a SpatRaster,
