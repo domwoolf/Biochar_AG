@@ -307,3 +307,5 @@ calculate_regional_feedstock_cost <- function(region, params) {
 
     return(cost_usd)
 }
+
+# nolint end

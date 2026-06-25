@@ -34,41 +34,15 @@ out_dir <- if (dir.exists("figures")) "figures/" else if (dir.exists("../figures
 
 # --- HELPER FUNCTIONS ---
 
-ggsave_with_params <- function(filename, plot, width, height, bg = "white", dpi = 300, params = NULL) {
-    if (!is.null(params)) {
-        defaults <- BiocharAG::default_parameters()
-        diffs <- character()
-
-        for (nm in names(params)) {
-            if (nm %in% c("region")) next # Already part of base filename
-
-            val_def <- defaults[[nm]]
-            val_p <- params[[nm]]
-
-            if (!is.null(val_p) && (is.null(val_def) || !identical(val_p, val_def))) {
-                parts <- strsplit(nm, "_")[[1]]
-                abbr <- paste0(substr(parts, 1, 1), collapse = "")
-
-                val_str <- as.character(val_p)
-                if (is.character(val_p)) {
-                    v_parts <- strsplit(val_str, "_")[[1]]
-                    if (length(v_parts) > 1) {
-                        val_str <- paste0(substr(v_parts, 1, 1), collapse = "")
-                    }
-                }
-                diffs <- c(diffs, paste0(abbr, val_str))
-            }
-        }
-
-        if (length(diffs) > 0) {
-            ext_idx <- regexpr("\\.[^\\.]*$", filename)
-            if (ext_idx > 0) {
-                base_name <- substr(filename, 1, ext_idx - 1)
-                ext <- substr(filename, ext_idx, nchar(filename))
-                filename <- paste0(base_name, "_", paste(diffs, collapse = "_"), ext)
-            } else {
-                filename <- paste0(filename, "_", paste(diffs, collapse = "_"))
-            }
+ggsave_with_scenario <- function(filename, plot, width, height, bg = "white", dpi = 300, scenario = "default") {
+    if (scenario != "default") {
+        ext_idx <- regexpr("\\.[^\\.]*$", filename)
+        if (ext_idx > 0) {
+            base_name <- substr(filename, 1, ext_idx - 1)
+            ext <- substr(filename, ext_idx, nchar(filename))
+            filename <- paste0(base_name, "_", scenario, ext)
+        } else {
+            filename <- paste0(filename, "_", scenario)
         }
     }
 
@@ -196,7 +170,8 @@ get_linear_baseline <- function(template, layers, base_params) {
 
 # Figure 1: Scale vs. Sink Bivariate Map
 generate_fig1_phys_boundary <- function(dat, region_name, save_map = FALSE,
-                                        params = BiocharAG::default_parameters()) {
+                                        scenario = "default") {
+    params <- BiocharAG::default_parameters(BiocharAG::scenarios[[scenario]])
     message("Generating Figure 1: Physical Boundary for ", region_name, "...")
     params$region <- region_name
     res <- run_scenario(dat$template, dat$layers, params)
@@ -236,10 +211,10 @@ generate_fig1_phys_boundary <- function(dat, region_name, save_map = FALSE,
     }
 
     if (save_map) {
-        ggsave_with_params(
+        ggsave_with_scenario(
             paste0(out_dir, region_name, "_Fig1_Physical_Boundary.png"),
             p,
-            params = params,
+            scenario = scenario,
             width = 8,
             height = 6,
             bg = "white",
@@ -253,7 +228,8 @@ generate_fig1_phys_boundary <- function(dat, region_name, save_map = FALSE,
 
 # Figure 2: Booster Penalty CDF
 generate_fig2_booster_penalty <- function(dat, region_name, save_map = FALSE,
-                                          params = BiocharAG::default_parameters()) {
+                                          scenario = "default") {
+    params <- BiocharAG::default_parameters(BiocharAG::scenarios[[scenario]])
     message("Generating Figure 2: Booster Penalty CDF for ", region_name, "...")
     params$region <- region_name
 
@@ -304,10 +280,10 @@ generate_fig2_booster_penalty <- function(dat, region_name, save_map = FALSE,
         )
 
     if (save_map) {
-        ggsave_with_params(
+        ggsave_with_scenario(
             paste0(out_dir, region_name, "_Fig2_Booster_Penalty_CDF.png"),
             p,
-            params = params,
+            scenario = scenario,
             width = 8,
             height = 6,
             bg = "white",
@@ -323,8 +299,9 @@ generate_fig2_booster_penalty <- function(dat, region_name, save_map = FALSE,
 generate_fig3_evaporation <- function(
   dat, region_name, save_map = FALSE,
   d_rates = c(0.02, 0.08, 0.15), c_prices = c(30, 100, 150),
-  params = BiocharAG::default_parameters()
+  scenario = "default"
 ) {
+    params <- BiocharAG::default_parameters(BiocharAG::scenarios[[scenario]])
     message("Generating Figure 3: Evaporation Maps for ", region_name, "...")
     params$region <- region_name
     all_df <- data.frame()
@@ -399,10 +376,10 @@ generate_fig3_evaporation <- function(
         )
 
     if (save_map) {
-        ggsave_with_params(
+        ggsave_with_scenario(
             paste0(out_dir, region_name, "_Fig3_Evaporation_Maps.png"),
             plt,
-            params = params,
+            scenario = scenario,
             width = 10,
             height = 7,
             bg = "white",
@@ -416,7 +393,8 @@ generate_fig3_evaporation <- function(
 
 # Figure 4: Capital Lock-Out Wedge
 generate_fig4_capital_wedge <- function(dat, region_name, save_map = FALSE,
-                                        params = BiocharAG::default_parameters()) {
+                                        scenario = "default") {
+    params <- BiocharAG::default_parameters(BiocharAG::scenarios[[scenario]])
     message("Generating Figure 4: Capital Lock-Out Wedge for ", region_name, "...")
     cell_area <- terra::cellSize(dat$template, unit = "km")
 
@@ -470,10 +448,10 @@ generate_fig4_capital_wedge <- function(dat, region_name, save_map = FALSE,
         )
 
     if (save_map) {
-        ggsave_with_params(
+        ggsave_with_scenario(
             paste0(out_dir, region_name, "_Fig4_Capital_Wedge.png"),
             p,
-            params = params,
+            scenario = scenario,
             width = 8,
             height = 6,
             bg = "white",
@@ -487,7 +465,8 @@ generate_fig4_capital_wedge <- function(dat, region_name, save_map = FALSE,
 
 # Figure 5: Carbon Price Threshold Map
 generate_fig5_cprice_threshold <- function(dat, region_name, save_map = FALSE,
-                                           params = BiocharAG::default_parameters()) {
+                                           scenario = "default") {
+    params <- BiocharAG::default_parameters(BiocharAG::scenarios[[scenario]])
     message(
         "Generating Figure 5: Carbon Price Threshold Map for ",
         region_name, "..."
@@ -568,10 +547,10 @@ generate_fig5_cprice_threshold <- function(dat, region_name, save_map = FALSE,
         )
 
     if (save_map) {
-        ggsave_with_params(
+        ggsave_with_scenario(
             paste0(out_dir, region_name, "_Fig5_Threshold_Map.png"),
             p,
-            params = params,
+            scenario = scenario,
             width = 8,
             height = 6,
             bg = "white",
@@ -585,7 +564,8 @@ generate_fig5_cprice_threshold <- function(dat, region_name, save_map = FALSE,
 
 # Figure 6: Fractured Regional MACC
 generate_fig6_macc <- function(dat, region_name, save_map = FALSE,
-                               params = BiocharAG::default_parameters()) {
+                               scenario = "default") {
+    params <- BiocharAG::default_parameters(BiocharAG::scenarios[[scenario]])
     message("Generating Figure 6: Fractured Regional MACC for ", region_name, "...")
     cell_area <- terra::cellSize(dat$template, unit = "km")
 
@@ -686,10 +666,10 @@ generate_fig6_macc <- function(dat, region_name, save_map = FALSE,
             )
 
         if (save_map) {
-            ggsave_with_params(
+            ggsave_with_scenario(
                 paste0(out_dir, region_name, "_Fig6_MACC.png"),
                 p,
-                params = params,
+                scenario = scenario,
                 width = 8,
                 height = 6,
                 bg = "white",
@@ -707,8 +687,9 @@ generate_fig6_macc <- function(dat, region_name, save_map = FALSE,
 
 # Figure 7: Agronomic Bridge
 generate_fig7_agronomic_bridge <- function(dat, region_name, save_map = FALSE,
-                                           params = BiocharAG::default_parameters(),
+                                           scenario = "default",
                                            c_price = 30) {
+    params <- BiocharAG::default_parameters(BiocharAG::scenarios[[scenario]])
     message("Generating Figure 7: Agronomic Bridge for ", region_name, "...")
 
     # 1. With Ag Value
@@ -789,10 +770,10 @@ generate_fig7_agronomic_bridge <- function(dat, region_name, save_map = FALSE,
         )
 
     if (save_map) {
-        ggsave_with_params(
+        ggsave_with_scenario(
             paste0(out_dir, region_name, "_Fig7_Agronomic_Bridge.png"),
             p,
-            params = params,
+            scenario = scenario,
             width = 8,
             height = 6,
             bg = "white",
@@ -804,86 +785,10 @@ generate_fig7_agronomic_bridge <- function(dat, region_name, save_map = FALSE,
     p
 }
 
-# Figure 9: Optimal Scale per Tech Map
-generate_fig9_optimal_scale_map <- function(dat, region_name, save_map = FALSE,
-                                            params = BiocharAG::default_parameters()) {
-    message("Generating Figure 9: Optimal Scale Map for ", region_name, "...")
-    params$region <- region_name
-
-    # Run for each tech with optimize_scale = TRUE
-    params$optimize_scale <- TRUE
-
-    res_bes <- BiocharAG::run_spatial_tea(
-        dat$template, params, dat$layers,
-        fun = BiocharAG::calculate_bes
-    )
-    res_beccs <- BiocharAG::run_spatial_tea(
-        dat$template, params, dat$layers,
-        fun = BiocharAG::calculate_beccs
-    )
-    res_bebcs <- BiocharAG::run_spatial_tea(
-        dat$template, params, dat$layers,
-        fun = BiocharAG::calculate_bebcs
-    )
-
-    # Extract Optimal_Plant_MW_th layer
-    sz_bes <- res_bes[["Optimal_Plant_MW_th"]]
-    sz_beccs <- res_beccs[["Optimal_Plant_MW_th"]]
-    sz_bebcs <- res_bebcs[["Optimal_Plant_MW_th"]]
-
-    # Combine into a stack
-    stack_r <- c(sz_bes, sz_beccs, sz_bebcs)
-    names(stack_r) <- c("BES", "BECCS", "BEBCS")
-
-    # Apply admin0 mask if available
-    if (!is.null(dat$admin0)) {
-        stack_r <- terra::mask(stack_r, terra::vect(dat$admin0))
-    }
-
-    # Convert to dataframe
-    df <- terra::as.data.frame(stack_r, xy = TRUE, na.rm = TRUE)
-    df_long <- tidyr::pivot_longer(df, cols = c("BES", "BECCS", "BEBCS"), names_to = "Technology", values_to = "Optimal_Size_MWth")
-
-    # Ensure Optimal_Size_MWth is treated as a factor for discrete colors
-    df_long$Optimal_Size_MWth <- factor(df_long$Optimal_Size_MWth, levels = c(5, 25, 50, 100, 250, 500))
-
-    # Plot
-    p <- ggplot(df_long, aes(x = x, y = y, fill = Optimal_Size_MWth)) +
-        geom_tile() +
-        facet_wrap(~Technology, ncol = 3) +
-        scale_fill_viridis_d(option = "plasma", drop = FALSE) +
-        theme_minimal(base_size = 14) +
-        coord_fixed() +
-        labs(
-            x = "", y = "",
-            fill = "Optimal Size (MWth)"
-        ) +
-        theme(
-            axis.text = element_blank(),
-            axis.ticks = element_blank(),
-            panel.grid = element_blank(),
-            strip.text = element_text(face = "bold", size = 16)
-        )
-
-    if (save_map) {
-        ggsave_with_params(
-            paste0(out_dir, region_name, "_Fig9_Optimal_Scale_Map.png"),
-            p,
-            params = params,
-            width = 12,
-            height = 5,
-            bg = "white",
-            dpi = 300
-        )
-    } else {
-        print(p)
-    }
-    p
-}
-
 # Figure 8: Global Break-Even Carbon Price Grid
 generate_fig8_breakeven_cprice <- function(save_map = FALSE,
-                                           params = BiocharAG::default_parameters()) {
+                                           scenario = "default") {
+    params <- BiocharAG::default_parameters(BiocharAG::scenarios[[scenario]])
     message("Generating Figure 8: Break-Even Carbon Price Grid...")
 
     # Ordered regions for columns
@@ -1108,10 +1013,10 @@ generate_fig8_breakeven_cprice <- function(save_map = FALSE,
         patchwork::plot_layout(heights = c(1, 0.04))
 
     if (save_map) {
-        ggsave_with_params(
+        ggsave_with_scenario(
             paste0(out_dir, "Global_Fig8_Breakeven_CPrice.png"),
             combined_plot,
-            params = params,
+            scenario = scenario,
             width = 8,
             height = 9,
             bg = "white",
@@ -1124,12 +1029,174 @@ generate_fig8_breakeven_cprice <- function(save_map = FALSE,
     return(combined_plot)
 }
 
+# Figure 9: Optimal Scale per Tech Map
+generate_fig9_optimal_scale_map <- function(dat, region_name, save_map = FALSE,
+                                            scenario = "default") {
+    params <- BiocharAG::default_parameters(BiocharAG::scenarios[[scenario]])
+    message("Generating Figure 9: Optimal Scale Map for ", region_name, "...")
+    params$region <- region_name
+
+    # Run for each tech with optimize_scale = TRUE
+    params$optimize_scale <- TRUE
+
+    res_bes <- BiocharAG::run_spatial_tea(
+        dat$template, params, dat$layers,
+        fun = BiocharAG::calculate_bes
+    )
+    res_beccs <- BiocharAG::run_spatial_tea(
+        dat$template, params, dat$layers,
+        fun = BiocharAG::calculate_beccs
+    )
+    res_bebcs <- BiocharAG::run_spatial_tea(
+        dat$template, params, dat$layers,
+        fun = BiocharAG::calculate_bebcs
+    )
+
+    # Extract Optimal_Plant_MW_th layer
+    sz_bes <- res_bes[["Optimal_Plant_MW_th"]]
+    sz_beccs <- res_beccs[["Optimal_Plant_MW_th"]]
+    sz_bebcs <- res_bebcs[["Optimal_Plant_MW_th"]]
+
+    # Combine into a stack
+    stack_r <- c(sz_bes, sz_beccs, sz_bebcs)
+    names(stack_r) <- c("BES", "BECCS", "BEBCS")
+
+    # Apply admin0 mask if available
+    if (!is.null(dat$admin0)) {
+        stack_r <- terra::mask(stack_r, terra::vect(dat$admin0))
+    }
+
+    # Convert to dataframe
+    df <- terra::as.data.frame(stack_r, xy = TRUE, na.rm = TRUE)
+    df_long <- tidyr::pivot_longer(df, cols = c("BES", "BECCS", "BEBCS"), names_to = "Technology", values_to = "Optimal_Size_MWth")
+
+    # Ensure Optimal_Size_MWth is treated as a factor for discrete colors
+    df_long$Optimal_Size_MWth <- factor(df_long$Optimal_Size_MWth, levels = c(5, 25, 50, 100, 250, 500))
+
+    # Plot
+    p <- ggplot(df_long, aes(x = x, y = y, fill = Optimal_Size_MWth)) +
+        geom_tile() +
+        facet_wrap(~Technology, ncol = 3) +
+        scale_fill_viridis_d(option = "plasma", drop = FALSE) +
+        theme_minimal(base_size = 14) +
+        coord_fixed() +
+        labs(
+            x = "", y = "",
+            fill = "Optimal Size (MWth)"
+        ) +
+        theme(
+            axis.text = element_blank(),
+            axis.ticks = element_blank(),
+            panel.grid = element_blank(),
+            strip.text = element_text(face = "bold", size = 16)
+        )
+
+    if (save_map) {
+        ggsave_with_scenario(
+            paste0(out_dir, region_name, "_Fig9_Optimal_Scale_Map.png"),
+            p,
+            scenario = scenario,
+            width = 12,
+            height = 5,
+            bg = "white",
+            dpi = 300
+        )
+    } else {
+        print(p)
+    }
+    p
+}
+
+
+# Figure 10: Global biomass density map
+generate_fig10_biomass_density <- function(save_map = FALSE) {
+    message("Generating Figure 10: Biomass Density...")
+    regions_ordered <- c("India", "China", "US", "Europe")
+    df_all <- list()
+    admin_all <- list()
+    region_widths <- numeric(length(regions_ordered))
+
+    for (i in seq_along(regions_ordered)) {
+        r <- regions_ordered[i]
+        # load biomass density raster for region
+        dat <- load_region_data(r)
+        bm_den_r <- dat$layers$biomass_density
+
+        # Calculate bounding box width to preserve relative scales in patchwork
+        e <- terra::ext(bm_den_r)
+        region_widths[i] <- e$xmax - e$xmin
+
+        # Apply admin0 mask if available
+        if (!is.null(dat$admin0)) {
+            bm_den_r <- terra::mask(bm_den_r, terra::vect(dat$admin0))
+            admin_all[[r]] <- dat$admin0
+        }
+
+        # convert to dataframe
+        df <- terra::as.data.frame(bm_den_r, xy = TRUE, na.rm = TRUE)
+        names(df)[3] <- "biomass"
+        df_all[[r]] <- df
+    }
+
+    # Find global min and max for synchronized color scales
+    max_bm <- max(sapply(df_all, function(d) max(d$biomass, na.rm = TRUE)), na.rm = TRUE)
+    min_bm <- min(sapply(df_all, function(d) min(d$biomass, na.rm = TRUE)), na.rm = TRUE)
+
+    # Plot each region individually with enforced global scales
+    plot_list <- list()
+    for (r in regions_ordered) {
+        p <- ggplot() +
+            geom_tile(data = df_all[[r]], aes(x = x, y = y, fill = biomass))
+
+        if (!is.null(admin_all[[r]])) {
+            p <- p + geom_sf(data = admin_all[[r]], fill = NA, color = "black", linewidth = 0.2, inherit.aes = FALSE)
+        }
+
+        p <- p +
+            scale_fill_viridis_c(
+                option = "mako", direction = -1, trans = "log1p",
+                limits = c(min_bm, max_bm), # Enforce global limits for patchwork collection
+                name = expression("Biomass\n(Mg/km"^2 * ")")
+            ) +
+            theme_minimal(base_size = 14) +
+            coord_sf() +
+            ggtitle(r) +
+            theme(
+                axis.text = element_blank(),
+                axis.ticks = element_blank(),
+                axis.title = element_blank(),
+                panel.grid = element_blank(),
+                plot.title = element_text(hjust = 0.5, face = "bold")
+            )
+
+        plot_list[[r]] <- p
+    }
+
+    # Combine plots in a single row with relative widths preserved
+    combined_plot <- patchwork::wrap_plots(plot_list, nrow = 1) +
+        patchwork::plot_layout(guides = "collect", widths = region_widths) &
+        theme(legend.position = "bottom", legend.key.width = unit(2, "cm"))
+
+    if (save_map) {
+        ggplot2::ggsave(
+            filename = paste0(out_dir, "Global_Fig10_Biomass_Density.png"),
+            plot = combined_plot,
+            width = 16,
+            height = 5,
+            bg = "white",
+            dpi = 300
+        )
+    } else {
+        print(combined_plot)
+    }
+
+    return(combined_plot)
+}
+
+
 # --- Execution block ---
 if (sys.nframe() == 0) {
-    params <- BiocharAG::default_parameters()
-    params$c_price <- 100
-    params$bc_valuation_method <- "advanced_mechanistic"
-    params$plant_mw_th <- c(BES = 250, BECCS = 250, BEBCS = 250)
+    scenario_name <- "CP100_MW250"
     dir.create(out_dir, showWarnings = FALSE)
     regions <- c("US", "China", "Europe", "India")
 
@@ -1139,15 +1206,18 @@ if (sys.nframe() == 0) {
         message("==========================================\n")
         dat <- load_region_data(r)
         save_map <- TRUE
-        generate_fig1_phys_boundary(dat, r, save_map, params = params)
-        generate_fig2_booster_penalty(dat, r, save_map, params = params)
-        generate_fig3_evaporation(dat, r, save_map, params = params)
-        generate_fig4_capital_wedge(dat, r, save_map, params = params)
-        generate_fig5_cprice_threshold(dat, r, save_map, params = params)
-        generate_fig6_macc(dat, r, save_map, params = params)
-        generate_fig7_agronomic_bridge(dat, r, save_map, params = params)
-        generate_fig9_optimal_scale_map(dat, r, save_map, params = params)
+        generate_fig1_phys_boundary(dat, r, save_map, scenario = scenario_name)
+        generate_fig2_booster_penalty(dat, r, save_map, scenario = scenario_name)
+        generate_fig3_evaporation(dat, r, save_map, scenario = scenario_name)
+        generate_fig4_capital_wedge(dat, r, save_map, scenario = scenario_name)
+        generate_fig5_cprice_threshold(dat, r, save_map, scenario = scenario_name)
+        generate_fig6_macc(dat, r, save_map, scenario = scenario_name)
+        generate_fig7_agronomic_bridge(dat, r, save_map, scenario = scenario_name)
+        generate_fig9_optimal_scale_map(dat, r, save_map, scenario = scenario_name)
     }
-    generate_fig8_breakeven_cprice(save_map = TRUE, params = params)
+    generate_fig8_breakeven_cprice(save_map, scenario = scenario_name)
+    generate_fig10_biomass_density(save_map = TRUE)
     message("All figures generated successfully for all regions.")
 }
+
+# nolint end

@@ -1,0 +1,6 @@
+{
+    "editor.wordWrap": "on",
+    "editor.autoIndentOnPaste": true,
+    "editor.bracketPairColorization.independentColorPoolPerBracketType": true,
+    "workbench.colorTheme": "Kimbie Dark"
+}

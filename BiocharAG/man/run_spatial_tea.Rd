@@ -9,9 +9,6 @@ run_spatial_tea(
   params,
   spatial_layers = list(),
   fun = calculate_beccs,
-  plant_mw_th = NULL,
-  optimize_scale = FALSE,
-  plant_sizes_mw_th = c(5, 25, 50, 100, 250, 500),
   region = NULL,
   gis_dir = NULL
 )
@@ -28,6 +25,10 @@ Likely candidates: \code{soil_temp} (for Fperm), \code{biomass_density} (Mg/km2)
 
 \item{collection_radius_km}{Radius of biomass collection zone to calculate plant scale
 (default: 50 km). Used with \code{biomass_density} to determine \code{plant_mw}.}
+
+\item{use_flat_ci}{Logical. If TRUE, uses a flat rate for carbon intensity instead of spatial marginal CI.}
+
+\item{flat_ci_gCO2_kWh}{Numeric. Flat carbon intensity rate in gCO2eq/kWh. Default is 12 (IPCC Nuclear).}
 }
 \value{
 A \code{SpatRaster} with layers for key outputs (NPV, Total Cost, Abatement, etc.).

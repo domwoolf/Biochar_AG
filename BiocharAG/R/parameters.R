@@ -3,20 +3,15 @@
 #' Returns a list of default parameters used in the BiocharAG model.
 #' Values inferred from op_space_2.41.xlsm.
 #'
+#' @param scenario A named list of parameters to override the defaults. Defaults to an empty list.
 #' @return A named list of parameters.
 #' @export
-default_parameters <- function() {
-  list(
-    # BECCS / CCS
-    beccs_efficiency = 0.28, # Lower than BES due to capture penalty (35% -> 28%)
-    capture_rate = 0.90, # 90% capture efficiency
-    ccs_distance = 100, # Transport distance (km)
-    ccs_storage_cost = 15, # Injection/Monitoring cost ($/Mg CO2)
-    beccs_capital_cost = 4000, # Updated 2024 estimate ($/kW)
-    beccs_om_factor = 0.05,
-
+default_parameters <- function(scenario = list()) {
+  params <- list(
     # Financial
     discount_rate = 0.08,
+    plant_mw_th = 50,
+    O_M_factor = 0.04, # Operations & Maintenance (% of Capex)
 
     # Biomass
     bm_lhv = 18.6, # GJ/Mg
@@ -32,9 +27,11 @@ default_parameters <- function() {
     wholesale_discount_factor = 0.4, # Ratio of Wholesale to Retail (Generator Revenue / Retail Rate)
     c_price = 50, # $/tCO2e
     bc_price = 100, # $/t Biochar
-
-    # Operations
-    O_M_factor = 0.04, # % of Capex? or similar
+    # Fertilizer Prices based on 2024/2025 Market Averages (Source: see tea_literature_review.md)
+    price_lime = 60, # $/Mg (Bulk Ag Lime)
+    price_n = 0.92, # $/kg N (Derived from Urea ~$425/t)
+    price_p = 1.10, # $/kg P2O5 (Derived from DAP ~$675/t)
+    price_k = 0.62, # $/kg K2O (Derived from Potash ~$375/t)
 
     # BES (Modernized 2024 Basis)
     bes_life = 30,
@@ -53,6 +50,14 @@ default_parameters <- function() {
     beccs_eff_penalty = 0.08, # efficiency penalty
     ccs_cc = 500, # CCS capital cost
     beccs_seq_fraction = 0.9,
+    beccs_efficiency = 0.28, # Lower than BES due to capture penalty (35% -> 28%)
+    capture_rate = 0.90, # 90% capture efficiency
+    ccs_distance = 100, # Transport distance (km)
+    ccs_storage_cost = 15, # Injection/Monitoring cost ($/Mg CO2)
+    beccs_capital_cost = 4000, # Updated 2024 estimate ($/kW)
+    beccs_om_factor = 0.05,
+    early_adoption = FALSE,
+    allow_eor = FALSE,
 
     # BEBCS (Pyrolysis)
     py_temp = 500,
@@ -60,14 +65,7 @@ default_parameters <- function() {
     py_cc = 500,
     lignin = 0.2, # Fraction
     time_frame = 100, # Years for stability
-    bc_stab_factor = 4.6, # From Excel formula J6/J8 logic
-
-    # Advanced Biochar Valuation (Substitutes)
-    # Prices based on 2024/2025 Market Averages (Source: tea_literature_review.md)
-    price_lime = 60, # $/Mg (Bulk Ag Lime)
-    price_n = 0.92, # $/kg N (Derived from Urea ~$425/t)
-    price_p = 1.10, # $/kg P2O5 (Derived from DAP ~$675/t)
-    price_k = 0.62, # $/kg K2O (Derived from Potash ~$375/t)
+    bc_stab_factor = 4.6, # Only used for BC agronomic valuation
 
     # Biochar Ag Properties (Defaults)
     bc_cce = 0.15, # Calcium Carbonate Equivalent (15%)
@@ -75,16 +73,20 @@ default_parameters <- function() {
     bc_p_content = 0.002, # 0.2% P (Available)
     bc_k_content = 0.005, # 0.5% K
     ag_impact_duration = 10, # Years (Liming/Nutrient effect duration, < Stability)
-
     bc_ag_value = 0, # Figure 1 Base Case assumes 0 or low mean.
     bc_valuation_method = "advanced_mechanistic", # Options: "ag_value" (Shadow Price) or "market_price" (Sale)
     h_c_org = 0.35, # Molar ratio, typical for ~500-600C pyrolysis.
 
     # Soil / Ag factors
     n_app_rate = 100,
-    n2o_factor = 0.01,
-    plant_mw_th = 50
+    n2o_factor = 0.01
   )
+
+  if (length(scenario) > 0) {
+    params[names(scenario)] <- scenario
+  }
+
+  return(params)
 }
 
 #' Resolve plant_mw_th for a specific technology
@@ -92,7 +94,9 @@ default_parameters <- function() {
 #' @param tech Character string ("BES", "BECCS", or "BEBCS").
 #' @return A single numeric value.
 resolve_plant_mw_th <- function(plant_mw_th, tech) {
-  if (is.null(plant_mw_th)) return(50)
+  if (is.null(plant_mw_th)) {
+    return(50)
+  }
   if (length(plant_mw_th) > 1 && !is.null(names(plant_mw_th))) {
     if (!is.na(tech) && tech %in% names(plant_mw_th)) {
       return(plant_mw_th[[tech]])
@@ -103,3 +107,29 @@ resolve_plant_mw_th <- function(plant_mw_th, tech) {
   return(plant_mw_th)
 }
 
+#' Scenarios List
+#'
+#' A predefined list of scenarios used to override default parameters.
+#' @export
+scenarios <- list(
+  default = list(),
+  CP100_MW250 = list(
+    c_price = 100,
+    plant_mw_th = c(BES = 250, BECCS = 250, BEBCS = 250)
+  ),
+  EA = list(
+    early_adoption = TRUE
+  ),
+  EA_CP100_MW250 = list(
+    c_price = 100,
+    plant_mw_th = c(BES = 250, BECCS = 250, BEBCS = 250),
+    early_adoption = TRUE
+  ),
+  EA_CP100_MW250_EOR = list(
+    c_price = 100,
+    plant_mw_th = c(BES = 250, BECCS = 250, BEBCS = 250),
+    early_adoption = TRUE,
+    allow_eor = TRUE
+  )
+
+)

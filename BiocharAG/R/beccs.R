@@ -10,6 +10,7 @@
 calculate_beccs <- function(params) {
   if (is.null(params$beccs_efficiency)) params$beccs_efficiency <- 0.28
   if (is.null(params$capture_rate)) params$capture_rate <- 0.90
+  if (is.null(params$early_adoption)) params$early_adoption <- FALSE
 
   allow_eor <- if (!is.null(params$allow_eor)) as.logical(params$allow_eor) else TRUE
   dist_spatial <- NULL
@@ -86,7 +87,8 @@ calculate_beccs <- function(params) {
       distance = dist_onshore,
       is_offshore = FALSE,
       discount_rate = discount_rate,
-      lifetime = bes_life
+      lifetime = bes_life,
+      early_adoption = early_adoption
     )
     ts_cost_onshore_calc <- (cost_onshore_trans + base_cost_onshore_storage) * co2_captured
     ts_cost_onshore <- ifelse_raster(is.infinite(dist_onshore), Inf, ts_cost_onshore_calc)
@@ -96,7 +98,8 @@ calculate_beccs <- function(params) {
       distance = dist_offshore,
       is_offshore = TRUE,
       discount_rate = discount_rate,
-      lifetime = bes_life
+      lifetime = bes_life,
+      early_adoption = early_adoption
     )
     ts_cost_offshore_calc <- (cost_offshore_trans + base_cost_offshore_storage) * co2_captured
     ts_cost_offshore <- ifelse_raster(is.infinite(dist_offshore), Inf, ts_cost_offshore_calc)

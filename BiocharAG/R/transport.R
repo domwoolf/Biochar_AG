@@ -117,9 +117,10 @@ calc_transport_cost <- function(mass_flow_mtpa, distance_km, region, is_offshore
 #' @param distance Transport distance (km).
 #' @param discount_rate Discount rate (decimal). Default 0.10.
 #' @param lifetime Project lifetime (years). Default 20.
+#' @param early_adoption Logical. If TRUE, forces pipeline to scale strictly to the output of the single facility over the entire distance, simulating early adoption. Default FALSE.
 #' @return Transport cost ($/Mg CO2).
 #' @export
-calculate_ccs_transport <- function(co2_mass, distance, is_offshore = FALSE, discount_rate = 0.10, lifetime = 20) {
+calculate_ccs_transport <- function(co2_mass, distance, is_offshore = FALSE, discount_rate = 0.10, lifetime = 20, early_adoption = FALSE) {
   # Prevent division by zero and handle co2_mass <= 0 at the end
   safe_co2_mass <- pmax(co2_mass, 1e-6)
 
@@ -171,7 +172,11 @@ calculate_ccs_transport <- function(co2_mass, distance, is_offshore = FALSE, dis
   total_capex_share_close <- base_capex_ref * (effective_dist / ref_dist) * scaler_direct
 
   # Combine Paths
-  total_capex_share <- ifelse_raster(effective_dist > feeder_threshold_km, total_capex_share_far, total_capex_share_close)
+  total_capex_share <- ifelse_raster(
+    early_adoption,
+    total_capex_share_close,
+    ifelse_raster(effective_dist > feeder_threshold_km, total_capex_share_far, total_capex_share_close)
+  )
 
   annual_capex <- total_capex_share / annuity_fac
   annual_opex <- total_capex_share * opex_factor

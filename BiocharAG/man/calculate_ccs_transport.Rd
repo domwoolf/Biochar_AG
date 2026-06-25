@@ -9,7 +9,8 @@ calculate_ccs_transport(
   distance,
   is_offshore = FALSE,
   discount_rate = 0.1,
-  lifetime = 20
+  lifetime = 20,
+  early_adoption = FALSE
 )
 }
 \arguments{
@@ -20,6 +21,8 @@ calculate_ccs_transport(
 \item{discount_rate}{Discount rate (decimal). Default 0.10.}
 
 \item{lifetime}{Project lifetime (years). Default 20.}
+
+\item{early_adoption}{Logical. If TRUE, forces pipeline to scale strictly to the output of the single facility over the entire distance, simulating early adoption. Default FALSE.}
 }
 \value{
 Transport cost ($/Mg CO2).

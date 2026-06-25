@@ -80,3 +80,28 @@ test_that("plant_mw_th accepts named vector and resolves correctly", {
     expect_equal(res_beccs_vector$total_cost, res_beccs_indiv$total_cost)
     expect_equal(res_bebcs_vector$total_cost, res_bebcs_indiv$total_cost)
 })
+
+test_that("BECCS early adoption transport cost logic", {
+    # Test calculate_ccs_transport directly
+    # For a distance > 50km (where standard sharing fraction would apply)
+    dist <- 200
+    co2_mass <- 100000 # 0.1 Mtpa
+    
+    cost_std <- calculate_ccs_transport(co2_mass = co2_mass, distance = dist, early_adoption = FALSE)
+    cost_ea <- calculate_ccs_transport(co2_mass = co2_mass, distance = dist, early_adoption = TRUE)
+    
+    # Early adoption should have much higher cost because it does not benefit from shared network
+    expect_true(cost_ea > cost_std)
+    
+    # Test calculate_beccs with early adoption parameter
+    params_std <- default_parameters()
+    params_std$early_adoption <- FALSE
+    res_std <- calculate_beccs(params_std)
+    
+    params_ea <- default_parameters()
+    params_ea$early_adoption <- TRUE
+    res_ea <- calculate_beccs(params_ea)
+    
+    expect_true(res_ea$total_cost > res_std$total_cost)
+    expect_true(res_ea$ts_cost > res_std$ts_cost)
+})

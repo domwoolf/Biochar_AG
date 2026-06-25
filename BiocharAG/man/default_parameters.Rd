@@ -4,7 +4,10 @@
 \alias{default_parameters}
 \title{Default Parameters}
 \usage{
-default_parameters()
+default_parameters(scenario = list())
+}
+\arguments{
+\item{scenario}{A named list of parameters to override the defaults. Defaults to an empty list.}
 }
 \value{
 A named list of parameters.

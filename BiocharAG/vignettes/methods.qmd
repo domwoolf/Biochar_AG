@@ -1,49 +1,38 @@
 ### 2.1. Spatial Model Architecture and Scope
 
-The `BiocharAG` model provides a spatially continuous Techno-Economic Assessment (TEA) framework designed to evaluate the financial viability and localized climate mitigation potential of biomass-driven energy and carbon dioxide removal (CDR) pathways. Rather than relying on site-specific case studies or aggregated national averages, the model operates on a highly granular, raster-based grid system. This architecture allows the simulation to independently resolve spatially heterogeneous variables—such as biomass density, soil temperature, wholesale electricity prices, and routing distances to geological sinks—for every individual grid cell.
+The `BiocharAG` model evaluates three biomass utilization pathways: Bioenergy (BE), Bioenergy with Carbon Capture and Storage (BECCS), and Bioenergy with Biochar Carbon Storage (BEBCS). The model evaluates a spatially-varying net present value (NPV) for each technology using a discounted cost-benefit analysis, with GHG emissions and removals converted to 100-year CO~2~ equivalent values and internalized into the economic analysis using an assumed carbon price.
 
-The spatial simulation is dynamically scaled and deployed across four primary global domains: the coterminous United States, Europe, India, and China. To ensure accurate transport distance and logistics calculations, spatial inputs are projected into region-specific, equal-area coordinate reference systems (e.g., EPSG:5070 for the US, EPSG:3035 for Europe) prior to localized technoeconomic processing.
-
-A core methodological constraint of the `BiocharAG` framework is the utilization of a fixed industrial plant archetype to evaluate technology deployment. Previous iterations of biomass TEA models have frequently relied on dynamic grid-search optimization to determine ideal plant capacity. However, pure technoeconomic optimization mathematically tends to over-allocate massive mega-plants ($>500\text{ MW}_{\text{th}}$), as theoretical capital expenditure (CAPEX) economies of scale can easily dominate the linear penalties of extended truck transport.
-
-To reflect realistic physical and market limitations—such as regional supply chain bottlenecks, local road traffic constraints, and the economic risks of biomass market monopsonies—the dynamic grid-search optimizer for plant capacity has been abandoned. Instead, the model enforces a standardized industrial archetype of $250\text{ MW}_{\text{th}}$ (based on biomass lower heating value) across all three evaluated technologies (BES, BECCS, and BEBCS). Enforcing a uniform capacity archetype standardizes the logistical footprint, thereby preventing mathematical artifacts and ensuring that the resulting maps isolate the true spatial advantages of a given geography.
-
+The model was deployed across the coterminous United States, Europe, India, and China. All spatial inputs were projected into region-specific, equal-area coordinate reference systems (EPSG:5070, EPSG:3035, EPSG:8859, and ESRI:102025, for the US, Europe, India, and China, respectively), and harmonized to a 0.1-degree resolution. The model was implemented in the R programming language, using the Terra package for spatial analysis.
 
 ### 2.2. Biomass Feedstock Sourcing and Logistics
 
-#### 2.2.1. Spatial Biomass Density and Collection Distances
+#### 2.2.1. Biomass Transport Costs and Emissions
 
-To constrain the simulation to realistic procurement boundaries, the framework models localized supply chains relying strictly on existing crop residues (e.g., agricultural wastes) rather than dedicated energy crops. To calculate the dynamic procurement radius required to satiate the fixed $250\text{ MW}_{\text{th}}$ industrial archetype, the model utilizes spatially explicit biomass density layers ($\text{Mg/km}^2$).
+High resolution rasters of available crop residue biomass were derived from Karan et (ref). The average transport distance for biomass was calculated from this using focal statistics based on the annual biomass requirement for the conversion facility. The required annual biomass mass ($M_{req}$) is determined by the target thermal capacity, assuming a capacity factor of 0.85 and a default biomass lower heating value (LHV) of $18.6\text{ GJ/Mg}$. A spatial focal sum algorithm was applied to aggregate the surrounding biomass over a discrete series of expanding radii (from 5 km up to 500 km). The required collection radius was then calculated via quadratic interpolation between these radial bins. Assuming a circular catchment geometry, the average straight-line collection distance is approximated as two-thirds of the interpolated bounding radius[^1] (i.e. assuming homogeneous distribution within the catchment area[^2]). The average straight-line distance was multiplied by a tortuosity factor of 1.3 to calculate the effective road transport distance. Biomass logistical costs were modeled using a fixed material handling and loading cost ($\$5.00/\text{Mg}$) and a variable trucking cost ($\$0.15/\text{Mg}\cdot\text{km}$) applied to the effective road distance. Scope 3 transportation emissions associated with feedstock procurement were estimated using heavy-duty diesel transport emissions factor of $0.0001\text{ Mg CO}_2\text{e}/(\text{Mg}\cdot\text{km})$ applied to the effective distance and deducted from the net carbon abatement.
 
-The required annual biomass mass ($M_{req}$) is determined by the target thermal capacity, assuming a standard capacity factor of 0.85 and a default biomass lower heating value (LHV) of $18.6\text{ GJ/Mg}$. A spatial focal sum algorithm aggregates the surrounding biomass mass over a series of expanding anchor radii (from 5 km up to 500 km). The exact required collection radius is calculated via piecewise quadratic interpolation of the available mass across these radial bins. Assuming a circular catchment geometry, the average straight-line collection distance is approximated as two-thirds of the interpolated bounding radius[^1].
+[^1]: **Critique - Grid Resolution Harmonization:** As discussed, the data processing scripts indicate mixed native resolutions for the biomass inputs (e.g., 0.2 degrees for the US vs. 0.1 degrees for Europe/China). The final manuscript text should specify that all domains were uniformly projected and resampled to the 0.1 degree ($\sim 10\text{ km}$) equal-area grid prior to executing the focal sum algorithms to ensure methodological consistency.
 
-#### 2.2.2. Transport Logistics and Scope 3 Emissions
+[^2]: How hard would it be calculate actual distance for spatial distribution within those bins?
 
-To account for the realities of rural road networks, the average straight-line collection distance is multiplied by a tortuosity factor of 1.3 to calculate the effective road transport distance. Biomass logistical costs are modeled using a two-part cost function: a fixed material handling and loading cost ($\$5.00/\text{Mg}$) and a variable trucking cost ($\$0.15/\text{Mg}\cdot\text{km}$) applied to the effective road distance.
+#### 2.2.3. Fuel Quality
 
-Furthermore, the model explicitly tracks Scope 3 transportation emissions associated with feedstock procurement. A heavy-duty diesel transport emissions factor of $0.0001\text{ Mg CO}_2\text{e}/(\text{Mg}\cdot\text{km})$ is applied to the effective distance and deducted from the net carbon abatement totals of each technological pathway.
+Agricultural crop residues typically have a higher ash content ($>5\%$ fraction) than the wood chips more commonly used in bioenergy combustion. High-ash feedstocks carry significant fouling and slagging risks, requiring additional capital expenditures (CAPEX) and OPEX, for example through deployment of Circulating Fluidized Bed (CFB) boilers. This fuel quality penalty results in a 25% increase in base CAPEX for combustion technologies (BE and BECCS), a 50% increase in operations and maintenance (O&M) costs, and a 10% reduction in overall electrical conversion efficiency, relative to a wood-chip fired bioenergy plant[^3].
 
-#### 2.2.3. Fuel Quality Penalties
-
-Because the model specifies agricultural crop residues rather than clean forest wood chips, it natively assumes a higher ash content ($>5\%$ fraction) typical of straws and stover. High-ash feedstocks carry significant fouling and slagging risks, requiring the model to penalize thermodynamic and economic performance to reflect the necessary deployment of Circulating Fluidized Bed (CFB) boilers rather than standard stoker boilers.
-
-This fuel quality penalty triggers a 25% increase in base capital expenditures (CAPEX) for combustion technologies, a 50% increase in operations and maintenance (O&M) costs, and a 10% relative reduction in overall electrical conversion efficiency.
+[^3]: Check these values and provide citations
 
 #### 2.2.4. Regional Pricing Structures
 
 Feedstock pricing is not treated as a static global constant; rather, it is derived via a spatially explicit shadow-pricing logic converted to a normalized $\text{USD/Mg}$ equivalent.
 
-* **United States:** Establishes a baseline farm-gate cost ($\$70.00/\text{Mg}$) combined with a nutrient replacement penalty (e.g., $\$25.06/\text{Mg}$ for corn stover) to compensate for the export of field nutrients.
+-   **United States:** Establishes a baseline farm-gate cost ($\$70.00/\text{Mg}$) combined with a nutrient replacement penalty (e.g., $\$25.06/\text{Mg}$ for corn stover) to compensate for the export of field nutrients.
 
+-   **Europe:** Utilizes a baseline NUTS-3 regional roadside cost, modified by a temporal volatility multiplier that accounts for interim storage costs (up to a 36.4% premium for 6-month storage).
 
-* **Europe:** Utilizes a baseline NUTS-3 regional roadside cost, modified by a temporal volatility multiplier that accounts for interim storage costs (up to a 36.4% premium for 6-month storage).
+-   **India:** Capitalizes on the necessity to avoid crop stubble burning. The model assumes a $\$0$ stumpage fee, but imposes a step-cost for densification: raw bale transport costs apply under 50 km, while more expensive pelletization costs are triggered for catchment zones exceeding 50 km[^4].
 
+-   **China:** Modifies a baseline plant-gate cost with exogenous spatial risk multipliers, applying premiums for localized weather volatility and rural expansion risks.
 
-* **India:** Capitalizes on the necessity to avoid crop stubble burning. The model assumes a $\$0$ stumpage fee, but imposes a step-cost for densification: raw bale transport costs apply under 50 km, while more expensive pelletization costs are triggered for catchment zones exceeding 50 km[^2].
-
-
-* **China:** Modifies a baseline plant-gate cost with exogenous spatial risk multipliers, applying premiums for localized weather volatility and rural expansion risks.
-
+[^4]: **Query - India Densification Threshold:** The codebase (`spatial_tea.R`) applies a hard 50 km threshold where India feedstock shifts from baling to pelletization costs. Given that the archetype is fixed at $250\text{ MW}_{\text{th}}$, the collection radius will almost certainly exceed 50 km in all but the densest agricultural zones. We should verify if this rigid step-function is appropriate at this industrial scale, or if a blended cost based on the radius proportion is more physically realistic.
 
 ### 2.3. Technology Pathways and Thermodynamics
 
@@ -57,7 +46,9 @@ The technoeconomic parameters for this modern combustion archetype assume an ele
 
 #### 2.3.2. Bioenergy with Carbon Capture and Storage (BECCS)
 
-The BECCS pathway augments the standard combustion baseline with a post-combustion carbon capture unit. The addition of this unit imposes a significant parasitic energy penalty, primarily driven by solvent regeneration and $\text{CO}_2$ compression requirements. Consequently, the net electrical conversion efficiency drops from the 30% BES baseline to 28%.[^3]
+The BECCS pathway augments the standard combustion baseline with a post-combustion carbon capture unit. The addition of this unit imposes a significant parasitic energy penalty, primarily driven by solvent regeneration and $\text{CO}_2$ compression requirements. Consequently, the net electrical conversion efficiency drops from the 30% BES baseline to 28%.[^5]
+
+[^5]: **Critique - Carbon Capture Efficiency:** The current implementation sets 2 percentage point lower efficiency for BECCS than baseline. This may be low. See e.g. Woolf et al. (2016) who suggest a penalty in the range 4--11 percentage points.
 
 The capture process is parameterized with a 90% capture efficiency rate. The total volume of captured $\text{CO}_2$ routed to geological storage is calculated stoichiometrically based on the carbon fraction of the incoming biomass feed (default 48% C), converted to $\text{CO}_2$ mass equivalents using the 44/12 molar ratio. The increased infrastructure complexity elevates the base CAPEX to $\$4,000/\text{kW}_e$, with annual O&M scaling concurrently to 5% of CAPEX.
 
@@ -69,8 +60,9 @@ The mass yield and elemental composition of the resulting biochar are determined
 
 To close the mass balance, the unaccounted elemental fractions ($U_c, U_h, U_o$) are stoichiometrically partitioned into bio-oil, water ($H_2O$), and carbon dioxide ($\text{CO}_2$). The model restricts bio-oil to a fixed empirical composition ($62.5\%\text{ C}, 7.56\%\text{ H}, 29.94\%\text{ O}$) to solve the final product distribution analytically.
 
-The net usable energy flux for the BEBCS pathway is calculated by subtracting the process heat requirements from the total enthalpy of the gaseous and liquid products. The higher heating value (HHV) of the biochar is calculated via the Dulong formula, utilizing the temperature-dependent C, H, and O fractions. Heat for the endothermic pyrolysis reaction is supplied entirely by the combustion of the volatile syngas and bio-oil fractions; any surplus thermal energy is converted to electricity using the baseline BES efficiency parameters[^4]. If the syngas and bio-oil are insufficient to meet the thermal load, a portion of the biochar is oxidized to close the energy balance, proportionally reducing the final carbon sequestration yield.
+The net usable energy flux for the BEBCS pathway is calculated by subtracting the process heat requirements from the total enthalpy of the gaseous and liquid products. The higher heating value (HHV) of the biochar is calculated via the Dulong formula, utilizing the temperature-dependent C, H, and O fractions. Heat for the endothermic pyrolysis reaction is supplied entirely by the combustion of the volatile syngas and bio-oil fractions; any surplus thermal energy is converted to electricity using the baseline BES efficiency parameters[^6]. If the syngas and bio-oil are insufficient to meet the thermal load, a portion of the biochar is oxidized to close the energy balance, proportionally reducing the final carbon sequestration yield.
 
+[^6]: **Query - Default Pyrolysis Temperature:** The current code sets `py_temp = 500` °C as a static global default in `parameters.R`. Because the BEBCS net present value (NPV) is highly sensitive to the trade-off between energy yield and biochar stability (both driven by $T_{py}$), you may want to note in the manuscript whether 500 °C is assumed universally for the spatial runs, or if an optimization routine is run to find the ideal temperature per grid cell.
 
 ### 2.4. Carbon Transport and Geological Storage (BECCS Logistics)
 
@@ -96,18 +88,11 @@ Standard length-invariant TEA cost functions for $\text{CO}_2$ pipelines adequat
 
 To simulate this without computationally intensive grid-level pump topology, pipeline CAPEX is calculated using a piecewise linear hub-and-spoke framework:
 
-1.
-**The Feeder Leg:** Sources build a dedicated feeder pipeline for the first 50 km ($d_{feeder}$), bearing the full capacity-scaled CAPEX.
+1.  **The Feeder Leg:** Sources build a dedicated feeder pipeline for the first 50 km ($d_{feeder}$), bearing the full capacity-scaled CAPEX.
 
+2.  **The Trunk Leg (Base Phase):** For distances up to 700 km, the source connects to a regional trunkline operating at an efficient scale (e.g., 3 Mtpa), paying only a proportional mass share of the CAPEX.
 
-2.
-**The Trunk Leg (Base Phase):** For distances up to 700 km, the source connects to a regional trunkline operating at an efficient scale (e.g., 3 Mtpa), paying only a proportional mass share of the CAPEX.
-
-
-3.
-**The Trunk Leg (Booster Phase):** For distances exceeding 700 km, the marginal cost of the trunkline increases by a penalty factor ($P_{booster} = 2.0$) to approximate the compounding capital and operational costs of intermediate booster stations.
-
-
+3.  **The Trunk Leg (Booster Phase):** For distances exceeding 700 km, the marginal cost of the trunkline increases by a penalty factor ($P_{booster} = 2.0$) to approximate the compounding capital and operational costs of intermediate booster stations.
 
 The trunkline CAPEX share ($CAPEX_{trunk}$) is calculated as:
 
@@ -127,9 +112,7 @@ $$Cost_{transport} = \min(C_{pipeline}, C_{shipping})$$
 
 Because of the piecewise booster penalty, the pipeline cost curve steepens significantly beyond 700 km. This guarantees a natural mathematical intersection with the flat $C_{shipping}$ cost floor, allowing the model to smoothly transition to shipping modalities at extreme distances.
 
-Here is the draft for **2.5. Biochar Permanence and Agronomic Valuation (BEBCS Feedbacks)**, translating the spatial and mechanistic valuation frameworks from the codebase into manuscript format.
-
----
+------------------------------------------------------------------------
 
 ### 2.5. Biochar Permanence and Agronomic Valuation (BEBCS Feedbacks)
 
@@ -143,9 +126,7 @@ The baseline degradation rates of the biochar's labile and recalcitrant carbon p
 
 Total carbon sequestered per megagram of feedstock is therefore modeled as:
 
-
 $$C_{seq} = Yield_{bc} \cdot C_{content} \cdot F_{perm} \cdot \left(\frac{44}{12}\right)$$
-
 
 where $Yield_{bc}$ is the mass fraction of biochar produced, $C_{content}$ is the carbon mass fraction of the biochar, and the $44/12$ ratio converts the elemental carbon to $\text{CO}_2$ mass equivalents.
 
@@ -155,9 +136,9 @@ Previous spatial models frequently value biochar using a static, exogenous globa
 
 $$Value_{ag} = Value_{lime} + Value_{nutrients} + Value_{physical}$$
 
-1. **Liming Equivalence ($Value_{lime}$):** The model spatially evaluates the native soil pH against a neutral agricultural target (pH 6.5). If the soil is acidic, the biochar's Calcium Carbonate Equivalent (CCE, default 15%) is credited against the localized market price of bulk agricultural lime (e.g., $\$60/\text{Mg}$). If the regional soil is already alkaline, the liming value is strictly zero.
-2. **Nutrient Substitution ($Value_{nutrients}$):** The available nitrogen (N), phosphorus (P), and potassium (K) fractions within the biochar are credited against prevailing regional fertilizer costs. Baseline valuations rely on standard commercial substitutes, deriving elemental prices from Urea ($\$0.92/\text{kg N}$), Diammonium Phosphate ($\$1.10/\text{kg P}_2\text{O}_5$), and Potash ($\$0.62/\text{kg K}_2\text{O}$).
-3. **Physical/CEC Improvements ($Value_{physical}$):** Biochar provides long-term yield efficiency gains by increasing water retention and buffering nutrient leaching, effects that are most pronounced in degraded or sandy soils. This value is heuristically scaled inversely to the soil's native Cation Exchange Capacity (CEC). Soils with severe CEC deficits receive higher annual premiums (up to $\$50/\text{Mg}$), while heavy clay soils (CEC $> 30\text{ cmol/kg}$) receive zero premium.
+1.  **Liming Equivalence (**$Value_{lime}$): The model spatially evaluates the native soil pH against a neutral agricultural target (pH 6.5). If the soil is acidic, the biochar's Calcium Carbonate Equivalent (CCE, default 15%) is credited against the localized market price of bulk agricultural lime (e.g., $\$60/\text{Mg}$). If the regional soil is already alkaline, the liming value is strictly zero.
+2.  **Nutrient Substitution (**$Value_{nutrients}$): The available nitrogen (N), phosphorus (P), and potassium (K) fractions within the biochar are credited against prevailing regional fertilizer costs. Baseline valuations rely on standard commercial substitutes, deriving elemental prices from Urea ($\$0.92/\text{kg N}$), Diammonium Phosphate ($\$1.10/\text{kg P}_2\text{O}_5$), and Potash ($\$0.62/\text{kg K}_2\text{O}$).
+3.  **Physical/CEC Improvements (**$Value_{physical}$): Biochar provides long-term yield efficiency gains by increasing water retention and buffering nutrient leaching, effects that are most pronounced in degraded or sandy soils. This value is heuristically scaled inversely to the soil's native Cation Exchange Capacity (CEC). Soils with severe CEC deficits receive higher annual premiums (up to $\$50/\text{Mg}$), while heavy clay soils (CEC $> 30\text{ cmol/kg}$) receive zero premium.
 
 Because physical and chemical soil improvements degrade or saturate over time, the total annual physical and nutrient benefits are amortized as a Present Value of an Annuity over a conservative 10-year agronomic impact duration, discounted at the baseline financial discount rate.
 
@@ -169,15 +150,15 @@ To robustly account for the climate mitigation benefit of bioenergy generation, 
 
 The net carbon abatement for each grid cell is defined as the sum of physical carbon sequestered and emissions displaced, minus the transportation emissions penalty:
 
-* **BES:** Abatement relies entirely on the displacement of grid emissions, minus the Scope 3 emissions associated with diesel trucking of the biomass feedstock.
-* **BECCS:** Abatement includes the physical $\text{CO}_2$ captured and injected into the geological sink (assuming a 90% capture rate) plus the grid displacement credit. However, because the parasitic energy load of the capture process reduces the net electrical efficiency (from 30% to 28%), the total energy exported—and thus the resulting grid displacement credit—is proportionally lower for BECCS than for pure BES[^5].
-* **BEBCS:** Abatement combines the grid displacement credit with the permanent $\text{CO}_2$ equivalent of the biochar carbon retained in the soil ($F_{perm}$), alongside a minor fixed soil greenhouse gas abatement credit (e.g., suppressed $N_2O$ emissions).
+-   **BES:** Abatement relies entirely on the displacement of grid emissions, minus the Scope 3 emissions associated with diesel trucking of the biomass feedstock.
+-   **BECCS:** Abatement includes the physical $\text{CO}_2$ captured and injected into the geological sink (assuming a 90% capture rate) plus the grid displacement credit. However, because the parasitic energy load of the capture process reduces the net electrical efficiency (from 30% to 28%), the total energy exported—and thus the resulting grid displacement credit—is proportionally lower for BECCS than for pure BES\[\^5\].
+-   **BEBCS:** Abatement combines the grid displacement credit with the permanent $\text{CO}_2$ equivalent of the biochar carbon retained in the soil ($F_{perm}$), alongside a minor fixed soil greenhouse gas abatement credit (e.g., suppressed $N_2O$ emissions).
 
 For all pathways, Scope 3 feedstock transport emissions are modeled dynamically by applying a heavy-duty diesel transport emissions factor ($0.0001\text{ Mg CO}_2\text{e}$ per $\text{Mg}\cdot\text{km}$) to the effective biomass collection distance.
 
 #### 2.6.2. Grid Displacement Methodology (Marginal Carbon Intensity)
 
-Traditional LCAs often assume that new generation offsets the historical average grid mix, a method that inherently overestimates carbon savings by crediting the displacement of legacy fossil baseload. Instead, this model dynamically estimates the Marginal Carbon Intensity (MCI) of displaced energy for the standardized 250 MWth plant archetypes. The emissions offset is parameterized under two bounding scenarios to reflect differing macro-economic climate trajectories.
+We estimate the Marginal Carbon Intensity (MCI) of displaced energy under two bounding scenarios to reflect differing macro-economic climate trajectories.
 
 #### 2.6.3. Scenario A: Empirical Baseline (Short-Run Marginal Capacity)
 
@@ -199,47 +180,47 @@ Under this sensitivity mode, the model assumes the displaced marginal generation
 
 To ensure full reproducibility and transparency, the operational, financial, and biophysical parameters utilized within the `BiocharAG` framework are tabulated below. Parameters are classified by their spatial resolution: **Scalar** values are held constant globally; **Regional** values act as constants but are overridden based on the macro-economic domain (e.g., India, China, Europe, US); and **Spatial** values are resolved dynamically at the grid-cell level using high-resolution raster datasets.
 
-| Parameter[^6] | Description | Type | Default Value | Units | Data Source |
-| --- | --- | --- | --- | --- | --- |
+| Parameter[^7] | Description | Type | Default Value | Units | Data Source |
+|------------|------------|------------|------------|------------|------------|
 | **Financial & Market** |  |  |  |  |  |
 | `discount_rate` | Baseline cost of capital | Regional | 0.08 (0.12 in India) | Fraction | Market Assumptions |
 | `elec_price` | Wholesale electricity price | Spatial / Regional | 100.00 | USD / MWh | EIA, Eurostat, NDRC, CERC |
 | `wholesale_discount_factor` | Ratio of wholesale to retail price | Regional | 0.4 (1.0 in India) | Fraction | Market Assumptions |
 | `c_price` | Carbon abatement credit price | Scalar | 50.00 | USD / tCO₂e | Scenario Variable |
-| `bes_life` / `beccs_life` | Infrastructure project lifetime | Scalar | 30 | Years | - |
-| `capacity_factor` | Annual plant capacity utilization | Scalar | 0.85 | Fraction | - |
-| `scaling_factor` | Capital cost scale exponent | Scalar | 0.7 | - | Standard Engineering Estimations |
+| `bes_life` / `beccs_life` | Infrastructure project lifetime | Scalar | 30 | Years | \- |
+| `capacity_factor` | Annual plant capacity utilization | Scalar | 0.85 | Fraction | \- |
+| `scaling_factor` | Capital cost scale exponent | Scalar | 0.7 | \- | Standard Engineering Estimations |
 | **Technology & Thermodynamics** |  |  |  |  |  |
 | `plant_mw_th` | Target plant thermal capacity | Scalar | 250.0 | MWth | Industrial Archetype |
 | `bes_capital_cost` | Base CAPEX for BES (50 MWe ref) | Regional | 3,000 | USD / kWe | IRENA (2023/2024) |
 | `beccs_capital_cost` | Base CAPEX for BECCS (50 MWe ref) | Regional | 4,000 | USD / kWe | Global CCS Institute (2024) |
 | `bes_om_factor` | O&M cost as fraction of CAPEX | Regional | 0.04 | Fraction | NREL ATB (2024) |
-| `beccs_om_factor` | O&M cost for BECCS | Regional | 0.05 | Fraction | - |
+| `beccs_om_factor` | O&M cost for BECCS | Regional | 0.05 | Fraction | \- |
 | `bes_energy_efficiency` | Electrical efficiency for BES | Scalar | 0.30 | Fraction | IEA / NREL ATB (2024) |
 | `beccs_efficiency` | Electrical efficiency for BECCS | Scalar | 0.28 | Fraction | Drax / Literature |
 | `capture_rate` | CO₂ capture efficiency for BECCS | Scalar | 0.90 | Fraction | Zero Emissions Platform |
 | `py_temp` | Peak pyrolysis temperature | Scalar | 500 | °C | Operational Choice |
-| `heat_loss` | Pyrolysis process heat loss | Scalar | 2.35 | GJ / Mg | - |
-| `bo_hhv` | Bio-oil higher heating value | Scalar | 27.63 | GJ / Mg | - |
-| `bo_c`, `bo_h`, `bo_o` | Bio-oil elemental mass fractions | Scalar | 0.625, 0.0756, 0.2994 | Fraction | - |
+| `heat_loss` | Pyrolysis process heat loss | Scalar | 2.35 | GJ / Mg | \- |
+| `bo_hhv` | Bio-oil higher heating value | Scalar | 27.63 | GJ / Mg | \- |
+| `bo_c`, `bo_h`, `bo_o` | Bio-oil elemental mass fractions | Scalar | 0.625, 0.0756, 0.2994 | Fraction | \- |
 | **Feedstock & Logistics** |  |  |  |  |  |
-| `bm_lhv` | Biomass lower heating value | Scalar | 18.6 | GJ / Mg | - |
-| `bm_c` | Biomass carbon mass fraction | Scalar | 0.48 | Fraction | - |
-| `bm_ash` | Biomass ash mass fraction | Regional | 0.05 (0.15 in India) | Fraction | - |
-| `bm_transport_fixed` | Fixed loading/handling cost | Scalar | 5.00 | USD / Mg | - |
-| `bm_transport_var` | Variable trucking cost | Scalar | 0.15 | USD / Mg / km | - |
+| `bm_lhv` | Biomass lower heating value | Scalar | 18.6 | GJ / Mg | \- |
+| `bm_c` | Biomass carbon mass fraction | Scalar | 0.48 | Fraction | \- |
+| `bm_ash` | Biomass ash mass fraction | Regional | 0.05 (0.15 in India) | Fraction | \- |
+| `bm_transport_fixed` | Fixed loading/handling cost | Scalar | 5.00 | USD / Mg | \- |
+| `bm_transport_var` | Variable trucking cost | Scalar | 0.15 | USD / Mg / km | \- |
 | `transport_emissions_factor` | Scope 3 heavy-duty truck emissions | Scalar | 0.0001 | Mg CO₂e / Mg·km | GHG Protocol / EPA |
 | **CO₂ Transport Infrastructure** |  |  |  |  |  |
 | `ccs_storage_cost` | Onshore injection and monitoring | Spatial | 12.0 | USD / tCO₂ | Zero Emissions Platform |
 | `base_cost_offshore_storage` | Offshore injection and monitoring | Scalar | 40.0 | USD / tCO₂ | Zero Emissions Platform |
 | `feeder_threshold_km` | Dedicated feeder pipeline limit | Scalar | 50 | km | Zero Emissions Platform |
 | `booster_threshold_km` | Distance triggering booster penalty | Scalar | 700 | km | Zero Emissions Platform |
-| `booster_penalty` | Marginal cost multiplier for boosters | Scalar | 2.0 | - | Zero Emissions Platform |
+| `booster_penalty` | Marginal cost multiplier for boosters | Scalar | 2.0 | \- | Zero Emissions Platform |
 | `trunk_mass_flow` | Ref. capacity for trunkline sharing | Scalar | 3,000,000 | Mg / year | Zero Emissions Platform |
-| `liq_cost` | CO₂ Liquefaction cost (shipping) | Scalar | 20.0 | USD / tCO₂ | - |
-| `term_cost` | Terminal handling cost (shipping) | Scalar | 15.0 | USD / tCO₂ | - |
-| `voyage_rate` | Variable voyage cost (shipping) | Scalar | 0.035 | USD / tCO₂ / km | - |
-| `transport_elec_price` | Electricity price for compression | Scalar | 0.10 | USD / kWh | - |
+| `liq_cost` | CO₂ Liquefaction cost (shipping) | Scalar | 20.0 | USD / tCO₂ | \- |
+| `term_cost` | Terminal handling cost (shipping) | Scalar | 15.0 | USD / tCO₂ | \- |
+| `voyage_rate` | Variable voyage cost (shipping) | Scalar | 0.035 | USD / tCO₂ / km | \- |
+| `transport_elec_price` | Electricity price for compression | Scalar | 0.10 | USD / kWh | \- |
 | **Biochar & Agronomic** |  |  |  |  |  |
 | `h_c_org` | Molar H:C ratio for permanence | Scalar | 0.35 | Molar Ratio | Woolf et al. (2021) |
 | `time_frame` | Time horizon for permanence assessment | Scalar | 100 | Years | Standard LCA timeframe |
@@ -251,30 +232,21 @@ To ensure full reproducibility and transparency, the operational, financial, and
 | `price_k` | Market price for Potassium | Regional | 0.62 (0.40 in India) | USD / kg K₂O | Derived from Potash pricing |
 | `avail_n`, `avail_p`, `avail_k` | First-year nutrient availability | Scalar | 0.1, 0.5, 0.8 | Fraction | Agronomic Assumptions |
 | `ag_impact_duration` | Duration of nutrient/liming benefit | Scalar | 10 | Years | Agronomic Assumptions |
-| `soil_ghg_abatement` | Suppressed soil emissions credit | Scalar | 0.1 | tCO₂e / Mg | - |
+| `soil_ghg_abatement` | Suppressed soil emissions credit | Scalar | 0.1 | tCO₂e / Mg | \- |
 | **Spatial & Environmental** |  |  |  |  |  |
 | `ff_c_intensity` | Displaced grid carbon intensity | Spatial / Regional | Scenario Dependent | tCO₂eq / GJ | IPCC, Ember (2024) |
-| `biomass_density` | Available spatial crop residues | Spatial | - | Mg / km² | Dataverse Global Repositories |
-| `soil_ph` | Native topsoil pH | Spatial | - | pH | ISRIC SoilGrids |
-| `soil_cec` | Cation Exchange Capacity | Spatial | - | cmol / kg | ISRIC SoilGrids |
-| `soil_temp` | Mean annual soil temperature | Spatial | - | °C | WorldClim / SBIO1 |
----
+| `biomass_density` | Available spatial crop residues | Spatial | \- | Mg / km² | Dataverse Global Repositories |
+| `soil_ph` | Native topsoil pH | Spatial | \- | pH | ISRIC SoilGrids |
+| `soil_cec` | Cation Exchange Capacity | Spatial | \- | cmol / kg | ISRIC SoilGrids |
+| `soil_temp` | Mean annual soil temperature | Spatial | \- | °C | WorldClim / SBIO1 |
 
-[^1]: **Critique - Grid Resolution Harmonization:** As discussed, the data processing scripts indicate mixed native resolutions for the biomass inputs (e.g., 0.2 degrees for the US vs. 0.1 degrees for Europe/China). The final manuscript text should specify that all domains were uniformly projected and resampled to the 0.1 degree ($\sim 10\text{ km}$) equal-area grid prior to executing the focal sum algorithms to ensure methodological consistency.
-[^2]: **Query - India Densification Threshold:** The codebase (`spatial_tea.R`) applies a hard 50 km threshold where India feedstock shifts from baling to pelletization costs. Given that the archetype is fixed at $250\text{ MW}_{\text{th}}$, the collection radius will almost certainly exceed 50 km in all but the densest agricultural zones. We should verify if this rigid step-function is appropriate at this industrial scale, or if a blended cost based on the radius proportion is more physically realistic.
+[^7]: **Critique - Missing** $\text{CO}_2$ Transport Emissions: While the framework rigorously calculates the capital and operational *financial costs* of $\text{CO}_2$ pumping, booster stations, and maritime shipping (via the `calculate_ccs_transport` and `calc_transport_cost` functions), the model currently fails to deduct the greenhouse gas emissions associated with these downstream transport processes from the BECCS net abatement tally. The `tot_c_abatement` calculation in `beccs.R` currently only deducts the upstream Scope 3 emissions associated with biomass trucking. This oversight artificially inflates the net CDR efficiency of BECCS, particularly for sinks requiring maritime shipping or extended booster-phase pipelines. N.B. check whether these have already been implicitly included in the efficiency penalty applied to BECCS. If they have it still makes sense to explicitly account for them, since they will vary by distance to sink and shipping modality.
 
----
+------------------------------------------------------------------------
 
-[^3]: **Critique - Carbon Capture Efficiency:** The current implementation sets 2 percentage point lower efficiency for BECCS than baseline. This may be low.  See e.g. Woolf et al. (2016) who suggest a penalty in the range 4--11 percentage points.
+------------------------------------------------------------------------
 
-[^4]: **Query - Default Pyrolysis Temperature:** The current code sets `py_temp = 500` °C as a static global default in `parameters.R`. Because the BEBCS net present value (NPV) is highly sensitive to the trade-off between energy yield and biochar stability (both driven by $T_{py}$), you may want to note in the manuscript whether 500 °C is assumed universally for the spatial runs, or if an optimization routine is run to find the ideal temperature per grid cell.
-
-[^5]: **Critique - Pyrolysis Heat Integration:** The `pyrolysis.R` script determines net energy by balancing the enthalpy of products against the required process heat (inclusive of a $2.35\text{ GJ/Mg}$ thermal loss). The resulting surplus is multiplied by the `bes_energy_efficiency` (30%) in `bebcs.R` to yield electricity. The manuscript should clarify whether this 30% efficiency represents a standalone steam cycle running purely on syngas/bio-oil, or if the pyrolysis unit is thermally integrated into a larger boiler system.
----
-
-[^6]: **Critique - Missing $\text{CO}_2$ Transport Emissions:** While the framework rigorously calculates the capital and operational *financial costs* of $\text{CO}_2$ pumping, booster stations, and maritime shipping (via the `calculate_ccs_transport` and `calc_transport_cost` functions), the model currently fails to deduct the greenhouse gas emissions associated with these downstream transport processes from the BECCS net abatement tally. The `tot_c_abatement` calculation in `beccs.R` currently only deducts the upstream Scope 3 emissions associated with biomass trucking. This oversight artificially inflates the net CDR efficiency of BECCS, particularly for sinks requiring maritime shipping or extended booster-phase pipelines. N.B. check whether these have already been implicitly included in the efficiency penalty applied to BECCS.  If they have it still makes sense to explicitly account for them, since they will vary by distance to sink and shipping modality.
-
-[^7]: **Critique - Parameter Review & Validation Audit**
+## \[\^5\]: **Critique - Pyrolysis Heat Integration:** The `pyrolysis.R` script determines net energy by balancing the enthalpy of products against the required process heat (inclusive of a $2.35\text{ GJ/Mg}$ thermal loss). The resulting surplus is multiplied by the `bes_energy_efficiency` (30%) in `bebcs.R` to yield electricity. The manuscript should clarify whether this 30% efficiency represents a standalone steam cycle running purely on syngas/bio-oil, or if the pyrolysis unit is thermally integrated into a larger boiler system.
 
 Outlined here are the findings from an audit of the constants defined in `BiocharAG/R/parameters.R`. The goal is to identify parameters that currently use a global constant but should ideally vary spatially, differ by region, or require stronger empirical validation to ensure robust results.
 
@@ -283,9 +255,9 @@ Outlined here are the findings from an audit of the constants defined in `Biocha
 The following parameters are currently defined as global constants but are inherently spatial in nature. While some (like `elec_price`) have spatial overrides in `spatial_tea.R`, others do not.
 
 | Parameter | Current Default | Recommendation |
-| :--- | :--- | :--- |
+|:-----------------------|:-----------------------|:-----------------------|
 | `ccs_storage_cost` | `$15 / Mg CO2` | **High Priority**. Geologic storage costs vary drastically based on basin depth, onshore vs. offshore location, and whether the sink is a saline aquifer or Depleted Oil/Gas (EOR) site. We should consider replacing this with a spatial cost raster or a look-up table mapped to the `co2_sinks` database. |
-| `ag_impact_duration`| `10 Years` | **Medium Priority**. The duration of biochar's agronomic benefit (liming and nutrient release) depends heavily on local climate (weathering and leaching rates) and soil buffering capacity. A flat 10-year assumption across all global soils is likely poorly validated. |
+| `ag_impact_duration` | `10 Years` | **Medium Priority**. The duration of biochar's agronomic benefit (liming and nutrient release) depends heavily on local climate (weathering and leaching rates) and soil buffering capacity. A flat 10-year assumption across all global soils is likely poorly validated. |
 | `bm_lhv` & `bm_ash` | `18.6 GJ/Mg` / `0.05` | **Medium Priority**. Biomass properties vary significantly depending on the dominant regional feedstock (e.g., high-ash rice straw in India/China vs. forestry residues vs. corn stover in the US). If we know the dominant feedstock per region, we should map these properties accordingly. |
 
 **Parameters Requiring Regional/Country Overrides:**
@@ -293,7 +265,7 @@ The following parameters are currently defined as global constants but are inher
 Similar to the logic applied in `parameters_india.R`, several financial and market parameters should not be global constants due to macro-economic differences between the US, Europe, China, and India.
 
 | Parameter | Current Default | Recommendation |
-| :--- | :--- | :--- |
+|:-----------------------|:-----------------------|:-----------------------|
 | `discount_rate` | `0.08` (8%) | **High Priority**. Cost of capital varies wildly by country risk profiles. Developing markets (India, China) typically face higher discount rates than established western markets. We should establish explicit regional discount rates. |
 | `price_n`, `price_p`, `price_k` | `$0.92`, `$1.10`, `$0.62 / kg` | **High Priority**. Fertilizer prices are subject to massive regional variations due to government subsidies (e.g., heavy urea subsidies in India), import tariffs, and local supply chains. |
 | `price_lime` | `$60 / Mg` | **Low Priority**. Bulk ag lime prices vary by local transport distance since it is cheap but heavy. However, a regional average may suffice if data is sparse. |
@@ -304,12 +276,12 @@ Similar to the logic applied in `parameters_india.R`, several financial and mark
 
 The following assumptions and technical constants may need to be double-checked against recent literature or flagged for sensitivity analysis.
 
-- **`bc_stab_factor = 4.6`**: This stability factor calculation dictates the permanence of biochar. Ensure this aligns precisely with the latest IPCC or verified carbon standard methodologies for biochar permanence.
-- **`bc_cce = 0.15` (15% Calcium Carbonate Equivalent)**: This is a critical driver for the agronomic value in acidic soils. Does a 15% CCE hold true across the diverse feedstocks represented globally, or should this scale with the `bm_ash` parameter?
-- **`capture_rate = 0.90` (90%)**: While 90% is the standard target for BECCS, real-world deployment data is sparse. A sensitivity analysis around this (e.g., 85% to 95%) might be necessary.
-- **`n2o_factor = 0.01` (1%)**: The 1% default emission factor for nitrogen application is standard (IPCC Tier 1), but biochar is known to interact with N2O emissions. Ensure the model accounts for any biochar-induced N2O suppression if applicable.
+-   **`bc_stab_factor = 4.6`**: This stability factor calculation dictates the permanence of biochar. Ensure this aligns precisely with the latest IPCC or verified carbon standard methodologies for biochar permanence.
+-   **`bc_cce = 0.15` (15% Calcium Carbonate Equivalent)**: This is a critical driver for the agronomic value in acidic soils. Does a 15% CCE hold true across the diverse feedstocks represented globally, or should this scale with the `bm_ash` parameter?
+-   **`capture_rate = 0.90` (90%)**: While 90% is the standard target for BECCS, real-world deployment data is sparse. A sensitivity analysis around this (e.g., 85% to 95%) might be necessary.
+-   **`n2o_factor = 0.01` (1%)**: The 1% default emission factor for nitrogen application is standard (IPCC Tier 1), but biochar is known to interact with N2O emissions. Ensure the model accounts for any biochar-induced N2O suppression if applicable.
 
 **Suggested Next Actions**
 
-1. **Review and Advise**: Please review the above lists. Let me know which of the **High Priority** items you would like to actively tackle (e.g., creating region-specific configuration files like `parameters_china.R` and `parameters_europe.R`, or converting `ccs_storage_cost` to a spatial layer).
-2. **Sensitivity Variables**: If any poorly validated parameters lack solid empirical data, we can flag them to be included in a Monte Carlo or sensitivity analysis step later.
+1.  **Review and Advise**: Please review the above lists. Let me know which of the **High Priority** items you would like to actively tackle (e.g., creating region-specific configuration files like `parameters_china.R` and `parameters_europe.R`, or converting `ccs_storage_cost` to a spatial layer).
+2.  **Sensitivity Variables**: If any poorly validated parameters lack solid empirical data, we can flag them to be included in a Monte Carlo or sensitivity analysis step later.

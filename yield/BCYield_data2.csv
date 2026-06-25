@@ -1,0 +1,886 @@
+"Ref","Crop","Croptype","YieldType","MeanCropYield","BC_AppRate","Inorg_N_AppRate","pH_soil","CEC","SOC","Sand","Silt","Clay","Texture","Feedstock","HTT","BC_percentC","pH_BC","Year","lat","lon","RR","YieldRatio","RelativeYieldIncrease","pot.trial"
+"(Aguilar-Chávez et al. 2012)","Wheat","cereal","Biomass",,97.034,150,8.9,"NA",29.1,"NA","NA","NA","Medium","Wood","NA","NA","NA",1,19.42,-98.82,-0.143,0.867,-0.133,1
+"(Aguilar-Chávez et al. 2012)","Wheat","cereal","Grain",,48.517,150,8.9,"NA",29.1,"NA","NA","NA","Medium","Wood","NA","NA","NA",1,19.42,-98.82,-0.115,0.891,-0.109,1
+"(Aguilar-Chávez et al. 2012)","Wheat","cereal","Grain",,97.034,150,8.9,"NA",29.1,"NA","NA","NA","Medium","Wood","NA","NA","NA",1,19.42,-98.82,-0.079,0.924,-0.076,1
+"(Aguilar-Chávez et al. 2012)","Wheat","cereal","Biomass",,145.551,150,8.9,"NA",29.1,"NA","NA","NA","Medium","Wood","NA","NA","NA",1,19.42,-98.82,-0.069,0.933,-0.067,1
+"(Aguilar-Chávez et al. 2012)","Wheat","cereal","Grain",,145.551,150,8.9,"NA",29.1,"NA","NA","NA","Medium","Wood","NA","NA","NA",1,19.42,-98.82,-0.067,0.935,-0.065,1
+"(Aguilar-Chávez et al. 2012)","Wheat","cereal","Biomass",,48.517,150,8.9,"NA",29.1,"NA","NA","NA","Medium","Wood","NA","NA","NA",1,19.42,-98.82,-0.029,0.971,-0.029,1
+"(Arif et al. 2012)","Maize","cereal","Biomass",5.5,30,0,"NA","NA","NA","NA","NA","NA",,,"NA","NA","NA",1,34,71.5,0.038,1.039,0.039,0
+"(Arif et al. 2012)","Maize","cereal","Biomass",5.5,30,150,"NA","NA","NA","NA","NA","NA",,,"NA","NA","NA",1,34,71.5,0.048,1.049,0.049,0
+"(Arif et al. 2012)","Maize","cereal","Grain",5.5,30,150,"NA","NA","NA","NA","NA","NA",,,"NA","NA","NA",1,34,71.5,0.054,1.055,0.055,0
+"(Arif et al. 2012)","Maize","cereal","Biomass",5.5,30,"NA","NA","NA","NA","NA","NA","NA",,,"NA","NA","NA",1,34,71.5,0.087,1.091,0.091,0
+"(Arif et al. 2012)","Maize","cereal","Grain",5.5,30,0,"NA","NA","NA","NA","NA","NA",,,"NA","NA","NA",1,34,71.5,0.156,1.168,0.168,0
+"(Arif et al. 2012)","Maize","cereal","Grain",5.5,30,"NA","NA","NA","NA","NA","NA","NA",,,"NA","NA","NA",1,34,71.5,0.285,1.33,0.33,0
+"(Artiola et al. 2012)","Lettuce (romaine)","vegetable","Biomass",,80,"NA",8.15,"NA","NA","NA","NA","NA","Medium","Wood","NA","NA","NA",1,32.2,-112,-0.385,0.68,-0.32,1
+"(Artiola et al. 2012)","Bermuda grass","grass","Biomass",,80,"NA",8.15,"NA","NA","NA","NA","NA","Medium","Wood","NA","NA","NA",1,32.2,-112,0,1,0,1
+"(Artiola et al. 2012)","Lettuce (romaine)","vegetable","Biomass",,40,"NA",8.15,"NA","NA","NA","NA","NA","Medium","Wood","NA","NA","NA",1,32.2,-112,0.138,1.147,0.147,1
+"(Artiola et al. 2012)","Bermuda grass","grass","Biomass",,40,"NA",8.15,"NA","NA","NA","NA","NA","Medium","Wood","NA","NA","NA",1,32.2,-112,0.164,1.179,0.179,1
+"(Artiola et al. 2012)","Lettuce (romaine)","vegetable","Biomass",,40,0,8.15,"NA","NA","NA","NA","NA","Medium","Wood","NA","NA","NA",2,32.2,-112,0.408,1.504,0.504,1
+"(Artiola et al. 2012)","Lettuce (romaine)","vegetable","Biomass",,40,"NA",8.15,"NA","NA","NA","NA","NA","Medium","Wood","NA","NA","NA",3,32.2,-112,0.432,1.54,0.54,1
+"(Artiola et al. 2012)","Lettuce (romaine)","vegetable","Biomass",,80,0,8.15,"NA","NA","NA","NA","NA","Medium","Wood","NA","NA","NA",2,32.2,-112,0.452,1.572,0.572,1
+"(Artiola et al. 2012)","Lettuce (romaine)","vegetable","Biomass",,80,"NA",8.15,"NA","NA","NA","NA","NA","Medium","Wood","NA","NA","NA",3,32.2,-112,0.875,2.399,1.399,1
+"(Asai et al. 2009)","Rice","cereal","Grain",4.5,4,50,5.4,23,10,0.18,0.34,0.38,"Heavy","Wood","NA",0.87,7.5,1,19.5,102,-0.336,0.714,-0.286,0
+"(Asai et al. 2009)","Rice","cereal","Grain",4.5,16,50,5.4,23,10,0.18,0.34,0.38,"Heavy","Wood","NA",0.87,7.5,1,19.5,102,-0.31,0.733,-0.267,0
+"(Asai et al. 2009)","Rice","cereal","Grain",4.5,4,50,5.4,23,10,0.18,0.34,0.38,"Heavy","Wood","NA",0.87,7.5,1,19.5,102,-0.266,0.767,-0.233,0
+"(Asai et al. 2009)","Rice","cereal","Grain",4.5,8,0,7.7,24,28,0.17,0.43,0.4,"Medium","Wood","NA",0.87,7.5,1,19.5,102,-0.201,0.818,-0.182,0
+"(Asai et al. 2009)","Rice","cereal","Grain",4.5,4,50,5.2,14,15,0.27,0.45,0.28,"Medium","Wood","NA",0.87,7.5,1,19.5,102,-0.118,0.889,-0.111,0
+"(Asai et al. 2009)","Rice","cereal","Grain",4.5,4,50,5.2,14,15,0.27,0.45,0.28,"Medium","Wood","NA",0.87,7.5,1,19.5,102,-0.111,0.895,-0.105,0
+"(Asai et al. 2009)","Rice","cereal","Grain",4.5,8,0,6.8,15,22,0.29,0.41,0.3,"Medium","Wood","NA",0.87,7.5,1,19.5,102,-0.111,0.895,-0.105,0
+"(Asai et al. 2009)","Rice","cereal","Grain",,8,0,7.1,16,14,0.21,0.34,0.45,"Heavy","Wood","NA",0.87,7.5,1,19.5,102,-0.11,0.896,-0.104,0
+"(Asai et al. 2009)","Rice","cereal","Grain",4.5,8,50,5.4,23,10,0.18,0.34,0.38,"Heavy","Wood","NA",0.87,7.5,1,19.5,102,-0.105,0.9,-0.1,0
+"(Asai et al. 2009)","Rice","cereal","Grain",4.5,4,50,5.2,14,15,0.27,0.45,0.28,"Medium","Wood","NA",0.87,7.5,1,19.5,102,-0.054,0.947,-0.053,0
+"(Asai et al. 2009)","Rice","cereal","Grain",4.5,16,50,5.4,23,10,0.18,0.34,0.38,"Heavy","Wood","NA",0.87,7.5,1,19.5,102,-0.036,0.964,-0.036,0
+"(Asai et al. 2009)","Rice","cereal","Grain",4.5,16,50,5.2,14,15,0.27,0.45,0.28,"Medium","Wood","NA",0.87,7.5,1,19.5,102,-0.027,0.974,-0.026,0
+"(Asai et al. 2009)","Rice","cereal","Grain",4.5,16,50,5.2,14,15,0.27,0.45,0.28,"Medium","Wood","NA",0.87,7.5,1,19.5,102,-0.019,0.981,-0.019,0
+"(Asai et al. 2009)","Rice","cereal","Grain",4.5,8,50,5.2,14,15,0.27,0.45,0.28,"Medium","Wood","NA",0.87,7.5,1,19.5,102,-0.018,0.982,-0.018,0
+"(Asai et al. 2009)","Rice","cereal","Grain",4.5,16,50,5.4,23,10,0.18,0.34,0.38,"Heavy","Wood","NA",0.87,7.5,1,19.5,102,0,1,0,0
+"(Asai et al. 2009)","Rice","cereal","Grain",4.5,16,50,5.2,14,15,0.27,0.45,0.28,"Medium","Wood","NA",0.87,7.5,1,19.5,102,0.034,1.035,0.035,0
+"(Asai et al. 2009)","Rice","cereal","Grain",4.5,8,50,5.2,14,15,0.27,0.45,0.28,"Medium","Wood","NA",0.87,7.5,1,19.5,102,0.036,1.037,0.037,0
+"(Asai et al. 2009)","Rice","cereal","Grain",4.5,8,50,5.2,14,15,0.27,0.45,0.28,"Medium","Wood","NA",0.87,7.5,1,19.5,102,0.051,1.053,0.053,0
+"(Asai et al. 2009)","Rice","cereal","Grain",4.5,8,0,5.6,18,30,0.54,0.21,0.26,"Medium","Wood","NA",0.87,7.5,1,19.5,102,0.059,1.061,0.061,0
+"(Asai et al. 2009)","Rice","cereal","Grain",4.5,8,0,5.4,11,13,0.29,0.43,0.28,"Medium","Wood","NA",0.87,7.5,1,19.5,102,0.112,1.119,0.119,0
+"(Asai et al. 2009)","Rice","cereal","Grain",4.5,8,0,6.2,9,11,0.32,0.39,0.29,"Heavy","Wood","NA",0.87,7.5,1,19.5,102,0.118,1.125,0.125,0
+"(Asai et al. 2009)","Rice","cereal","Grain",4.5,4,50,5.2,14,15,0.27,0.45,0.28,"Medium","Wood","NA",0.87,7.5,1,19.5,102,0.125,1.133,0.133,0
+"(Asai et al. 2009)","Rice","cereal","Grain",4.5,4,50,5.4,23,18,0.18,0.34,0.38,"Heavy","Wood","NA",0.87,7.5,1,19.5,102,0.134,1.143,0.143,0
+"(Asai et al. 2009)","Rice","cereal","Grain",4.5,8,50,5.4,23,10,0.18,0.34,0.38,"Heavy","Wood","NA",0.87,7.5,1,19.5,102,0.134,1.143,0.143,0
+"(Asai et al. 2009)","Rice","cereal","Grain",4.5,16,50,5.4,23,10,0.18,0.34,0.38,"Heavy","Wood","NA",0.87,7.5,1,19.5,102,0.134,1.143,0.143,0
+"(Asai et al. 2009)","Rice","cereal","Grain",4.5,8,50,5.4,23,10,0.18,0.34,0.38,"Heavy","Wood","NA",0.87,7.5,1,19.5,102,0.164,1.179,0.179,0
+"(Asai et al. 2009)","Rice","cereal","Grain",4.5,8,0,8.3,15,12,0.32,0.32,0.35,"Heavy","Wood","NA",0.87,7.5,1,19.5,102,0.201,1.222,0.222,0
+"(Asai et al. 2009)","Rice","cereal","Grain",4.5,8,50,5.2,14,15,0.27,0.45,0.28,"Medium","Wood","NA",0.87,7.5,1,19.5,102,0.21,1.233,0.233,0
+"(Asai et al. 2009)","Rice","cereal","Grain",4.5,16,50,5.2,14,15,0.27,0.45,0.28,"Medium","Wood","NA",0.87,7.5,1,19.5,102,0.236,1.267,0.267,0
+"(Asai et al. 2009)","Rice","cereal","Grain",,8,0,8.3,15,12,0.28,0.35,0.37,"Heavy","Wood","NA",0.87,7.5,1,19.5,102,0.288,1.333,0.333,0
+"(Asai et al. 2009)","Rice","cereal","Grain",4.5,8,50,8.3,15,12,0.32,0.32,0.35,"Heavy","Wood","NA",0.87,7.5,1,19.5,102,0.318,1.375,0.375,0
+"(Asai et al. 2009)","Rice","cereal","Grain",4.5,8,50,5.4,23,10,0.18,0.34,0.38,"Heavy","Wood","NA",0.87,7.5,1,19.5,102,0.357,1.429,0.429,0
+"(Asai et al. 2009)","Rice","cereal","Grain",4.5,8,50,8.3,15,12,0.32,0.32,0.35,"Heavy","Wood","NA",0.87,7.5,1,19.5,102,0.368,1.444,0.444,0
+"(Asai et al. 2009)","Rice","cereal","Grain",4.5,8,50,8.3,15,12,0.32,0.32,0.35,"Heavy","Wood","NA",0.87,7.5,1,19.5,102,0.511,1.667,0.667,0
+"(Asai et al. 2009)","Rice","cereal","Grain",4.5,4,50,5.4,23,10,0.18,0.34,0.38,"Heavy","Wood","NA",0.87,7.5,1,19.5,102,0.762,2.143,1.143,0
+"(Baronti et al. 2008)","Ryegrass","grass","Biomass",,120,"NA",6.7,"NA","NA",0.55,0.3,0.15,,"Wood",500,"NA",7.2,1,"NA","NA",-0.405,0.667,-0.333,1
+"(Baronti et al. 2008)","Ryegrass","grass","Biomass",,120,"NA",6.7,"NA","NA",0.55,0.3,0.15,,"Wood",500,"NA",7.2,1,"NA","NA",-0.314,0.731,-0.269,1
+"(Baronti et al. 2008)","Ryegrass","grass","Biomass",,100,"NA",6.7,"NA","NA",0.55,0.3,0.15,,"Wood",500,"NA",7.2,1,"NA","NA",-0.214,0.808,-0.192,1
+"(Baronti et al. 2008)","Ryegrass","grass","Biomass",,100,"NA",6.7,"NA","NA",0.55,0.3,0.15,,"Wood",500,"NA",7.2,1,"NA","NA",-0.129,0.879,-0.121,1
+"(Baronti et al. 2008)","Ryegrass","grass","Biomass",,10,"NA",6.7,"NA","NA",0.55,0.3,0.15,,"Wood",500,"NA",7.2,1,"NA","NA",0.03,1.03,0.03,1
+"(Baronti et al. 2008)","Ryegrass","grass","Biomass",,10,"NA",6.7,"NA","NA",0.55,0.3,0.15,,"Wood",500,"NA",7.2,1,"NA","NA",0.038,1.038,0.038,1
+"(Baronti et al. 2008)","Maize","cereal","Grain",5.5,10,413,7.1,"NA","NA",0.27,0.58,0.15,,"Wood",500,"NA",7.2,1,"NA","NA",0.052,1.053,0.053,0
+"(Baronti et al. 2008)","Wheat","cereal","Grain",,10,114,8,16,"NA",0.35,0.36,0.29,,"Wood",500,"NA",7.2,1,"NA","NA",0.095,1.1,0.1,0
+"(Baronti et al. 2008)","Ryegrass","grass","Biomass",,30,"NA",6.7,"NA","NA",0.55,0.3,0.15,,"Wood",500,"NA",7.2,1,"NA","NA",0.192,1.212,0.212,1
+"(Baronti et al. 2008)","Wheat","cereal","Biomass",,10,114,8,16,"NA",0.35,0.36,0.29,,"Wood",500,"NA",7.2,1,"NA","NA",0.215,1.24,0.24,0
+"(Baronti et al. 2008)","Maize","cereal","Biomass",5.5,10,413,7.1,"NA","NA",0.27,0.58,0.15,,"Wood",500,"NA",7.2,1,"NA","NA",0.223,1.25,0.25,0
+"(Baronti et al. 2008)","Ryegrass","grass","Biomass",,30,"NA",6.7,"NA","NA",0.55,0.3,0.15,,"Wood",500,"NA",7.2,1,"NA","NA",0.325,1.385,0.385,1
+"(Baronti et al. 2008)","Ryegrass","grass","Biomass",,60,"NA",6.7,"NA","NA",0.55,0.3,0.15,,"Wood",500,"NA",7.2,1,"NA","NA",0.752,2.121,1.121,1
+"(Baronti et al. 2008)","Ryegrass","grass","Biomass",,60,"NA",6.7,"NA","NA",0.55,0.3,0.15,,"Wood",500,"NA",7.2,1,"NA","NA",0.885,2.423,1.423,1
+"(Blackwell et al. 2007)","Wheat","cereal","Grain",,3,30,"NA","NA","NA","NA","NA","NA","Medium","Wood","NA","NA","NA",1,-28.5,115.97,-0.048,0.954,-0.046,0
+"(Blackwell et al. 2007)","Wheat","cereal","Grain",,1.5,55,"NA","NA","NA","NA","NA","NA","Medium","Wood","NA","NA","NA",1,-28.5,115.97,-0.003,0.997,-0.003,0
+"(Blackwell et al. 2007)","Wheat","cereal","Grain",,1.5,30,"NA","NA","NA","NA","NA","NA","Medium","Wood","NA","NA","NA",1,-28.5,115.97,0.005,1.005,0.005,0
+"(Blackwell et al. 2007)","Wheat","cereal","Grain",,6,55,"NA","NA","NA","NA","NA","NA","Medium","Wood","NA","NA","NA",1,-28.5,115.97,0.009,1.009,0.009,0
+"(Blackwell et al. 2007)","Wheat","cereal","Grain",,3,55,"NA","NA","NA","NA","NA","NA","Medium","Wood","NA","NA","NA",1,-28.5,115.97,0.053,1.054,0.054,0
+"(Blackwell et al. 2007)","Wheat","cereal","Grain",,3,110,"NA","NA","NA","NA","NA","NA","Medium","Wood","NA","NA","NA",1,-30.36,117.12,0.059,1.061,0.061,0
+"(Blackwell et al. 2007)","Wheat","cereal","Grain",,1.5,110,"NA","NA","NA","NA","NA","NA","Medium","Wood","NA","NA","NA",1,-30.36,117.12,0.063,1.065,0.065,0
+"(Blackwell et al. 2007)","Wheat","cereal","Grain",,6,110,"NA","NA","NA","NA","NA","NA","Medium","Wood","NA","NA","NA",1,-30.36,117.12,0.078,1.081,0.081,0
+"(Blackwell et al. 2007)","Wheat","cereal","Grain",,3,110,"NA","NA","NA","NA","NA","NA","Medium","Wood","NA","NA","NA",1,-30.36,117.12,0.082,1.085,0.085,0
+"(Blackwell et al. 2007)","Wheat","cereal","Grain",,6,30,"NA","NA","NA","NA","NA","NA","Medium","Wood","NA","NA","NA",1,-28.5,115.97,0.206,1.229,0.229,0
+"(Blackwell et al. 2007)","Wheat","cereal","Grain",,6,100,"NA","NA","NA","NA","NA","NA","Medium","Wood","NA","NA","NA",1,-28.5,115.97,0.398,1.489,0.489,0
+"(Blackwell et al. 2007)","Wheat","cereal","Grain",,3,100,"NA","NA","NA","NA","NA","NA","Medium","Wood","NA","NA","NA",1,-28.5,115.97,0.402,1.495,0.495,0
+"(Blackwell et al. 2007)","Wheat","cereal","Grain",,1.5,100,"NA","NA","NA","NA","NA","NA","Medium","Wood","NA","NA","NA",1,-28.5,115.97,0.409,1.505,0.505,0
+"(Blackwell et al. 2010)","Wheat","cereal","Grain",,1,0,5.8,"NA",5.6,"NA","NA","NA",,"Wood",650,0.65,"NA",2,-30.5,115.75,-0.135,0.873,-0.127,0
+"(Blackwell et al. 2010)","Wheat","cereal","Grain",,0.2,5,5.7,"NA",6,"NA","NA","NA",,"Wood",650,0.46,"NA",1,-28.75,114.88,-0.108,0.897,-0.103,0
+"(Blackwell et al. 2010)","Wheat","cereal","Grain",,1,0,5.8,"NA",5.6,"NA","NA","NA",,"Wood",650,0.65,"NA",2,-30.5,115.75,-0.1,0.905,-0.095,0
+"(Blackwell et al. 2010)","Wheat","cereal","Grain",,0.2,0,5.7,"NA",6,"NA","NA","NA",,"Wood",650,0.46,"NA",1,-28.75,114.88,-0.095,0.909,-0.091,0
+"(Blackwell et al. 2010)","Wheat","cereal","Grain",,0.2,2.5,5.7,"NA",6,"NA","NA","NA",,"Wood",650,0.46,"NA",1,-28.75,114.88,-0.073,0.929,-0.071,0
+"(Blackwell et al. 2010)","Wheat","cereal","Grain",,0.75,5,5.7,"NA",6,"NA","NA","NA",,"Wood",650,0.46,"NA",1,-28.75,114.88,-0.073,0.93,-0.07,0
+"(Blackwell et al. 2010)","Wheat","cereal","Grain",,10,5,5.7,"NA",6,"NA","NA","NA",,"Wood",650,0.46,"NA",1,-28.75,114.88,-0.058,0.944,-0.056,0
+"(Blackwell et al. 2010)","Wheat","cereal","Grain",,0.75,8.75,6.5,"NA",21.5,"NA","NA","NA",,"Wood",550,0.675,"NA",2,-34.5,138.75,-0.056,0.945,-0.055,0
+"(Blackwell et al. 2010)","Wheat","cereal","Grain",,1,0,5.8,"NA",5.6,"NA","NA","NA",,"Wood",650,0.65,"NA",2,-30.5,115.75,-0.011,0.989,-0.011,0
+"(Blackwell et al. 2010)","Wheat","cereal","Grain",,3,5,5.7,"NA",6,"NA","NA","NA",,"Wood",650,0.46,"NA",1,-28.75,114.88,0.019,1.019,0.019,0
+"(Blackwell et al. 2010)","Wheat","cereal","Grain",,1,"NA",5.8,"NA",5.6,"NA","NA","NA",,"Wood",650,0.65,"NA",2,-30.5,115.75,0.025,1.025,0.025,0
+"(Blackwell et al. 2010)","Wheat","cereal","Grain",,1.5,5,5.7,"NA",6,"NA","NA","NA",,"Wood",650,0.46,"NA",1,-28.75,114.88,0.028,1.028,0.028,0
+"(Blackwell et al. 2010)","Wheat","cereal","Grain",,1.5,0,5.7,"NA",6,"NA","NA","NA",,"Wood",650,0.46,"NA",1,-28.75,114.88,0.044,1.045,0.045,0
+"(Blackwell et al. 2010)","Wheat","cereal","Grain",,0.75,8.75,8.4,"NA",17.2,"NA","NA","NA",,"Wood",550,0.675,"NA",2,-34.5,138.75,0.046,1.047,0.047,0
+"(Blackwell et al. 2010)","Wheat","cereal","Grain",,3,0,5.7,"NA",6,"NA","NA","NA",,"Wood",650,0.46,"NA",1,-28.75,114.88,0.05,1.051,0.051,0
+"(Blackwell et al. 2010)","Wheat","cereal","Grain",,6,5,5.7,"NA",6,"NA","NA","NA",,"Wood",650,0.46,"NA",1,-28.75,114.88,0.05,1.051,0.051,0
+"(Blackwell et al. 2010)","Wheat","cereal","Grain",,10,2.5,5.7,"NA",6,"NA","NA","NA",,"Wood",650,0.46,"NA",1,-28.75,114.88,0.058,1.06,0.06,0
+"(Blackwell et al. 2010)","Wheat","cereal","Grain",,0.75,0,5.7,"NA",6,"NA","NA","NA",,"Wood",650,0.46,"NA",1,-28.75,114.88,0.061,1.062,0.062,0
+"(Blackwell et al. 2010)","Wheat","cereal","Grain",,0.75,2.5,5.7,"NA",6,"NA","NA","NA",,"Wood",650,0.46,"NA",1,-28.75,114.88,0.103,1.109,0.109,0
+"(Blackwell et al. 2010)","Wheat","cereal","Grain",,1.5,2.5,5.7,"NA",6,"NA","NA","NA",,"Wood",650,0.46,"NA",1,-28.75,114.88,0.132,1.141,0.141,0
+"(Blackwell et al. 2010)","Wheat","cereal","Grain",,1,0,5.8,"NA",5.6,"NA","NA","NA",,"Wood",650,0.65,"NA",2,-30.5,115.75,0.138,1.148,0.148,0
+"(Blackwell et al. 2010)","Wheat","cereal","Grain",,10,0,5.7,"NA",6,"NA","NA","NA",,"Wood",650,0.46,"NA",1,-28.75,114.88,0.138,1.148,0.148,0
+"(Blackwell et al. 2010)","Wheat","cereal","Grain",,1,0,5.8,"NA",5.6,"NA","NA","NA",,"Wood",650,0.65,"NA",2,-30.5,115.75,0.146,1.157,0.157,0
+"(Blackwell et al. 2010)","Wheat","cereal","Grain",,3,2.5,5.7,"NA",6,"NA","NA","NA",,"Wood",650,0.46,"NA",1,-28.75,114.88,0.16,1.174,0.174,0
+"(Blackwell et al. 2010)","Wheat","cereal","Grain",,6,0,5.7,"NA",6,"NA","NA","NA",,"Wood",650,0.46,"NA",1,-28.75,114.88,0.195,1.216,0.216,0
+"(Blackwell et al. 2010)","Wheat","cereal","Grain",,6,2.5,5.7,"NA",6,"NA","NA","NA",,"Wood",650,0.46,"NA",1,-28.75,114.88,0.21,1.234,0.234,0
+"(Blackwell et al. 2010)","Wheat","cereal","Grain",,1,0,5.8,"NA",5.6,"NA","NA","NA",,"Wood",650,0.65,"NA",2,-30.5,115.75,0.335,1.398,0.398,0
+"(Chan et al. 2007) ","Radish","root","Biomass",,10,0,4.5,7.7,18,"NA","NA","NA","Medium","Nonwood",450,0.36,9.4,1,-34.12,150.5,-0.693,0.5,-0.5,1
+"(Chan et al. 2007) ","Radish","root","Biomass",,10,100,4.5,7.7,18,"NA","NA","NA","Medium","Nonwood",450,0.36,9.4,1,-34.12,150.5,-0.288,0.75,-0.25,1
+"(Chan et al. 2007) ","Radish","root","Biomass",,50,0,4.5,7.7,18,"NA","NA","NA","Medium","Nonwood",450,0.36,9.4,1,-34.12,150.5,0,1,0,1
+"(Chan et al. 2007) ","Radish","root","Biomass",,100,0,4.5,7.7,18,"NA","NA","NA","Medium","Nonwood",450,0.36,9.4,1,-34.12,150.5,0.182,1.2,0.2,1
+"(Chan et al. 2007) ","Radish","root","Biomass",,50,100,4.5,7.7,18,"NA","NA","NA","Medium","Nonwood",450,0.36,9.4,1,-34.12,150.5,0.765,2.15,1.15,1
+"(Chan et al. 2007) ","Radish","root","Biomass",,100,100,4.5,7.7,18,"NA","NA","NA","Medium","Nonwood",450,0.36,9.4,1,-34.12,150.5,0.993,2.7,1.7,1
+"(Chan et al. 2008) ","Radish","root","Biomass",,10,0,4.5,11.07,19.7,"NA","NA","NA","Medium","Manure",450,0.33,9.9,1,-34.12,150.5,0.295,1.344,0.344,1
+"(Chan et al. 2008) ","Radish","root","Biomass",,10,100,4.5,9.12,19.7,"NA","NA","NA","Medium","Manure",550,0.38,13,1,-34.12,150.5,0.364,1.439,0.439,1
+"(Chan et al. 2008) ","Radish","root","Biomass",,10,0,4.5,9.12,19.7,"NA","NA","NA","Medium","Manure",550,0.38,13,1,-34.12,150.5,0.405,1.5,0.5,1
+"(Chan et al. 2008) ","Radish","root","Biomass",,10,100,4.5,11.07,19.7,"NA","NA","NA","Medium","Manure",450,0.33,9.9,1,-34.12,150.5,0.418,1.519,0.519,1
+"(Chan et al. 2008) ","Radish","root","Biomass",,25,0,4.5,11.07,19.7,"NA","NA","NA","Medium","Manure",450,0.33,9.9,1,-34.12,150.5,0.426,1.531,0.531,1
+"(Chan et al. 2008) ","Radish","root","Biomass",,50,100,4.5,11.07,19.7,"NA","NA","NA","Medium","Manure",450,0.33,9.9,1,-34.12,150.5,0.431,1.538,0.538,1
+"(Chan et al. 2008) ","Radish","root","Biomass",,25,100,4.5,11.07,19.7,"NA","NA","NA","Medium","Manure",450,0.33,9.9,1,-34.12,150.5,0.443,1.558,0.558,1
+"(Chan et al. 2008) ","Radish","root","Biomass",,25,0,4.5,9.12,19.7,"NA","NA","NA","Medium","Manure",550,0.38,13,1,-34.12,150.5,0.466,1.594,0.594,1
+"(Chan et al. 2008) ","Radish","root","Biomass",,25,100,4.5,9.12,19.7,"NA","NA","NA","Medium","Manure",550,0.38,13,1,-34.12,150.5,0.49,1.632,0.632,1
+"(Chan et al. 2008) ","Radish","root","Biomass",,50,100,4.5,9.12,19.7,"NA","NA","NA","Medium","Manure",550,0.38,13,1,-34.12,150.5,0.562,1.754,0.754,1
+"(Chan et al. 2008) ","Radish","root","Biomass",,50,0,4.5,9.12,19.7,"NA","NA","NA","Medium","Manure",550,0.38,13,1,-34.12,150.5,0.629,1.875,0.875,1
+"(Chan et al. 2008) ","Radish","root","Biomass",,50,0,4.5,11.07,19.7,"NA","NA","NA","Medium","Manure",450,0.33,9.9,1,-34.12,150.5,0.645,1.906,0.906,1
+"(Chen et al. 2010)","Sugar cane","grass","Biomass",,25,240,"NA","NA","NA",0.0809,0.3296,0.59,"Heavy","Nonwood",600,"NA",7.3,1,26.5,127.5,0.057,1.059,0.059,0
+"(Chen et al. 2010)","Sugar cane","grass","Biomass",,8.3,240,"NA","NA","NA",0.0809,0.3296,0.59,"Heavy","Manure",600,"NA",7.2,1,26.5,127.5,0.182,1.2,0.2,0
+"(Chhay et al. 2012)","Water spinach","vegetable","Biomass",,10,100,5.8,"NA","NA","NA","NA","NA",,"Nonwood",550,"NA",9.3,1,11.5,105,-0.024,0.976,-0.024,
+"(Chhay et al. 2012)","Water spinach","vegetable","Biomass",,20,100,5.8,"NA","NA","NA","NA","NA",,"Nonwood",550,"NA",9.3,1,11.5,105,0.134,1.143,0.143,
+"(Chhay et al. 2012)","Chinese cabbage","vegetable","Biomass",,10,100,5.8,"NA","NA","NA","NA","NA",,"Nonwood",550,"NA",9.3,1,11.5,105,0.172,1.188,0.188,
+"(Chhay et al. 2012)","Water spinach","vegetable","Biomass",,30,100,5.8,"NA","NA","NA","NA","NA",,"Nonwood",550,"NA",9.3,1,11.5,105,0.251,1.286,0.286,
+"(Chhay et al. 2012)","Water spinach","vegetable","Biomass",,40,100,5.8,"NA","NA","NA","NA","NA",,"Nonwood",550,"NA",9.3,1,11.5,105,0.288,1.333,0.333,
+"(Chhay et al. 2012)","Chinese cabbage","vegetable","Biomass",,20,100,5.8,"NA","NA","NA","NA","NA",,"Nonwood",550,"NA",9.3,1,11.5,105,0.319,1.375,0.375,
+"(Chhay et al. 2012)","Water spinach","vegetable","Biomass",,50,100,5.8,"NA","NA","NA","NA","NA",,"Nonwood",550,"NA",9.3,1,11.5,105,0.323,1.381,0.381,
+"(Chhay et al. 2012)","Mustard green","vegetable","Biomass",,10,100,5.8,"NA","NA","NA","NA","NA",,"Nonwood",550,"NA",9.3,1,11.5,105,0.372,1.45,0.45,
+"(Chhay et al. 2012)","Celery cabbage","vegetable","Biomass",,10,100,5.8,"NA","NA","NA","NA","NA",,"Nonwood",550,"NA",9.3,1,11.5,105,0.405,1.5,0.5,
+"(Chhay et al. 2012)","Chinese cabbage","vegetable","Biomass",,30,100,5.8,"NA","NA","NA","NA","NA",,"Nonwood",550,"NA",9.3,1,11.5,105,0.446,1.563,0.563,
+"(Chhay et al. 2012)","Mustard green","vegetable","Biomass",,20,100,5.8,"NA","NA","NA","NA","NA",,"Nonwood",550,"NA",9.3,1,11.5,105,0.531,1.7,0.7,
+"(Chhay et al. 2012)","Celery cabbage","vegetable","Biomass",,20,100,5.8,"NA","NA","NA","NA","NA",,"Nonwood",550,"NA",9.3,1,11.5,105,0.56,1.75,0.75,
+"(Chhay et al. 2012)","Chinese cabbage","vegetable","Biomass",,40,100,5.8,"NA","NA","NA","NA","NA",,"Nonwood",550,"NA",9.3,1,11.5,105,0.56,1.75,0.75,
+"(Chhay et al. 2012)","Chinese cabbage","vegetable","Biomass",,50,100,5.8,"NA","NA","NA","NA","NA",,"Nonwood",550,"NA",9.3,1,11.5,105,0.662,1.938,0.938,
+"(Chhay et al. 2012)","Celery cabbage","vegetable","Biomass",,40,100,5.8,"NA","NA","NA","NA","NA",,"Nonwood",550,"NA",9.3,1,11.5,105,0.693,2,1,
+"(Chhay et al. 2012)","Mustard green","vegetable","Biomass",,30,100,5.8,"NA","NA","NA","NA","NA",,"Nonwood",550,"NA",9.3,1,11.5,105,0.742,2.1,1.1,
+"(Chhay et al. 2012)","Celery cabbage","vegetable","Biomass",,30,100,5.8,"NA","NA","NA","NA","NA",,"Nonwood",550,"NA",9.3,1,11.5,105,0.754,2.125,1.125,
+"(Chhay et al. 2012)","Mustard green","vegetable","Biomass",,40,100,5.8,"NA","NA","NA","NA","NA",,"Nonwood",550,"NA",9.3,1,11.5,105,0.916,2.5,1.5,
+"(Chhay et al. 2012)","Celery cabbage","vegetable","Biomass",,50,100,5.8,"NA","NA","NA","NA","NA",,"Nonwood",550,"NA",9.3,1,11.5,105,1.253,3.5,2.5,
+"(Chhay et al. 2012)","Mustard green","vegetable","Biomass",,50,100,5.8,"NA","NA","NA","NA","NA",,"Nonwood",550,"NA",9.3,1,11.5,105,1.253,3.5,2.5,
+"(Cornelissen et al. 2013)","Maize","cereal","Grain",5.5,4,77,6.5,3.1,4,"NA","NA","NA",,"Nonwood",400,0.74,8,1,-13.5,29.5,-0.316,0.729,-0.271,0
+"(Cornelissen et al. 2013)","Maize","cereal","Grain",5.5,0.8,154,7.9,16.6,8.7,"NA","NA","NA",,"Wood",400,0.64,8.4,1,-15.5,28.5,-0.291,0.747,-0.253,0
+"(Cornelissen et al. 2013)","Maize","cereal","Grain",5.5,4,154,7.9,16.6,8.7,"NA","NA","NA",,"Wood",400,0.64,8.4,1,-15.5,28.5,-0.277,0.758,-0.242,0
+"(Cornelissen et al. 2013)","Maize","cereal","Grain",5.5,4,154,5.9,26.2,11.61,"NA","NA","NA",,"Nonwood",400,0.74,8,1,-15.75,28.25,-0.25,0.779,-0.221,0
+"(Cornelissen et al. 2013)","Maize","cereal","Grain",5.5,4,77,6.5,3.1,4,"NA","NA","NA",,"Nonwood",400,0.74,8,2,-13.5,29.5,-0.196,0.822,-0.178,0
+"(Cornelissen et al. 2013)","Maize","cereal","Grain",5.5,0.8,77,6.5,3.1,4,"NA","NA","NA",,"Nonwood",400,0.74,8,1,-13.5,29.5,-0.134,0.875,-0.125,0
+"(Cornelissen et al. 2013)","Maize","cereal","Grain",5.5,4,154,7.9,16.6,8.7,"NA","NA","NA",,"Nonwood",400,0.74,8,1,-15.5,28.5,-0.104,0.901,-0.099,0
+"(Cornelissen et al. 2013)","Maize","cereal","Grain",5.5,0.8,77,6.5,3.1,4,"NA","NA","NA",,"Wood",400,0.64,8.4,1,-13.5,29.5,-0.065,0.938,-0.062,0
+"(Cornelissen et al. 2013)","Maize","cereal","Grain",5.5,0.8,154,5.9,26.2,11.61,"NA","NA","NA",,"Wood",400,0.64,8.4,1,-15.75,28.25,-0.06,0.942,-0.058,0
+"(Cornelissen et al. 2013)","Maize","cereal","Grain",5.5,4,154,5.9,26.2,11.61,"NA","NA","NA",,"Wood",400,0.64,8.4,1,-15.75,28.25,-0.06,0.942,-0.058,0
+"(Cornelissen et al. 2013)","Maize","cereal","Grain",5.5,0.8,154,7.9,16.6,8.7,"NA","NA","NA",,"Nonwood",400,0.74,8,1,-15.5,28.5,-0.011,0.989,-0.011,0
+"(Cornelissen et al. 2013)","Maize","cereal","Grain",5.5,0.8,77,6.5,3.1,4,"NA","NA","NA",,"Wood",400,0.64,8.4,2,-13.5,29.5,0,1,0,0
+"(Cornelissen et al. 2013)","Maize","cereal","Grain",5.5,0.8,154,4.8,9.1,8,"NA","NA","NA",,"Wood",400,0.64,8.4,1,-15.5,28.75,0.074,1.077,0.077,0
+"(Cornelissen et al. 2013)","Maize","cereal","Grain",5.5,0.8,77,6.5,3.1,4,"NA","NA","NA",,"Nonwood",400,0.74,8,2,-13.5,29.5,0.079,1.082,0.082,0
+"(Cornelissen et al. 2013)","Maize","cereal","Grain",5.5,4,77,6.5,3.1,4,"NA","NA","NA",,"Wood",400,0.64,8.4,2,-13.5,29.5,0.092,1.096,0.096,0
+"(Cornelissen et al. 2013)","Maize","cereal","Grain",5.5,4,77,6.5,3.1,4,"NA","NA","NA",,"Wood",400,0.64,8.4,1,-13.5,29.5,0.154,1.167,0.167,0
+"(Cornelissen et al. 2013)","Maize","cereal","Grain",5.5,0.8,77,5.6,4.3,3.34,"NA","NA","NA",,"Wood",400,0.64,8.4,2,-14.75,24.88,0.163,1.177,0.177,0
+"(Cornelissen et al. 2013)","Maize","cereal","Grain",5.5,0.8,77,5.6,4.3,3.34,"NA","NA","NA",,"Nonwood",400,0.74,8,1,-14.75,24.88,0.223,1.25,0.25,0
+"(Cornelissen et al. 2013)","Maize","cereal","Grain",5.5,0.8,154,5.9,26.2,11.61,"NA","NA","NA",,"Nonwood",400,0.74,8,1,-15.75,28.25,0.246,1.279,0.279,0
+"(Cornelissen et al. 2013)","Maize","cereal","Grain",5.5,4,154,4.8,9.1,8,"NA","NA","NA",,"Wood",400,0.64,8.4,1,-15.5,28.75,0.268,1.308,0.308,0
+"(Cornelissen et al. 2013)","Maize","cereal","Grain",5.5,0.8,77,5.6,4.3,3.34,"NA","NA","NA",,"Nonwood",400,0.74,8,2,-14.75,24.88,0.318,1.375,0.375,0
+"(Cornelissen et al. 2013)","Maize","cereal","Grain",5.5,4,154,4.8,9.1,8,"NA","NA","NA",,"Nonwood",400,0.74,8,1,-15.5,28.75,0.353,1.423,0.423,0
+"(Cornelissen et al. 2013)","Maize","cereal","Grain",5.5,0.8,77,5.6,4.3,3.34,"NA","NA","NA",,"Wood",400,0.64,8.4,1,-14.75,24.88,0.405,1.5,0.5,0
+"(Cornelissen et al. 2013)","Maize","cereal","Grain",5.5,4,77,5.6,4.3,3.34,"NA","NA","NA",,"Wood",400,0.64,8.4,2,-14.75,24.88,0.929,2.531,1.531,0
+"(Cornelissen et al. 2013)","Maize","cereal","Grain",5.5,4,77,5.6,4.3,3.34,"NA","NA","NA",,"Nonwood",400,0.74,8,2,-14.75,24.88,1.291,3.635,2.635,0
+"(Cornelissen et al. 2013)","Maize","cereal","Grain",5.5,4,77,5.6,4.3,3.34,"NA","NA","NA",,"Wood",400,0.64,8.4,1,-14.75,24.88,1.504,4.5,3.5,0
+"(Cornelissen et al. 2013)","Maize","cereal","Grain",5.5,4,77,5.6,4.3,3.34,"NA","NA","NA",,"Nonwood",400,0.74,8,1,-14.75,24.88,1.658,5.25,4.25,0
+"(Cui et al. 2011)","Rice","cereal","Grain",,20,300,6.07,18.05,20.71,"NA","NA",0.39,,"Nonwood",450,0.467,10.35,2,31.5,119.75,-0.102,0.903,-0.097,0
+"(Cui et al. 2011)","Rice","cereal","Grain",,40,300,6.07,18.05,20.71,"NA","NA",0.39,,"Nonwood",450,0.467,10.35,2,31.5,119.75,-0.087,0.917,-0.083,0
+"(Cui et al. 2011)","Rice","cereal","Grain",,10,300,6.07,18.05,20.71,"NA","NA",0.39,,"Nonwood",450,0.467,10.35,2,31.5,119.75,-0.043,0.958,-0.042,0
+"(Cui et al. 2011)","Rice","cereal","Grain",,40,300,6.07,18.05,20.71,"NA","NA",0.39,,"Nonwood",450,0.467,10.35,1,31.5,119.75,0.015,1.015,0.015,0
+"(Cui et al. 2011)","Rice","cereal","Grain",,20,300,6.07,18.05,20.71,"NA","NA",0.39,,"Nonwood",450,0.467,10.35,1,31.5,119.75,0.03,1.031,0.031,0
+"(Cui et al. 2011)","Rice","cereal","Grain",,10,300,6.07,18.05,20.71,"NA","NA",0.39,,"Nonwood",450,0.467,10.35,1,31.5,119.75,0.06,1.062,0.062,0
+"(Cui et al. 2012)","Wheat","cereal","Grain",,10,120,6.07,18.05,20.71,"NA","NA",0.39,,"Nonwood",450,0.467,10.35,1,31.5,119.75,-0.223,0.8,-0.2,0
+"(Cui et al. 2012)","Wheat","cereal","Biomass",,10,120,6.07,18.05,20.71,"NA","NA",0.39,,"Nonwood",450,0.467,10.35,1,31.5,119.75,0,1,0,0
+"(Cui et al. 2012)","Wheat","cereal","Grain",,20,120,6.07,18.05,20.71,"NA","NA",0.39,,"Nonwood",450,0.467,10.35,1,31.5,119.75,0,1,0,0
+"(Cui et al. 2012)","Wheat","cereal","Grain",,40,120,6.07,18.05,20.71,"NA","NA",0.39,,"Nonwood",450,0.467,10.35,1,31.5,119.75,0,1,0,0
+"(Cui et al. 2012)","Wheat","cereal","Biomass",,20,120,6.07,18.05,20.71,"NA","NA",0.39,,"Nonwood",450,0.467,10.35,1,31.5,119.75,0.016,1.016,0.016,0
+"(Cui et al. 2012)","Wheat","cereal","Biomass",,40,120,6.07,18.05,20.71,"NA","NA",0.39,,"Nonwood",450,0.467,10.35,1,31.5,119.75,0.031,1.031,0.031,0
+"(Cui et al. 2012)","Wheat","cereal","Biomass",,10,120,6.07,18.05,20.71,"NA","NA",0.39,,"Nonwood",450,0.467,10.35,2,31.5,119.75,0.053,1.055,0.055,0
+"(Cui et al. 2012)","Wheat","cereal","Grain",,10,120,6.07,18.05,20.71,"NA","NA",0.39,,"Nonwood",450,0.467,10.35,2,31.5,119.75,0.055,1.057,0.057,0
+"(Cui et al. 2012)","Wheat","cereal","Biomass",,20,120,6.07,18.05,20.71,"NA","NA",0.39,,"Nonwood",450,0.467,10.35,2,31.5,119.75,0.063,1.065,0.065,0
+"(Cui et al. 2012)","Wheat","cereal","Grain",,20,120,6.07,18.05,20.71,"NA","NA",0.39,,"Nonwood",450,0.467,10.35,2,31.5,119.75,0.073,1.075,0.075,0
+"(Cui et al. 2012)","Wheat","cereal","Biomass",,40,120,6.07,18.05,20.71,"NA","NA",0.39,,"Nonwood",450,0.467,10.35,2,31.5,119.75,0.102,1.108,0.108,0
+"(Cui et al. 2012)","Wheat","cereal","Grain",,40,120,6.07,18.05,20.71,"NA","NA",0.39,,"Nonwood",450,0.467,10.35,2,31.5,119.75,0.107,1.113,0.113,0
+"(Deal et al. 2012)","Maize","cereal","Biomass",5.5,"NA",90,4.7,16.8,26.9,0.36,0.22,0.42,"Medium","Wood",600,0.738,"NA",1,0.33,32.6,-0.046,0.955,-0.045,1
+"(Deal et al. 2012)","Maize","cereal","Biomass",5.5,"NA",90,4.7,16.8,26.9,0.36,0.22,0.42,"Medium","Nonwood",600,0.736,"NA",1,0.33,32.6,-0.026,0.974,-0.026,1
+"(Deal et al. 2012)","Maize","cereal","Biomass",5.5,"NA",90,4.7,16.8,26.9,0.36,0.22,0.42,"Medium","Wood",900,0.816,"NA",1,0.33,32.6,0.182,1.199,0.199,1
+"(Deal et al. 2012)","Maize","cereal","Biomass",5.5,"NA",90,4.7,16.8,26.9,0.36,0.22,0.42,"Medium","Nonwood",600,0.21,"NA",1,0.33,32.6,0.203,1.225,0.225,1
+"(Deal et al. 2012)","Maize","cereal","Biomass",5.5,"NA",90,4.7,16.8,26.9,0.36,0.22,0.42,"Medium","Nonwood",600,0.692,"NA",1,0.33,32.6,0.29,1.337,0.337,1
+"(Deal et al. 2012)","Maize","cereal","Biomass",5.5,"NA",90,4.7,16.8,26.9,0.36,0.22,0.42,"Medium","Nonwood",600,0.606,"NA",1,0.33,32.6,0.492,1.636,0.636,1
+"(Deal et al. 2012)","Maize","cereal","Biomass",5.5,"NA",90,4.7,16.8,26.9,0.36,0.22,0.42,"Medium","Nonwood",900,0.37,"NA",1,0.33,32.6,0.505,1.657,0.657,1
+"(Dou et al. 2012)","Sweet potato","root","Grain",,"NA","NA",5.7,"NA","NA","NA","NA","NA","Heavy",,"NA","NA","NA",1,36,140.65,0.076,1.079,0.079,0
+"(Gaskin et al. 2010)","Maize","cereal","Grain",5.5,11,0,5.59,"NA","NA","NA","NA","NA","Light","Nonwood",400,"NA","NA",1,31.5,-83.5,-0.433,0.648,-0.352,0
+"(Gaskin et al. 2010)","Maize","cereal","Grain",5.5,22,0,5.59,"NA","NA","NA","NA","NA","Light","Wood",400,"NA","NA",1,31.5,-83.5,-0.353,0.703,-0.297,0
+"(Gaskin et al. 2010)","Maize","cereal","Biomass",5.5,22,0,5.59,"NA","NA","NA","NA","NA","Light","Wood",400,"NA","NA",2,31.5,-83.5,-0.31,0.733,-0.267,0
+"(Gaskin et al. 2010)","Maize","cereal","Grain",5.5,11,0,5.59,"NA","NA","NA","NA","NA","Light","Wood",400,"NA","NA",1,31.5,-83.5,-0.265,0.767,-0.233,0
+"(Gaskin et al. 2010)","Maize","cereal","Biomass",5.5,22,250,5.59,"NA","NA","NA","NA","NA","Light","Nonwood",400,"NA","NA",2,31.5,-83.5,-0.143,0.867,-0.133,0
+"(Gaskin et al. 2010)","Maize","cereal","Grain",5.5,22,250,5.59,"NA","NA","NA","NA","NA","Light","Nonwood",400,"NA","NA",1,31.5,-83.5,-0.107,0.898,-0.102,0
+"(Gaskin et al. 2010)","Maize","cereal","Grain",5.5,22,250,5.59,"NA","NA","NA","NA","NA","Light","Wood",400,"NA","NA",1,31.5,-83.5,-0.103,0.902,-0.098,0
+"(Gaskin et al. 2010)","Maize","cereal","Biomass",5.5,11,0,5.59,"NA","NA","NA","NA","NA","Light","Wood",400,"NA","NA",1,31.5,-83.5,-0.078,0.925,-0.075,0
+"(Gaskin et al. 2010)","Maize","cereal","Grain",5.5,22,250,5.59,"NA","NA","NA","NA","NA","Light","Nonwood",400,"NA","NA",2,31.5,-83.5,-0.062,0.94,-0.06,0
+"(Gaskin et al. 2010)","Maize","cereal","Grain",5.5,11,250,5.59,"NA","NA","NA","NA","NA","Light","Wood",400,"NA","NA",1,31.5,-83.5,-0.041,0.96,-0.04,0
+"(Gaskin et al. 2010)","Maize","cereal","Biomass",5.5,22,250,5.59,"NA","NA","NA","NA","NA","Light","Wood",400,"NA","NA",1,31.5,-83.5,-0.012,0.988,-0.012,0
+"(Gaskin et al. 2010)","Maize","cereal","Grain",5.5,11,250,5.59,"NA","NA","NA","NA","NA","Light","Nonwood",400,"NA","NA",2,31.5,-83.5,-0.006,0.994,-0.006,0
+"(Gaskin et al. 2010)","Maize","cereal","Biomass",5.5,11,250,5.59,"NA","NA","NA","NA","NA","Light","Wood",400,"NA","NA",1,31.5,-83.5,0,1,0,0
+"(Gaskin et al. 2010)","Maize","cereal","Biomass",5.5,11,0,5.59,"NA","NA","NA","NA","NA","Light","Wood",400,"NA","NA",2,31.5,-83.5,0,1,0,0
+"(Gaskin et al. 2010)","Maize","cereal","Biomass",5.5,22,250,5.59,"NA","NA","NA","NA","NA","Light","Wood",400,"NA","NA",2,31.5,-83.5,0,1,0,0
+"(Gaskin et al. 2010)","Maize","cereal","Grain",5.5,11,0,5.59,"NA","NA","NA","NA","NA","Light","Nonwood",400,"NA","NA",2,31.5,-83.5,0.009,1.009,0.009,0
+"(Gaskin et al. 2010)","Maize","cereal","Biomass",5.5,22,250,5.59,"NA","NA","NA","NA","NA","Light","Nonwood",400,"NA","NA",1,31.5,-83.5,0.014,1.014,0.014,0
+"(Gaskin et al. 2010)","Maize","cereal","Grain",5.5,22,250,5.59,"NA","NA","NA","NA","NA","Light","Wood",400,"NA","NA",2,31.5,-83.5,0.019,1.02,0.02,0
+"(Gaskin et al. 2010)","Maize","cereal","Grain",5.5,11,250,5.59,"NA","NA","NA","NA","NA","Light","Nonwood",400,"NA","NA",1,31.5,-83.5,0.032,1.032,0.032,0
+"(Gaskin et al. 2010)","Maize","cereal","Biomass",5.5,22,0,5.59,"NA","NA","NA","NA","NA","Light","Wood",400,"NA","NA",1,31.5,-83.5,0.037,1.038,0.038,0
+"(Gaskin et al. 2010)","Maize","cereal","Biomass",5.5,11,250,5.59,"NA","NA","NA","NA","NA","Light","Nonwood",400,"NA","NA",2,31.5,-83.5,0.065,1.067,0.067,0
+"(Gaskin et al. 2010)","Maize","cereal","Biomass",5.5,11,0,5.59,"NA","NA","NA","NA","NA","Light","Nonwood",400,"NA","NA",1,31.5,-83.5,0.134,1.143,0.143,0
+"(Gaskin et al. 2010)","Maize","cereal","Biomass",5.5,11,0,5.59,"NA","NA","NA","NA","NA","Light","Nonwood",400,"NA","NA",2,31.5,-83.5,0.134,1.143,0.143,0
+"(Gaskin et al. 2010)","Maize","cereal","Biomass",5.5,11,250,5.59,"NA","NA","NA","NA","NA","Light","Nonwood",400,"NA","NA",1,31.5,-83.5,0.182,1.2,0.2,0
+"(Gaskin et al. 2010)","Maize","cereal","Grain",5.5,11,250,5.59,"NA","NA","NA","NA","NA","Light","Wood",400,"NA","NA",2,31.5,-83.5,0.206,1.229,0.229,0
+"(Gaskin et al. 2010)","Maize","cereal","Biomass",5.5,22,0,5.59,"NA","NA","NA","NA","NA","Light","Nonwood",400,"NA","NA",2,31.5,-83.5,0.251,1.286,0.286,0
+"(Gaskin et al. 2010)","Maize","cereal","Grain",5.5,22,0,5.59,"NA","NA","NA","NA","NA","Light","Nonwood",400,"NA","NA",1,31.5,-83.5,0.256,1.291,0.291,0
+"(Gaskin et al. 2010)","Maize","cereal","Biomass",5.5,11,250,5.59,"NA","NA","NA","NA","NA","Light","Wood",400,"NA","NA",2,31.5,-83.5,0.259,1.295,0.295,0
+"(Gaskin et al. 2010)","Maize","cereal","Grain",5.5,11,0,5.59,"NA","NA","NA","NA","NA","Light","Wood",400,"NA","NA",2,31.5,-83.5,0.351,1.42,0.42,0
+"(Gaskin et al. 2010)","Maize","cereal","Biomass",5.5,22,0,5.59,"NA","NA","NA","NA","NA","Light","Nonwood",400,"NA","NA",1,31.5,-83.5,0.389,1.476,0.476,0
+"(Gaskin et al. 2010)","Maize","cereal","Grain",5.5,22,0,5.59,"NA","NA","NA","NA","NA","Light","Nonwood",400,"NA","NA",2,31.5,-83.5,0.393,1.482,0.482,0
+"(Gaskin et al. 2010)","Maize","cereal","Grain",5.5,22,0,5.59,"NA","NA","NA","NA","NA","Light","Wood",400,"NA","NA",2,31.5,-83.5,0.438,1.549,0.549,0
+"(Gathorne-Hardy 2012)","Barley","cereal","Biomass",,50,0,"NA","NA","NA","NA","NA","NA","Light",,"NA","NA","NA",1,51.75,-0.25,-0.244,0.784,-0.216,0
+"(Gathorne-Hardy 2012)","Barley","cereal","Biomass",,5,80,"NA","NA","NA","NA","NA","NA","Light",,"NA","NA","NA",1,51.75,-0.25,-0.195,0.823,-0.177,0
+"(Gathorne-Hardy 2012)","Barley","cereal","Biomass",,5,0,"NA","NA","NA","NA","NA","NA","Light",,"NA","NA","NA",1,51.75,-0.25,-0.186,0.831,-0.169,0
+"(Gathorne-Hardy 2012)","Barley","cereal","Biomass",,10,80,"NA","NA","NA","NA","NA","NA","Light",,"NA","NA","NA",1,51.75,-0.25,-0.163,0.849,-0.151,0
+"(Gathorne-Hardy 2012)","Barley","cereal","Biomass",,5,10,"NA","NA","NA","NA","NA","NA","Light",,"NA","NA","NA",1,51.75,-0.25,-0.101,0.904,-0.096,0
+"(Gathorne-Hardy 2012)","Barley","cereal","Biomass",,10,0,"NA","NA","NA","NA","NA","NA","Light",,"NA","NA","NA",1,51.75,-0.25,-0.097,0.907,-0.093,0
+"(Gathorne-Hardy 2012)","Barley","cereal","Biomass",,20,0,"NA","NA","NA","NA","NA","NA","Light",,"NA","NA","NA",1,51.75,-0.25,-0.081,0.922,-0.078,0
+"(Gathorne-Hardy 2012)","Barley","cereal","Biomass",,50,20,"NA","NA","NA","NA","NA","NA","Light",,"NA","NA","NA",1,51.75,-0.25,-0.047,0.954,-0.046,0
+"(Gathorne-Hardy 2012)","Barley","cereal","Biomass",,10,20,"NA","NA","NA","NA","NA","NA","Light",,"NA","NA","NA",1,51.75,-0.25,-0.023,0.977,-0.023,0
+"(Gathorne-Hardy 2012)","Barley","cereal","Biomass",,20,20,"NA","NA","NA","NA","NA","NA","Light",,"NA","NA","NA",1,51.75,-0.25,0.011,1.011,0.011,0
+"(Gathorne-Hardy 2012)","Barley","cereal","Biomass",,5,20,"NA","NA","NA","NA","NA","NA","Light",,"NA","NA","NA",1,51.75,-0.25,0.055,1.057,0.057,0
+"(Gathorne-Hardy 2012)","Barley","cereal","Biomass",,10,10,"NA","NA","NA","NA","NA","NA","Light",,"NA","NA","NA",1,51.75,-0.25,0.093,1.097,0.097,0
+"(Gathorne-Hardy 2012)","Barley","cereal","Biomass",,20,80,"NA","NA","NA","NA","NA","NA","Light",,"NA","NA","NA",1,51.75,-0.25,0.14,1.15,0.15,0
+"(Gathorne-Hardy 2012)","Barley","cereal","Biomass",,50,80,"NA","NA","NA","NA","NA","NA","Light",,"NA","NA","NA",1,51.75,-0.25,0.14,1.15,0.15,0
+"(Gathorne-Hardy 2012)","Barley","cereal","Biomass",,5,100,"NA","NA","NA","NA","NA","NA","Light",,"NA","NA","NA",1,51.75,-0.25,0.162,1.176,0.176,0
+"(Gathorne-Hardy 2012)","Barley","cereal","Biomass",,50,10,"NA","NA","NA","NA","NA","NA","Light",,"NA","NA","NA",1,51.75,-0.25,0.164,1.178,0.178,0
+"(Gathorne-Hardy 2012)","Barley","cereal","Biomass",,10,100,"NA","NA","NA","NA","NA","NA","Light",,"NA","NA","NA",1,51.75,-0.25,0.252,1.287,0.287,0
+"(Gathorne-Hardy 2012)","Barley","cereal","Biomass",,20,10,"NA","NA","NA","NA","NA","NA","Light",,"NA","NA","NA",1,51.75,-0.25,0.304,1.355,0.355,0
+"(Gathorne-Hardy 2012)","Barley","cereal","Biomass",,20,100,"NA","NA","NA","NA","NA","NA","Light",,"NA","NA","NA",1,51.75,-0.25,0.341,1.407,0.407,0
+"(Gathorne-Hardy 2012)","Barley","cereal","Biomass",,50,100,"NA","NA","NA","NA","NA","NA","Light",,"NA","NA","NA",1,51.75,-0.25,0.348,1.416,0.416,0
+"(Guerena 2012)","Maize","cereal","Grain",5.5,12,66.155,7.36,9.76,16.2,0.42,0.31,0.27,"Medium","Nonwood",600,0.29,10.02,1,42.72,-76.65,-0.517,0.596,-0.404,0
+"(Guerena 2012)","Maize","cereal","Grain",5.5,12,87.677,7.36,9.76,16.2,0.42,0.31,0.27,"Medium","Nonwood",600,0.29,10.02,1,42.72,-76.65,-0.324,0.723,-0.277,0
+"(Guerena 2012)","Maize","cereal","Grain",5.5,30,109.199,7.36,9.76,16.2,0.42,0.31,0.27,"Medium","Nonwood",600,0.29,10.02,3,42.72,-76.65,-0.253,0.776,-0.224,0
+"(Guerena 2012)","Maize","cereal","Grain",5.5,30,109.199,7.4444444,9.76,16.2,0.42,0.31,0.27,"Medium","Nonwood",600,0.29,10.02,2,42.72,-76.65,-0.189,0.828,-0.172,0
+"(Guerena 2012)","Maize","cereal","Grain",5.5,3,109.199,7.4444444,9.76,16.2,0.42,0.31,0.27,"Medium","Nonwood",600,0.29,10.02,2,42.72,-76.65,-0.176,0.839,-0.161,0
+"(Guerena 2012)","Maize","cereal","Grain",5.5,30,109.199,7.36,9.76,16.2,0.42,0.31,0.27,"Medium","Nonwood",600,0.29,10.02,1,42.72,-76.65,-0.161,0.851,-0.149,0
+"(Guerena 2012)","Maize","cereal","Grain",5.5,1,109.199,7.36,9.76,16.2,0.42,0.31,0.27,"Medium","Nonwood",600,0.29,10.02,1,42.72,-76.65,-0.137,0.872,-0.128,0
+"(Guerena 2012)","Maize","cereal","Grain",5.5,3,109.199,7.36,9.76,16.2,0.42,0.31,0.27,"Medium","Nonwood",600,0.29,10.02,1,42.72,-76.65,-0.137,0.872,-0.128,0
+"(Guerena 2012)","Maize","cereal","Grain",5.5,12,109.199,7.4444444,9.76,16.2,0.42,0.31,0.27,"Medium","Nonwood",600,0.29,10.02,2,42.72,-76.65,-0.133,0.875,-0.125,0
+"(Guerena 2012)","Maize","cereal","Grain",5.5,12,109.199,7.36,9.76,16.2,0.42,0.31,0.27,"Medium","Nonwood",600,0.29,10.02,1,42.72,-76.65,-0.112,0.894,-0.106,0
+"(Guerena 2012)","Maize","cereal","Grain",5.5,30,109.199,7.4444444,9.76,16.2,0.42,0.31,0.27,"Medium","Nonwood",600,0.29,10.02,4,42.72,-76.65,-0.109,0.897,-0.103,0
+"(Guerena 2012)","Maize","cereal","Grain",5.5,12,109.199,7.22,9.76,16.2,0.42,0.31,0.27,"Medium","Nonwood",600,0.29,10.02,3,42.72,-76.65,-0.073,0.929,-0.071,0
+"(Guerena 2012)","Maize","cereal","Grain",5.5,12,66.155,7.4444444,9.76,16.2,0.42,0.31,0.27,"Medium","Nonwood",600,0.29,10.02,2,42.72,-76.65,-0.029,0.971,-0.029,0
+"(Guerena 2012)","Maize","cereal","Grain",5.5,12,87.677,7.3,9.76,16.2,0.42,0.31,0.27,"Medium","Nonwood",600,0.29,10.02,3,42.72,-76.65,-0.025,0.975,-0.025,0
+"(Guerena 2012)","Maize","cereal","Grain",5.5,12,87.677,7.4444444,9.76,16.2,0.42,0.31,0.27,"Medium","Nonwood",600,0.29,10.02,4,42.72,-76.65,-0.024,0.976,-0.024,0
+"(Guerena 2012)","Maize","cereal","Grain",5.5,3,109.199,7.4444444,9.76,16.2,0.42,0.31,0.27,"Medium","Nonwood",600,0.29,10.02,4,42.72,-76.65,-0.012,0.989,-0.011,0
+"(Guerena 2012)","Maize","cereal","Grain",5.5,12,109.199,7.4444444,9.76,16.2,0.42,0.31,0.27,"Medium","Nonwood",600,0.29,10.02,4,42.72,-76.65,-0.012,0.989,-0.011,0
+"(Guerena 2012)","Maize","cereal","Grain",5.5,3,109.199,7.48,9.76,16.2,0.42,0.31,0.27,"Medium","Nonwood",600,0.29,10.02,3,42.72,-76.65,0,1,0,0
+"(Guerena 2012)","Maize","cereal","Grain",5.5,12,119.96,7.4444444,9.76,16.2,0.42,0.31,0.27,"Medium","Nonwood",600,0.29,10.02,4,42.72,-76.65,0,1,0,0
+"(Guerena 2012)","Maize","cereal","Grain",5.5,12,66.155,7.4444444,9.76,16.2,0.42,0.31,0.27,"Medium","Nonwood",600,0.29,10.02,4,42.72,-76.65,0.014,1.014,0.014,0
+"(Guerena 2012)","Maize","cereal","Grain",5.5,12,66.155,7.32,9.76,16.2,0.42,0.31,0.27,"Medium","Nonwood",600,0.29,10.02,3,42.72,-76.65,0.015,1.015,0.015,0
+"(Guerena 2012)","Maize","cereal","Grain",5.5,12,119.96,7.36,9.76,16.2,0.42,0.31,0.27,"Medium","Nonwood",600,0.29,10.02,1,42.72,-76.65,0.043,1.044,0.044,0
+"(Guerena 2012)","Maize","cereal","Grain",5.5,12,119.96,7.4444444,9.76,16.2,0.42,0.31,0.27,"Medium","Nonwood",600,0.29,10.02,2,42.72,-76.65,0.092,1.096,0.096,0
+"(Guerena 2012)","Maize","cereal","Grain",5.5,12,87.677,7.4444444,9.76,16.2,0.42,0.31,0.27,"Medium","Nonwood",600,0.29,10.02,2,42.72,-76.65,0.103,1.108,0.108,0
+"(Guerena 2012)","Maize","cereal","Grain",5.5,12,119.96,7.5,9.76,16.2,0.42,0.31,0.27,"Medium","Nonwood",600,0.29,10.02,3,42.72,-76.65,0.237,1.267,0.267,0
+"(Haefele et al. 2011)","Rice","cereal","Grain",4.5,41.3,60,6.5,34.1,15.3,0.153,0.21,0.37,"Heavy","Nonwood","NA",0.397094431,"NA",2,14.18,121.25,-0.134,0.874,-0.126,0
+"(Haefele et al. 2011)","Rice","cereal","Grain",4.5,41.3,40,4.8,1.7,3.4,0.034,0.77,0.18,"Medium","Nonwood","NA",0.397094431,"NA",3,15.25,104.75,-0.118,0.888,-0.112,0
+"(Haefele et al. 2011)","Rice","cereal","Grain",4.5,41.3,60,6.5,34.1,15.3,0.153,0.21,0.37,"Heavy","Nonwood","NA",0.397094431,8.6,1,14.18,121.25,-0.101,0.904,-0.096,0
+"(Haefele et al. 2011)","Rice","cereal","Grain",4.5,41.3,60,6.5,34.1,15.3,0.153,0.21,0.37,"Heavy","Nonwood","NA",0.397094431,"NA",4,14.18,121.25,-0.084,0.92,-0.08,0
+"(Haefele et al. 2011)","Rice","cereal","Grain",4.5,41.3,60,6.5,34.1,15.3,0.153,0.21,0.37,"Heavy","Nonwood","NA",0.397094431,"NA",2,14.18,121.25,-0.075,0.927,-0.073,0
+"(Haefele et al. 2011)","Rice","cereal","Grain",4.5,41.3,60,6.5,34.1,15.3,0.153,0.21,0.37,"Heavy","Nonwood","NA",0.397094431,"NA",2,14.18,121.25,-0.044,0.957,-0.043,0
+"(Haefele et al. 2011)","Rice","cereal","Grain",4.5,41.3,60,6.5,34.1,15.3,0.153,0.21,0.37,"Heavy","Nonwood","NA",0.397094431,"NA",4,14.18,121.25,-0.038,0.963,-0.037,0
+"(Haefele et al. 2011)","Rice","cereal","Grain",4.5,41.3,60,6.5,34.1,15.3,0.153,0.21,0.37,"Heavy","Nonwood","NA",0.397094431,"NA",4,14.18,121.25,-0.03,0.971,-0.029,0
+"(Haefele et al. 2011)","Rice","cereal","Grain",4.5,41.3,60,6.5,34.1,15.3,0.153,0.21,0.37,"Heavy","Nonwood","NA",0.397094431,"NA",3,14.18,121.25,-0.013,0.988,-0.012,0
+"(Haefele et al. 2011)","Rice","cereal","Grain",4.5,41.3,60,6.5,34.1,15.3,0.153,0.21,0.37,"Heavy","Nonwood","NA",0.397094431,8.6,1,14.18,121.25,-0.008,0.992,-0.008,0
+"(Haefele et al. 2011)","Rice","cereal","Grain",4.5,41.3,60,6.5,34.1,15.3,0.153,0.21,0.37,"Heavy","Nonwood","NA",0.397094431,"NA",2,14.18,121.25,-0.006,0.994,-0.006,0
+"(Haefele et al. 2011)","Rice","cereal","Grain",4.5,41.3,60,6.5,34.1,15.3,0.153,0.21,0.37,"Heavy","Nonwood","NA",0.397094431,"NA",3,14.18,121.25,0,1,0,0
+"(Haefele et al. 2011)","Rice","cereal","Grain",4.5,41.3,60,6.5,34.1,15.3,0.153,0.21,0.37,"Heavy","Nonwood","NA",0.397094431,"NA",3,14.18,121.25,0.002,1.002,0.002,0
+"(Haefele et al. 2011)","Rice","cereal","Grain",4.5,41.3,60,6.5,34.1,15.3,0.153,0.21,0.37,"Heavy","Nonwood","NA",0.397094431,"NA",4,14.18,121.25,0.005,1.005,0.005,0
+"(Haefele et al. 2011)","Rice","cereal","Grain",4.5,41.3,60,4.1,23.5,36.4,0.364,0.07,0.43,"Medium","Nonwood","NA",0.397094431,"NA",3,14.5,121.5,0.013,1.013,0.013,0
+"(Haefele et al. 2011)","Rice","cereal","Grain",4.5,41.3,60,6.5,34.1,15.3,0.153,0.21,0.37,"Heavy","Nonwood","NA",0.397094431,"NA",3,14.18,121.25,0.028,1.028,0.028,0
+"(Haefele et al. 2011)","Rice","cereal","Grain",4.5,41.3,60,4.1,23.5,36.4,0.364,0.07,0.43,"Medium","Nonwood","NA",0.397094431,"NA",2,14.5,121.5,0.031,1.031,0.031,0
+"(Haefele et al. 2011)","Rice","cereal","Grain",4.5,41.3,40,4.8,1.7,3.4,0.034,0.77,0.18,"Medium","Nonwood","NA",0.397094431,8.6,1,15.25,104.75,0.037,1.038,0.038,0
+"(Haefele et al. 2011)","Rice","cereal","Grain",4.5,41.3,40,4.1,23.5,36.4,0.364,0.07,0.43,"Medium","Nonwood","NA",0.397094431,"NA",3,14.5,121.5,0.061,1.063,0.063,0
+"(Haefele et al. 2011)","Rice","cereal","Grain",4.5,41.3,60,4.1,23.5,36.4,0.364,0.07,0.43,"Medium","Nonwood","NA",0.397094431,"NA",2,14.5,121.5,0.092,1.096,0.096,0
+"(Haefele et al. 2011)","Rice","cereal","Grain",4.5,41.3,60,4.1,23.5,36.4,0.364,0.07,0.43,"Medium","Nonwood","NA",0.397094431,8.6,1,14.5,121.5,0.1,1.105,0.105,0
+"(Haefele et al. 2011)","Rice","cereal","Grain",4.5,41.3,40,4.8,1.7,3.4,0.034,0.77,0.18,"Medium","Nonwood","NA",0.397094431,8.6,1,15.25,104.75,0.114,1.121,0.121,0
+"(Haefele et al. 2011)","Rice","cereal","Grain",4.5,41.3,40,4.8,1.7,3.4,0.034,0.77,0.18,"Medium","Nonwood","NA",0.397094431,"NA",4,15.25,104.75,0.153,1.166,0.166,0
+"(Haefele et al. 2011)","Rice","cereal","Grain",4.5,41.3,60,4.1,23.5,36.4,0.364,0.07,0.43,"Medium","Nonwood","NA",0.397094431,8.6,1,14.5,121.5,0.157,1.169,0.169,0
+"(Haefele et al. 2011)","Rice","cereal","Grain",4.5,41.3,40,4.8,1.7,3.4,0.034,0.77,0.18,"Medium","Nonwood","NA",0.397094431,"NA",2,15.25,104.75,0.236,1.266,0.266,0
+"(Haefele et al. 2011)","Rice","cereal","Grain",4.5,41.3,40,4.8,1.7,3.4,0.034,0.77,0.18,"Medium","Nonwood","NA",0.397094431,"NA",2,15.25,104.75,0.236,1.266,0.266,0
+"(Haefele et al. 2011)","Rice","cereal","Grain",4.5,41.3,40,4.8,1.7,3.4,0.034,0.77,0.18,"Medium","Nonwood","NA",0.397094431,"NA",3,15.25,104.75,0.278,1.32,0.32,0
+"(Haefele et al. 2011)","Rice","cereal","Grain",4.5,41.3,40,4.8,1.7,3.4,0.034,0.77,0.18,"Medium","Nonwood","NA",0.397094431,"NA",4,15.25,104.75,0.302,1.353,0.353,0
+"(Hossain et al. 2010) ","Tomato","fruit","Grain",,10,120,4.6,"NA","NA","NA","NA","NA","Medium","Manure",550,"NA",8.2,1,-34.12,150.5,0.128,1.136,0.136,1
+"(Hossain et al. 2010) ","Tomato","fruit","Biomass",,10,120,4.6,"NA","NA","NA","NA","NA","Medium","Manure",550,"NA",8.2,1,-34.12,150.5,0.14,1.15,0.15,1
+"(Hossain et al. 2010) ","Tomato","fruit","Biomass",,10,0,4.6,"NA","NA","NA","NA","NA","Medium","Manure",550,"NA",8.2,1,-34.12,150.5,0.182,1.2,0.2,1
+"(Hossain et al. 2010) ","Tomato","fruit","Grain",,10,0,4.6,"NA","NA","NA","NA","NA","Medium","Manure",550,"NA",8.2,1,-34.12,150.5,0.517,1.678,0.678,1
+"(Hua et al. 2012)","Ryegrass","grass","Biomass",,"NA","NA",7.22,"NA","NA","NA","NA","NA","Medium","Wood",600,"NA","NA",1,"NA","NA",0.127,1.135,0.135,1
+"(Hua et al. 2012)","Fescue","grass","Biomass",,"NA","NA",5.41,"NA","NA","NA","NA","NA","Medium","Wood",600,"NA","NA",1,"NA","NA",0.14,1.15,0.15,1
+"(Hua et al. 2012)","Fescue","grass","Biomass",,"NA","NA",7.22,"NA","NA","NA","NA","NA","Medium","Wood",600,"NA","NA",1,"NA","NA",0.167,1.182,0.182,1
+"(Hua et al. 2012)","Ryegrass","grass","Biomass",,"NA","NA",5.41,"NA","NA","NA","NA","NA","Medium","Wood",600,"NA","NA",1,"NA","NA",0.248,1.281,0.281,1
+"(Ishii & Kadoya 1994)","Satsuma trees","tree","Biomass",,65,0,"NA","NA","NA","NA","NA","NA","Light","Wood","NA","NA","NA",1,33.5,133,0.425,1.53,0.53,1
+"(Ishii & Kadoya 1994)","Satsuma trees","tree","Biomass",,65,0,"NA","NA","NA","NA","NA","NA","Light","Nonwood","NA","NA","NA",1,33.5,133,0.454,1.575,0.575,1
+"(Ishii & Kadoya 1994)","Satsuma trees","tree","Biomass",,65,0,"NA","NA","NA","NA","NA","NA","Light","Nonwood","NA","NA","NA",1,33.5,133,0.478,1.613,0.613,1
+"(Islam & Ani 2000)","Sweet potato","root","Biomass",,"NA","NA",5.9,"NA",12.5,"NA","NA","NA",,"Nonwood","NA","NA","NA",1,"NA","NA",-0.56,0.571,-0.429,0
+"(Islam & Ani 2000)","Sweet potato","root","Biomass",,"NA","NA",5.9,"NA",12.5,"NA","NA","NA",,"Nonwood","NA","NA","NA",1,"NA","NA",-0.467,0.627,-0.373,0
+"(Islam & Ani 2000)","Sweet potato","root","Biomass",,"NA","NA",5.9,"NA",12.5,"NA","NA","NA",,"Nonwood","NA","NA","NA",1,"NA","NA",-0.253,0.776,-0.224,0
+"(Islam & Ani 2000)","Sweet potato","root","Biomass",,"NA","NA",5.9,"NA",12.5,"NA","NA","NA",,"Nonwood","NA","NA","NA",1,"NA","NA",-0.253,0.776,-0.224,0
+"(Islam & Ani 2000)","Sweet potato","root","Biomass",,"NA","NA",5.9,"NA",12.5,"NA","NA","NA",,"Nonwood","NA","NA","NA",1,"NA","NA",-0.253,0.776,-0.224,0
+"(Islam & Ani 2000)","Sweet potato","root","Biomass",,"NA","NA",5.9,"NA",12.5,"NA","NA","NA",,"Nonwood","NA","NA","NA",1,"NA","NA",-0.234,0.791,-0.209,0
+"(Islam & Ani 2000)","Sweet potato","root","Biomass",,"NA","NA",5.9,"NA",12.5,"NA","NA","NA",,"Nonwood","NA","NA","NA",1,"NA","NA",-0.181,0.834,-0.166,0
+"(Islam & Ani 2000)","Sweet potato","root","Biomass",,"NA","NA",5.9,"NA",12.5,"NA","NA","NA",,"Nonwood","NA","NA","NA",1,"NA","NA",-0.11,0.896,-0.104,0
+"(Islam & Ani 2000)","Sweet potato","root","Biomass",,"NA","NA",5.9,"NA",12.5,"NA","NA","NA",,"Nonwood","NA","NA","NA",1,"NA","NA",0.026,1.026,0.026,0
+"(Islam & Ani 2000)","Sweet potato","root","Biomass",,"NA","NA",5.9,"NA",12.5,"NA","NA","NA",,"Nonwood","NA","NA","NA",1,"NA","NA",0.041,1.041,0.041,0
+"(Islam & Ani 2000)","Sweet potato","root","Biomass",,"NA","NA",5.9,"NA",12.5,"NA","NA","NA",,"Nonwood","NA","NA","NA",1,"NA","NA",0.129,1.138,0.138,0
+"(Islam & Ani 2000)","Sweet potato","root","Biomass",,"NA","NA",5.9,"NA",12.5,"NA","NA","NA",,"Nonwood","NA","NA","NA",1,"NA","NA",0.148,1.159,0.159,0
+"(Islam & Ani 2000)","Sweet potato","root","Biomass",,"NA","NA",5.9,"NA",12.5,"NA","NA","NA",,"Nonwood","NA","NA","NA",1,"NA","NA",0.254,1.289,0.289,0
+"(Islam & Ani 2000)","Sweet potato","root","Biomass",,"NA","NA",5.9,"NA",12.5,"NA","NA","NA",,"Nonwood","NA","NA","NA",1,"NA","NA",0.281,1.324,0.324,0
+"(Islam & Ani 2000)","Sweet potato","root","Biomass",,"NA","NA",5.9,"NA",12.5,"NA","NA","NA",,"Nonwood","NA","NA","NA",1,"NA","NA",0.326,1.386,0.386,0
+"(Islam & Ani 2000)","Sweet potato","root","Biomass",,"NA","NA",5.9,"NA",12.5,"NA","NA","NA",,"Nonwood","NA","NA","NA",1,"NA","NA",0.341,1.407,0.407,0
+"(Islami et al. 2011)","Cassava","root","Biomass",,15,"NA",6.49,"NA",6.5,"NA","NA","NA",,"Nonwood",285,0.4042,8.1,1,-8,112.5,0.082,1.085,0.085,0
+"(Islami et al. 2011)","Peanut","legume","Grain",,15,"NA",6.49,"NA",6.5,"NA","NA","NA",,"Manure",270,0.2555,7.9,1,-8,112.5,0.095,1.1,0.1,0
+"(Islami et al. 2011)","Peanut","legume","Grain",,15,"NA",6.49,"NA",6.5,"NA","NA","NA",,"Nonwood",285,0.4042,8.1,1,-8,112.5,0.095,1.1,0.1,0
+"(Islami et al. 2011)","Cassava","root","Biomass",,15,"NA",6.49,"NA",6.5,"NA","NA","NA",,"Nonwood",285,0.4042,8.1,2,-8,112.5,0.1,1.105,0.105,0
+"(Islami et al. 2011)","Cassava","root","Biomass",,15,"NA",6.49,"NA",6.5,"NA","NA","NA",,"Manure",270,0.2555,7.9,2,-8,112.5,0.105,1.111,0.111,0
+"(Islami et al. 2011)","Cassava","root","Biomass",,15,"NA",6.49,"NA",6.5,"NA","NA","NA",,"Manure",270,0.2555,7.9,1,-8,112.5,0.11,1.116,0.116,0
+"(Islami et al. 2011)","Maize","cereal","Grain",,15,"NA",6.49,"NA",6.5,"NA","NA","NA",,"Nonwood",285,0.4042,8.1,1,-8,112.5,0.121,1.129,0.129,0
+"(Islami et al. 2011)","Cassava","root","Biomass",,15,"NA",6.49,"NA",6.5,"NA","NA","NA",,"Manure",270,0.2555,7.9,1,-8,112.5,0.125,1.133,0.133,0
+"(Islami et al. 2011)","Cassava","root","Biomass",,15,"NA",6.49,"NA",6.5,"NA","NA","NA",,"Nonwood",285,0.4042,8.1,1,-8,112.5,0.126,1.134,0.134,0
+"(Islami et al. 2011)","Maize","cereal","Grain",,15,"NA",6.49,"NA",6.5,"NA","NA","NA",,"Manure",270,0.2555,7.9,1,-8,112.5,0.28,1.323,0.323,0
+"(Islami et al. 2011)","Maize","cereal","Grain",,15,"NA",6.49,"NA",6.5,"NA","NA","NA",,"Nonwood",285,0.4042,8.1,2,-8,112.5,0.288,1.333,0.333,0
+"(Islami et al. 2011)","Peanut","legume","Grain",,15,"NA",6.49,"NA",6.5,"NA","NA","NA",,"Nonwood",285,0.4042,8.1,2,-8,112.5,0.357,1.429,0.429,0
+"(Islami et al. 2011)","Cassava","root","Biomass",,15,"NA",6.49,"NA",6.5,"NA","NA","NA",,"Nonwood",285,0.4042,8.1,2,-8,112.5,0.373,1.451,0.451,0
+"(Islami et al. 2011)","Maize","cereal","Grain",,15,"NA",6.49,"NA",6.5,"NA","NA","NA",,"Manure",270,0.2555,7.9,2,-8,112.5,0.418,1.519,0.519,0
+"(Islami et al. 2011)","Peanut","legume","Grain",,15,"NA",6.49,"NA",6.5,"NA","NA","NA",,"Manure",270,0.2555,7.9,2,-8,112.5,0.452,1.571,0.571,0
+"(Islami et al. 2011)","Cassava","root","Biomass",,15,"NA",6.49,"NA",6.5,"NA","NA","NA",,"Manure",270,0.2555,7.9,2,-8,112.5,0.477,1.611,0.611,0
+"(Jia et al. 2012)","Choi sum","vegetable","Biomass",,40,400,5.8,"NA",17.4,0.035,0.694,0.271,"Medium","Nonwood",400,0.5113,"NA",1,32,118.75,-0.039,0.962,-0.038,1
+"(Jia et al. 2012)","Choi sum","vegetable","Biomass",,20,400,5.8,"NA",17.4,0.035,0.694,0.271,"Medium","Nonwood",400,0.5113,"NA",1,32,118.75,0.167,1.182,0.182,1
+"(Jia et al. 2012)","Choi sum","vegetable","Biomass",,30,400,5.8,"NA",17.4,0.035,0.694,0.271,"Medium","Nonwood",400,0.5113,"NA",1,32,118.75,0.675,1.963,0.963,1
+"(Jia et al. 2012)","Choi sum","vegetable","Biomass",,30,400,5.8,"NA",17.4,0.035,0.694,0.271,"Medium","Nonwood",400,0.5113,"NA",1,32,118.75,0.707,2.029,1.029,1
+"(Jones et al. 2011)","Maize","cereal","Biomass",,25,100,6.86,"NA",35,"NA","NA","NA","Medium","Wood",450,0.761,8.81,1,53.25,-4,-0.039,0.962,-0.038,0
+"(Jones et al. 2011)","Maize","cereal","Biomass",,50,100,6.86,"NA",35,"NA","NA","NA","Medium","Wood",450,0.761,8.81,1,53.25,-4,0,1,0,0
+"(Jones et al. 2011)","Forage grass","grass","Biomass",,25,100,6.86,"NA",35,"NA","NA","NA","Medium","Wood",450,0.761,8.81,2,53.25,-4,0.045,1.047,0.047,0
+"(Jones et al. 2011)","Forage grass","grass","Biomass",,50,100,6.86,"NA",35,"NA","NA","NA","Medium","Wood",450,0.761,8.81,2,53.25,-4,0.299,1.349,0.349,0
+"(Jones et al. 2011)","Forage grass","grass","Biomass",,25,100,6.86,"NA",35,"NA","NA","NA","Medium","Wood",450,0.761,8.81,3,53.25,-4,0.537,1.711,0.711,0
+"(Jones et al. 2011)","Forage grass","grass","Biomass",,50,100,6.86,"NA",35,"NA","NA","NA","Medium","Wood",450,0.761,8.81,3,53.25,-4,0.582,1.789,0.789,0
+"(Kammann et al. 2011)","Quinoa","cereal","Grain",,200,100,"NA","NA","NA","NA","NA","NA","Light","Nonwood",498,0.716,8.1,1,50.5,8.6,-0.262,0.769,-0.231,1
+"(Kammann et al. 2011)","Quinoa","cereal","Grain",,100,100,"NA","NA","NA","NA","NA","NA","Light","Nonwood",498,0.716,8.1,1,50.5,8.6,0.074,1.077,0.077,1
+"(Kammann et al. 2011)","Quinoa","cereal","Biomass",,200,100,"NA","NA","NA","NA","NA","NA","Light","Nonwood",498,0.716,8.1,1,50.5,8.6,0.1,1.105,0.105,1
+"(Kammann et al. 2011)","Quinoa","cereal","Biomass",,100,100,"NA","NA","NA","NA","NA","NA","Light","Nonwood",498,0.716,8.1,1,50.5,8.6,0.19,1.209,0.209,1
+"(Kammann et al. 2011)","Quinoa","cereal","Biomass",,100,100,"NA","NA","NA","NA","NA","NA","Light","Nonwood",498,0.716,8.1,1,50.5,8.6,0.366,1.442,0.442,1
+"(Kammann et al. 2011)","Quinoa","cereal","Biomass",,200,100,"NA","NA","NA","NA","NA","NA","Light","Nonwood",498,0.716,8.1,1,50.5,8.6,0.462,1.588,0.588,1
+"(Kammann et al. 2011)","Quinoa","cereal","Grain",,200,100,"NA","NA","NA","NA","NA","NA","Light","Nonwood",498,0.716,8.1,1,50.5,8.6,0.693,2,1,1
+"(Kammann et al. 2011)","Quinoa","cereal","Grain",,100,100,"NA","NA","NA","NA","NA","NA","Light","Nonwood",498,0.716,8.1,1,50.5,8.6,0.916,2.5,1.5,1
+"(Kimetu et al. 2008)","Maize","cereal","Grain",,14,120,6.3,"NA","NA","NA","NA","NA","Medium","Wood",450,0.851,9.4,1,0.25,35,-0.614,0.541,-0.459,0
+"(Kimetu et al. 2008)","Maize","cereal","Grain",,14,120,6.3,"NA","NA","NA","NA","NA","Medium","Wood",450,0.851,9.4,1,0.25,35,-0.209,0.812,-0.188,0
+"(Kimetu et al. 2008)","Maize","cereal","Grain",,14,120,5.2,"NA","NA","NA","NA","NA","Medium","Wood",450,0.851,9.4,1,0.25,35,-0.137,0.872,-0.128,0
+"(Kimetu et al. 2008)","Maize","cereal","Grain",,14,120,5.5,"NA","NA","NA","NA","NA","Medium","Wood",450,0.851,9.4,1,0.25,35,0.143,1.154,0.154,0
+"(Kimetu et al. 2008)","Maize","cereal","Grain",,14,120,5.2,"NA","NA","NA","NA","NA","Medium","Wood",450,0.851,9.4,1,0.25,35,0.261,1.298,0.298,0
+"(Kimetu et al. 2008)","Maize","cereal","Grain",,14,120,5.5,"NA","NA","NA","NA","NA","Medium","Wood",450,0.851,9.4,1,0.25,35,0.353,1.423,0.423,0
+"(Kimetu et al. 2008)","Maize","cereal","Grain",,14,120,5.9,"NA","NA","NA","NA","NA","Medium","Wood",450,0.851,9.4,1,0.25,35,0.717,2.048,1.048,0
+"(Kimetu et al. 2008)","Maize","cereal","Grain",,14,120,5.9,"NA","NA","NA","NA","NA","Medium","Wood",450,0.851,9.4,1,0.25,35,0.847,2.333,1.333,0
+"(Lehmann et al. 2003) ","Cowpea","legume","Biomass",,67.6,49.8,5.93,"NA",39,"NA","NA",0.65,"Light","Wood","NA",0.708,"NA",1,-3,-60,0.276,1.318,0.318,1
+"(Lehmann et al. 2003) ","Cowpea","legume","Biomass",,135.2,91.478,5.8,"NA",39,"NA","NA",0.65,"Light","Wood","NA",0.708,"NA",1,-3,-60,0.353,1.423,0.423,1
+"(Lehmann et al. 2003) ","Cowpea","legume","Biomass",,67.6,0,5.14,"NA","NA","NA","NA",0.65,"Light","Wood","NA",0.708,"NA",1,-3,-60,0.361,1.435,0.435,1
+"(Lehmann et al. 2003) ","Cowpea","legume","Biomass",,135.2,41.678,5.16,"NA","NA","NA","NA",0.65,"Light","Wood","NA",0.708,"NA",1,-3,-60,0.611,1.842,0.842,1
+"(Lentz & Ippolito 2012) ","Maize","cereal","Biomass",,22.4,"NA",7.6,19,12,0.24,0.56,0.2,,"Wood",500,0.662,6.8,2,42.5,-114.5,-0.37,0.691,-0.309,0
+"(Lentz & Ippolito 2012) ","Maize","cereal","Biomass",,22.4,"NA",7.6,19,12,0.24,0.56,0.2,,"Wood",500,0.662,6.8,2,42.5,-114.5,0.019,1.019,0.019,0
+"(Lentz & Ippolito 2012) ","Maize","cereal","Biomass",,22.4,"NA",7.6,19,12,0.24,0.56,0.2,,"Wood",500,0.662,6.8,1,42.5,-114.5,0.033,1.033,0.033,0
+"(Lentz & Ippolito 2012) ","Maize","cereal","Biomass",,22.4,"NA",7.6,19,12,0.24,0.56,0.2,,"Wood",500,0.662,6.8,1,42.5,-114.5,0.075,1.077,0.077,0
+"(Liu et al. 2012)","Rice","cereal","Grain",4.5,20,300,6.21,"NA",18.76,"NA","NA","NA",,"Nonwood",450,0.467,10.4,1,28,113.25,-0.026,0.975,-0.025,0
+"(Liu et al. 2012)","Rice","cereal","Grain",4.5,20,0,5.99,"NA",20.11,"NA","NA","NA",,"Nonwood",450,0.467,10.4,1,31,104.25,-0.024,0.976,-0.024,0
+"(Liu et al. 2012)","Rice","cereal","Grain",4.5,20,0,4.89,"NA",17.7,"NA","NA","NA",,"Nonwood",450,0.467,10.4,1,28.25,116.25,-0.015,0.985,-0.015,0
+"(Liu et al. 2012)","Rice","cereal","Grain",4.5,40,0,5.99,"NA",20.11,"NA","NA","NA",,"Nonwood",450,0.467,10.4,1,31,104.25,-0.012,0.988,-0.012,0
+"(Liu et al. 2012)","Rice","cereal","Grain",4.5,20,0,6.21,"NA",18.76,"NA","NA","NA",,"Nonwood",450,0.467,10.4,1,28,113.25,0,1,0,0
+"(Liu et al. 2012)","Rice","cereal","Grain",4.5,20,300,5.99,"NA",20.11,"NA","NA","NA",,"Nonwood",450,0.467,10.4,1,31,104.25,0,1,0,0
+"(Liu et al. 2012)","Rice","cereal","Grain",4.5,40,0,6.21,"NA",18.76,"NA","NA","NA",,"Nonwood",450,0.467,10.4,1,28,113.25,0,1,0,0
+"(Liu et al. 2012)","Rice","cereal","Grain",4.5,40,300,5.99,"NA",20.11,"NA","NA","NA",,"Nonwood",450,0.467,10.4,1,31,104.25,0.011,1.011,0.011,0
+"(Liu et al. 2012)","Rice","cereal","Grain",4.5,40,0,4.89,"NA",17.7,"NA","NA","NA",,"Nonwood",450,0.467,10.4,1,28.25,116.25,0.015,1.015,0.015,0
+"(Liu et al. 2012)","Rice","cereal","Grain",4.5,40,300,6.21,"NA",18.76,"NA","NA","NA",,"Nonwood",450,0.467,10.4,1,28,113.25,0.037,1.038,0.038,0
+"(Liu et al. 2012)","Rice","cereal","Grain",4.5,20,300,4.89,"NA",17.7,"NA","NA","NA",,"Nonwood",450,0.467,10.4,1,28.25,116.25,0.049,1.051,0.051,0
+"(Liu et al. 2012)","Rice","cereal","Grain",4.5,40,300,4.89,"NA",17.7,"NA","NA","NA",,"Nonwood",450,0.467,10.4,1,28.25,116.25,0.049,1.051,0.051,0
+"(Luyen et al. 2012)","Maize","cereal","Biomass",5.5,38,0,6.5,"NA","NA",0.479,0.0876,0.434,"Heavy","Nonwood","NA","NA","NA",1,10.75,106.75,-0.206,0.814,-0.186,1
+"(Luyen et al. 2012)","Maize","cereal","Biomass",5.5,38,50,6.5,"NA","NA",0.479,0.0876,0.434,"Heavy","Nonwood","NA","NA","NA",1,10.75,106.75,-0.106,0.9,-0.1,1
+"(Luyen et al. 2012)","Maize","cereal","Grain",5.5,38,0,6.5,"NA","NA",0.479,0.0876,0.434,"Heavy","Nonwood","NA","NA","NA",1,10.75,106.75,-0.1,0.905,-0.095,1
+"(Luyen et al. 2012)","Maize","cereal","Biomass",5.5,38,50,4.5,"NA","NA",0.669,0.0532,0.278,"Light","Nonwood","NA","NA","NA",1,10.75,106.75,0.174,1.191,0.191,1
+"(Luyen et al. 2012)","Maize","cereal","Grain",5.5,38,50,6.5,"NA","NA",0.479,0.0876,0.434,"Heavy","Nonwood","NA","NA","NA",1,10.75,106.75,0.271,1.311,0.311,1
+"(Luyen et al. 2012)","Maize","cereal","Grain",5.5,114,0,6.5,"NA","NA",0.479,0.0876,0.434,"Heavy","Nonwood","NA","NA","NA",1,10.75,106.75,0.391,1.479,0.479,1
+"(Luyen et al. 2012)","Maize","cereal","Biomass",5.5,76,50,6.5,"NA","NA",0.479,0.0876,0.434,"Heavy","Nonwood","NA","NA","NA",1,10.75,106.75,0.392,1.479,0.479,1
+"(Luyen et al. 2012)","Maize","cereal","Biomass",5.5,114,50,6.5,"NA","NA",0.479,0.0876,0.434,"Heavy","Nonwood","NA","NA","NA",1,10.75,106.75,0.423,1.527,0.527,1
+"(Luyen et al. 2012)","Maize","cereal","Biomass",5.5,76,50,4.5,"NA","NA",0.669,0.0532,0.278,"Light","Nonwood","NA","NA","NA",1,10.75,106.75,0.446,1.562,0.562,1
+"(Luyen et al. 2012)","Maize","cereal","Biomass",5.5,114,0,6.5,"NA","NA",0.479,0.0876,0.434,"Heavy","Nonwood","NA","NA","NA",1,10.75,106.75,0.455,1.577,0.577,1
+"(Luyen et al. 2012)","Maize","cereal","Biomass",5.5,114,50,4.5,"NA","NA",0.669,0.0532,0.278,"Light","Nonwood","NA","NA","NA",1,10.75,106.75,0.541,1.717,0.717,1
+"(Luyen et al. 2012)","Maize","cereal","Grain",5.5,38,50,4.5,"NA","NA",0.669,0.0532,0.278,"Light","Nonwood","NA","NA","NA",1,10.75,106.75,0.57,1.768,0.768,1
+"(Luyen et al. 2012)","Maize","cereal","Grain",5.5,76,0,6.5,"NA","NA",0.479,0.0876,0.434,"Heavy","Nonwood","NA","NA","NA",1,10.75,106.75,0.67,1.954,0.954,1
+"(Luyen et al. 2012)","Maize","cereal","Biomass",5.5,76,0,6.5,"NA","NA",0.479,0.0876,0.434,"Heavy","Nonwood","NA","NA","NA",1,10.75,106.75,0.698,2.01,1.01,1
+"(Luyen et al. 2012)","Maize","cereal","Grain",5.5,76,50,4.5,"NA","NA",0.669,0.0532,0.278,"Light","Nonwood","NA","NA","NA",1,10.75,106.75,0.717,2.048,1.048,1
+"(Luyen et al. 2012)","Maize","cereal","Grain",5.5,114,50,4.5,"NA","NA",0.669,0.0532,0.278,"Light","Nonwood","NA","NA","NA",1,10.75,106.75,0.791,2.205,1.205,1
+"(Luyen et al. 2012)","Maize","cereal","Grain",5.5,76,50,6.5,"NA","NA",0.479,0.0876,0.434,"Heavy","Nonwood","NA","NA","NA",1,10.75,106.75,0.805,2.237,1.237,1
+"(Luyen et al. 2012)","Maize","cereal","Grain",5.5,114,50,6.5,"NA","NA",0.479,0.0876,0.434,"Heavy","Nonwood","NA","NA","NA",1,10.75,106.75,0.852,2.343,1.343,1
+"(Luyen et al. 2012)","Maize","cereal","Grain",5.5,38,0,4.5,"NA","NA",0.669,0.0532,0.278,"Light","Nonwood","NA","NA","NA",1,10.75,106.75,0.978,2.66,1.66,1
+"(Luyen et al. 2012)","Maize","cereal","Grain",5.5,76,0,4.5,"NA","NA",0.669,0.0532,0.278,"Light","Nonwood","NA","NA","NA",1,10.75,106.75,1.731,5.646,4.646,1
+"(Luyen et al. 2012)","Maize","cereal","Grain",5.5,114,0,4.5,"NA","NA",0.669,0.0532,0.278,"Light","Nonwood","NA","NA","NA",1,10.75,106.75,1.847,6.339,5.339,1
+"(Major et al. 2010)","Maize","cereal","Grain",5.5,20,165,3.91,11,20,"NA","NA",0.42,"Light","Wood","NA",0.729,9.2,1,4.25,-72.5,-0.02,0.98,-0.02,0
+"(Major et al. 2010)","Maize","cereal","Grain",5.5,8,165,3.91,11,20,"NA","NA",0.42,"Light","Wood","NA",0.729,9.2,1,4.25,-72.5,0,1,0,0
+"(Major et al. 2010)","Maize","cereal","Grain",5.5,8,156,3.91,11,20,"NA","NA",0.42,"Light","Wood","NA",0.729,9.2,3,4.25,-72.5,0.144,1.155,0.155,0
+"(Major et al. 2010)","Maize","cereal","Grain",5.5,8,170,3.91,11,20,"NA","NA",0.42,"Light","Wood","NA",0.729,9.2,2,4.25,-72.5,0.163,1.176,0.176,0
+"(Major et al. 2010)","Maize","cereal","Grain",5.5,20,170,3.91,11,20,"NA","NA",0.42,"Light","Wood","NA",0.729,9.2,2,4.25,-72.5,0.243,1.275,0.275,0
+"(Major et al. 2010)","Maize","cereal","Grain",5.5,20,156,3.91,11,20,"NA","NA",0.42,"Light","Wood","NA",0.729,9.2,3,4.25,-72.5,0.27,1.31,0.31,0
+"(Major et al. 2010)","Maize","cereal","Grain",5.5,8,159,3.91,11,20,"NA","NA",0.42,"Light","Wood","NA",0.729,9.2,4,4.25,-72.5,0.544,1.722,0.722,0
+"(Major et al. 2010)","Maize","cereal","Grain",5.5,20,159,3.91,11,20,"NA","NA",0.42,"Light","Wood","NA",0.729,9.2,4,4.25,-72.5,0.871,2.389,1.389,0
+"(Masulili et al. 2010)","Rice","cereal","Biomass",4.5,10,135,3.75,6.84,7.8,"NA","NA","NA","Medium","Nonwood",600,0.1872,8.75,1,0,109.5,0.944,2.571,1.571,1
+"(Mia et al. 2014)","Clover","forb","Biomass",,"NA",120,4.97,14.8,22.4,0.939,0.053,0.034,,"Nonwood",400,"NA","NA",1,52.5,5.75,-0.787,0.455,-0.545,1
+"(Mia et al. 2014)","Festuca","forb","Biomass",,"NA",120,4.97,14.8,22.4,0.939,0.053,0.034,,"Nonwood",400,"NA","NA",1,52.5,5.75,-0.655,0.519,-0.481,1
+"(Mia et al. 2014)","Clover","forb","Biomass",,"NA",50,4.97,14.8,22.4,0.939,0.053,0.034,,"Nonwood",400,"NA","NA",1,52.5,5.75,-0.071,0.932,-0.068,1
+"(Mia et al. 2014)","Festuca","forb","Biomass",,"NA",50,4.97,14.8,22.4,0.939,0.053,0.034,,"Nonwood",400,"NA","NA",1,52.5,5.75,-0.057,0.944,-0.056,1
+"(Mia et al. 2014)","Festuca","forb","Biomass",,"NA",1,4.97,14.8,22.4,0.939,0.053,0.034,,"Nonwood",400,"NA","NA",1,52.5,5.75,0.003,1.003,0.003,1
+"(Mia et al. 2014)","Festuca","forb","Biomass",,"NA",10,4.97,14.8,22.4,0.939,0.053,0.034,,"Nonwood",400,"NA","NA",1,52.5,5.75,0.017,1.017,0.017,1
+"(Mia et al. 2014)","Clover","forb","Biomass",,"NA",1,4.97,14.8,22.4,0.939,0.053,0.034,,"Nonwood",400,"NA","NA",1,52.5,5.75,0.227,1.255,0.255,1
+"(Mia et al. 2014)","Clover","forb","Biomass",,"NA",10,4.97,14.8,22.4,0.939,0.053,0.034,,"Nonwood",400,"NA","NA",1,52.5,5.75,0.567,1.763,0.763,1
+"(Nehls 2002)","Rice","cereal","Grain",4.5,5.5,87.5,4.1,"NA","NA","NA","NA","NA","Light","Wood","NA","NA","NA",1,-34.12,150.5,-0.09,0.914,-0.086,0
+"(Nehls 2002)","Rice","cereal","Grain",4.5,5.5,87.5,3.8,"NA","NA","NA","NA","NA","Light","Wood","NA","NA","NA",1,-34.12,150.5,0.258,1.294,0.294,0
+"(Nehls 2002)","Rice","cereal","Grain",4.5,11,0,4.2,"NA","NA","NA","NA","NA","Light","Wood","NA","NA","NA",1,-34.12,150.5,0.268,1.307,0.307,0
+"(Nehls 2002)","Rice","cereal","Grain",4.5,11,0,3.8,"NA","NA","NA","NA","NA","Light","Wood","NA","NA","NA",1,-34.12,150.5,1.917,6.803,5.803,0
+"(Nguyen et al. 2012)","Maize","cereal","Biomass",5.5,10,0,"NA","NA","NA","NA","NA","NA",,"Nonwood","NA",0.332,9.85,1,-30,151.5,-0.345,0.708,-0.292,1
+"(Nguyen et al. 2012)","Maize","cereal","Biomass",5.5,10,110,"NA","NA","NA","NA","NA","NA",,"Nonwood","NA",0.332,9.85,1,-30,151.5,0,1,0,1
+"(Nguyen et al. 2012)","Maize","cereal","Biomass",5.5,10,110,"NA","NA","NA","NA","NA","NA",,"Nonwood","NA",0.332,9.85,1,-30,151.5,0.03,1.03,0.03,1
+"(Nguyen et al. 2012)","Maize","cereal","Biomass",5.5,10,110,"NA","NA","NA","NA","NA","NA",,"Nonwood","NA",0.332,9.85,1,-30,151.5,0.033,1.033,0.033,1
+"(Nguyen et al. 2012)","Maize","cereal","Biomass",5.5,10,110,"NA","NA","NA","NA","NA","NA",,"Nonwood","NA",0.332,9.85,1,-30,151.5,0.075,1.078,0.078,1
+"(Nguyen et al. 2012)","Maize","cereal","Biomass",5.5,10,110,"NA","NA","NA","NA","NA","NA",,"Nonwood","NA",0.332,9.85,1,-30,151.5,0.076,1.078,0.078,1
+"(Nguyen et al. 2012)","Maize","cereal","Biomass",5.5,10,110,"NA","NA","NA","NA","NA","NA",,"Nonwood","NA",0.332,9.85,1,-30,151.5,0.085,1.089,0.089,1
+"(Nguyen et al. 2012)","Maize","cereal","Biomass",5.5,10,110,"NA","NA","NA","NA","NA","NA",,"Nonwood","NA",0.332,9.85,1,-30,151.5,0.143,1.154,0.154,1
+"(Nguyen et al. 2012)","Maize","cereal","Biomass",5.5,10,110,"NA","NA","NA","NA","NA","NA",,"Nonwood","NA",0.332,9.85,1,-30,151.5,0.148,1.16,0.16,1
+"(Nguyen et al. 2012)","Maize","cereal","Biomass",5.5,10,0,"NA","NA","NA","NA","NA","NA",,"Nonwood","NA",0.332,9.85,1,-30,151.5,0.154,1.167,0.167,1
+"(Noguera et al. 2010)","Rice","cereal","Grain",4.5,58,120,4.3,3,52.2,0.4123,0.2378,0.3439,"Medium","Wood","NA",0.729,"NA",1,4.25,-72.5,-0.18,0.835,-0.165,1
+"(Noguera et al. 2010)","Rice","cereal","Grain",4.5,58,0,4.3,3,52.2,0.4123,0.2378,0.3439,"Medium","Wood","NA",0.729,"NA",1,4.25,-72.5,-0.134,0.875,-0.125,1
+"(Noguera et al. 2010)","Rice","cereal","Biomass (total)",4.5,58,120,4.3,3,52.2,0.4123,0.2378,0.3439,"Medium","Wood","NA",0.729,"NA",1,4.25,-72.5,-0.051,0.951,-0.049,1
+"(Noguera et al. 2010)","Rice","cereal","Biomass",4.5,58,120,4.3,3,52.2,0.4123,0.2378,0.3439,"Medium","Wood","NA",0.729,"NA",1,4.25,-72.5,0.024,1.024,0.024,1
+"(Noguera et al. 2010)","Rice","cereal","Biomass",4.5,58,120,4.3,3,52.2,0.4123,0.2378,0.3439,"Medium","Wood","NA",0.729,"NA",1,4.25,-72.5,0.025,1.025,0.025,1
+"(Noguera et al. 2010)","Rice","cereal","Biomass (total)",4.5,58,120,4.3,3,52.2,0.4123,0.2378,0.3439,"Medium","Wood","NA",0.729,"NA",1,4.25,-72.5,0.05,1.052,0.052,1
+"(Noguera et al. 2010)","Rice","cereal","Grain",4.5,58,120,4.3,3,52.2,0.4123,0.2378,0.3439,"Medium","Wood","NA",0.729,"NA",1,4.25,-72.5,0.065,1.067,0.067,1
+"(Noguera et al. 2010)","Rice","cereal","Biomass",4.5,58,0,4.3,3,52.2,0.4123,0.2378,0.3439,"Medium","Wood","NA",0.729,"NA",1,4.25,-72.5,0.177,1.194,0.194,1
+"(Noguera et al. 2010)","Rice","cereal","Biomass",4.5,58,0,4.3,3,52.2,0.4123,0.2378,0.3439,"Medium","Wood","NA",0.729,"NA",1,4.25,-72.5,0.206,1.229,0.229,1
+"(Noguera et al. 2010)","Rice","cereal","Biomass (total)",4.5,58,0,4.3,3,52.2,0.4123,0.2378,0.3439,"Medium","Wood","NA",0.729,"NA",1,4.25,-72.5,0.315,1.37,0.37,1
+"(Noguera et al. 2010)","Rice","cereal","Biomass (total)",4.5,58,0,4.3,3,52.2,0.4123,0.2378,0.3439,"Medium","Wood","NA",0.729,"NA",1,4.25,-72.5,0.376,1.457,0.457,1
+"(Noguera et al. 2010)","Rice","cereal","Biomass (total)",4.5,32.5,0,5.1,6,"NA",0.2406,0.2756,0.4838,"Medium","Wood",350,0.824,"NA",1,2.75,-76.5,0.669,1.952,0.952,1
+"(Noguera et al. 2010)","Rice","cereal","Biomass",4.5,32.5,0,5.1,6,"NA",0.2406,0.2756,0.4838,"Medium","Wood",350,0.824,"NA",1,2.75,-76.5,0.693,2,1,1
+"(Noguera et al. 2010)","Rice","cereal","Grain",4.5,58,0,4.3,3,52.2,0.4123,0.2378,0.3439,"Medium","Wood","NA",0.729,"NA",1,4.25,-72.5,0.887,2.429,1.429,1
+"(Noguera et al. 2010)","Rice","cereal","Biomass (total)",4.5,32.5,0,5.1,6,"NA",0.2406,0.2756,0.4838,"Medium","Wood",350,0.824,"NA",1,2.75,-76.5,0.905,2.472,1.472,1
+"(Noguera et al. 2010)","Rice","cereal","Biomass",4.5,32.5,0,5.1,6,"NA",0.2406,0.2756,0.4838,"Medium","Wood",350,0.824,"NA",1,2.75,-76.5,0.948,2.581,1.581,1
+"(Noguera et al. 2010)","Rice","cereal","Grain",4.5,32.5,0,5.1,6,"NA",0.2406,0.2756,0.4838,"Medium","Wood",350,0.824,"NA",1,2.75,-76.5,1.053,2.868,1.868,1
+"(Noguera et al. 2010)","Rice","cereal","Grain",4.5,32.5,0,5.1,6,"NA",0.2406,0.2756,0.4838,"Medium","Wood",350,0.824,"NA",1,2.75,-76.5,1.327,3.768,2.768,1
+"(Nzanza et al. 2012)","Tomato","fruit","Biomass",,5,200,4.9,"NA","NA","NA","NA","NA",,"Wood",450,0.338,7.2,1,-23.65,30.13,-0.124,0.884,-0.116,0
+"(Nzanza et al. 2012)","Tomato","fruit","Grain",,5,200,4.9,"NA","NA","NA","NA","NA",,"Wood",450,0.338,7.2,1,-23.65,30.13,-0.017,0.983,-0.017,0
+"(Nzanza et al. 2012)","Tomato","fruit","Grain",,5,200,4.9,"NA","NA","NA","NA","NA",,"Wood",450,0.338,7.2,1,-23.65,30.13,0.029,1.029,0.029,0
+"(Nzanza et al. 2012)","Tomato","fruit","Biomass",,5,200,4.9,"NA","NA","NA","NA","NA",,"Wood",450,0.338,7.2,1,-23.65,30.13,0.039,1.04,0.04,0
+"(Nzanza et al. 2012)","Tomato","fruit","Biomass",,5,200,4.9,"NA","NA","NA","NA","NA",,"Wood",450,0.338,7.2,1,-23.65,30.13,0.069,1.071,0.071,0
+"(Park et al. 2011)","Indian mustard","forb","Biomass",,"NA","NA",5.38,"NA","NA","NA","NA","NA",,"Nonwood",550,0.775,7.7,1,"NA","NA",0.693,2,1,1
+"(Park et al. 2011)","Indian mustard","forb","Biomass",,"NA","NA",5.38,"NA","NA","NA","NA","NA",,"Nonwood",550,0.775,7.7,1,"NA","NA",0.693,2,1,1
+"(Park et al. 2011)","Indian mustard","forb","Biomass",,"NA","NA",5.38,"NA","NA","NA","NA","NA",,"Nonwood",550,0.775,7.7,1,"NA","NA",0.956,2.6,1.6,1
+"(Park et al. 2011)","Indian mustard","forb","Biomass",,"NA","NA",5.38,"NA","NA","NA","NA","NA",,"Nonwood",550,0.775,7.7,1,"NA","NA",1.099,3,2,1
+"(Park et al. 2011)","Indian mustard","forb","Biomass",,"NA","NA",5.38,"NA","NA","NA","NA","NA",,"Nonwood",550,0.775,7.7,1,"NA","NA",1.281,3.6,2.6,1
+"(Park et al. 2011)","Indian mustard","forb","Biomass",,"NA","NA",5.38,"NA","NA","NA","NA","NA",,"Manure",550,0.517,8.8,1,"NA","NA",1.386,4,3,1
+"(Park et al. 2011)","Indian mustard","forb","Biomass",,"NA","NA",5.38,"NA","NA","NA","NA","NA",,"Manure",550,0.517,8.8,1,"NA","NA",1.386,4,3,1
+"(Park et al. 2011)","Indian mustard","forb","Biomass",,"NA","NA",5.38,"NA","NA","NA","NA","NA",,"Manure",550,0.517,8.8,1,"NA","NA",1.386,4,3,1
+"(Park et al. 2011)","Indian mustard","forb","Biomass",,"NA","NA",5.38,"NA","NA","NA","NA","NA",,"Nonwood",550,0.775,7.7,1,"NA","NA",1.386,4,3,1
+"(Park et al. 2011)","Indian mustard","forb","Biomass",,"NA","NA",5.38,"NA","NA","NA","NA","NA",,"Manure",550,0.517,8.8,1,"NA","NA",1.435,4.2,3.2,1
+"(Park et al. 2011)","Indian mustard","forb","Biomass",,"NA","NA",5.38,"NA","NA","NA","NA","NA",,"Manure",550,0.517,8.8,1,"NA","NA",1.526,4.6,3.6,1
+"(Park et al. 2011)","Indian mustard","forb","Biomass",,"NA","NA",5.38,"NA","NA","NA","NA","NA",,"Manure",550,0.517,8.8,1,"NA","NA",1.569,4.8,3.8,1
+"(Peng et al. 2011)","Maize","cereal","Biomass (total)",5.5,2.4,36,4.1,7.28,0.7,0.401,0.275,0.324,"Medium","Nonwood",400,0.697,9.98,1,28,116,0.505,1.658,0.658,1
+"(Peng et al. 2011)","Maize","cereal","Biomass (total)",5.5,2.4,36,4.1,7.28,0.7,0.401,0.275,0.324,"Medium","Nonwood",250,0.635,"NA",1,28,116,0.677,1.968,0.968,1
+"(Peng et al. 2011)","Maize","cereal","Biomass (total)",5.5,2.4,36,4.1,7.28,0.7,0.401,0.275,0.324,"Medium","Nonwood",300,0.676,"NA",1,28,116,0.737,2.09,1.09,1
+"(Peng et al. 2011)","Maize","cereal","Biomass (total)",5.5,2.4,36,4.1,7.28,0.7,0.401,0.275,0.324,"Medium","Nonwood",450,0.729,"NA",1,28,116,0.746,2.108,1.108,1
+"(Peng et al. 2011)","Maize","cereal","Biomass (total)",5.5,2.4,36,4.1,7.28,0.7,0.401,0.275,0.324,"Medium","Nonwood",400,0.697,9.98,1,28,116,0.904,2.47,1.47,1
+"(Peng et al. 2011)","Maize","cereal","Biomass (total)",5.5,2.4,36,4.1,7.28,0.7,0.401,0.275,0.324,"Medium","Nonwood",350,0.662,"NA",1,28,116,0.949,2.584,1.584,1
+"(Pichler 2010)","White clover","forb","Biomass (total)",,10,0,7.3,15.5,20.39,0.66,0.2,0.14,"Light","Wood",550,0.87,8.35,1,46.25,7.5,-0.545,0.58,-0.42,1
+"(Pichler 2010)","White clover","forb","Biomass",,10,0,7.3,15.5,20.39,0.66,0.2,0.14,"Light","Wood",550,0.87,8.35,1,46.25,7.5,-0.405,0.667,-0.333,1
+"(Pichler 2010)","White clover","forb","Biomass",,10,0.597,7.23,"NA",27.12,0.66,0.2,0.14,"Light","Wood",550,0.87,8.35,1,46.25,7.5,0.63,1.877,0.877,1
+"(Pichler 2010)","White clover","forb","Biomass (total)",,10,0.597,7.23,"NA",27.12,0.66,0.2,0.14,"Light","Wood",550,0.87,8.35,1,46.25,7.5,0.788,2.2,1.2,1
+"(Quilliam et al. 2012)","Beans","legume","Biomass",,50,0,6.8,"NA",35,"NA","NA","NA","Medium","Wood",450,0.761,8.81,3,53.25,-4,-0.095,0.909,-0.091,0
+"(Quilliam et al. 2012)","Beans","legume","Biomass",,25,0,6.8,"NA",35,"NA","NA","NA","Medium","Wood",450,0.761,8.81,3,53.25,-4,0.087,1.091,0.091,0
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,91,146,6.85,9.76,"NA","NA","NA",0.27,,"Nonwood",300,0.653,7.52,1,"NA","NA",-2.428,0.088,-0.912,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,91,146,6.85,9.76,"NA","NA","NA",0.27,,"Nonwood",400,0.524,8.27,1,"NA","NA",-2.263,0.104,-0.896,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,91,146,6.85,9.76,"NA","NA","NA",0.27,,"Nonwood",500,0.367,9.67,1,"NA","NA",-1.668,0.189,-0.811,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,91,146,6.85,9.76,"NA","NA","NA",0.27,,"Nonwood",400,0.2,8.18,1,"NA","NA",-1,0.368,-0.632,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,91,146,6.85,9.76,"NA","NA","NA",0.27,,"Nonwood",600,0.232,10.53,1,"NA","NA",-0.862,0.422,-0.578,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,26,146,6.85,9.76,"NA","NA","NA",0.27,,"Nonwood",300,0.653,7.52,1,"NA","NA",-0.741,0.477,-0.523,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,91,146,6.85,9.76,"NA","NA","NA",0.27,,"Nonwood",300,0.595,7.33,1,"NA","NA",-0.439,0.645,-0.355,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,91,146,6.85,9.76,"NA","NA","NA",0.27,,"Manure",300,0.561,8.92,1,"NA","NA",-0.439,0.645,-0.355,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,91,146,6.85,9.76,"NA","NA","NA",0.27,,"Nonwood",300,0.212,7.44,1,"NA","NA",-0.333,0.716,-0.284,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,91,146,6.85,9.76,"NA","NA","NA",0.27,,"Wood",600,0.87,5.97,1,"NA","NA",-0.332,0.717,-0.283,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,26,146,6.85,9.76,"NA","NA","NA",0.27,,"Nonwood",400,0.524,8.27,1,"NA","NA",-0.302,0.739,-0.261,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,91,146,6.85,9.76,"NA","NA","NA",0.27,,"Manure",600,0.628,9.94,1,"NA","NA",-0.302,0.739,-0.261,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,91,146,6.85,9.76,"NA","NA","NA",0.27,,"Manure",400,0.577,9.22,1,"NA","NA",-0.282,0.754,-0.246,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,91,146,6.85,9.76,"NA","NA","NA",0.27,,"Wood",500,0.839,5.78,1,"NA","NA",-0.189,0.828,-0.172,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,91,146,6.85,9.76,"NA","NA","NA",0.27,,"Wood",600,0.876,6.38,1,"NA","NA",-0.174,0.84,-0.16,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,6.5,146,6.85,9.76,"NA","NA","NA",0.27,,"Wood",300,0.621,6.74,1,"NA","NA",-0.094,0.91,-0.09,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,26,146,6.85,9.76,"NA","NA","NA",0.27,,"Nonwood",500,0.367,9.67,1,"NA","NA",-0.084,0.919,-0.081,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,2.6,146,6.85,9.76,"NA","NA","NA",0.27,,"Wood",400,0.744,4.57,1,"NA","NA",-0.074,0.928,-0.072,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,6.5,146,6.85,9.76,"NA","NA","NA",0.27,,"Wood",600,0.87,5.97,1,"NA","NA",-0.032,0.968,-0.032,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,26,146,6.85,9.76,"NA","NA","NA",0.27,,"Wood",600,0.87,5.97,1,"NA","NA",-0.028,0.973,-0.027,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,91,146,6.85,9.76,"NA","NA","NA",0.27,,"Nonwood",300,0.699,6.35,1,"NA","NA",-0.028,0.973,-0.027,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,26,146,6.85,9.76,"NA","NA","NA",0.27,,"Wood",500,0.839,5.78,1,"NA","NA",-0.023,0.977,-0.023,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,2.6,146,6.85,9.76,"NA","NA","NA",0.27,,"Nonwood",500,0.801,8.6,1,"NA","NA",-0.02,0.98,-0.02,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,26,146,6.85,9.76,"NA","NA","NA",0.27,,"Nonwood",600,0.232,10.53,1,"NA","NA",-0.02,0.98,-0.02,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,2.6,146,6.85,9.76,"NA","NA","NA",0.27,,"Nonwood",600,0.232,10.53,1,"NA","NA",-0.017,0.983,-0.017,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,26,146,6.85,9.76,"NA","NA","NA",0.27,,"Nonwood",400,0.2,8.18,1,"NA","NA",-0.017,0.983,-0.017,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,6.5,146,6.85,9.76,"NA","NA","NA",0.27,,"Wood",300,0.639,4.25,1,"NA","NA",-0.012,0.988,-0.012,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,26,146,6.85,9.76,"NA","NA","NA",0.27,,"Wood",400,0.788,4.58,1,"NA","NA",-0.01,0.99,-0.01,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,6.5,146,6.85,9.76,"NA","NA","NA",0.27,,"Wood",400,0.744,4.57,1,"NA","NA",-0.008,0.992,-0.008,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,26,146,6.85,9.76,"NA","NA","NA",0.27,,"Nonwood",600,0.841,8.85,1,"NA","NA",-0.005,0.995,-0.005,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,91,146,6.85,9.76,"NA","NA","NA",0.27,,"Wood",400,0.744,4.57,1,"NA","NA",-0.002,0.998,-0.002,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,2.6,146,6.85,9.76,"NA","NA","NA",0.27,,"Nonwood",400,0.2,8.18,1,"NA","NA",0.004,1.004,0.004,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,2.6,146,6.85,9.76,"NA","NA","NA",0.27,,"Wood",600,0.876,6.38,1,"NA","NA",0.004,1.004,0.004,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,2.6,146,6.85,9.76,"NA","NA","NA",0.27,,"Nonwood",300,0.699,6.35,1,"NA","NA",0.011,1.011,0.011,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,2.6,146,6.85,9.76,"NA","NA","NA",0.27,,"Wood",600,0.87,5.97,1,"NA","NA",0.013,1.014,0.014,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,26,146,6.85,9.76,"NA","NA","NA",0.27,,"Nonwood",300,0.595,7.33,1,"NA","NA",0.013,1.013,0.013,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,91,146,6.85,9.76,"NA","NA","NA",0.27,,"Wood",500,0.834,5.62,1,"NA","NA",0.021,1.021,0.021,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,6.5,146,6.85,9.76,"NA","NA","NA",0.27,,"Nonwood",300,0.653,7.52,1,"NA","NA",0.025,1.026,0.026,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,2.6,146,6.85,9.76,"NA","NA","NA",0.27,,"Wood",400,0.788,4.58,1,"NA","NA",0.033,1.034,0.034,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,6.5,146,6.85,9.76,"NA","NA","NA",0.27,,"Nonwood",400,0.524,8.27,1,"NA","NA",0.033,1.033,0.033,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,26,146,6.85,9.76,"NA","NA","NA",0.27,,"Nonwood",500,0.192,9.28,1,"NA","NA",0.035,1.035,0.035,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,6.5,146,6.85,9.76,"NA","NA","NA",0.27,,"Wood",400,0.788,4.58,1,"NA","NA",0.038,1.038,0.038,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,6.5,146,6.85,9.76,"NA","NA","NA",0.27,,"Wood",500,0.839,5.78,1,"NA","NA",0.038,1.038,0.038,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,26,146,6.85,9.76,"NA","NA","NA",0.27,,"Wood",300,0.621,6.74,1,"NA","NA",0.038,1.038,0.038,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,6.5,146,6.85,9.76,"NA","NA","NA",0.27,,"Nonwood",300,0.699,6.35,1,"NA","NA",0.043,1.044,0.044,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,91,146,6.85,9.76,"NA","NA","NA",0.27,,"Nonwood",600,0.698,9.95,1,"NA","NA",0.043,1.044,0.044,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,2.6,146,6.85,9.76,"NA","NA","NA",0.27,,"Nonwood",400,0.524,8.27,1,"NA","NA",0.044,1.045,0.045,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,6.5,146,6.85,9.76,"NA","NA","NA",0.27,,"Manure",400,0.268,9.85,1,"NA","NA",0.044,1.044,0.044,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,26,146,6.85,9.76,"NA","NA","NA",0.27,,"Nonwood",300,0.699,6.35,1,"NA","NA",0.047,1.048,0.048,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,91,146,6.85,9.76,"NA","NA","NA",0.27,,"Wood",300,0.621,6.74,1,"NA","NA",0.048,1.049,0.049,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,6.5,146,6.85,9.76,"NA","NA","NA",0.27,,"Nonwood",600,0.232,10.53,1,"NA","NA",0.049,1.05,0.05,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,26,146,6.85,9.76,"NA","NA","NA",0.27,,"Wood",400,0.744,4.57,1,"NA","NA",0.056,1.058,0.058,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,91,146,6.85,9.76,"NA","NA","NA",0.27,,"Wood",300,0.639,4.25,1,"NA","NA",0.061,1.063,0.063,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,26,146,6.85,9.76,"NA","NA","NA",0.27,,"Nonwood",300,0.212,7.44,1,"NA","NA",0.062,1.064,0.064,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,91,146,6.85,9.76,"NA","NA","NA",0.27,,"Nonwood",600,0.841,8.85,1,"NA","NA",0.062,1.064,0.064,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,2.6,146,6.85,9.76,"NA","NA","NA",0.27,,"Manure",300,0.561,8.92,1,"NA","NA",0.064,1.066,0.066,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,6.5,146,6.85,9.76,"NA","NA","NA",0.27,,"Nonwood",500,0.192,9.28,1,"NA","NA",0.064,1.066,0.066,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,26,146,6.85,9.76,"NA","NA","NA",0.27,,"Wood",300,0.639,4.25,1,"NA","NA",0.065,1.067,0.067,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,6.5,146,6.85,9.76,"NA","NA","NA",0.27,,"Nonwood",400,0.2,8.18,1,"NA","NA",0.068,1.071,0.071,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,6.5,146,6.85,9.76,"NA","NA","NA",0.27,,"Nonwood",400,0.758,7.66,1,"NA","NA",0.07,1.072,0.072,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,6.5,146,6.85,9.76,"NA","NA","NA",0.27,,"Nonwood",600,0.192,11.14,1,"NA","NA",0.077,1.08,0.08,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,91,146,6.85,9.76,"NA","NA","NA",0.27,,"Nonwood",500,0.801,8.6,1,"NA","NA",0.082,1.086,0.086,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,91,146,6.85,9.76,"NA","NA","NA",0.27,,"Manure",500,0.594,9.36,1,"NA","NA",0.083,1.087,0.087,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,6.5,146,6.85,9.76,"NA","NA","NA",0.27,,"Nonwood",600,0.841,8.85,1,"NA","NA",0.087,1.09,0.09,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,6.5,146,6.85,9.76,"NA","NA","NA",0.27,,"Manure",600,0.628,9.94,1,"NA","NA",0.087,1.09,0.09,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,2.6,146,6.85,9.76,"NA","NA","NA",0.27,,"Wood",500,0.839,5.78,1,"NA","NA",0.089,1.094,0.094,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,2.6,146,6.85,9.76,"NA","NA","NA",0.27,,"Nonwood",600,0.192,11.14,1,"NA","NA",0.089,1.094,0.094,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,91,146,6.85,9.76,"NA","NA","NA",0.27,,"Nonwood",400,0.758,7.66,1,"NA","NA",0.091,1.096,0.096,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,26,146,6.85,9.76,"NA","NA","NA",0.27,,"Wood",500,0.834,5.62,1,"NA","NA",0.094,1.098,0.098,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,2.6,146,6.85,9.76,"NA","NA","NA",0.27,,"Manure",600,0.628,9.94,1,"NA","NA",0.096,1.101,0.101,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,2.6,146,6.85,9.76,"NA","NA","NA",0.27,,"Manure",400,0.268,9.85,1,"NA","NA",0.098,1.103,0.103,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,6.5,146,6.85,9.76,"NA","NA","NA",0.27,,"Nonwood",500,0.801,8.6,1,"NA","NA",0.099,1.104,0.104,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,2.6,146,6.85,9.76,"NA","NA","NA",0.27,,"Manure",300,0.259,8.12,1,"NA","NA",0.1,1.105,0.105,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,2.6,146,6.85,9.76,"NA","NA","NA",0.27,,"Nonwood",500,0.367,9.67,1,"NA","NA",0.102,1.107,0.107,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,2.6,146,6.85,9.76,"NA","NA","NA",0.27,,"Nonwood",300,0.653,7.52,1,"NA","NA",0.103,1.109,0.109,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,91,146,6.85,9.76,"NA","NA","NA",0.27,,"Nonwood",600,0.192,11.14,1,"NA","NA",0.11,1.116,0.116,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,91,146,6.85,9.76,"NA","NA","NA",0.27,,"Nonwood",400,0.626,9.17,1,"NA","NA",0.118,1.125,0.125,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,6.5,146,6.85,9.76,"NA","NA","NA",0.27,,"Manure",300,0.561,8.92,1,"NA","NA",0.119,1.127,0.127,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,6.5,146,6.85,9.76,"NA","NA","NA",0.27,,"Nonwood",400,0.626,9.17,1,"NA","NA",0.12,1.127,0.127,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,91,146,6.85,9.76,"NA","NA","NA",0.27,,"Nonwood",500,0.192,9.28,1,"NA","NA",0.12,1.127,0.127,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,2.6,146,6.85,9.76,"NA","NA","NA",0.27,,"Wood",500,0.834,5.62,1,"NA","NA",0.123,1.131,0.131,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,2.6,146,6.85,9.76,"NA","NA","NA",0.27,,"Manure",500,0.254,10.57,1,"NA","NA",0.125,1.133,0.133,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,26,146,6.85,9.76,"NA","NA","NA",0.27,,"Wood",600,0.876,6.38,1,"NA","NA",0.125,1.133,0.133,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,91,146,6.85,9.76,"NA","NA","NA",0.27,,"Wood",400,0.788,4.58,1,"NA","NA",0.125,1.133,0.133,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,2.6,146,6.85,9.76,"NA","NA","NA",0.27,,"Wood",300,0.621,6.74,1,"NA","NA",0.137,1.147,0.147,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,2.6,146,6.85,9.76,"NA","NA","NA",0.27,,"Manure",400,0.577,9.22,1,"NA","NA",0.139,1.149,0.149,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,6.5,146,6.85,9.76,"NA","NA","NA",0.27,,"Nonwood",300,0.212,7.44,1,"NA","NA",0.146,1.157,0.157,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,2.6,146,6.85,9.76,"NA","NA","NA",0.27,,"Nonwood",500,0.687,9.92,1,"NA","NA",0.148,1.16,0.16,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,26,146,6.85,9.76,"NA","NA","NA",0.27,,"Manure",600,0.628,9.94,1,"NA","NA",0.151,1.163,0.163,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,2.6,146,6.85,9.76,"NA","NA","NA",0.27,,"Nonwood",600,0.841,8.85,1,"NA","NA",0.154,1.167,0.167,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,2.6,146,6.85,9.76,"NA","NA","NA",0.27,,"Manure",500,0.594,9.36,1,"NA","NA",0.155,1.167,0.167,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,6.5,146,6.85,9.76,"NA","NA","NA",0.27,,"Nonwood",500,0.367,9.67,1,"NA","NA",0.156,1.169,0.169,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,26,146,6.85,9.76,"NA","NA","NA",0.27,,"Nonwood",500,0.801,8.6,1,"NA","NA",0.156,1.169,0.169,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,2.6,146,6.85,9.76,"NA","NA","NA",0.27,,"Nonwood",600,0.698,9.95,1,"NA","NA",0.159,1.172,0.172,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,6.5,146,6.85,9.76,"NA","NA","NA",0.27,,"Wood",500,0.834,5.62,1,"NA","NA",0.161,1.175,0.175,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,26,146,6.85,9.76,"NA","NA","NA",0.27,,"Nonwood",400,0.758,7.66,1,"NA","NA",0.163,1.176,0.176,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,2.6,146,6.85,9.76,"NA","NA","NA",0.27,,"Nonwood",400,0.758,7.66,1,"NA","NA",0.167,1.182,0.182,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,6.5,146,6.85,9.76,"NA","NA","NA",0.27,,"Wood",600,0.876,6.38,1,"NA","NA",0.168,1.183,0.183,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,2.6,146,6.85,9.76,"NA","NA","NA",0.27,,"Nonwood",400,0.626,9.17,1,"NA","NA",0.169,1.184,0.184,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,6.5,146,6.85,9.76,"NA","NA","NA",0.27,,"Manure",500,0.594,9.36,1,"NA","NA",0.169,1.184,0.184,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,2.6,146,6.85,9.76,"NA","NA","NA",0.27,,"Nonwood",300,0.212,7.44,1,"NA","NA",0.172,1.188,0.188,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,26,146,6.85,9.76,"NA","NA","NA",0.27,,"Manure",500,0.594,9.36,1,"NA","NA",0.177,1.193,0.193,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,91,146,6.85,9.76,"NA","NA","NA",0.27,,"Nonwood",500,0.687,9.92,1,"NA","NA",0.179,1.196,0.196,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,6.5,146,6.85,9.76,"NA","NA","NA",0.27,,"Nonwood",300,0.595,7.33,1,"NA","NA",0.188,1.207,0.207,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,2.6,146,6.85,9.76,"NA","NA","NA",0.27,,"Nonwood",500,0.192,9.28,1,"NA","NA",0.19,1.209,0.209,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,6.5,146,6.85,9.76,"NA","NA","NA",0.27,,"Manure",600,0.236,10.65,1,"NA","NA",0.193,1.213,0.213,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,26,146,6.85,9.76,"NA","NA","NA",0.27,,"Manure",300,0.561,8.92,1,"NA","NA",0.196,1.216,0.216,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,6.5,146,6.85,9.76,"NA","NA","NA",0.27,,"Manure",500,0.254,10.57,1,"NA","NA",0.198,1.219,0.219,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,91,146,6.85,9.76,"NA","NA","NA",0.27,,"Manure",600,0.236,10.65,1,"NA","NA",0.2,1.222,0.222,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,2.6,146,6.85,9.76,"NA","NA","NA",0.27,,"Wood",300,0.639,4.25,1,"NA","NA",0.203,1.225,0.225,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,26,146,6.85,9.76,"NA","NA","NA",0.27,,"Manure",400,0.577,9.22,1,"NA","NA",0.203,1.225,0.225,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,6.5,146,6.85,9.76,"NA","NA","NA",0.27,,"Nonwood",500,0.687,9.92,1,"NA","NA",0.208,1.231,0.231,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,26,146,6.85,9.76,"NA","NA","NA",0.27,,"Manure",500,0.254,10.57,1,"NA","NA",0.21,1.234,0.234,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,26,146,6.85,9.76,"NA","NA","NA",0.27,,"Nonwood",600,0.192,11.14,1,"NA","NA",0.214,1.239,0.239,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,26,146,6.85,9.76,"NA","NA","NA",0.27,,"Nonwood",500,0.687,9.92,1,"NA","NA",0.235,1.265,0.265,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,2.6,146,6.85,9.76,"NA","NA","NA",0.27,,"Manure",600,0.236,10.65,1,"NA","NA",0.238,1.268,0.268,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,26,146,6.85,9.76,"NA","NA","NA",0.27,,"Manure",600,0.236,10.65,1,"NA","NA",0.243,1.275,0.275,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,6.5,146,6.85,9.76,"NA","NA","NA",0.27,,"Manure",400,0.577,9.22,1,"NA","NA",0.246,1.278,0.278,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,26,146,6.85,9.76,"NA","NA","NA",0.27,,"Nonwood",400,0.626,9.17,1,"NA","NA",0.248,1.282,0.282,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,91,146,6.85,9.76,"NA","NA","NA",0.27,,"Manure",500,0.254,10.57,1,"NA","NA",0.254,1.29,0.29,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,26,146,6.85,9.76,"NA","NA","NA",0.27,,"Nonwood",600,0.698,9.95,1,"NA","NA",0.255,1.29,0.29,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,6.5,146,6.85,9.76,"NA","NA","NA",0.27,,"Manure",300,0.259,8.12,1,"NA","NA",0.277,1.32,0.32,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,2.6,146,6.85,9.76,"NA","NA","NA",0.27,,"Nonwood",300,0.595,7.33,1,"NA","NA",0.28,1.324,0.324,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,26,146,6.85,9.76,"NA","NA","NA",0.27,,"Manure",400,0.268,9.85,1,"NA","NA",0.281,1.325,0.325,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,6.5,146,6.85,9.76,"NA","NA","NA",0.27,,"Nonwood",600,0.698,9.95,1,"NA","NA",0.285,1.33,0.33,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,91,146,6.85,9.76,"NA","NA","NA",0.27,,"Manure",400,0.268,9.85,1,"NA","NA",0.335,1.397,0.397,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,91,146,6.85,9.76,"NA","NA","NA",0.27,,"Manure",300,0.259,8.12,1,"NA","NA",0.358,1.43,0.43,1
+"(Rajkovich et al. 2012)","Maize","cereal","Biomass",5.5,26,146,6.85,9.76,"NA","NA","NA",0.27,,"Manure",300,0.259,8.12,1,"NA","NA",0.377,1.459,0.459,1
+"(Rodríguez et al. 2011)","Maize","cereal","Biomass",,50,100,4.5,"NA","NA","NA","NA","NA",,"Nonwood","NA",0.65,9,1,6.25,-73.5,1.111,3.037,2.037,1
+"(Rodríguez et al. 2011)","Maize","cereal","Biomass",,50,0,4.5,"NA","NA","NA","NA","NA",,"Nonwood","NA",0.65,9,1,6.25,-73.5,1.657,5.242,4.242,1
+"(Rondon et al. 2007)","Beans","legume","Biomass",,145.8,20,5.13,10.25,"NA","NA","NA","NA","Heavy","Wood",350,0.823,7,1,4.19,-72.39,-0.316,0.729,-0.271,1
+"(Rondon et al. 2007)","Beans","legume","Biomass",,145.8,20,5.04,10.82,"NA","NA","NA","NA","Heavy","Wood",350,0.823,7,1,4.19,-72.39,-0.267,0.766,-0.234,1
+"(Rondon et al. 2007)","Beans","legume","Biomass (total)",,145.8,20,5.13,10.25,"NA","NA","NA","NA","Heavy","Wood",350,0.823,7,1,4.19,-72.39,-0.188,0.829,-0.171,1
+"(Rondon et al. 2007)","Beans","legume","Biomass",,48.6,20,5.13,10.25,"NA","NA","NA","NA","Heavy","Wood",350,0.823,7,1,4.19,-72.39,0,1,0,1
+"(Rondon et al. 2007)","Beans","legume","Grain",,48.6,20,5.04,10.82,"NA","NA","NA","NA","Heavy","Wood",350,0.823,7,1,4.19,-72.39,0,1,0,1
+"(Rondon et al. 2007)","Beans","legume","Biomass",,97.2,20,5.13,10.25,"NA","NA","NA","NA","Heavy","Wood",350,0.823,7,1,4.19,-72.39,0,1,0,1
+"(Rondon et al. 2007)","Beans","legume","Biomass (total)",,145.8,20,5.04,10.82,"NA","NA","NA","NA","Heavy","Wood",350,0.823,7,1,4.19,-72.39,0.066,1.068,0.068,1
+"(Rondon et al. 2007)","Beans","legume","Biomass (total)",,48.6,20,5.13,10.25,"NA","NA","NA","NA","Heavy","Wood",350,0.823,7,1,4.19,-72.39,0.108,1.114,0.114,1
+"(Rondon et al. 2007)","Beans","legume","Biomass (total)",,97.2,20,5.13,10.25,"NA","NA","NA","NA","Heavy","Wood",350,0.823,7,1,4.19,-72.39,0.108,1.114,0.114,1
+"(Rondon et al. 2007)","Beans","legume","Biomass (total)",,48.6,20,5.04,10.82,"NA","NA","NA","NA","Heavy","Wood",350,0.823,7,1,4.19,-72.39,0.241,1.273,0.273,1
+"(Rondon et al. 2007)","Beans","legume","Grain",,145.8,20,5.13,10.25,"NA","NA","NA","NA","Heavy","Wood",350,0.823,7,1,4.19,-72.39,0.268,1.308,0.308,1
+"(Rondon et al. 2007)","Beans","legume","Grain",,97.2,20,5.04,10.82,"NA","NA","NA","NA","Heavy","Wood",350,0.823,7,1,4.19,-72.39,0.272,1.313,0.313,1
+"(Rondon et al. 2007)","Beans","legume","Biomass (total)",,97.2,20,5.04,10.82,"NA","NA","NA","NA","Heavy","Wood",350,0.823,7,1,4.19,-72.39,0.327,1.386,0.386,1
+"(Rondon et al. 2007)","Beans","legume","Biomass",,48.6,20,5.04,10.82,"NA","NA","NA","NA","Heavy","Wood",350,0.823,7,1,4.19,-72.39,0.44,1.553,0.553,1
+"(Rondon et al. 2007)","Beans","legume","Biomass",,97.2,20,5.04,10.82,"NA","NA","NA","NA","Heavy","Wood",350,0.823,7,1,4.19,-72.39,0.44,1.553,0.553,1
+"(Rondon et al. 2007)","Beans","legume","Grain",,145.8,20,5.04,10.82,"NA","NA","NA","NA","Heavy","Wood",350,0.823,7,1,4.19,-72.39,0.446,1.562,0.562,1
+"(Rondon et al. 2007)","Beans","legume","Grain",,48.6,20,5.13,10.25,"NA","NA","NA","NA","Heavy","Wood",350,0.823,7,1,4.19,-72.39,0.613,1.846,0.846,1
+"(Rondon et al. 2007)","Beans","legume","Grain",,97.2,20,5.13,10.25,"NA","NA","NA","NA","Heavy","Wood",350,0.823,7,1,4.19,-72.39,0.613,1.846,0.846,1
+"(Schnell et al. 2012)","Sorghum","cereal","Biomass",,3,30,6.23,"NA",2.5,"NA","NA","NA","Light","Nonwood",530,"NA","NA",1,"NA","NA",-0.118,0.889,-0.111,1
+"(Schnell et al. 2012)","Sorghum","cereal","Biomass",,3,30,6.43,"NA",2.5,"NA","NA","NA","Light","Nonwood",530,"NA","NA",1,"NA","NA",-0.105,0.9,-0.1,1
+"(Schnell et al. 2012)","Sorghum","cereal","Biomass",,1.5,30,6.43,"NA",2.5,"NA","NA","NA","Light","Nonwood",530,"NA","NA",1,"NA","NA",0,1,0,1
+"(Schnell et al. 2012)","Sorghum","cereal","Biomass",,1.5,30,6.43,"NA",2.5,"NA","NA","NA","Light","Nonwood",530,"NA","NA",1,"NA","NA",0.095,1.1,0.1,1
+"(Schnell et al. 2012)","Sorghum","cereal","Biomass",,3,30,6.43,"NA",2.5,"NA","NA","NA","Light","Nonwood",530,"NA","NA",1,"NA","NA",0.095,1.1,0.1,1
+"(Schnell et al. 2012)","Sorghum","cereal","Biomass",,3,30,6.23,"NA",2.5,"NA","NA","NA","Light","Nonwood",530,"NA","NA",1,"NA","NA",0.154,1.167,0.167,1
+"(Shackley et al. 2012)","Rice","cereal","Biomass",4.5,41.5,"NA",5.5,"NA","NA","NA","NA","NA",,"Nonwood",1000,0.35,9.63,1,13.5,103.75,0.004,1.004,0.004,0
+"(Shackley et al. 2012)","Rice","cereal","Grain",4.5,41.5,"NA",5.5,"NA","NA","NA","NA","NA",,"Nonwood",1000,0.35,9.63,1,13.5,103.75,0.095,1.099,0.099,0
+"(Shackley et al. 2012)","Rice","cereal","Biomass",4.5,41.5,"NA",5.5,"NA","NA","NA","NA","NA",,"Nonwood",1000,0.35,9.63,1,13.5,103.75,0.186,1.205,0.205,0
+"(Shackley et al. 2012)","Rice","cereal","Grain",4.5,41.5,"NA",5.5,"NA","NA","NA","NA","NA",,"Nonwood",1000,0.35,9.63,1,13.5,103.75,0.283,1.328,0.328,0
+"(Shackley et al. 2012)","Rice","cereal","Grain",4.5,41.5,0,5.5,"NA","NA","NA","NA","NA",,"Nonwood",1000,0.35,9.63,1,13.5,103.75,0.353,1.423,0.423,0
+"(Shackley et al. 2012)","Rice","cereal","Biomass",4.5,41.5,0,5.5,"NA","NA","NA","NA","NA",,"Nonwood",1000,0.35,9.63,1,13.5,103.75,0.488,1.63,0.63,0
+"(Sokchea et al. 2013)","Rice","cereal","Grain",4.5,30,100,5.5,"NA","NA",0.248,0.658,0.086,,"Nonwood",500,0.0599,10.7,1,11.5,105,0.112,1.118,0.118,0
+"(Sokchea et al. 2013)","Rice","cereal","Grain",4.5,30,100,5.5,"NA","NA",0.248,0.658,0.086,,"Nonwood",600,0.312,9.8,1,11.5,105,0.164,1.178,0.178,0
+"(Sokchea et al. 2013)","Rice","cereal","Grain",4.5,30,100,5.5,"NA","NA",0.248,0.658,0.086,,"Nonwood",500,0.0599,10.7,1,11.5,105,0.524,1.689,0.689,0
+"(Sokchea et al. 2013)","Rice","cereal","Grain",4.5,30,100,5.5,"NA","NA",0.248,0.658,0.086,,"Nonwood",600,0.312,9.8,1,11.5,105,0.571,1.769,0.769,0
+"(Solaiman et al. 2010)","Wheat","cereal","Grain",,3,12.8,5.3,1.8,15.5,"NA","NA","NA","Medium","Wood","NA",0.304,8.4,1,-28.5,115.75,-0.07,0.932,-0.068,0
+"(Solaiman et al. 2010)","Wheat","cereal","Grain",,6,14.8,5.3,1.8,15.5,"NA","NA","NA","Medium","Wood","NA",0.304,8.4,1,-28.5,115.75,-0.034,0.966,-0.034,0
+"(Solaiman et al. 2010)","Wheat","cereal","Grain",,1.5,14.8,5.3,1.8,15.5,"NA","NA","NA","Medium","Wood","NA",0.304,8.4,1,-28.5,115.75,-0.003,0.997,-0.003,0
+"(Solaiman et al. 2010)","Wheat","cereal","Grain",,1.5,12.8,5.3,1.8,15.5,"NA","NA","NA","Medium","Wood","NA",0.304,8.4,1,-28.5,115.75,0.005,1.005,0.005,0
+"(Solaiman et al. 2010)","Wheat","cereal","Grain",,3,14.8,5.3,1.8,15.5,"NA","NA","NA","Medium","Wood","NA",0.304,8.4,1,-28.5,115.75,0.031,1.031,0.031,0
+"(Solaiman et al. 2010)","Wheat","cereal","Grain",,6,12.8,5.3,1.8,15.5,"NA","NA","NA","Medium","Wood","NA",0.304,8.4,1,-28.5,115.75,0.162,1.175,0.175,0
+"(Solaiman et al. 2010)","Wheat","cereal","Grain",,6,15.9,5.3,1.8,15.5,"NA","NA","NA","Medium","Wood","NA",0.304,8.4,1,-28.5,115.75,0.356,1.428,0.428,0
+"(Solaiman et al. 2010)","Wheat","cereal","Grain",,3,15.9,5.3,1.8,15.5,"NA","NA","NA","Medium","Wood","NA",0.304,8.4,1,-28.5,115.75,0.381,1.463,0.463,0
+"(Solaiman et al. 2010)","Wheat","cereal","Grain",,1.5,15.9,5.3,1.8,15.5,"NA","NA","NA","Medium","Wood","NA",0.304,8.4,1,-28.5,115.75,0.409,1.505,0.505,0
+"(Steiner et al. 2007)","Sorghum","cereal","Biomass",,11,30,4.7,1.6,24,"NA","NA","NA","Light","Wood",500,0.75,"NA",1,-3,-60,0.372,1.45,0.45,0
+"(Steiner et al. 2007)","Sorghum","cereal","Grain",,11,30,4.7,1.6,24,"NA","NA","NA","Light","Wood",500,0.75,"NA",1,-3,-60,0.545,1.724,0.724,0
+"(Steiner et al. 2007)","Sorghum","cereal","Biomass",,11,55,4.7,1.6,24,"NA","NA","NA","Light","Wood",500,0.75,"NA",2,-3,-60,0.981,2.667,1.667,0
+"(Steiner et al. 2007)","Sorghum","cereal","Grain",,11,55,4.7,1.6,24,"NA","NA","NA","Light","Wood",500,0.75,"NA",2,-3,-60,2.022,7.556,6.556,0
+"(Suddick & Six 2013)","Mixed vegetables","vegetable","Biomass",,10,271,7.8,33.4,11.6,0.49,0.29,0.22,,"Nonwood",900,0.553,9.7,3,38.55,121.74,-0.54,0.583,-0.417,0
+"(Suddick & Six 2013)","Mixed vegetables","vegetable","Biomass",,10,271,7.8,33.4,11.6,0.49,0.29,0.22,,"Nonwood",900,0.553,9.7,4,38.55,121.74,-0.405,0.667,-0.333,0
+"(Suddick & Six 2013)","Mixed vegetables","vegetable","Biomass",,10,271,7.8,33.4,11.6,0.49,0.29,0.22,,"Nonwood",900,0.553,9.7,2,38.55,121.74,-0.083,0.921,-0.079,0
+"(Suddick & Six 2013)","Mixed vegetables","vegetable","Biomass",,10,271,7.8,33.4,11.6,0.49,0.29,0.22,,"Nonwood",900,0.553,9.7,1,38.55,121.74,-0.011,0.989,-0.011,0
+"(Sukartono et al. 2011)","Maize","cereal","Grain",5.5,15,135,5.97,11.74,8.9,0.55,0.36,0.09,"Light","Nonwood",254,0.806,9.9,1,-8.5,116.5,0.073,1.075,0.075,0
+"(Sukartono et al. 2011)","Maize","cereal","Grain",5.5,15,135,5.97,16.79,8.9,0.55,0.36,0.09,"Light","Manure",254,0.235,8.9,1,-8.5,116.5,0.09,1.094,0.094,0
+"(Sukartono et al. 2011)","Maize","cereal","Grain",5.5,15,135,5.97,11.74,8.9,0.55,0.36,0.09,"Light","Nonwood",254,0.806,9.9,2,-8.5,116.5,0.193,1.213,0.213,0
+"(Sukartono et al. 2011)","Maize","cereal","Grain",5.5,15,135,5.97,16.79,8.9,0.55,0.36,0.09,"Light","Manure",254,0.235,8.9,2,-8.5,116.5,0.21,1.234,0.234,0
+"(Tagoe et al. 2008)","Soybeans","legume","Grain",,4.95,0,5.62,"NA",8.8,"NA","NA","NA","Light","Manure",500,0.501,7.76,1,35.5,136.75,0.186,1.205,0.205,1
+"(Tagoe et al. 2008)","Soybeans","legume","Grain",,2.28,0,5.62,"NA",8.8,"NA","NA","NA","Light","Manure",450,0.498,9.93,1,35.5,136.75,0.343,1.409,0.409,1
+"(Tagoe et al. 2008)","Soybeans","legume","Grain",,4.95,0,5.62,"NA",8.8,"NA","NA","NA","Light","Manure",500,0.501,7.76,1,35.5,136.75,0.353,1.424,0.424,1
+"(Tagoe et al. 2008)","Cowpea","legume","Grain",,4.95,0,5.62,"NA",8.8,"NA","NA","NA","Light","Manure",500,0.501,7.76,1,35.5,136.75,0.465,1.592,0.592,1
+"(Tagoe et al. 2008)","Soybeans","legume","Grain",,2.28,0,5.62,"NA",8.8,"NA","NA","NA","Light","Manure",450,0.498,9.93,1,35.5,136.75,0.49,1.632,0.632,1
+"(Tagoe et al. 2008)","Cowpea","legume","Grain",,4.95,0,5.62,"NA",8.8,"NA","NA","NA","Light","Manure",500,0.501,7.76,1,35.5,136.75,0.515,1.674,0.674,1
+"(Tagoe et al. 2008)","Cowpea","legume","Grain",,2.28,0,5.62,"NA",8.8,"NA","NA","NA","Light","Manure",450,0.498,9.93,1,35.5,136.75,0.687,1.989,0.989,1
+"(Tagoe et al. 2008)","Cowpea","legume","Grain",,2.28,0,5.62,"NA",8.8,"NA","NA","NA","Light","Manure",450,0.498,9.93,1,35.5,136.75,0.899,2.458,1.458,1
+"(Tatarková et al. 2013)","Sunflower","forb","Biomass",,30,"NA",7.91,19.3,14.7,0.291,0.601,0.108,,"Nonwood",300,0.517,10.6,1,"NA","NA",0.172,1.187,0.187,1
+"(Tatarková et al. 2013)","Sunflower","forb","Biomass",,30,"NA",7.91,19.3,14.7,0.291,0.601,0.108,,"Nonwood",300,0.517,10.6,1,"NA","NA",0.357,1.429,0.429,1
+"(Uddin et al. 1994)","Sugar cane","grass","Biomass (total)",,8,"NA","NA","NA","NA","NA","NA","NA",,"Wood","NA","NA","NA",1,26.5,127.5,0.059,1.06,0.06,0
+"(Uddin et al. 1994)","Sugar cane","grass","Biomass (total)",,2,"NA","NA","NA","NA","NA","NA","NA",,"Wood","NA","NA","NA",1,26.5,127.5,0.075,1.078,0.078,0
+"(Uddin et al. 1994)","Sugar cane","grass","Biomass (total)",,4,"NA","NA","NA","NA","NA","NA","NA",,"Wood","NA","NA","NA",1,26.5,127.5,0.1,1.106,0.106,0
+"(Vaccari et al. 2011)","Wheat","cereal","Biomass",,30,0,5.2,18,2.1,0.501,0.433,0.067,"Light","Wood",500,0.84,7.2,2,44,11,0.186,1.204,0.204,0
+"(Vaccari et al. 2011)","Wheat","cereal","Grain",,60,0,5.2,18,2.1,0.501,0.433,0.067,"Light","Wood",500,0.84,7.2,2,44,11,0.218,1.243,0.243,0
+"(Vaccari et al. 2011)","Wheat","cereal","Grain",,30,122,5.2,18,2.1,0.501,0.433,0.067,"Light","Wood",500,0.84,7.2,1,44,11,0.247,1.281,0.281,0
+"(Vaccari et al. 2011)","Wheat","cereal","Biomass",,30,122,5.2,18,2.1,0.501,0.433,0.067,"Light","Wood",500,0.84,7.2,1,44,11,0.25,1.284,0.284,0
+"(Vaccari et al. 2011)","Wheat","cereal","Grain",,60,122,5.2,18,2.1,0.501,0.433,0.067,"Light","Wood",500,0.84,7.2,1,44,11,0.251,1.285,0.285,0
+"(Vaccari et al. 2011)","Wheat","cereal","Biomass",,30,0,5.2,18,2.1,0.501,0.433,0.067,"Light","Wood",500,0.84,7.2,1,44,11,0.254,1.29,0.29,0
+"(Vaccari et al. 2011)","Wheat","cereal","Grain",,30,0,5.2,18,2.1,0.501,0.433,0.067,"Light","Wood",500,0.84,7.2,1,44,11,0.285,1.329,0.329,0
+"(Vaccari et al. 2011)","Wheat","cereal","Grain",,30,0,5.2,18,2.1,0.501,0.433,0.067,"Light","Wood",500,0.84,7.2,2,44,11,0.285,1.33,0.33,0
+"(Vaccari et al. 2011)","Wheat","cereal","Biomass",,60,0,5.2,18,2.1,0.501,0.433,0.067,"Light","Wood",500,0.84,7.2,1,44,11,0.289,1.336,0.336,0
+"(Vaccari et al. 2011)","Wheat","cereal","Biomass",,60,0,5.2,18,2.1,0.501,0.433,0.067,"Light","Wood",500,0.84,7.2,2,44,11,0.307,1.359,0.359,0
+"(Vaccari et al. 2011)","Wheat","cereal","Biomass",,60,122,5.2,18,2.1,0.501,0.433,0.067,"Light","Wood",500,0.84,7.2,1,44,11,0.326,1.385,0.385,0
+"(Vaccari et al. 2011)","Wheat","cereal","Grain",,60,0,5.2,18,2.1,0.501,0.433,0.067,"Light","Wood",500,0.84,7.2,1,44,11,0.331,1.392,0.392,0
+"(Van Zwieten et al. 2010) ","Radish","root","Biomass",,10,16.25,7.67,31,"NA","NA","NA","NA","Medium","Wood",550,0.52,8.2,1,-34.25,142.25,-0.981,0.375,-0.625,1
+"(Van Zwieten et al. 2010) ","Radish","root","Biomass",,10,16.25,7.67,31,"NA","NA","NA","NA","Medium","Wood",550,0.5,9.4,1,-34.25,142.25,-0.693,0.5,-0.5,1
+"(Van Zwieten et al. 2010) ","Wheat","cereal","Biomass",,10,0,7.67,31,"NA","NA","NA","NA","Medium","Wood",550,0.5,9.4,1,-34.25,142.25,-0.693,0.5,-0.5,1
+"(Van Zwieten et al. 2010) ","Wheat","cereal","Biomass",,10,16.25,7.67,31,"NA","NA","NA","NA","Medium","Wood",550,0.5,9.4,1,-34.25,142.25,-0.636,0.529,-0.471,1
+"(Van Zwieten et al. 2010) ","Wheat","cereal","Biomass",,10,16.25,7.67,31,"NA","NA","NA","NA","Medium","Wood",550,0.52,8.2,1,-34.25,142.25,-0.348,0.706,-0.294,1
+"(Van Zwieten et al. 2010) ","Soybeans","legume","Biomass",,10,0,7.67,31,"NA","NA","NA","NA","Medium","Wood",550,0.5,9.4,1,-34.25,142.25,-0.147,0.864,-0.136,1
+"(Van Zwieten et al. 2010) ","Wheat","cereal","Biomass",,10,0,7.67,31,"NA","NA","NA","NA","Medium","Wood",550,0.52,8.2,1,-34.25,142.25,-0.134,0.875,-0.125,1
+"(Van Zwieten et al. 2010) ","Soybeans","legume","Biomass",,10,0,7.67,31,"NA","NA","NA","NA","Medium","Wood",550,0.52,8.2,1,-34.25,142.25,0,1,0,1
+"(Van Zwieten et al. 2010) ","Soybeans","legume","Biomass",,10,0,4.2,4.03,"NA","NA","NA","NA","Light","Wood",550,0.5,9.4,1,-28.5,153.5,0.154,1.167,0.167,1
+"(Van Zwieten et al. 2010) ","Soybeans","legume","Biomass",,10,0,4.2,4.03,"NA","NA","NA","NA","Light","Wood",550,0.52,8.2,1,-28.5,153.5,0.154,1.167,0.167,1
+"(Van Zwieten et al. 2010) ","Soybeans","legume","Biomass",,10,16.25,7.67,31,"NA","NA","NA","NA","Medium","Wood",550,0.52,8.2,1,-34.25,142.25,0.187,1.205,0.205,1
+"(Van Zwieten et al. 2010) ","Wheat","cereal","Biomass",,10,0,4.2,4.03,"NA","NA","NA","NA","Light","Wood",550,0.5,9.4,1,-28.5,153.5,0.288,1.333,0.333,1
+"(Van Zwieten et al. 2010) ","Soybeans","legume","Biomass",,10,16.25,7.67,31,"NA","NA","NA","NA","Medium","Wood",550,0.5,9.4,1,-34.25,142.25,0.307,1.359,0.359,1
+"(Van Zwieten et al. 2010) ","Soybeans","legume","Biomass",,10,16.25,4.2,4.03,"NA","NA","NA","NA","Light","Wood",550,0.5,9.4,1,-28.5,153.5,0.314,1.368,0.368,1
+"(Van Zwieten et al. 2010) ","Radish","root","Biomass",,10,16.25,4.2,4.03,"NA","NA","NA","NA","Light","Wood",550,0.52,8.2,1,-28.5,153.5,0.336,1.4,0.4,1
+"(Van Zwieten et al. 2010) ","Radish","root","Biomass",,10,0,7.67,31,"NA","NA","NA","NA","Medium","Wood",550,0.5,9.4,1,-34.25,142.25,0.405,1.5,0.5,1
+"(Van Zwieten et al. 2010) ","Radish","root","Biomass",,10,0,4.2,4.03,"NA","NA","NA","NA","Light","Wood",550,0.52,8.2,1,-28.5,153.5,0.405,1.5,0.5,1
+"(Van Zwieten et al. 2010) ","Wheat","cereal","Biomass",,10,0,4.2,4.03,"NA","NA","NA","NA","Light","Wood",550,0.52,8.2,1,-28.5,153.5,0.511,1.667,0.667,1
+"(Van Zwieten et al. 2010) ","Soybeans","legume","Biomass",,10,16.25,4.2,4.03,"NA","NA","NA","NA","Light","Wood",550,0.52,8.2,1,-28.5,153.5,0.521,1.684,0.684,1
+"(Van Zwieten et al. 2010) ","Radish","root","Biomass",,10,16.25,4.2,4.03,"NA","NA","NA","NA","Light","Wood",550,0.5,9.4,1,-28.5,153.5,0.531,1.7,0.7,1
+"(Van Zwieten et al. 2010) ","Radish","root","Biomass",,10,0,4.2,4.03,"NA","NA","NA","NA","Light","Wood",550,0.5,9.4,1,-28.5,153.5,0.693,2,1,1
+"(Van Zwieten et al. 2010) ","Wheat","cereal","Biomass",,10,16.25,4.2,4.03,"NA","NA","NA","NA","Light","Wood",550,0.5,9.4,1,-28.5,153.5,0.875,2.4,1.4,1
+"(Van Zwieten et al. 2010) ","Wheat","cereal","Biomass",,10,16.25,4.2,4.03,"NA","NA","NA","NA","Light","Wood",550,0.52,8.2,1,-28.5,153.5,1.03,2.8,1.8,1
+"(Van Zwieten et al. 2010) ","Radish","root","Biomass",,10,0,7.67,31,"NA","NA","NA","NA","Medium","Wood",550,0.52,8.2,1,-34.25,142.25,1.253,3.5,2.5,1
+"(Wang et al. 2012)","Rice","cereal","Biomass",4.5,10,0,6.6,"NA",14.7,"NA","NA","NA","Medium","Nonwood",450,0.4654,9.1,1,32,119,-0.081,0.922,-0.078,1
+"(Wang et al. 2012)","Rice","cereal","Biomass",4.5,25,0,6.6,"NA",14.7,"NA","NA","NA","Medium","Nonwood",450,0.4654,9.1,1,32,119,-0.044,0.957,-0.043,1
+"(Wang et al. 2012)","Rice","cereal","Grain",4.5,10,0,6.6,"NA",14.7,"NA","NA","NA","Medium","Nonwood",450,0.4654,9.1,1,32,119,-0.034,0.966,-0.034,1
+"(Wang et al. 2012)","Rice","cereal","Grain",4.5,25,0,7.8,"NA",4.8,"NA","NA","NA","Medium","Nonwood",450,0.4654,9.1,1,32,119,0,1,0,1
+"(Wang et al. 2012)","Wheat","cereal","Grain",,10,0,6.6,"NA",14.7,"NA","NA","NA","Medium","Nonwood",450,0.4654,9.1,1,32,119,0,1,0,1
+"(Wang et al. 2012)","Wheat","cereal","Grain",,25,0,7.8,"NA",4.8,"NA","NA","NA","Medium","Nonwood",450,0.4654,9.1,1,32,119,0,1,0,1
+"(Wang et al. 2012)","Rice","cereal","Biomass",4.5,50,0,6.6,"NA",14.7,"NA","NA","NA","Medium","Nonwood",450,0.4654,9.1,1,32,119,0.021,1.021,0.021,1
+"(Wang et al. 2012)","Wheat","cereal","Biomass",,25,0,6.6,"NA",14.7,"NA","NA","NA","Medium","Nonwood",450,0.4654,9.1,1,32,119,0.022,1.022,0.022,1
+"(Wang et al. 2012)","Rice","cereal","Grain",4.5,25,200,7.8,"NA",4.8,"NA","NA","NA","Medium","Nonwood",450,0.4654,9.1,1,32,119,0.03,1.03,0.03,1
+"(Wang et al. 2012)","Wheat","cereal","Biomass",,25,0,7.8,"NA",4.8,"NA","NA","NA","Medium","Nonwood",450,0.4654,9.1,1,32,119,0.042,1.043,0.043,1
+"(Wang et al. 2012)","Wheat","cereal","Biomass",,10,0,6.6,"NA",14.7,"NA","NA","NA","Medium","Nonwood",450,0.4654,9.1,1,32,119,0.044,1.045,0.045,1
+"(Wang et al. 2012)","Rice","cereal","Biomass",4.5,25,0,7.8,"NA",4.8,"NA","NA","NA","Medium","Nonwood",450,0.4654,9.1,1,32,119,0.061,1.062,0.062,1
+"(Wang et al. 2012)","Wheat","cereal","Grain",,25,0,6.6,"NA",14.7,"NA","NA","NA","Medium","Nonwood",450,0.4654,9.1,1,32,119,0.08,1.083,0.083,1
+"(Wang et al. 2012)","Wheat","cereal","Grain",,50,0,6.6,"NA",14.7,"NA","NA","NA","Medium","Nonwood",450,0.4654,9.1,1,32,119,0.08,1.083,0.083,1
+"(Wang et al. 2012)","Rice","cereal","Biomass",4.5,25,200,7.8,"NA",4.8,"NA","NA","NA","Medium","Nonwood",450,0.4654,9.1,1,32,119,0.081,1.085,0.085,1
+"(Wang et al. 2012)","Wheat","cereal","Grain",,10,200,6.6,"NA",14.7,"NA","NA","NA","Medium","Nonwood",450,0.4654,9.1,1,32,119,0.083,1.087,0.087,1
+"(Wang et al. 2012)","Wheat","cereal","Biomass",,25,200,7.8,"NA",4.8,"NA","NA","NA","Medium","Nonwood",450,0.4654,9.1,1,32,119,0.086,1.089,0.089,1
+"(Wang et al. 2012)","Wheat","cereal","Grain",,25,200,7.8,"NA",4.8,"NA","NA","NA","Medium","Nonwood",450,0.4654,9.1,1,32,119,0.089,1.093,0.093,1
+"(Wang et al. 2012)","Rice","cereal","Grain",4.5,10,200,6.6,"NA",14.7,"NA","NA","NA","Medium","Nonwood",450,0.4654,9.1,1,32,119,0.102,1.108,0.108,1
+"(Wang et al. 2012)","Wheat","cereal","Grain",,50,0,7.8,"NA",4.8,"NA","NA","NA","Medium","Nonwood",450,0.4654,9.1,1,32,119,0.105,1.111,0.111,1
+"(Wang et al. 2012)","Wheat","cereal","Grain",,50,200,7.8,"NA",4.8,"NA","NA","NA","Medium","Nonwood",450,0.4654,9.1,1,32,119,0.127,1.136,0.136,1
+"(Wang et al. 2012)","Wheat","cereal","Biomass",,50,0,6.6,"NA",14.7,"NA","NA","NA","Medium","Nonwood",450,0.4654,9.1,1,32,119,0.129,1.138,0.138,1
+"(Wang et al. 2012)","Wheat","cereal","Biomass",,10,200,6.6,"NA",14.7,"NA","NA","NA","Medium","Nonwood",450,0.4654,9.1,1,32,119,0.146,1.158,0.158,1
+"(Wang et al. 2012)","Rice","cereal","Biomass",4.5,50,0,7.8,"NA",4.8,"NA","NA","NA","Medium","Nonwood",450,0.4654,9.1,1,32,119,0.154,1.167,0.167,1
+"(Wang et al. 2012)","Wheat","cereal","Biomass",,50,0,7.8,"NA",4.8,"NA","NA","NA","Medium","Nonwood",450,0.4654,9.1,1,32,119,0.155,1.168,0.168,1
+"(Wang et al. 2012)","Wheat","cereal","Biomass",,50,200,7.8,"NA",4.8,"NA","NA","NA","Medium","Nonwood",450,0.4654,9.1,1,32,119,0.156,1.168,0.168,1
+"(Wang et al. 2012)","Rice","cereal","Grain",4.5,50,0,6.6,"NA",14.7,"NA","NA","NA","Medium","Nonwood",450,0.4654,9.1,1,32,119,0.163,1.177,0.177,1
+"(Wang et al. 2012)","Rice","cereal","Grain",4.5,25,200,6.6,"NA",14.7,"NA","NA","NA","Medium","Nonwood",450,0.4654,9.1,1,32,119,0.165,1.179,0.179,1
+"(Wang et al. 2012)","Rice","cereal","Grain",4.5,25,0,6.6,"NA",14.7,"NA","NA","NA","Medium","Nonwood",450,0.4654,9.1,1,32,119,0.173,1.189,0.189,1
+"(Wang et al. 2012)","Rice","cereal","Biomass",4.5,50,200,7.8,"NA",4.8,"NA","NA","NA","Medium","Nonwood",450,0.4654,9.1,1,32,119,0.175,1.191,0.191,1
+"(Wang et al. 2012)","Rice","cereal","Grain",4.5,50,0,7.8,"NA",4.8,"NA","NA","NA","Medium","Nonwood",450,0.4654,9.1,1,32,119,0.179,1.196,0.196,1
+"(Wang et al. 2012)","Wheat","cereal","Grain",,25,200,6.6,"NA",14.7,"NA","NA","NA","Medium","Nonwood",450,0.4654,9.1,1,32,119,0.183,1.201,0.201,1
+"(Wang et al. 2012)","Rice","cereal","Grain",4.5,50,200,7.8,"NA",4.8,"NA","NA","NA","Medium","Nonwood",450,0.4654,9.1,1,32,119,0.184,1.202,0.202,1
+"(Wang et al. 2012)","Rice","cereal","Biomass",4.5,10,200,6.6,"NA",14.7,"NA","NA","NA","Medium","Nonwood",450,0.4654,9.1,1,32,119,0.201,1.223,0.223,1
+"(Wang et al. 2012)","Wheat","cereal","Biomass",,25,200,6.6,"NA",14.7,"NA","NA","NA","Medium","Nonwood",450,0.4654,9.1,1,32,119,0.211,1.235,0.235,1
+"(Wang et al. 2012)","Rice","cereal","Biomass",4.5,50,200,6.6,"NA",14.7,"NA","NA","NA","Medium","Nonwood",450,0.4654,9.1,1,32,119,0.293,1.341,0.341,1
+"(Wang et al. 2012)","Rice","cereal","Biomass",4.5,25,200,6.6,"NA",14.7,"NA","NA","NA","Medium","Nonwood",450,0.4654,9.1,1,32,119,0.331,1.393,0.393,1
+"(Wang et al. 2012)","Wheat","cereal","Biomass",,50,200,6.6,"NA",14.7,"NA","NA","NA","Medium","Nonwood",450,0.4654,9.1,1,32,119,0.532,1.702,0.702,1
+"(Wang et al. 2012)","Rice","cereal","Grain",4.5,50,200,6.6,"NA",14.7,"NA","NA","NA","Medium","Nonwood",450,0.4654,9.1,1,32,119,0.533,1.704,0.704,1
+"(Wang et al. 2012)","Wheat","cereal","Grain",,50,200,6.6,"NA",14.7,"NA","NA","NA","Medium","Nonwood",450,0.4654,9.1,1,32,119,0.538,1.712,0.712,1
+"(Warnock et al. 2010)","Plantago lanceolata","forb","Biomass",,"NA","NA",8.1,"NA","NA","NA","NA","NA",,"Wood",600,0.678,7.7,1,48.5,-115.88,-0.146,0.864,-0.136,1
+"(Warnock et al. 2010)","Plantago lanceolata","forb","Biomass",,"NA","NA",8.1,"NA","NA","NA","NA","NA",,"Wood",600,0.678,7.7,1,48.5,-115.88,-0.051,0.951,-0.049,1
+"(Warnock et al. 2010)","Plantago lanceolata","forb","Biomass",,"NA","NA",8.1,"NA","NA","NA","NA","NA",,"Wood",600,0.678,7.7,1,48.5,-115.88,-0.012,0.988,-0.012,1
+"(Warnock et al. 2010)","Plantago lanceolata","forb","Biomass",,"NA","NA",8,"NA","NA","NA","NA","NA",,"Nonwood",400,0.657,8.34,1,48.5,-115.88,-0.004,0.996,-0.004,1
+"(Warnock et al. 2010)","Plantago lanceolata","forb","Biomass",,"NA","NA",8,"NA","NA","NA","NA","NA",,"Nonwood",360,0.6,8.35,1,48.5,-115.88,0.063,1.066,0.066,1
+"(Warnock et al. 2010)","Plantago lanceolata","forb","Biomass",,"NA","NA",8.1,"NA","NA","NA","NA","NA",,"Wood",600,0.678,7.7,1,48.5,-115.88,0.127,1.136,0.136,1
+"(Warnock et al. 2010)","Plantago lanceolata","forb","Biomass",,"NA","NA",8,"NA","NA","NA","NA","NA",,"Nonwood",430,0.647,8.23,1,48.5,-115.88,0.38,1.463,0.463,1
+"(Warnock et al. 2010)","Savannah grasses","grass","Biomass",,"NA","NA","NA","NA","NA","NA","NA","NA",,"Wood","NA",0.717,10.14,1,4.25,-7.5,1.061,2.89,1.89,0
+"(Wisnubroto et al. 2011)","Ryegrass","grass","Biomass",,1.5,0,5.8,2.04,5,"NA","NA","NA","Light","Manure","NA",0.261,"NA",1,-40.35,175.61,-0.916,0.4,-0.6,1
+"(Wisnubroto et al. 2011)","Ryegrass","grass","Biomass",,1.5,0,5.8,2.04,5,"NA","NA","NA","Light","Nonwood","NA",0.452,"NA",1,-40.35,175.61,-0.693,0.5,-0.5,1
+"(Wisnubroto et al. 2011)","Ryegrass","grass","Biomass",,5,0,5.8,2.04,5,"NA","NA","NA","Light","Manure","NA",0.261,"NA",1,-40.35,175.61,-0.693,0.5,-0.5,1
+"(Wisnubroto et al. 2011)","Ryegrass","grass","Biomass",,5,0,5.8,2.04,5,"NA","NA","NA","Light","Nonwood","NA",0.452,"NA",1,-40.35,175.61,-0.633,0.531,-0.469,1
+"(Wisnubroto et al. 2011)","Ryegrass","grass","Biomass",,10,0,5.8,2.04,5,"NA","NA","NA","Light","Nonwood","NA",0.452,"NA",1,-40.35,175.61,-0.633,0.531,-0.469,1
+"(Wisnubroto et al. 2011)","Ryegrass","grass","Biomass",,10,0,5.8,2.04,5,"NA","NA","NA","Light","Manure","NA",0.261,"NA",1,-40.35,175.61,-0.629,0.533,-0.467,1
+"(Wisnubroto et al. 2011)","Ryegrass","grass","Biomass",,1.5,113,5.8,2.04,5,"NA","NA","NA","Light","Nonwood","NA",0.452,"NA",1,-40.35,175.61,0.145,1.156,0.156,1
+"(Wisnubroto et al. 2011)","Ryegrass","grass","Biomass",,1.5,113,5.8,2.04,5,"NA","NA","NA","Light","Manure","NA",0.261,"NA",1,-40.35,175.61,0.36,1.433,0.433,1
+"(Wisnubroto et al. 2011)","Ryegrass","grass","Biomass",,5,113,5.8,2.04,5,"NA","NA","NA","Light","Manure","NA",0.261,"NA",1,-40.35,175.61,0.531,1.7,0.7,1
+"(Wisnubroto et al. 2011)","Ryegrass","grass","Biomass",,5,113,5.8,2.04,5,"NA","NA","NA","Light","Nonwood","NA",0.452,"NA",1,-40.35,175.61,0.542,1.719,0.719,1
+"(Wisnubroto et al. 2011)","Ryegrass","grass","Biomass",,10,113,5.8,2.04,5,"NA","NA","NA","Light","Manure","NA",0.261,"NA",1,-40.35,175.61,0.693,2,1,1
+"(Wisnubroto et al. 2011)","Ryegrass","grass","Biomass",,10,113,5.8,2.04,5,"NA","NA","NA","Light","Nonwood","NA",0.452,"NA",1,-40.35,175.61,0.838,2.312,1.312,1
+"(Xie et al. 2013)","Rice","cereal","Grain",4.5,12,0,7.6,"NA",18.3,0.578,0.286,0.136,,"Nonwood",400,0.632,10.2,1,32.5,119.75,-0.47,0.625,-0.375,1
+"(Xie et al. 2013)","Rice","cereal","Biomass",4.5,12,0,7.6,"NA",18.3,0.578,0.286,0.136,,"Nonwood",400,0.632,10.2,1,32.5,119.75,-0.369,0.691,-0.309,1
+"(Xie et al. 2013)","Rice","cereal","Grain",4.5,12,250,7.6,"NA",18.3,0.578,0.286,0.136,,"Nonwood",400,0.667,"NA",1,32.5,119.75,-0.248,0.78,-0.22,1
+"(Xie et al. 2013)","Rice","cereal","Grain",4.5,12,0,4.4,"NA",6.35,0.373,0.347,0.289,,"Nonwood",400,0.632,10.2,1,28.25,117,-0.13,0.878,-0.122,1
+"(Xie et al. 2013)","Rice","cereal","Biomass",4.5,12,0,4.4,"NA",6.35,0.373,0.347,0.289,,"Nonwood",400,0.632,10.2,1,28.25,117,-0.08,0.923,-0.077,1
+"(Xie et al. 2013)","Rice","cereal","Biomass",4.5,12,250,7.6,"NA",18.3,0.578,0.286,0.136,,"Nonwood",400,0.667,"NA",1,32.5,119.75,0.021,1.021,0.021,1
+"(Xie et al. 2013)","Rice","cereal","Biomass",4.5,12,250,4.4,"NA",6.35,0.373,0.347,0.289,,"Nonwood",400,0.667,"NA",1,28.25,117,0.041,1.042,0.042,1
+"(Xie et al. 2013)","Rice","cereal","Grain",4.5,12,250,4.4,"NA",6.35,0.373,0.347,0.289,,"Nonwood",400,0.667,"NA",1,28.25,117,0.154,1.167,0.167,1
+"(Yamato et al. 2006) ","Maize","cereal","Biomass",5.5,40,75,"NA","NA","NA","NA","NA","NA","Medium","Wood",310,"NA","NA",1,-2.75,104.25,-0.049,0.952,-0.048,0
+"(Yamato et al. 2006) ","Cowpea","legume","Biomass",,40,75,"NA","NA","NA","NA","NA","NA","Medium","Wood",310,"NA","NA",1,-2.75,104.25,0.091,1.096,0.096,0
+"(Yamato et al. 2006) ","Peanut","legume","Biomass",,40,75,"NA","NA","NA","NA","NA","NA","Medium","Wood",310,"NA","NA",1,-2.75,104.25,0.112,1.119,0.119,0
+"(Yamato et al. 2006) ","Cowpea","legume","Biomass",,40,75,"NA","NA","NA","NA","NA","NA","Medium","Wood",310,"NA","NA",1,-2.75,104.25,0.123,1.131,0.131,0
+"(Yamato et al. 2006) ","Maize","cereal","Biomass",5.5,37,0,"NA","NA","NA","NA","NA","NA","Medium","Wood",310,"NA","NA",1,-2.75,104.25,0.222,1.249,0.249,0
+"(Yamato et al. 2006) ","Peanut","legume","Biomass",,40,75,"NA","NA","NA","NA","NA","NA","Medium","Wood",310,"NA","NA",1,-2.75,104.25,0.31,1.364,0.364,0
+"(Yamato et al. 2006) ","Maize","cereal","Biomass",5.5,37,500,"NA","NA","NA","NA","NA","NA","Medium","Wood",310,"NA","NA",1,-2.75,104.25,0.384,1.469,0.469,0
+"(Yamato et al. 2006) ","Maize","cereal","Biomass",5.5,40,75,"NA","NA","NA","NA","NA","NA","Medium","Wood",310,"NA","NA",1,-2.75,104.25,0.679,1.972,0.972,0
+"(Yeboah et al. 2009)","Maize","cereal","Biomass",5.5,3,120,4.22,"NA",9.7,0.3064,0.5329,0.1607,"Medium","Wood","NA",0.388,"NA",1,6.75,-1.5,-0.062,0.94,-0.06,1
+"(Yeboah et al. 2009)","Maize","cereal","Biomass",5.5,3,0,4.22,"NA",9.7,0.3064,0.5329,0.1607,"Medium","Wood","NA",0.388,"NA",1,6.75,-1.5,-0.042,0.959,-0.041,1
+"(Yeboah et al. 2009)","Maize","cereal","Biomass",5.5,3,"NA",5.64,"NA",15.6,0.6,0.3661,0.0338,"Light","Wood","NA",0.388,"NA",1,6.75,-1.5,0,1,0,1
+"(Yeboah et al. 2009)","Maize","cereal","Biomass",5.5,3,0,5.64,"NA",15.6,0.6,0.3661,0.0338,"Light","Wood","NA",0.388,"NA",1,6.75,-1.5,0.022,1.022,0.022,1
+"(Yeboah et al. 2009)","Maize","cereal","Biomass",5.5,3,"NA",4.22,"NA",9.7,0.3064,0.5329,0.1607,"Medium","Wood","NA",0.388,"NA",1,6.75,-1.5,0.049,1.051,0.051,1
+"(Yeboah et al. 2009)","Maize","cereal","Biomass",5.5,3,120,5.64,"NA",15.6,0.6,0.3661,0.0338,"Light","Wood","NA",0.388,"NA",1,6.75,-1.5,0.086,1.09,0.09,1
+"(Zhang et al. 2010)","Rice","cereal","Grain",4.5,10,300,6.53,"NA",23.2,"NA","NA",0.39,"Medium","Nonwood",450,0.467,10.4,1,31.5,119.75,0.084,1.088,0.088,0
+"(Zhang et al. 2010)","Rice","cereal","Grain",4.5,10,300,6.48,"NA",23.5,"NA","NA",0.39,"Medium","Nonwood",450,0.467,10.4,1,31.5,119.75,0.11,1.116,0.116,0
+"(Zhang et al. 2010)","Rice","cereal","Grain",4.5,40,300,6.53,"NA",23.2,"NA","NA",0.39,"Medium","Nonwood",450,0.467,10.4,1,31.5,119.75,0.114,1.121,0.121,0
+"(Zhang et al. 2010)","Rice","cereal","Grain",4.5,40,300,6.48,"NA",23.5,"NA","NA",0.39,"Medium","Nonwood",450,0.467,10.4,1,31.5,119.75,0.131,1.14,0.14,0
+"(Zhang, Bian, et al. 2012)","Rice","cereal","Grain",4.5,10,300,6.5,"NA",23.5,"NA","NA",0.39,"Medium","Nonwood",450,0.467,10.4,1,31.5,119.75,0.088,1.092,0.092,0
+"(Zhang, Bian, et al. 2012)","Rice","cereal","Grain",4.5,20,300,6.5,"NA",23.5,"NA","NA",0.39,"Medium","Nonwood",450,0.467,10.4,2,31.5,119.75,0.088,1.092,0.092,0
+"(Zhang, Bian, et al. 2012)","Rice","cereal","Grain",4.5,20,300,6.5,"NA",23.5,"NA","NA",0.39,"Medium","Nonwood",450,0.467,10.4,1,31.5,119.75,0.1,1.105,0.105,0
+"(Zhang, Bian, et al. 2012)","Rice","cereal","Grain",4.5,40,300,6.5,"NA",23.5,"NA","NA",0.39,"Medium","Nonwood",450,0.467,10.4,1,31.5,119.75,0.112,1.118,0.118,0
+"(Zhang, Bian, et al. 2012)","Rice","cereal","Grain",4.5,40,300,6.5,"NA",23.5,"NA","NA",0.39,"Medium","Nonwood",450,0.467,10.4,2,31.5,119.75,0.202,1.224,0.224,0
+"(Zhang, Bian, et al. 2012)","Rice","cereal","Grain",4.5,10,300,6.5,"NA",23.5,"NA","NA",0.39,"Medium","Nonwood",450,0.467,10.4,2,31.5,119.75,0.244,1.276,0.276,0
+"(Zhang, Liu, et al. 2012)","Maize","cereal","Grain",5.5,40,0,8.38,"NA",9.87,"NA","NA","NA","Medium","Nonwood",450,0.467,10.4,1,34.5,115.5,0.071,1.073,0.073,0
+"(Zhang, Liu, et al. 2012)","Maize","cereal","Grain",5.5,40,300,8.38,"NA",9.87,"NA","NA","NA","Medium","Nonwood",450,0.467,10.4,1,34.5,115.5,0.11,1.116,0.116,0
+"(Zhang, Liu, et al. 2012)","Maize","cereal","Grain",5.5,20,0,8.38,"NA",9.87,"NA","NA","NA","Medium","Nonwood",450,0.467,10.4,1,34.5,115.5,0.146,1.158,0.158,0
+"(Zhang, Liu, et al. 2012)","Maize","cereal","Grain",5.5,20,300,8.38,"NA",9.87,"NA","NA","NA","Medium","Nonwood",450,0.467,10.4,1,34.5,115.5,0.167,1.182,0.182,0
+"Biochar Fund (2010)","Maize","cereal","Biomass",5.5,10,"NA","NA","NA","NA","NA","NA","NA",,"Wood",550,"NA","NA",1,4.6,9.5,0,1,0,0
+"Biochar Fund (2010)","Maize","cereal","Biomass",5.5,10,"NA","NA","NA","NA","NA","NA","NA",,"Wood",550,"NA","NA",1,4.6,9.5,0.072,1.075,0.075,0
+"Biochar Fund (2010)","Maize","cereal","Biomass",5.5,20,"NA","NA","NA","NA","NA","NA","NA",,"Wood",550,"NA","NA",1,4.6,9.5,0.118,1.125,0.125,0
+"Biochar Fund (2010)","Maize","cereal","Grain",5.5,10,"NA","NA","NA","NA","NA","NA","NA",,"Wood",550,"NA","NA",1,4.6,9.5,0.128,1.136,0.136,0
+"Biochar Fund (2010)","Maize","cereal","Biomass",5.5,10,"NA","NA","NA","NA","NA","NA","NA",,"Wood",550,"NA","NA",1,4.6,9.5,0.141,1.152,0.152,0
+"Biochar Fund (2010)","Maize","cereal","Grain",5.5,20,"NA","NA","NA","NA","NA","NA","NA",,"Wood",550,"NA","NA",1,4.6,9.5,0.157,1.17,0.17,0
+"Biochar Fund (2010)","Maize","cereal","Biomass",5.5,20,"NA","NA","NA","NA","NA","NA","NA",,"Wood",550,"NA","NA",1,4.6,9.5,0.172,1.187,0.187,0
+"Biochar Fund (2010)","Maize","cereal","Grain",5.5,10,"NA","NA","NA","NA","NA","NA","NA",,"Wood",550,"NA","NA",1,4.6,9.5,0.182,1.2,0.2,0
+"Biochar Fund (2010)","Maize","cereal","Grain",5.5,10,"NA","NA","NA","NA","NA","NA","NA",,"Wood",550,"NA","NA",1,4.6,9.5,0.21,1.234,0.234,0
+"Biochar Fund (2010)","Maize","cereal","Biomass",5.5,20,"NA","NA","NA","NA","NA","NA","NA",,"Wood",550,"NA","NA",1,4.6,9.5,0.241,1.273,0.273,0
+"Biochar Fund (2010)","Maize","cereal","Grain",5.5,20,"NA","NA","NA","NA","NA","NA","NA",,"Wood",550,"NA","NA",1,4.6,9.5,0.262,1.3,0.3,0
+"Biochar Fund (2010)","Maize","cereal","Grain",5.5,20,"NA","NA","NA","NA","NA","NA","NA",,"Wood",550,"NA","NA",1,4.6,9.5,0.276,1.318,0.318,0
+"Biochar Fund (2010)","Maize","cereal","Biomass",5.5,10,0,"NA","NA","NA","NA","NA","NA",,"Wood",550,"NA","NA",1,4.6,9.5,0.278,1.32,0.32,0
+"Biochar Fund (2010)","Maize","cereal","Biomass",5.5,20,0,"NA","NA","NA","NA","NA","NA",,"Wood",550,"NA","NA",1,4.6,9.5,0.278,1.32,0.32,0
+"Biochar Fund (2010)","Maize","cereal","Grain",5.5,10,0,"NA","NA","NA","NA","NA","NA",,"Wood",550,"NA","NA",1,4.6,9.5,0.386,1.471,0.471,0
+"Biochar Fund (2010)","Maize","cereal","Grain",5.5,20,0,"NA","NA","NA","NA","NA","NA",,"Wood",550,"NA","NA",1,4.6,9.5,0.386,1.471,0.471,0
+"Sønderberg , (2013)","Maize","cereal","Grain",5.5,50,"NA","NA","NA","NA","NA","NA","NA",,"Wood","NA","NA","NA",1,"NA","NA",-0.159,0.853,-0.147,1
+"Sønderberg , (2013)","Maize","cereal","Grain",5.5,50,"NA","NA","NA","NA","NA","NA","NA",,"Wood","NA","NA","NA",1,"NA","NA",0.08,1.083,0.083,1
+"Sønderberg , (2013)","Maize","cereal","Grain",5.5,50,"NA","NA","NA","NA","NA","NA","NA",,"Wood","NA","NA","NA",1,"NA","NA",0.463,1.588,0.588,1
+"Sønderberg , (2013)","Maize","cereal","Grain",5.5,50,"NA","NA","NA","NA","NA","NA","NA",,"Wood","NA","NA","NA",1,"NA","NA",0.583,1.791,0.791,1
+"Suppadit et al. (2012)","Jatropha","fruit","Grain",,9.545628102,0,6.9,0.98,1.31,"NA","NA","NA","Medium","Manure",500,0.328,9.1,1,16.5,98.5,0.288,1.333,0.333,1
+"Suppadit et al. (2012)","Jatropha","fruit","Grain",,9.545628102,0,6.9,0.98,1.31,"NA","NA","NA","Medium","Manure",500,0.328,9.1,1,16.5,98.5,0.302,1.353,0.353,1
+"Suppadit et al. (2012)","Jatropha","fruit","Grain",,9.545628102,0,6.9,0.98,1.31,"NA","NA","NA","Medium","Manure",500,0.328,9.1,1,16.5,98.5,0.31,1.363,0.363,1
+"Suppadit et al. (2012)","Jatropha","fruit","Grain",,9.545628102,0,6.9,0.98,1.31,"NA","NA","NA","Medium","Manure",500,0.328,9.1,1,16.5,98.5,0.323,1.381,0.381,1
+"Suppadit et al. (2012)","Jatropha","fruit","Grain",,19.091256204,0,6.9,0.98,1.31,"NA","NA","NA","Medium","Manure",500,0.328,9.1,1,16.5,98.5,0.333,1.395,0.395,1
+"Suppadit et al. (2012)","Jatropha","fruit","Grain",,19.091256204,0,6.9,0.98,1.31,"NA","NA","NA","Medium","Manure",500,0.328,9.1,1,16.5,98.5,0.345,1.413,0.413,1
+"Suppadit et al. (2012)","Jatropha","fruit","Grain",,28.636884306,0,6.9,0.98,1.31,"NA","NA","NA","Medium","Manure",500,0.328,9.1,1,16.5,98.5,0.353,1.424,0.424,1
+"Suppadit et al. (2012)","Jatropha","fruit","Grain",,19.091256204,0,6.9,0.98,1.31,"NA","NA","NA","Medium","Manure",500,0.328,9.1,1,16.5,98.5,0.358,1.43,0.43,1
+"Suppadit et al. (2012)","Jatropha","fruit","Grain",,28.636884306,0,6.9,0.98,1.31,"NA","NA","NA","Medium","Manure",500,0.328,9.1,1,16.5,98.5,0.358,1.43,0.43,1
+"Suppadit et al. (2012)","Jatropha","fruit","Grain",,19.091256204,0,6.9,0.98,1.31,"NA","NA","NA","Medium","Manure",500,0.328,9.1,1,16.5,98.5,0.363,1.438,0.438,1
+"Suppadit et al. (2012)","Jatropha","fruit","Grain",,28.636884306,0,6.9,0.98,1.31,"NA","NA","NA","Medium","Manure",500,0.328,9.1,1,16.5,98.5,0.368,1.446,0.446,1
+"Suppadit et al. (2012)","Jatropha","fruit","Grain",,28.636884306,0,6.9,0.98,1.31,"NA","NA","NA","Medium","Manure",500,0.328,9.1,1,16.5,98.5,0.379,1.462,0.462,1
+"Taghizadeh-Toosi et al, (2011)(a)","Ryegrass","grass","Biomass",,"NA","NA",5.5,14,"NA","NA","NA","NA",,"Wood",500,0.826,7.77,1,-43.63,172.5,-0.62,0.538,-0.462,1
+"Taghizadeh-Toosi et al, (2011)(a)","Ryegrass","grass","Biomass",,"NA","NA",5.5,14,"NA","NA","NA","NA",,"Wood",300,0.758,7.77,1,-43.63,172.5,-0.415,0.66,-0.34,1
+"Taghizadeh-Toosi et al, (2011)(a)","Ryegrass","grass","Biomass",,"NA","NA",5.5,14,"NA","NA","NA","NA",,"Wood",350,0.772,7.77,1,-43.63,172.5,-0.319,0.727,-0.273,1
+"Taghizadeh-Toosi et al, (2011)(a)","Ryegrass","grass","Biomass",,"NA","NA",5.5,14,"NA","NA","NA","NA",,"Wood",300,0.622,7.77,1,-43.63,172.5,-0.281,0.755,-0.245,1
+"Taghizadeh-Toosi et al, (2011)(a)","Ryegrass","grass","Biomass",,"NA","NA",5.5,14,"NA","NA","NA","NA",,"Wood",500,0.826,5.15,1,-43.63,172.5,-0.259,0.772,-0.228,1
+"Taghizadeh-Toosi et al, (2011)(a)","Ryegrass","grass","Biomass",,"NA","NA",5.5,14,"NA","NA","NA","NA",,"Wood",300,0.758,5.15,1,-43.63,172.5,-0.215,0.807,-0.193,1
+"Taghizadeh-Toosi et al, (2011)(a)","Ryegrass","grass","Biomass",,"NA","NA",5.5,14,"NA","NA","NA","NA",,"Wood",300,0.622,5.15,1,-43.63,172.5,0.084,1.088,0.088,1
+"Taghizadeh-Toosi et al, (2011)(a)","Ryegrass","grass","Biomass",,"NA","NA",5.5,14,"NA","NA","NA","NA",,"Wood",350,0.772,5.15,1,-43.63,172.5,0.131,1.14,0.14,1
+"Taghizadeh-Toosi et al, (2011)(a)","Ryegrass","grass","Biomass",,"NA","NA",5.5,14,"NA","NA","NA","NA",,"Wood",500,0.826,6.64,1,-43.63,172.5,0.665,1.944,0.944,1
+"Taghizadeh-Toosi et al, (2011)(a)","Ryegrass","grass","Biomass",,"NA","NA",5.5,14,"NA","NA","NA","NA",,"Wood",300,0.758,6.64,1,-43.63,172.5,0.669,1.953,0.953,1
+"Taghizadeh-Toosi et al, (2011)(a)","Ryegrass","grass","Biomass",,"NA","NA",5.5,14,"NA","NA","NA","NA",,"Wood",500,0.826,5.97,1,-43.63,172.5,0.684,1.982,0.982,1
+"Taghizadeh-Toosi et al, (2011)(a)","Ryegrass","grass","Biomass",,"NA","NA",5.5,14,"NA","NA","NA","NA",,"Wood",300,0.622,6.64,1,-43.63,172.5,0.766,2.151,1.151,1
+"Taghizadeh-Toosi et al, (2011)(a)","Ryegrass","grass","Biomass",,"NA","NA",5.5,14,"NA","NA","NA","NA",,"Wood",350,0.772,6.64,1,-43.63,172.5,0.779,2.18,1.18,1
+"Taghizadeh-Toosi et al, (2011)(a)","Ryegrass","grass","Biomass",,"NA","NA",5.5,14,"NA","NA","NA","NA",,"Wood",350,0.772,5.97,1,-43.63,172.5,0.87,2.386,1.386,1
+"Taghizadeh-Toosi et al, (2011)(a)","Ryegrass","grass","Biomass",,"NA","NA",5.5,14,"NA","NA","NA","NA",,"Wood",300,0.758,5.97,1,-43.63,172.5,0.927,2.527,1.527,1
+"Taghizadeh-Toosi et al, (2011)(a)","Ryegrass","grass","Biomass",,"NA","NA",5.5,14,"NA","NA","NA","NA",,"Wood",300,0.622,5.97,1,-43.63,172.5,1.116,3.053,2.053,1
+"Taghizadeh-Toosi et al, (2011)(b)","Ryegrass","grass","Biomass",,30,"NA",5.5,14,"NA","NA","NA","NA",,"Wood","NA",0.772,7.8,1,-43.63,172.5,-0.208,0.812,-0.188,0
+"Taghizadeh-Toosi et al, (2011)(b)","Ryegrass","grass","Biomass",,15,"NA",5.5,14,"NA","NA","NA","NA",,"Wood","NA",0.772,7.8,1,-43.63,172.5,-0.191,0.826,-0.174,0
+"Taghizadeh-Toosi et al, (2011)(b)","Ryegrass","grass","Biomass",,30,"NA",5.5,14,"NA","NA","NA","NA",,"Wood","NA",0.772,7.8,1,-43.63,172.5,-0.104,0.901,-0.099,0
+"Taghizadeh-Toosi et al, (2011)(b)","Ryegrass","grass","Biomass",,15,"NA",5.5,14,"NA","NA","NA","NA",,"Wood","NA",0.772,7.8,1,-43.63,172.5,0,1,0,0
+"Taghizadeh-Toosi et al, (2011)(b)","Ryegrass","grass","Biomass",,15,"NA",5.5,14,"NA","NA","NA","NA",,"Wood","NA",0.772,7.8,1,-43.63,172.5,0.134,1.143,0.143,0
+"Taghizadeh-Toosi et al, (2011)(b)","Ryegrass","grass","Biomass",,30,"NA",5.5,14,"NA","NA","NA","NA",,"Wood","NA",0.772,7.8,1,-43.63,172.5,0.196,1.216,0.216,0
+"Uzoma et al. (2011)","Maize","cereal","Biomass (total)",5.5,10,60,6.36,0.71,"NA",0.95,0.013,0.037,"Light","Manure",500,0.0361,9.2,1,35.5,134.25,0.022,1.023,0.023,1
+"Uzoma et al. (2011)","Maize","cereal","Grain",5.5,10,60,6.36,0.71,"NA",0.95,0.013,0.037,"Light","Manure",500,0.0361,9.2,1,35.5,134.25,0.075,1.078,0.078,1
+"Uzoma et al. (2011)","Maize","cereal","Biomass (total)",5.5,20,60,6.36,0.71,"NA",0.95,0.013,0.037,"Light","Manure",500,0.0361,9.2,1,35.5,134.25,0.562,1.754,0.754,1
+"Uzoma et al. (2011)","Maize","cereal","Grain",5.5,20,60,6.36,0.71,"NA",0.95,0.013,0.037,"Light","Manure",500,0.0361,9.2,1,35.5,134.25,0.684,1.983,0.983,1
+"Uzoma et al. (2011)","Maize","cereal","Biomass (total)",5.5,15,60,6.36,0.71,"NA",0.95,0.013,0.037,"Light","Manure",500,0.0361,9.2,1,35.5,134.25,0.754,2.126,1.126,1
+"Uzoma et al. (2011)","Maize","cereal","Grain",5.5,15,60,6.36,0.71,"NA",0.95,0.013,0.037,"Light","Manure",500,0.0361,9.2,1,35.5,134.25,0.917,2.502,1.502,1
