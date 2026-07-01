@@ -15,7 +15,7 @@ test_that("run_spatial_tea works with dummy raster", {
     values(dist_r) <- 10 # 10 km average collection distance
 
     spatial_layers <- list(biomass_density = bd, dist_50MWth = dist_r)
-    params <- default_parameters()
+    params <- set_scenario()
 
     # Run BECCS
     out <- run_spatial_tea(r, params, spatial_layers, fun = BiocharAG::calculate_beccs)

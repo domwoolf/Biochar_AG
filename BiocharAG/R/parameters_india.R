@@ -11,7 +11,7 @@
 #' @return A named list of parameters.
 #' @export
 parameters_india <- function() {
-    p <- default_parameters()
+    p <- set_scenario()
 
     # 1. Financial
     # Higher cost of capital in India

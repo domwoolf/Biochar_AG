@@ -150,6 +150,14 @@ calculate_beccs <- function(params) {
     total_revenue <- elec_revenue + abatement_value
     net_value <- total_revenue - total_cost
 
+    # Added diagnostics for factorial
+    biomass_cost <- feedstock_cost + logistics_cost
+    lcoe <- (capex_per_mg + opex_per_mg + ts_cost + biomass_cost) / elec_prod
+    cost_of_co2_avoided <- ifelse_raster(tot_c_abatement > 0, total_cost / tot_c_abatement, Inf)
+    abatement_efficiency <- ifelse_raster(co2e_sequestered > 0, tot_c_abatement / co2e_sequestered, 0)
+    total_capex_m <- total_capex / 1e6
+    co2_dist_chosen <- ifelse_raster(ts_cost_onshore < ts_cost_offshore, dist_onshore, dist_offshore)
+
     list(
       technology = "BECCS",
       energy_output = energy_output,
@@ -159,7 +167,21 @@ calculate_beccs <- function(params) {
       total_cost = total_cost,
       ts_cost = ts_cost,
       total_revenue = total_revenue,
-      net_value = net_value
+      net_value = net_value,
+      # Granular outputs
+      capital_cost_mg = capex_per_mg,
+      om_cost_mg = opex_per_mg,
+      biomass_cost_mg = biomass_cost,
+      co2_transport_cost_mg = ts_cost,
+      co2_transport_distance_km = co2_dist_chosen,
+      biomass_transport_distance_km = effective_dist,
+      elec_revenue_mg = elec_revenue,
+      abatement_revenue_mg = abatement_value,
+      agronomic_revenue_mg = NA,
+      lcoe = lcoe,
+      cost_of_co2_avoided = cost_of_co2_avoided,
+      abatement_efficiency = abatement_efficiency,
+      total_capex_m = total_capex_m
     )
   })
 }

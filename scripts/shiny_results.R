@@ -14,8 +14,8 @@ if (getRversion() >= "2.15.1") {
 }
 
 # Ensure data dictionary / parameters are available
-if (!exists("default_parameters")) {
-    message("Package loaded but default_parameters not found on search path.")
+if (!exists("set_scenario")) {
+    message("Package loaded but set_scenario not found on search path.")
 }
 
 # 2. UI Definition

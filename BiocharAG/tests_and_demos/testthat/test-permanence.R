@@ -26,7 +26,7 @@ test_that("Pyrolysis Temperature method works", {
 })
 
 test_that("BEBCS integration uses soil_temp", {
-    params <- default_parameters()
+    params <- set_scenario()
     params$soil_temp <- 25 # Warm soil
 
     res_warm <- calculate_bebcs(params)

@@ -2,14 +2,14 @@ library(testthat)
 library(BiocharAG)
 
 test_that("Default parameters load correctly", {
-    params <- default_parameters()
+    params <- set_scenario()
     expect_type(params, "list")
     expect_true(is.numeric(params$discount_rate))
     expect_equal(params$bc_ag_value, 0)
 })
 
 test_that("BES returns valid metrics", {
-    params <- default_parameters()
+    params <- set_scenario()
     res <- calculate_bes(params)
 
     expect_equal(res$technology, "BES")
@@ -20,7 +20,7 @@ test_that("BES returns valid metrics", {
 })
 
 test_that("BEBCS returns valid metrics and soil benefits", {
-    params <- default_parameters()
+    params <- set_scenario()
     res <- calculate_bebcs(params)
 
     expect_equal(res$technology, "BEBCS")
@@ -30,7 +30,7 @@ test_that("BEBCS returns valid metrics and soil benefits", {
 })
 
 test_that("BEBCS energy output logic (volatile fraction)", {
-    params <- default_parameters()
+    params <- set_scenario()
     res <- calculate_bebcs(params)
 
     # Check that energy output is roughly consistent with mass balance
@@ -39,7 +39,7 @@ test_that("BEBCS energy output logic (volatile fraction)", {
 })
 
 test_that("RPV comparison works", {
-    params <- default_parameters()
+    params <- set_scenario()
     bes <- calculate_bes(params)
     beccs <- calculate_beccs(params)
     bebcs <- calculate_bebcs(params)
@@ -55,7 +55,7 @@ test_that("RPV comparison works", {
 })
 
 test_that("plant_mw_th accepts named vector and resolves correctly", {
-    params <- default_parameters()
+    params <- set_scenario()
     
     # 1. Individual runs
     p_bes <- params; p_bes$plant_mw_th <- 10
@@ -94,11 +94,11 @@ test_that("BECCS early adoption transport cost logic", {
     expect_true(cost_ea > cost_std)
     
     # Test calculate_beccs with early adoption parameter
-    params_std <- default_parameters()
+    params_std <- set_scenario()
     params_std$early_adoption <- FALSE
     res_std <- calculate_beccs(params_std)
     
-    params_ea <- default_parameters()
+    params_ea <- set_scenario()
     params_ea$early_adoption <- TRUE
     res_ea <- calculate_beccs(params_ea)
     

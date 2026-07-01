@@ -779,7 +779,7 @@ calculate_npv <- function(cash_flows, discount_rate) {
 #' @return A named list of parameters.
 #' @export
 parameters_india <- function() {
-    p <- default_parameters()
+    p <- set_scenario()
 
     # 1. Financial
     # Higher cost of capital in India
@@ -842,7 +842,7 @@ parameters_india <- function() {
 #'
 #' @return A named list of parameters.
 #' @export
-default_parameters <- function() {
+set_scenario <- function() {
   list(
     # BECCS / CCS
     beccs_efficiency = 0.28, # Lower than BES due to capture penalty (35% -> 28%)

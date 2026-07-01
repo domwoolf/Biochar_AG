@@ -1,91 +1,60 @@
-#' Default Parameters
+#' Default Parameters Dataset
 #'
-#' Returns a list of default parameters used in the BiocharAG model.
-#' Values inferred from op_space_2.41.xlsm.
+#' A list containing the default parameters for the BiocharAG model.
+#'
+#' @format A named list.
+"default_parameters"
+
+#' Set Scenario Parameters
+#'
+#' Returns a list of default parameters overridden by a specific scenario.
+#' Values inferred from op_space_2.41.xlsm and tea_literature_review.md.
 #'
 #' @param scenario A named list of parameters to override the defaults. Defaults to an empty list.
 #' @return A named list of parameters.
 #' @export
-default_parameters <- function(scenario = list()) {
-  params <- list(
-    # Financial
-    discount_rate = 0.08,
-    plant_mw_th = 50,
-    O_M_factor = 0.04, # Operations & Maintenance (% of Capex)
-
-    # Biomass
-    bm_lhv = 18.6, # GJ/Mg
-    bm_c = 0.48, # Carbon fraction
-    bm_transport_fixed = 5.0, # $/Mg (Loading/Handling)
-    bm_transport_var = 0.15, # $/Mg/km (Trucking)
-    bm_ash = 0.05,
-    bm_h2o = 0.1, # Moisture content?
-    bm_feed_rate = 250, # kg/hr?
-
-    # Prices
-    elec_price = 100, # $/MWh
-    wholesale_discount_factor = 0.4, # Ratio of Wholesale to Retail (Generator Revenue / Retail Rate)
-    c_price = 50, # $/tCO2e
-    bc_price = 100, # $/t Biochar
-    # Fertilizer Prices based on 2024/2025 Market Averages (Source: see tea_literature_review.md)
-    price_lime = 60, # $/Mg (Bulk Ag Lime)
-    price_n = 0.92, # $/kg N (Derived from Urea ~$425/t)
-    price_p = 1.10, # $/kg P2O5 (Derived from DAP ~$675/t)
-    price_k = 0.62, # $/kg K2O (Derived from Potash ~$375/t)
-
-    # BES (Modernized 2024 Basis)
-    bes_life = 30,
-    bes_energy_efficiency = 0.30, # Updated from 0.39 to standard 30% for dedicated biomass
-    bes_capital_cost = 3000, # Updated to $3,000/kW (IRENA 2023/24)
-    bes_om_factor = 0.04, # 4% of Capex
-    ff_c_intensity = 12 / 3600, # IPCC Nuclear CI (tCO2eq/GJ)
-    use_flat_ci = FALSE,
-    flat_ci_tCO2_GJ = 12 / 3600, # Default to Nuclear
-    optimize_scale = FALSE,
-    plant_sizes_mw_th = c(5, 25, 50, 100, 250, 500),
-    rebound = 0.0,
-
-    # BECCS
-    beccs_available = TRUE,
-    beccs_eff_penalty = 0.08, # efficiency penalty
-    ccs_cc = 500, # CCS capital cost
-    beccs_seq_fraction = 0.9,
-    beccs_efficiency = 0.28, # Lower than BES due to capture penalty (35% -> 28%)
-    capture_rate = 0.90, # 90% capture efficiency
-    ccs_distance = 100, # Transport distance (km)
-    ccs_storage_cost = 15, # Injection/Monitoring cost ($/Mg CO2)
-    beccs_capital_cost = 4000, # Updated 2024 estimate ($/kW)
-    beccs_om_factor = 0.05,
-    early_adoption = FALSE,
-    allow_eor = FALSE,
-
-    # BEBCS (Pyrolysis)
-    py_temp = 500,
-    py_life = 20,
-    py_cc = 500,
-    lignin = 0.2, # Fraction
-    time_frame = 100, # Years for stability
-    bc_stab_factor = 4.6, # Only used for BC agronomic valuation
-
-    # Biochar Ag Properties (Defaults)
-    bc_cce = 0.15, # Calcium Carbonate Equivalent (15%)
-    bc_n_content = 0.005, # 0.5% N (Low availability often)
-    bc_p_content = 0.002, # 0.2% P (Available)
-    bc_k_content = 0.005, # 0.5% K
-    ag_impact_duration = 10, # Years (Liming/Nutrient effect duration, < Stability)
-    bc_ag_value = 0, # Figure 1 Base Case assumes 0 or low mean.
-    bc_valuation_method = "advanced_mechanistic", # Options: "ag_value" (Shadow Price) or "market_price" (Sale)
-    h_c_org = 0.35, # Molar ratio, typical for ~500-600C pyrolysis.
-
-    # Soil / Ag factors
-    n_app_rate = 100,
-    n2o_factor = 0.01
-  )
-
+set_scenario <- function(scenario = list()) {
+  params <- BiocharAG::default_parameters
   if (length(scenario) > 0) {
     params[names(scenario)] <- scenario
   }
+  return(params)
+}
 
+#' Load Parameters from Configuration CSV
+#'
+#' @param file Path to the parameters.csv file.
+#' @param as_dataframe Logical. If TRUE, returns the full dataframe with all columns for sensitivity/MC analysis. If FALSE, returns a standard named list of default values.
+#' @return A list or dataframe of parameters.
+#' @export
+load_parameters <- function(file, as_dataframe = FALSE) {
+  df <- utils::read.csv(file, stringsAsFactors = FALSE)
+  if (as_dataframe) {
+    return(df)
+  }
+  
+  params <- BiocharAG::default_parameters
+  for (i in seq_len(nrow(df))) {
+    name <- df$name[i]
+    val_str <- df$default_value[i]
+    
+    if (name %in% names(params)) {
+      orig_val <- params[[name]]
+      if (is.logical(orig_val)) {
+        params[[name]] <- as.logical(val_str)
+      } else if (is.numeric(orig_val)) {
+        if (length(orig_val) > 1) {
+           params[[name]] <- as.numeric(trimws(unlist(strsplit(val_str, ","))))
+        } else {
+           params[[name]] <- as.numeric(val_str)
+        }
+      } else {
+        params[[name]] <- val_str
+      }
+    } else {
+      params[[name]] <- utils::type.convert(val_str, as.is = TRUE)
+    }
+  }
   return(params)
 }
 

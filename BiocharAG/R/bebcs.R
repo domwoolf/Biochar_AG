@@ -93,6 +93,14 @@ calculate_bebcs <- function(params) {
     total_revenue <- elec_revenue + biochar_economic_value + abatement_value
     net_value <- total_revenue - total_cost
 
+    # Added diagnostics for factorial
+    biomass_cost <- feedstock_cost + logistics_cost
+    total_capex_per_mg <- annual_capex_py + annual_capex_power
+    lcoe <- (total_capex_per_mg + annual_om + biomass_cost - biochar_economic_value) / elec_prod
+    cost_of_co2_avoided <- ifelse_raster(tot_c_abatement > 0, total_cost / tot_c_abatement, Inf)
+    abatement_efficiency <- ifelse_raster(co2e_sequestered > 0, tot_c_abatement / co2e_sequestered, 0)
+    total_capex_m <- (total_py_capex + total_bes_capex) / 1e6
+
     list(
       technology = "BEBCS",
       bc_yield = bc_yield,
@@ -105,7 +113,21 @@ calculate_bebcs <- function(params) {
       total_revenue = total_revenue,
       biochar_value = biochar_economic_value,
       val_method = bc_val_res$method_used,
-      net_value = net_value
+      net_value = net_value,
+      # Granular outputs
+      capital_cost_mg = total_capex_per_mg,
+      om_cost_mg = annual_om,
+      biomass_cost_mg = biomass_cost,
+      co2_transport_cost_mg = 0,
+      co2_transport_distance_km = NA,
+      biomass_transport_distance_km = effective_dist,
+      elec_revenue_mg = elec_revenue,
+      abatement_revenue_mg = abatement_value,
+      agronomic_revenue_mg = biochar_economic_value,
+      lcoe = lcoe,
+      cost_of_co2_avoided = cost_of_co2_avoided,
+      abatement_efficiency = abatement_efficiency,
+      total_capex_m = total_capex_m
     )
   })
 }

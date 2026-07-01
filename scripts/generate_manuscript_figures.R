@@ -171,7 +171,7 @@ get_linear_baseline <- function(template, layers, base_params) {
 # Figure 1: Scale vs. Sink Bivariate Map
 generate_fig1_phys_boundary <- function(dat, region_name, save_map = FALSE,
                                         scenario = "default") {
-    params <- BiocharAG::default_parameters(BiocharAG::scenarios[[scenario]])
+    params <- BiocharAG::set_scenario(BiocharAG::scenarios[[scenario]])
     message("Generating Figure 1: Physical Boundary for ", region_name, "...")
     params$region <- region_name
     res <- run_scenario(dat$template, dat$layers, params)
@@ -229,7 +229,7 @@ generate_fig1_phys_boundary <- function(dat, region_name, save_map = FALSE,
 # Figure 2: Booster Penalty CDF
 generate_fig2_booster_penalty <- function(dat, region_name, save_map = FALSE,
                                           scenario = "default") {
-    params <- BiocharAG::default_parameters(BiocharAG::scenarios[[scenario]])
+    params <- BiocharAG::set_scenario(BiocharAG::scenarios[[scenario]])
     message("Generating Figure 2: Booster Penalty CDF for ", region_name, "...")
     params$region <- region_name
 
@@ -301,7 +301,7 @@ generate_fig3_evaporation <- function(
   d_rates = c(0.02, 0.08, 0.15), c_prices = c(30, 100, 150),
   scenario = "default"
 ) {
-    params <- BiocharAG::default_parameters(BiocharAG::scenarios[[scenario]])
+    params <- BiocharAG::set_scenario(BiocharAG::scenarios[[scenario]])
     message("Generating Figure 3: Evaporation Maps for ", region_name, "...")
     params$region <- region_name
     all_df <- data.frame()
@@ -394,7 +394,7 @@ generate_fig3_evaporation <- function(
 # Figure 4: Capital Lock-Out Wedge
 generate_fig4_capital_wedge <- function(dat, region_name, save_map = FALSE,
                                         scenario = "default") {
-    params <- BiocharAG::default_parameters(BiocharAG::scenarios[[scenario]])
+    params <- BiocharAG::set_scenario(BiocharAG::scenarios[[scenario]])
     message("Generating Figure 4: Capital Lock-Out Wedge for ", region_name, "...")
     cell_area <- terra::cellSize(dat$template, unit = "km")
 
@@ -466,7 +466,7 @@ generate_fig4_capital_wedge <- function(dat, region_name, save_map = FALSE,
 # Figure 5: Carbon Price Threshold Map
 generate_fig5_cprice_threshold <- function(dat, region_name, save_map = FALSE,
                                            scenario = "default") {
-    params <- BiocharAG::default_parameters(BiocharAG::scenarios[[scenario]])
+    params <- BiocharAG::set_scenario(BiocharAG::scenarios[[scenario]])
     message(
         "Generating Figure 5: Carbon Price Threshold Map for ",
         region_name, "..."
@@ -565,7 +565,7 @@ generate_fig5_cprice_threshold <- function(dat, region_name, save_map = FALSE,
 # Figure 6: Fractured Regional MACC
 generate_fig6_macc <- function(dat, region_name, save_map = FALSE,
                                scenario = "default") {
-    params <- BiocharAG::default_parameters(BiocharAG::scenarios[[scenario]])
+    params <- BiocharAG::set_scenario(BiocharAG::scenarios[[scenario]])
     message("Generating Figure 6: Fractured Regional MACC for ", region_name, "...")
     cell_area <- terra::cellSize(dat$template, unit = "km")
 
@@ -689,7 +689,7 @@ generate_fig6_macc <- function(dat, region_name, save_map = FALSE,
 generate_fig7_agronomic_bridge <- function(dat, region_name, save_map = FALSE,
                                            scenario = "default",
                                            c_price = 30) {
-    params <- BiocharAG::default_parameters(BiocharAG::scenarios[[scenario]])
+    params <- BiocharAG::set_scenario(BiocharAG::scenarios[[scenario]])
     message("Generating Figure 7: Agronomic Bridge for ", region_name, "...")
 
     # 1. With Ag Value
@@ -788,7 +788,7 @@ generate_fig7_agronomic_bridge <- function(dat, region_name, save_map = FALSE,
 # Figure 8: Global Break-Even Carbon Price Grid
 generate_fig8_breakeven_cprice <- function(save_map = FALSE,
                                            scenario = "default") {
-    params <- BiocharAG::default_parameters(BiocharAG::scenarios[[scenario]])
+    params <- BiocharAG::set_scenario(BiocharAG::scenarios[[scenario]])
     message("Generating Figure 8: Break-Even Carbon Price Grid...")
 
     # Ordered regions for columns
@@ -1032,7 +1032,7 @@ generate_fig8_breakeven_cprice <- function(save_map = FALSE,
 # Figure 9: Optimal Scale per Tech Map
 generate_fig9_optimal_scale_map <- function(dat, region_name, save_map = FALSE,
                                             scenario = "default") {
-    params <- BiocharAG::default_parameters(BiocharAG::scenarios[[scenario]])
+    params <- BiocharAG::set_scenario(BiocharAG::scenarios[[scenario]])
     message("Generating Figure 9: Optimal Scale Map for ", region_name, "...")
     params$region <- region_name
 
@@ -1196,28 +1196,27 @@ generate_fig10_biomass_density <- function(save_map = FALSE) {
 
 # --- Execution block ---
 if (sys.nframe() == 0) {
-    scenario_name <- "CP100_MW250"
+    # read parameters from file
+    params <- load_parameters("/media/dominic/Data/git/Biochar_AG/parameters.csv")
     dir.create(out_dir, showWarnings = FALSE)
     regions <- c("US", "China", "Europe", "India")
-
-    for (r in regions) {
-        message("\n==========================================")
-        message("Processing Region: ", r)
-        message("==========================================\n")
-        dat <- load_region_data(r)
-        save_map <- TRUE
-        generate_fig1_phys_boundary(dat, r, save_map, scenario = scenario_name)
-        generate_fig2_booster_penalty(dat, r, save_map, scenario = scenario_name)
-        generate_fig3_evaporation(dat, r, save_map, scenario = scenario_name)
-        generate_fig4_capital_wedge(dat, r, save_map, scenario = scenario_name)
-        generate_fig5_cprice_threshold(dat, r, save_map, scenario = scenario_name)
-        generate_fig6_macc(dat, r, save_map, scenario = scenario_name)
-        generate_fig7_agronomic_bridge(dat, r, save_map, scenario = scenario_name)
-        generate_fig9_optimal_scale_map(dat, r, save_map, scenario = scenario_name)
+    for (scenario_name in names(scenarios)) {
+        for (r in regions) {
+            dat <- load_region_data(r)
+            save_map <- TRUE
+            generate_fig1_phys_boundary(dat, r, save_map, scenario = scenario_name)
+            generate_fig2_booster_penalty(dat, r, save_map, scenario = scenario_name)
+            generate_fig3_evaporation(dat, r, save_map, scenario = scenario_name)
+            generate_fig4_capital_wedge(dat, r, save_map, scenario = scenario_name)
+            generate_fig5_cprice_threshold(dat, r, save_map, scenario = scenario_name)
+            generate_fig6_macc(dat, r, save_map, scenario = scenario_name)
+            generate_fig7_agronomic_bridge(dat, r, save_map, scenario = scenario_name)
+            generate_fig9_optimal_scale_map(dat, r, save_map, scenario = scenario_name)
+        }
+        generate_fig8_breakeven_cprice(save_map, scenario = scenario_name)
+        message(paste0("All figures generated successfully for scenario: ", scenario_name, "\n"))
     }
-    generate_fig8_breakeven_cprice(save_map, scenario = scenario_name)
     generate_fig10_biomass_density(save_map = TRUE)
-    message("All figures generated successfully for all regions.")
 }
 
 # nolint end
