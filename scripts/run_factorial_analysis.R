@@ -10,7 +10,7 @@ factorial_grid <- expand.grid(
   allow_eor = c(TRUE, FALSE),
   early_adoption = c(TRUE, FALSE),
   plant_mw_th = c(50, 150, 250),
-  stringsAsFactors = FALSE
+  stringsAsFactors = FALSE  #TODO this looks like a mistake.  Why is this here?
 )
 
 # For testing, truncate this to head(factorial_grid, 2)

@@ -1,4 +1,3 @@
-==> BiocharAG/R/bebcs.R <==
 #' Calculate Biochar-Energy (BEBCS) Metrics
 #'
 #' @param params A list of parameters.
@@ -94,6 +93,14 @@ calculate_bebcs <- function(params) {
     total_revenue <- elec_revenue + biochar_economic_value + abatement_value
     net_value <- total_revenue - total_cost
 
+    # Added diagnostics for factorial
+    biomass_cost <- feedstock_cost + logistics_cost
+    total_capex_per_mg <- annual_capex_py + annual_capex_power
+    lcoe <- (total_capex_per_mg + annual_om + biomass_cost - biochar_economic_value) / elec_prod
+    cost_of_co2_avoided <- ifelse_raster(tot_c_abatement > 0, total_cost / tot_c_abatement, Inf)
+    abatement_efficiency <- ifelse_raster(co2e_sequestered > 0, tot_c_abatement / co2e_sequestered, 0)
+    total_capex_m <- (total_py_capex + total_bes_capex) / 1e6
+
     list(
       technology = "BEBCS",
       bc_yield = bc_yield,
@@ -106,12 +113,24 @@ calculate_bebcs <- function(params) {
       total_revenue = total_revenue,
       biochar_value = biochar_economic_value,
       val_method = bc_val_res$method_used,
-      net_value = net_value
+      net_value = net_value,
+      # Granular outputs
+      capital_cost_mg = total_capex_per_mg,
+      om_cost_mg = annual_om,
+      biomass_cost_mg = biomass_cost,
+      co2_transport_cost_mg = 0,
+      co2_transport_distance_km = NA,
+      biomass_transport_distance_km = effective_dist,
+      elec_revenue_mg = elec_revenue,
+      abatement_revenue_mg = abatement_value,
+      agronomic_revenue_mg = biochar_economic_value,
+      lcoe = lcoe,
+      cost_of_co2_avoided = cost_of_co2_avoided,
+      abatement_efficiency = abatement_efficiency,
+      total_capex_m = total_capex_m
     )
   })
 }
-
-==> BiocharAG/R/beccs.R <==
 #' Calculate Bioenergy Carbon Capture and Storage (BECCS) Metrics
 #'
 #' Modernized logic (2024 Basis):
@@ -124,6 +143,7 @@ calculate_bebcs <- function(params) {
 calculate_beccs <- function(params) {
   if (is.null(params$beccs_efficiency)) params$beccs_efficiency <- 0.28
   if (is.null(params$capture_rate)) params$capture_rate <- 0.90
+  if (is.null(params$early_adoption)) params$early_adoption <- FALSE
 
   allow_eor <- if (!is.null(params$allow_eor)) as.logical(params$allow_eor) else TRUE
   dist_spatial <- NULL
@@ -200,7 +220,8 @@ calculate_beccs <- function(params) {
       distance = dist_onshore,
       is_offshore = FALSE,
       discount_rate = discount_rate,
-      lifetime = bes_life
+      lifetime = bes_life,
+      early_adoption = early_adoption
     )
     ts_cost_onshore_calc <- (cost_onshore_trans + base_cost_onshore_storage) * co2_captured
     ts_cost_onshore <- ifelse_raster(is.infinite(dist_onshore), Inf, ts_cost_onshore_calc)
@@ -210,7 +231,8 @@ calculate_beccs <- function(params) {
       distance = dist_offshore,
       is_offshore = TRUE,
       discount_rate = discount_rate,
-      lifetime = bes_life
+      lifetime = bes_life,
+      early_adoption = early_adoption
     )
     ts_cost_offshore_calc <- (cost_offshore_trans + base_cost_offshore_storage) * co2_captured
     ts_cost_offshore <- ifelse_raster(is.infinite(dist_offshore), Inf, ts_cost_offshore_calc)
@@ -261,6 +283,14 @@ calculate_beccs <- function(params) {
     total_revenue <- elec_revenue + abatement_value
     net_value <- total_revenue - total_cost
 
+    # Added diagnostics for factorial
+    biomass_cost <- feedstock_cost + logistics_cost
+    lcoe <- (capex_per_mg + opex_per_mg + ts_cost + biomass_cost) / elec_prod
+    cost_of_co2_avoided <- ifelse_raster(tot_c_abatement > 0, total_cost / tot_c_abatement, Inf)
+    abatement_efficiency <- ifelse_raster(co2e_sequestered > 0, tot_c_abatement / co2e_sequestered, 0)
+    total_capex_m <- total_capex / 1e6
+    co2_dist_chosen <- ifelse_raster(ts_cost_onshore < ts_cost_offshore, dist_onshore, dist_offshore)
+
     list(
       technology = "BECCS",
       energy_output = energy_output,
@@ -270,12 +300,24 @@ calculate_beccs <- function(params) {
       total_cost = total_cost,
       ts_cost = ts_cost,
       total_revenue = total_revenue,
-      net_value = net_value
+      net_value = net_value,
+      # Granular outputs
+      capital_cost_mg = capex_per_mg,
+      om_cost_mg = opex_per_mg,
+      biomass_cost_mg = biomass_cost,
+      co2_transport_cost_mg = ts_cost,
+      co2_transport_distance_km = co2_dist_chosen,
+      biomass_transport_distance_km = effective_dist,
+      elec_revenue_mg = elec_revenue,
+      abatement_revenue_mg = abatement_value,
+      agronomic_revenue_mg = NA,
+      lcoe = lcoe,
+      cost_of_co2_avoided = cost_of_co2_avoided,
+      abatement_efficiency = abatement_efficiency,
+      total_capex_m = total_capex_m
     )
   })
 }
-
-==> BiocharAG/R/bes.R <==
 #' Calculate Bioenergy System (BES) Metrics
 #'
 #' Modernized logic (2024 Basis):
@@ -360,6 +402,13 @@ calculate_bes <- function(params) {
     total_revenue <- elec_revenue + abatement_value
     net_value <- total_revenue - total_cost
 
+    # Added diagnostics for factorial
+    biomass_cost <- feedstock_cost + logistics_cost
+    lcoe <- (capex_per_mg + opex_per_mg + biomass_cost) / elec_prod
+    cost_of_co2_avoided <- ifelse_raster(tot_c_abatement > 0, total_cost / tot_c_abatement, Inf)
+    abatement_efficiency <- 0 # No gross sequestration for BES
+    total_capex_m <- total_capex / 1e6
+
     list(
       technology = "BES",
       energy_output = energy_output,
@@ -368,12 +417,24 @@ calculate_bes <- function(params) {
       tot_c_abatement = tot_c_abatement,
       total_cost = total_cost,
       total_revenue = total_revenue,
-      net_value = net_value
+      net_value = net_value,
+      # Granular outputs
+      capital_cost_mg = capex_per_mg,
+      om_cost_mg = opex_per_mg,
+      biomass_cost_mg = biomass_cost,
+      co2_transport_cost_mg = 0,
+      co2_transport_distance_km = NA,
+      biomass_transport_distance_km = effective_dist,
+      elec_revenue_mg = elec_revenue,
+      abatement_revenue_mg = abatement_value,
+      agronomic_revenue_mg = NA,
+      lcoe = lcoe,
+      cost_of_co2_avoided = cost_of_co2_avoided,
+      abatement_efficiency = abatement_efficiency,
+      total_capex_m = total_capex_m
     )
   })
 }
-
-==> BiocharAG/R/biochar_valuation.R <==
 #' Calculate Biochar Economic Value
 #'
 #' Determines the economic value of the biochar fraction based on the selected valuation method.
@@ -475,8 +536,6 @@ calculate_biochar_value <- function(params, bc_yield) {
         detail = detail
     )
 }
-
-==> BiocharAG/R/comparison.R <==
 #' Calculate Relative Present Value (RPV)
 #'
 #' @param results_list List of result objects from calculate_bes, calculate_beccs, calculate_bebcs.
@@ -503,8 +562,6 @@ calculate_rpv <- function(results_list) {
         RPV = unlist(rpv_res)
     )
 }
-
-==> BiocharAG/R/data.R <==
 #' Biochar Permanence Reference Data
 #'
 #' A dataset containing experimental biochar stability data from Woolf et al. (2021).
@@ -536,8 +593,6 @@ calculate_rpv <- function(results_list) {
 #'   \item{py_temps}{Vector of pyrolysis temperatures}
 #' }
 "fperm_lut"
-
-==> BiocharAG/R/distance.R <==
 #' Calculate and optionally save a distance raster for a given plant capacity
 #'
 #' @param dens_wgs84 SpatRaster of biomass density in WGS84
@@ -633,8 +688,6 @@ calculate_distance_raster <- function(dens_wgs84, target_mw_th, region, gis_dir 
 
     return(avg_dist_wgs84)
 }
-
-==> BiocharAG/R/fuel_adjustment.R <==
 #' Adjust TEA Costs based on Fuel Quality (Ash Content)
 #'
 #' Applies cost penalties for high-ash biomass (e.g., crop residues) which require
@@ -694,8 +747,6 @@ adjust_costs_for_fuel <- function(params) {
 
     params
 }
-
-==> BiocharAG/R/geospatial.R <==
 #' Find Nearest CO2 Sink
 #'
 #' Calculates the geodesic distance from a given projected location to the nearest
@@ -738,8 +789,6 @@ find_nearest_sink <- function(lat, lon) {
         sink_region = nearest_sink$Region
     )
 }
-
-==> BiocharAG/R/npv.R <==
 #' Calculate Annuity Factor
 #'
 #' Calculates the Present Value of an Annuity Factor.
@@ -764,8 +813,6 @@ calculate_npv <- function(cash_flows, discount_rate) {
   # This function is a placeholder for direct cash flow streams if needed.
   sum(cash_flows / (1 + discount_rate)^t)
 }
-
-==> BiocharAG/R/parameters_india.R <==
 #' Default Parameters for India (North-West)
 #'
 #' Returns a list of parameters customized for the Indian context (Punjab/Haryana).
@@ -833,95 +880,64 @@ parameters_india <- function() {
 
     return(p)
 }
+#' Default Parameters Dataset
+#'
+#' A list containing the default parameters for the BiocharAG model.
+#'
+#' @format A named list.
+"default_parameters"
 
-==> BiocharAG/R/parameters.R <==
-#' Default Parameters
+#' Set Scenario Parameters
 #'
-#' Returns a list of default parameters used in the BiocharAG model.
-#' Values inferred from op_space_2.41.xlsm.
+#' Returns a list of default parameters overridden by a specific scenario.
+#' Values inferred from op_space_2.41.xlsm and tea_literature_review.md.
 #'
+#' @param scenario A named list of parameters to override the defaults. Defaults to an empty list.
 #' @return A named list of parameters.
 #' @export
-set_scenario <- function() {
-  list(
-    # BECCS / CCS
-    beccs_efficiency = 0.28, # Lower than BES due to capture penalty (35% -> 28%)
-    capture_rate = 0.90, # 90% capture efficiency
-    ccs_distance = 100, # Transport distance (km)
-    ccs_storage_cost = 15, # Injection/Monitoring cost ($/Mg CO2)
-    beccs_capital_cost = 4000, # Updated 2024 estimate ($/kW)
-    beccs_om_factor = 0.05,
+set_scenario <- function(scenario = list()) {
+  params <- BiocharAG::default_parameters
+  if (length(scenario) > 0) {
+    params[names(scenario)] <- scenario
+  }
+  return(params)
+}
 
-    # Financial
-    discount_rate = 0.08,
-
-    # Biomass
-    bm_lhv = 18.6, # GJ/Mg
-    bm_c = 0.48, # Carbon fraction
-    bm_transport_fixed = 5.0, # $/Mg (Loading/Handling)
-    bm_transport_var = 0.15, # $/Mg/km (Trucking)
-    bm_ash = 0.05,
-    bm_h2o = 0.1, # Moisture content?
-    bm_feed_rate = 250, # kg/hr?
-
-    # Prices
-    elec_price = 100, # $/MWh
-    wholesale_discount_factor = 0.4, # Ratio of Wholesale to Retail (Generator Revenue / Retail Rate)
-    c_price = 50, # $/tCO2e
-    bc_price = 100, # $/t Biochar
-
-    # Operations
-    O_M_factor = 0.04, # % of Capex? or similar
-
-    # BES (Modernized 2024 Basis)
-    bes_life = 30,
-    bes_energy_efficiency = 0.30, # Updated from 0.39 to standard 30% for dedicated biomass
-    bes_capital_cost = 3000, # Updated to $3,000/kW (IRENA 2023/24)
-    bes_om_factor = 0.04, # 4% of Capex
-    ff_c_intensity = 12 / 3600, # IPCC Nuclear CI (tCO2eq/GJ)
-    use_flat_ci = FALSE,
-    flat_ci_tCO2_GJ = 12 / 3600, # Default to Nuclear
-    optimize_scale = FALSE,
-    plant_sizes_mw_th = c(5, 25, 50, 100, 250, 500),
-    rebound = 0.0,
-
-    # BECCS
-    beccs_available = TRUE,
-    beccs_eff_penalty = 0.08, # efficiency penalty
-    ccs_cc = 500, # CCS capital cost
-    beccs_seq_fraction = 0.9,
-
-    # BEBCS (Pyrolysis)
-    py_temp = 500,
-    py_life = 20,
-    py_cc = 500,
-    lignin = 0.2, # Fraction
-    time_frame = 100, # Years for stability
-    bc_stab_factor = 4.6, # From Excel formula J6/J8 logic
-
-    # Advanced Biochar Valuation (Substitutes)
-    # Prices based on 2024/2025 Market Averages (Source: tea_literature_review.md)
-    price_lime = 60, # $/Mg (Bulk Ag Lime)
-    price_n = 0.92, # $/kg N (Derived from Urea ~$425/t)
-    price_p = 1.10, # $/kg P2O5 (Derived from DAP ~$675/t)
-    price_k = 0.62, # $/kg K2O (Derived from Potash ~$375/t)
-
-    # Biochar Ag Properties (Defaults)
-    bc_cce = 0.15, # Calcium Carbonate Equivalent (15%)
-    bc_n_content = 0.005, # 0.5% N (Low availability often)
-    bc_p_content = 0.002, # 0.2% P (Available)
-    bc_k_content = 0.005, # 0.5% K
-    ag_impact_duration = 10, # Years (Liming/Nutrient effect duration, < Stability)
-
-    bc_ag_value = 0, # Figure 1 Base Case assumes 0 or low mean.
-    bc_valuation_method = "advanced_mechanistic", # Options: "ag_value" (Shadow Price) or "market_price" (Sale)
-    h_c_org = 0.35, # Molar ratio, typical for ~500-600C pyrolysis.
-
-    # Soil / Ag factors
-    n_app_rate = 100,
-    n2o_factor = 0.01,
-    plant_mw_th = 50
-  )
+#' Load Parameters from Configuration CSV
+#'
+#' @param file Path to the parameters.csv file.
+#' @param as_dataframe Logical. If TRUE, returns the full dataframe with all columns for sensitivity/MC analysis. If FALSE, returns a standard named list of default values.
+#' @return A list or dataframe of parameters.
+#' @export
+load_parameters <- function(file, as_dataframe = FALSE) {
+  df <- utils::read.csv(file, stringsAsFactors = FALSE)
+  if (as_dataframe) {
+    return(df)
+  }
+  
+  params <- BiocharAG::default_parameters
+  for (i in seq_len(nrow(df))) {
+    name <- df$name[i]
+    val_str <- df$default_value[i]
+    
+    if (name %in% names(params)) {
+      orig_val <- params[[name]]
+      if (is.logical(orig_val)) {
+        params[[name]] <- as.logical(val_str)
+      } else if (is.numeric(orig_val)) {
+        if (length(orig_val) > 1) {
+           params[[name]] <- as.numeric(trimws(unlist(strsplit(val_str, ","))))
+        } else {
+           params[[name]] <- as.numeric(val_str)
+        }
+      } else {
+        params[[name]] <- val_str
+      }
+    } else {
+      params[[name]] <- utils::type.convert(val_str, as.is = TRUE)
+    }
+  }
+  return(params)
 }
 
 #' Resolve plant_mw_th for a specific technology
@@ -929,7 +945,9 @@ set_scenario <- function() {
 #' @param tech Character string ("BES", "BECCS", or "BEBCS").
 #' @return A single numeric value.
 resolve_plant_mw_th <- function(plant_mw_th, tech) {
-  if (is.null(plant_mw_th)) return(50)
+  if (is.null(plant_mw_th)) {
+    return(50)
+  }
   if (length(plant_mw_th) > 1 && !is.null(names(plant_mw_th))) {
     if (!is.na(tech) && tech %in% names(plant_mw_th)) {
       return(plant_mw_th[[tech]])
@@ -940,8 +958,32 @@ resolve_plant_mw_th <- function(plant_mw_th, tech) {
   return(plant_mw_th)
 }
 
+#' Scenarios List
+#'
+#' A predefined list of scenarios used to override default parameters.
+#' @export
+scenarios <- list(
+  default = list(),
+  CP100_MW250 = list(
+    c_price = 100,
+    plant_mw_th = c(BES = 250, BECCS = 250, BEBCS = 250)
+  ),
+  EA = list(
+    early_adoption = TRUE
+  ),
+  EA_CP100_MW250 = list(
+    c_price = 100,
+    plant_mw_th = c(BES = 250, BECCS = 250, BEBCS = 250),
+    early_adoption = TRUE
+  ),
+  EA_CP100_MW250_EOR = list(
+    c_price = 100,
+    plant_mw_th = c(BES = 250, BECCS = 250, BEBCS = 250),
+    early_adoption = TRUE,
+    allow_eor = TRUE
+  )
 
-==> BiocharAG/R/permanence.R <==
+)
 #' Calculate Biochar Permanence (Fperm)
 #'
 #' Calculates the fraction of biochar carbon remaining after a specified time frame (Fperm),
@@ -1256,8 +1298,6 @@ calculate_fperm_vectorized <- function(prep, soil_temp) {
     res <- v0 * (1 - wy) + v1 * wy
     return(as.numeric(res))
 }
-
-==> BiocharAG/R/plotting.R <==
 #' Plot RPV vs Carbon Price
 #'
 #' Generates a plot of Net Present Value (or RPV) for BES, BECCS, and BEBCS
@@ -1315,8 +1355,6 @@ plot_rpv_vs_c_price <- function(params, c_price_range = seq(0, 150, 10), metric 
 
     return(p)
 }
-
-==> BiocharAG/R/pyrolysis.R <==
 #' Calculate Pyrolysis Yields and Energy Balance (Woolf et al. 2016)
 #'
 #' Implements the sophisticated mass and energy balance from op_space_2.41.xlsm.
@@ -1473,8 +1511,6 @@ calculate_pyrolysis_physics <- function(py_temp, lignin, bm_lhv, moisture = 0.1,
         energy_char = e_net_bc
     )
 }
-
-==> BiocharAG/R/spatial_tea.R <==
 #' Run Spatial TEA Analysis
 #'
 #' Runs the Techno-Economic Assessment over a spatial grid defined by a template raster.
@@ -1785,7 +1821,7 @@ calculate_regional_feedstock_cost <- function(region, params) {
     return(cost_usd)
 }
 
-==> BiocharAG/R/transport.R <==
+# nolint end
 #' Calculate CO2 Transport Costs (Pipeline vs. Shipping)
 #'
 #' Implements the technoeconomic cost functions from the "Global Geologic Carbon Storage Assessment".
@@ -1905,9 +1941,10 @@ calc_transport_cost <- function(mass_flow_mtpa, distance_km, region, is_offshore
 #' @param distance Transport distance (km).
 #' @param discount_rate Discount rate (decimal). Default 0.10.
 #' @param lifetime Project lifetime (years). Default 20.
+#' @param early_adoption Logical. If TRUE, forces pipeline to scale strictly to the output of the single facility over the entire distance, simulating early adoption. Default FALSE.
 #' @return Transport cost ($/Mg CO2).
 #' @export
-calculate_ccs_transport <- function(co2_mass, distance, is_offshore = FALSE, discount_rate = 0.10, lifetime = 20) {
+calculate_ccs_transport <- function(co2_mass, distance, is_offshore = FALSE, discount_rate = 0.10, lifetime = 20, early_adoption = FALSE) {
   # Prevent division by zero and handle co2_mass <= 0 at the end
   safe_co2_mass <- pmax(co2_mass, 1e-6)
 
@@ -1959,7 +1996,11 @@ calculate_ccs_transport <- function(co2_mass, distance, is_offshore = FALSE, dis
   total_capex_share_close <- base_capex_ref * (effective_dist / ref_dist) * scaler_direct
 
   # Combine Paths
-  total_capex_share <- ifelse_raster(effective_dist > feeder_threshold_km, total_capex_share_far, total_capex_share_close)
+  total_capex_share <- ifelse_raster(
+    early_adoption,
+    total_capex_share_close,
+    ifelse_raster(effective_dist > feeder_threshold_km, total_capex_share_far, total_capex_share_close)
+  )
 
   annual_capex <- total_capex_share / annuity_fac
   annual_opex <- total_capex_share * opex_factor
@@ -1978,8 +2019,6 @@ calculate_ccs_transport <- function(co2_mass, distance, is_offshore = FALSE, dis
 
   return(ifelse_raster(co2_mass <= 0, 0, final_cost))
 }
-
-==> BiocharAG/R/utils.R <==
 #' Raster-Aware Conditional Element Selection (ifelse)
 #'
 #' Internal helper that delegates to terra::ifel if the test is a SpatRaster,
