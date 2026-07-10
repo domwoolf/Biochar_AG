@@ -10,13 +10,6 @@ parameters_india()
 A named list of parameters.
 }
 \description{
-Returns a list of parameters customized for the Indian context (Punjab/Haryana).
-Key Differences from US:
-\itemize{
-\item Lower Labor Costs (affects O&M)
-\item Lower Capital Costs (Construction factor ~0.7)
-\item High Discount Rate (Developing market risk)
-\item Fertilizer Subsidies (Low N price)
-\item Negative/Zero Feedstock Cost (Crop Residue burning prevention)
-}
+Deprecated: Returns a list of parameters customized for the Indian context
+by calling \code{set_scenario(region = "India")}.
 }

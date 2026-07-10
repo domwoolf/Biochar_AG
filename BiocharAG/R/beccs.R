@@ -68,11 +68,8 @@ calculate_beccs <- function(params) {
           dist_offshore <- terra::ifel(params$sink_is_offshore == 1, params$ccs_distance, Inf)
           dist_onshore <- terra::ifel(params$sink_is_offshore == 0, params$ccs_distance, Inf)
         } else {
-          if (params$sink_is_offshore) {
-            dist_offshore <- params$ccs_distance
-          } else {
-            dist_onshore <- params$ccs_distance
-          }
+          dist_offshore <- ifelse_raster(params$sink_is_offshore == 1, params$ccs_distance, Inf)
+          dist_onshore <- ifelse_raster(params$sink_is_offshore == 0, params$ccs_distance, Inf)
         }
       } else {
         dist_onshore <- params$ccs_distance

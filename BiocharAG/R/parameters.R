@@ -5,21 +5,122 @@
 #' @format A named list.
 "default_parameters"
 
+#' Normalize Region Name
+#'
+#' Standardizes regional names and aliases to match `regional_overrides` keys.
+#'
+#' @param region Character string indicating region.
+#' @return Normalized region character string ("US", "India", "China", "Europe").
+#' @export
+normalize_region_name <- function(region) {
+  if (is.null(region) || is.na(region)) {
+    return("US")
+  }
+  r <- trimws(region)
+  if (r %in% c("EU", "Europe")) {
+    return("Europe")
+  }
+  if (r %in% c("US", "USA", "North America")) {
+    return("US")
+  }
+  return(r)
+}
+
+#' Regional Overrides List
+#'
+#' A predefined list of regional parameter overrides for non-spatial parameters
+#' (financial, capital cost modifiers, O&M labor factors, and fertilizer prices).
+#' @export
+regional_overrides <- list(
+  US = list(),
+  India = list(
+    discount_rate = 0.12,
+    bes_capital_cost = 3000 * 0.7,
+    beccs_capital_cost = 4000 * 0.7,
+    bes_om_factor = 0.025,
+    beccs_om_factor = 0.03,
+    price_n = 0.30,
+    price_p = 0.80,
+    price_k = 0.40,
+    price_lime = 40,
+    soil_ph_target = 6.5
+  ),
+  China = list(
+    discount_rate = 0.10,
+    bes_capital_cost = 3000 * 0.75,
+    beccs_capital_cost = 4000 * 0.75,
+    bes_om_factor = 0.03,
+    beccs_om_factor = 0.035,
+    price_n = 0.70,
+    price_p = 0.90,
+    price_k = 0.55
+  ),
+  Europe = list(
+    discount_rate = 0.07,
+    bes_capital_cost = 3000 * 1.15,
+    beccs_capital_cost = 4000 * 1.15,
+    bes_om_factor = 0.045,
+    beccs_om_factor = 0.055,
+    price_n = 1.05,
+    price_p = 1.25,
+    price_k = 0.75
+  )
+)
+
+#' Apply Regional Overrides
+#'
+#' Applies regional non-spatial overrides to a parameter list.
+#'
+#' @param params Parameter list.
+#' @param region Optional region string ("US", "India", "China", "Europe"). If NULL, checks `params$region`.
+#' @return Parameter list with regional overrides applied.
+#' @export
+apply_regional_overrides <- function(params, region = NULL) {
+  if (is.null(region)) {
+    region <- params$region
+  }
+  if (is.null(region) || is.na(region)) {
+    return(params)
+  }
+  r_key <- normalize_region_name(region)
+  if (r_key %in% names(BiocharAG::regional_overrides)) {
+    overrides <- BiocharAG::regional_overrides[[r_key]]
+    if (length(overrides) > 0) {
+      params[names(overrides)] <- overrides
+    }
+  }
+  params$region <- r_key
+  return(params)
+}
+
 #' Set Scenario Parameters
 #'
-#' Returns a list of default parameters overridden by a specific scenario.
+#' Returns a list of default parameters overridden by a specific scenario
+#' and optional regional parameter overrides.
+#' Order of precedence: default_parameters -> regional_overrides -> scenario overrides.
 #' Values inferred from op_space_2.41.xlsm and tea_literature_review.md.
 #'
 #' @param scenario A named list of parameters to override the defaults. Defaults to an empty list.
+#' @param region Optional character string specifying a region ("US", "India", "China", "Europe").
 #' @return A named list of parameters.
 #' @export
-set_scenario <- function(scenario = list()) {
+set_scenario <- function(scenario = list(), region = NULL) {
   params <- BiocharAG::default_parameters
+  if (is.null(region) && !is.null(scenario$region)) {
+    region <- scenario$region
+  }
+  if (!is.null(region)) {
+    params <- apply_regional_overrides(params, region = region)
+  }
   if (length(scenario) > 0) {
     params[names(scenario)] <- scenario
   }
+  if (!is.null(region)) {
+    params$region <- normalize_region_name(region)
+  }
   return(params)
 }
+
 
 #' Load Parameters from Configuration CSV
 #'

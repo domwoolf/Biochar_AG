@@ -4,15 +4,19 @@
 \alias{set_scenario}
 \title{Set Scenario Parameters}
 \usage{
-set_scenario(scenario = list())
+set_scenario(scenario = list(), region = NULL)
 }
 \arguments{
 \item{scenario}{A named list of parameters to override the defaults. Defaults to an empty list.}
+
+\item{region}{Optional character string specifying a region ("US", "India", "China", "Europe").}
 }
 \value{
 A named list of parameters.
 }
 \description{
-Returns a list of default parameters overridden by a specific scenario.
+Returns a list of default parameters overridden by a specific scenario
+and optional regional parameter overrides.
+Order of precedence: default_parameters -> regional_overrides -> scenario overrides.
 Values inferred from op_space_2.41.xlsm and tea_literature_review.md.
 }
