@@ -17,6 +17,12 @@ A named list of parameters.
 \description{
 Returns a list of default parameters overridden by a specific scenario
 and optional regional parameter overrides.
-Order of precedence: default_parameters -> regional_overrides -> scenario overrides.
+4-tier precedence hierarchy:
+\enumerate{
+\item default_parameters (global defaults)
+\item regional_overrides for region (baseline regional overrides)
+\item scenario (global scenario overrides)
+\item scenario regional sublist for region (scenario-specific regional variants)
 Values inferred from op_space_2.41.xlsm and tea_literature_review.md.
+}
 }

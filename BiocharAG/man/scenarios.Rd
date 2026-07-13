@@ -3,14 +3,14 @@
 \docType{data}
 \name{scenarios}
 \alias{scenarios}
-\title{Scenarios List}
+\title{Regionalized Scenarios}
 \format{
-An object of class \code{list} of length 5.
+An object of class \code{list} of length 12.
 }
 \usage{
 scenarios
 }
 \description{
-A predefined list of scenarios used to override default parameters.
+A predefined list of scenarios that includes global and regional parameter overrides.
 }
 \keyword{datasets}

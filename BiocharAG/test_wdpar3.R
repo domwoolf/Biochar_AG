@@ -1,6 +1,0 @@
-library(wdpar)
-print("Fetching Malta")
-pa <- wdpa_fetch("Malta", wait=TRUE, download_dir = tempdir())
-print("Cleaning Malta")
-pa_clean <- wdpa_clean(pa)
-print(nrow(pa_clean))

@@ -49,120 +49,15 @@ ggsave_with_scenario <- function(filename, plot, width, height, bg = "white", dp
     ggplot2::ggsave(filename = filename, plot = plot, width = width, height = height, bg = bg, dpi = dpi)
 }
 
-load_region_data <- function(region_name) {
-    gis_path <- "../GIS/processed/"
-    if (!dir.exists(gis_path)) {
-        gis_path <- "GIS/processed/"
-        if (!dir.exists(gis_path)) {
-            stop("Could not locate GIS/processed/ directory.")
-        }
-    }
-
-    prefix_map <- list(
-        "US" = list(base = "us", dist = "us"),
-        "China" = list(base = "china", dist = "china"),
-        "Europe" = list(base = "europe", dist = "europe"),
-        "India" = list(base = "india", dist = "india")
-    )
-
-    if (!(region_name %in% names(prefix_map))) {
-        stop("Unknown region: ", region_name)
-    }
-
-    p_base <- prefix_map[[region_name]]$base
-    p_dist <- prefix_map[[region_name]]$dist
-
-    bm <- terra::rast(file.path(gis_path, paste0(p_base, "_biomass.tif")))
-    st <- terra::rast(file.path(gis_path, paste0(p_base, "_soil_temp.tif")))
-    ep <- terra::rast(file.path(gis_path, paste0(p_base, "_elec_price.tif")))
-    ds <- terra::rast(file.path(gis_path, paste0(p_dist, "_dist_sink.tif")))
-    dss <- terra::rast(file.path(gis_path, paste0(p_dist, "_dist_sink_saline.tif")))
-    stype <- terra::rast(file.path(gis_path, paste0(p_dist, "_sink_type.tif")))
-    ph <- terra::rast(file.path(gis_path, paste0(p_base, "_soil_ph.tif")))
-    cec <- terra::rast(file.path(gis_path, paste0(p_base, "_soil_cec.tif")))
-
-    ci_path <- file.path(gis_path, paste0(p_base, "_ff_c_intensity.tif"))
-    ci <- if (file.exists(ci_path)) terra::rast(ci_path) else NULL
-
-    a0_path <- file.path(gis_path, paste0(p_dist, "_admin0.gpkg"))
-    a1_path <- file.path(gis_path, paste0(p_dist, "_admin1.gpkg"))
-    admin0 <- if (file.exists(a0_path)) {
-        sf::st_read(a0_path, quiet = TRUE)
-    } else {
-        NULL
-    }
-    admin1 <- if (file.exists(a1_path)) {
-        sf::st_read(a1_path, quiet = TRUE)
-    } else {
-        NULL
-    }
-
-    layers <- list(
-        biomass_density = bm,
-        soil_temp = st,
-        elec_price = ep,
-        dist_sink_km = ds,
-        dist_sink_saline_km = dss,
-        sink_is_offshore = stype,
-        soil_ph = ph,
-        soil_cec = cec
-    )
-
-    if (!is.null(ci)) {
-        layers$ff_c_intensity <- ci
-    }
-
-    for (sz in c(5, 25, 50, 100, 250, 500, 1000)) {
-        dist_name <- paste0("dist_", sz, "MWth")
-        dist_file <- file.path(gis_path, paste0(p_dist, "_", dist_name, ".tif"))
-        if (file.exists(dist_file)) {
-            layers[[dist_name]] <- terra::rast(dist_file)
-        }
-    }
-
-    list(template = bm, layers = layers, admin0 = admin0, admin1 = admin1)
-}
-
-run_scenario <- function(template, layers, params) {
-    # Run the base TEA (which takes ~10-20 seconds per tech)
-    bes <- BiocharAG::run_spatial_tea(
-        template, params, layers,
-        fun = BiocharAG::calculate_bes
-    )
-    beccs <- BiocharAG::run_spatial_tea(
-        template, params, layers,
-        fun = BiocharAG::calculate_beccs
-    )
-    bebcs <- BiocharAG::run_spatial_tea(
-        template, params, layers,
-        fun = BiocharAG::calculate_bebcs
-    )
-
-    net_stack <- c(
-        bes[["Net_Value_USD"]],
-        beccs[["Net_Value_USD"]],
-        bebcs[["Net_Value_USD"]]
-    )
-    names(net_stack) <- c("BES", "BECCS", "BEBCS")
-
-    abate_stack <- c(
-        bes[["Abatement_tCO2"]],
-        beccs[["Abatement_tCO2"]],
-        bebcs[["Abatement_tCO2"]]
-    )
-    names(abate_stack) <- c("BES", "BECCS", "BEBCS")
-
-    opt_idx <- terra::which.max(net_stack)
-
-    list(net = net_stack, abate = abate_stack, opt = opt_idx)
-}
+load_region_data <- BiocharAG::load_region_data
+run_scenario <- BiocharAG::run_scenario
 
 # Linear interpolation for fast sweeps
 # Net_Value(C) = Net_Value(0) + C * Abatement
-get_linear_baseline <- function(template, layers, base_params) {
+get_linear_baseline <- function(template, layers, base_params, vec = NULL) {
     p0 <- base_params
-    p0$c_price <- 0
-    res0 <- run_scenario(template, layers, p0)
+    p0[["c_price"]] <- 0
+    res0 <- run_scenario(template, layers, p0, vec = vec)
     res0 # Returns net at C=0, and abatement
 }
 
@@ -174,7 +69,7 @@ generate_fig1_phys_boundary <- function(dat, region_name, save_map = FALSE,
     params <- BiocharAG::set_scenario(BiocharAG::scenarios[[scenario]])
     message("Generating Figure 1: Physical Boundary for ", region_name, "...")
     params$region <- region_name
-    res <- run_scenario(dat$template, dat$layers, params)
+    res <- run_scenario(dat[["template", exact = TRUE]], dat[["layers", exact = TRUE]], params, vec = dat[["vec", exact = TRUE]])
 
     stack_df <- terra::as.data.frame(
         c(dat$layers$biomass_density, dat$layers$dist_sink_km, res$opt),
@@ -233,7 +128,7 @@ generate_fig2_booster_penalty <- function(dat, region_name, save_map = FALSE,
     message("Generating Figure 2: Booster Penalty CDF for ", region_name, "...")
     params$region <- region_name
 
-    res <- run_scenario(dat$template, dat$layers, params)
+    res <- run_scenario(dat[["template", exact = TRUE]], dat[["layers", exact = TRUE]], params, vec = dat[["vec", exact = TRUE]])
     cell_area <- terra::cellSize(dat$template, unit = "km")
 
     stack_df <- terra::as.data.frame(
@@ -312,7 +207,7 @@ generate_fig3_evaporation <- function(
             params$discount_rate <- dr
             params$bc_valuation_method <- "advanced_mechanistic"
 
-            res <- run_scenario(dat$template, dat$layers, params)
+            res <- run_scenario(dat[["template", exact = TRUE]], dat[["layers", exact = TRUE]], params, vec = dat[["vec", exact = TRUE]])
 
             opt_raster <- res$opt
             if (!is.null(dat$admin0)) {
@@ -405,7 +300,7 @@ generate_fig4_capital_wedge <- function(dat, region_name, save_map = FALSE,
     for (dr in dr_seq) {
         message("  Calculating DR: ", dr * 100, "%")
         params$discount_rate <- dr
-        res <- run_scenario(dat$template, dat$layers, params)
+        res <- run_scenario(dat[["template", exact = TRUE]], dat[["layers", exact = TRUE]], params, vec = dat[["vec", exact = TRUE]])
         stack_df <- terra::as.data.frame(
             c(dat$layers$biomass_density, res$opt, cell_area),
             na.rm = TRUE
@@ -474,7 +369,7 @@ generate_fig5_cprice_threshold <- function(dat, region_name, save_map = FALSE,
 
     # Get base NPV (at C=0) and Abatement using linear baseline
     params$region <- region_name
-    base_res <- get_linear_baseline(dat$template, dat$layers, params)
+    base_res <- get_linear_baseline(dat[["template", exact = TRUE]], dat[["layers", exact = TRUE]], params, vec = dat[["vec", exact = TRUE]])
 
     npv0 <- base_res$net
     abate <- base_res$abate
@@ -570,7 +465,7 @@ generate_fig6_macc <- function(dat, region_name, save_map = FALSE,
     cell_area <- terra::cellSize(dat$template, unit = "km")
 
     params$region <- region_name
-    base_res <- get_linear_baseline(dat$template, dat$layers, params)
+    base_res <- get_linear_baseline(dat[["template", exact = TRUE]], dat[["layers", exact = TRUE]], params, vec = dat[["vec", exact = TRUE]])
 
     npv0 <- base_res$net
     abate <- base_res$abate
@@ -695,12 +590,12 @@ generate_fig7_agronomic_bridge <- function(dat, region_name, save_map = FALSE,
     # 1. With Ag Value
     params$c_price <- c_price
     params$region <- region_name
-    res_ag <- run_scenario(dat$template, dat$layers, params)
+    res_ag <- run_scenario(dat[["template", exact = TRUE]], dat[["layers", exact = TRUE]], params, vec = dat[["vec", exact = TRUE]])
 
     # 2. Without Ag Value
     params$bc_valuation_method <- "ag_value"
     params$bc_ag_value <- 0
-    res_no <- run_scenario(dat$template, dat$layers, params)
+    res_no <- run_scenario(dat[["template", exact = TRUE]], dat[["layers", exact = TRUE]], params, vec = dat[["vec", exact = TRUE]])
 
     opt_stack <- c(res_no$opt, res_ag$opt)
     if (!is.null(dat$admin0)) {
@@ -812,7 +707,7 @@ generate_fig8_breakeven_cprice <- function(save_map = FALSE,
         params$region <- r
 
         # Get baseline NPV(0) and Abatement
-        base_res <- get_linear_baseline(dat$template, dat$layers, params)
+        base_res <- get_linear_baseline(dat[["template", exact = TRUE]], dat[["layers", exact = TRUE]], params, vec = dat[["vec", exact = TRUE]])
 
         bes_npv <- base_res$net[["BES"]]
         beccs_npv <- base_res$net[["BECCS"]]
@@ -1007,7 +902,7 @@ generate_fig8_breakeven_cprice <- function(save_map = FALSE,
     leg_cat <- cowplot::get_legend(p_leg_cat)
     leg_cont <- cowplot::get_legend(p_leg_cont)
 
-    combined_legends <- cowplot::plot_grid(leg_cont, leg_cat, nrow = 1, rel_widths = c(1.5, 1)) + theme(margin = margin(t = -1))
+    combined_legends <- cowplot::plot_grid(leg_cont, leg_cat, nrow = 1, rel_widths = c(1.5, 1)) + theme(plot.margin = margin(t = -1))
 
     combined_plot <- patchwork::wrap_elements(main_plot) / patchwork::wrap_elements(combined_legends) +
         patchwork::plot_layout(heights = c(1, 0.04))
@@ -1199,24 +1094,26 @@ if (sys.nframe() == 0) {
     # read parameters from file
     params <- load_parameters("/media/dominic/Data/git/Biochar_AG/parameters.csv")
     dir.create(out_dir, showWarnings = FALSE)
-    regions <- c("US", "China", "Europe", "India")
-    for (scenario_name in names(scenarios)) {
-        for (r in regions) {
+    .regions <- c("US", "China", "Europe", "India")
+    .scenarios <- c("default", "CP100_MW250", "CP100_MW250_reg", "EA_CP100_MW250", "EA_CP100_MW250_reg")
+
+    for (scenario_name in .scenarios) {
+        for (r in .regions) {
             dat <- load_region_data(r)
             save_map <- TRUE
-            generate_fig1_phys_boundary(dat, r, save_map, scenario = scenario_name)
-            generate_fig2_booster_penalty(dat, r, save_map, scenario = scenario_name)
+            # generate_fig1_phys_boundary(dat, r, save_map, scenario = scenario_name)
+            # generate_fig2_booster_penalty(dat, r, save_map, scenario = scenario_name)
             generate_fig3_evaporation(dat, r, save_map, scenario = scenario_name)
-            generate_fig4_capital_wedge(dat, r, save_map, scenario = scenario_name)
-            generate_fig5_cprice_threshold(dat, r, save_map, scenario = scenario_name)
+            # generate_fig4_capital_wedge(dat, r, save_map, scenario = scenario_name)
+            # generate_fig5_cprice_threshold(dat, r, save_map, scenario = scenario_name)
             generate_fig6_macc(dat, r, save_map, scenario = scenario_name)
-            generate_fig7_agronomic_bridge(dat, r, save_map, scenario = scenario_name)
-            generate_fig9_optimal_scale_map(dat, r, save_map, scenario = scenario_name)
+            # generate_fig7_agronomic_bridge(dat, r, save_map, scenario = scenario_name)
+            # generate_fig9_optimal_scale_map(dat, r, save_map, scenario = scenario_name)
         }
         generate_fig8_breakeven_cprice(save_map, scenario = scenario_name)
         message(paste0("All figures generated successfully for scenario: ", scenario_name, "\n"))
     }
-    generate_fig10_biomass_density(save_map = TRUE)
+    # generate_fig10_biomass_density(save_map = TRUE)
 }
 
 # nolint end

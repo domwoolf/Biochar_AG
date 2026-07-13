@@ -201,11 +201,8 @@ calculate_beccs <- function(params) {
           dist_offshore <- terra::ifel(params$sink_is_offshore == 1, params$ccs_distance, Inf)
           dist_onshore <- terra::ifel(params$sink_is_offshore == 0, params$ccs_distance, Inf)
         } else {
-          if (params$sink_is_offshore) {
-            dist_offshore <- params$ccs_distance
-          } else {
-            dist_onshore <- params$ccs_distance
-          }
+          dist_offshore <- ifelse_raster(params$sink_is_offshore == 1, params$ccs_distance, Inf)
+          dist_onshore <- ifelse_raster(params$sink_is_offshore == 0, params$ccs_distance, Inf)
         }
       } else {
         dist_onshore <- params$ccs_distance
@@ -815,70 +812,14 @@ calculate_npv <- function(cash_flows, discount_rate) {
 }
 #' Default Parameters for India (North-West)
 #'
-#' Returns a list of parameters customized for the Indian context (Punjab/Haryana).
-#' Key Differences from US:
-#' - Lower Labor Costs (affects O&M)
-#' - Lower Capital Costs (Construction factor ~0.7)
-#' - High Discount Rate (Developing market risk)
-#' - Fertilizer Subsidies (Low N price)
-#' - Negative/Zero Feedstock Cost (Crop Residue burning prevention)
+#' Deprecated: Returns a list of parameters customized for the Indian context
+#' by calling `set_scenario(region = "India")`.
 #'
 #' @return A named list of parameters.
 #' @export
 parameters_india <- function() {
-    p <- set_scenario()
-
-    # 1. Financial
-    # Higher cost of capital in India
-    p$discount_rate <- 0.12
-
-    # 2. Technology / CAPEX
-    # Construction in India is cheaper, technology might be imported or domestic.
-    # Assume 70% of US Capital Cost context.
-    capex_factor <- 0.7
-    p$bes_capital_cost <- 3000 * capex_factor
-    p$beccs_capital_cost <- 4000 * capex_factor
-
-    # O&M: significantly lower due to labor
-    p$bes_om_factor <- 0.025 # vs 0.04
-    p$beccs_om_factor <- 0.03 # vs 0.05
-
-    # 3. Biomass Feedstock
-    # KEY ASSUMPTION: Crop residue is a nuisance (Stubble Burning).
-    # Farmers burn it to clear fields quickly.
-    # Cost structure: Collection & Transport only.
-    # Payment to farmer might be 0 or negative (subsidy to remove).
-    # We assume $0 'stumpage' but standard transport cost logic applies.
-    # In our model, 'bc_price' is sale price.
-    # Feedstock cost in spatial_tea usually comes from 'feedstock_cost' map or fixed.
-    # If we want to simulate negative cost, we can treat it later.
-    # For now, let's assume the "Price of Biomass" at field edge is $0.
-
-    # 4. Electricity
-    # India Wholesale (APPC): ~ Rs 4-6 / kWh -> ~$0.05 - $0.07 / kWh
-    p$elec_price <- 0.06 * 1000 # $/MWh = 60
-    # Wholesale factor is 1.0 because we are inputting the Generator price directly
-    p$wholesale_discount_factor <- 1.0
-
-    # 5. Fertilizer Substitutes (Subsidized)
-    # Urea is heavily subsidized in India. Market price might be $400, Farmer pays $70.
-    # Substitution value to farmer is based on SUBSIDIZED price (low).
-    # Substitution value to Society (Social Cost) is full price.
-    # Let's assess Private Value first (Farmer perspective).
-    p$price_n <- 0.30 # $/kg N (Very low due to subsidy)
-    p$price_p <- 0.80 # $/kg P
-    p$price_k <- 0.40 # $/kg K
-    p$price_lime <- 40 # $/Mg (Locally available)
-
-    # 6. Soil
-    # Soils in Punjab are often alkaline (pH > 7) -> No Liming Value!
-    # But they are low in Organics.
-    p$soil_ph_target <- 6.5 # If soil is 7.5, value is 0.
-
-    # 7. Feedstock Characteristics (Rice Straw)
-    p$bm_ash <- 0.15 # High Ash triggers BES Cost Penalty (but not BEBCS)
-
-    return(p)
+    .Deprecated("set_scenario(region = 'India')")
+    set_scenario(region = "India")
 }
 #' Default Parameters Dataset
 #'
@@ -887,21 +828,122 @@ parameters_india <- function() {
 #' @format A named list.
 "default_parameters"
 
+#' Normalize Region Name
+#'
+#' Standardizes regional names and aliases to match `regional_overrides` keys.
+#'
+#' @param region Character string indicating region.
+#' @return Normalized region character string ("US", "India", "China", "Europe").
+#' @export
+normalize_region_name <- function(region) {
+  if (is.null(region) || length(region) != 1 || is.na(region)) {
+    return("US")
+  }
+  r <- trimws(region)
+  if (r %in% c("EU", "Europe")) {
+    return("Europe")
+  }
+  if (r %in% c("US", "USA", "North America")) {
+    return("US")
+  }
+  return(r)
+}
+
+#' Regional Overrides List
+#'
+#' A predefined list of regional parameter overrides for non-spatial parameters
+#' (financial, capital cost modifiers, O&M labor factors, and fertilizer prices).
+#' @export
+regional_overrides <- list(
+  US = list(),
+  India = list(
+    discount_rate = 0.12,
+    bes_capital_cost = 3000 * 0.7,
+    beccs_capital_cost = 4000 * 0.7,
+    bes_om_factor = 0.025,
+    beccs_om_factor = 0.03,
+    price_n = 0.30,
+    price_p = 0.80,
+    price_k = 0.40,
+    price_lime = 40,
+    soil_ph_target = 6.5
+  ),
+  China = list(
+    discount_rate = 0.10,
+    bes_capital_cost = 3000 * 0.75,
+    beccs_capital_cost = 4000 * 0.75,
+    bes_om_factor = 0.03,
+    beccs_om_factor = 0.035,
+    price_n = 0.70,
+    price_p = 0.90,
+    price_k = 0.55
+  ),
+  Europe = list(
+    discount_rate = 0.07,
+    bes_capital_cost = 3000 * 1.15,
+    beccs_capital_cost = 4000 * 1.15,
+    bes_om_factor = 0.045,
+    beccs_om_factor = 0.055,
+    price_n = 1.05,
+    price_p = 1.25,
+    price_k = 0.75
+  )
+)
+
+#' Apply Regional Overrides
+#'
+#' Applies regional non-spatial overrides to a parameter list.
+#'
+#' @param params Parameter list.
+#' @param region Optional region string ("US", "India", "China", "Europe"). If NULL, checks `params$region`.
+#' @return Parameter list with regional overrides applied.
+#' @export
+apply_regional_overrides <- function(params, region = NULL) {
+  if (is.null(region)) {
+    region <- params[["region", exact = TRUE]]
+  }
+  if (is.null(region) || length(region) != 1 || is.na(region)) {
+    return(params)
+  }
+  r_key <- normalize_region_name(region)
+  if (r_key %in% names(BiocharAG::regional_overrides)) {
+    overrides <- BiocharAG::regional_overrides[[r_key]]
+    if (length(overrides) > 0) {
+      params[names(overrides)] <- overrides
+    }
+  }
+  params$region <- r_key
+  return(params)
+}
+
 #' Set Scenario Parameters
 #'
-#' Returns a list of default parameters overridden by a specific scenario.
+#' Returns a list of default parameters overridden by a specific scenario
+#' and optional regional parameter overrides.
+#' Order of precedence: default_parameters -> regional_overrides -> scenario overrides.
 #' Values inferred from op_space_2.41.xlsm and tea_literature_review.md.
 #'
 #' @param scenario A named list of parameters to override the defaults. Defaults to an empty list.
+#' @param region Optional character string specifying a region ("US", "India", "China", "Europe").
 #' @return A named list of parameters.
 #' @export
-set_scenario <- function(scenario = list()) {
+set_scenario <- function(scenario = list(), region = NULL) {
   params <- BiocharAG::default_parameters
+  if (is.null(region) && !is.null(scenario[["region", exact = TRUE]])) {
+    region <- scenario[["region", exact = TRUE]]
+  }
+  if (!is.null(region)) {
+    params <- apply_regional_overrides(params, region = region)
+  }
   if (length(scenario) > 0) {
     params[names(scenario)] <- scenario
   }
+  if (!is.null(region)) {
+    params$region <- normalize_region_name(region)
+  }
   return(params)
 }
+
 
 #' Load Parameters from Configuration CSV
 #'

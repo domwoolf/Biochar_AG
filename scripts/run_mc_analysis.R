@@ -177,34 +177,9 @@ region_names <- unique(factorial_grid$region)
 vectorized_regions <- list()
 
 for (r in region_names) {
-  message("  Vectorizing data for: ", r)
+  message("  Loading vectorized data for: ", r)
   dat <- load_region_data(r)
-  layers <- dat$layers
-
-  # Find indices where biomass_density > 0 and is not NA
-  bm_vals <- terra::values(layers$biomass_density, mat = FALSE)
-  active_indices <- which(!is.na(bm_vals) & bm_vals > 0)
-
-  # Cell area in km2
-  cell_area_raster <- terra::cellSize(layers$biomass_density, unit = "km")
-  cell_area_vals <- terra::values(cell_area_raster, mat = FALSE)[active_indices]
-
-  # Extract values of all layers for active indices
-  vectorized_layers <- list()
-  for (layer_name in names(layers)) {
-    vals <- terra::values(layers[[layer_name]], mat = FALSE)
-    if (is.matrix(vals)) {
-      vectorized_layers[[layer_name]] <- vals[active_indices, 1]
-    } else {
-      vectorized_layers[[layer_name]] <- vals[active_indices]
-    }
-  }
-
-  vectorized_regions[[r]] <- list(
-    active_indices = active_indices,
-    cell_area = cell_area_vals,
-    layers = vectorized_layers
-  )
+  vectorized_regions[[r]] <- dat[["vec", exact = TRUE]]
 }
 
 message("Starting parallel Monte Carlo Analysis: ", nrow(factorial_grid), " scenario combinations x ", n_runs, " MC runs each.")

@@ -1,57 +1,57 @@
-"name","description","units","default_value","uncertainty_level","distribution","dispersion","minimum","maximum","notes"
-"discount_rate","Discount rate","fraction","0.08","High","uniform",NA,NA,NA,"High Priority. Cost of capital varies wildly by country risk profiles."
-"plant_mw_th","Plant thermal capacity","MWth","50",NA,"none",NA,NA,NA,""
-"O_M_factor","Operations & Maintenance","% of Capex","0.04","Medium","uniform",NA,NA,NA,""
-"bm_lhv","Biomass lower heating value","GJ/Mg","18.6","Medium","normal",NA,NA,NA,"Medium Priority. Varies by regional feedstock (e.g., rice straw vs corn stover)."
-"bm_c","Carbon fraction of biomass","fraction","0.48","Low","normal",NA,NA,NA,""
-"bm_transport_fixed","Fixed transport cost (Loading/Handling)","$/Mg","5","Medium","normal",NA,NA,NA,""
-"bm_transport_var","Variable transport cost (Trucking)","$/Mg/km","0.15","Medium","normal",NA,NA,NA,""
-"bm_ash","Biomass ash content","fraction","0.05","Medium","normal",NA,NA,NA,"Medium Priority. Varies by regional feedstock."
-"bm_h2o","Biomass moisture content","fraction","0.1","Low","normal",NA,NA,NA,""
-"bm_feed_rate","Biomass feed rate","kg/hr","250","Low","normal",NA,NA,NA,""
-"elec_price","Electricity price","$/MWh","100","Medium","normal",NA,NA,NA,""
-"wholesale_discount_factor","Ratio of Wholesale to Retail","ratio","0.4","Medium","uniform",NA,NA,NA,""
-"c_price","Carbon price","$/tCO2e","50","High","normal",NA,NA,NA,""
-"bc_price","Biochar price","$/t Biochar","100","High","normal",NA,NA,NA,""
-"price_lime","Bulk Ag Lime price","$/Mg","60","Low","normal",NA,NA,NA,"Low Priority. Varies by local transport distance."
-"price_n","Nitrogen fertilizer price","$/kg N","0.92","High","normal",NA,NA,NA,"High Priority. Massive regional variations due to subsidies and tariffs."
-"price_p","Phosphorus fertilizer price","$/kg P2O5","1.1","High","normal",NA,NA,NA,"High Priority. Massive regional variations due to subsidies and tariffs."
-"price_k","Potassium fertilizer price","$/kg K2O","0.62","High","normal",NA,NA,NA,"High Priority. Massive regional variations due to subsidies and tariffs."
-"bes_life","BES project lifetime","years","30","Low","none",NA,NA,NA,""
-"bes_energy_efficiency","BES energy efficiency","fraction","0.3","Low","uniform",NA,NA,NA,""
-"bes_capital_cost","BES capital cost","$/kW","3000","Medium","log-normal",NA,NA,NA,"Medium Priority. Differ significantly due to local labor/material costs."
-"bes_om_factor","BES O&M factor","fraction","0.04","Medium","uniform",NA,NA,NA,"Medium Priority. Highly labor-dependent."
-"ff_c_intensity","Fossil fuel carbon intensity","tCO2eq/GJ","0.00333333333333333","Medium","uniform",NA,NA,NA,""
-"use_flat_ci","Use flat carbon intensity","logical","FALSE",NA,"none",NA,NA,NA,""
-"flat_ci_tCO2_GJ","Flat carbon intensity value","tCO2eq/GJ","0.00333333333333333",NA,"uniform",NA,NA,NA,""
-"optimize_scale","Optimize plant scale","logical","FALSE",NA,"none",NA,NA,NA,""
-"plant_sizes_mw_th","Available plant sizes","MWth","5,25,50,100,250,500",NA,"none",NA,NA,NA,""
-"rebound","Rebound effect","fraction","0",NA,"uniform",NA,NA,NA,""
-"beccs_available","Is BECCS available","logical","TRUE",NA,"none",NA,NA,NA,""
-"beccs_eff_penalty","BECCS efficiency penalty","fraction","0.08","Low","uniform",NA,NA,NA,""
-"ccs_cc","CCS capital cost","$/kW","500","High","log-normal",NA,NA,NA,""
-"beccs_seq_fraction","BECCS sequestration fraction","fraction","0.9","Low","uniform",NA,NA,NA,""
-"beccs_efficiency","BECCS efficiency","fraction","0.28","Low","uniform",NA,NA,NA,""
-"capture_rate","CO2 capture rate","fraction","0.9","Low","uniform",NA,NA,NA,"Validation needed: Real-world data is sparse. Recommend sensitivity analysis (85-95%)."
-"ccs_distance","CCS transport distance","km","100","Medium","log-normal",NA,NA,NA,""
-"ccs_storage_cost","CCS injection/monitoring cost","$/Mg CO2","15","High","log-normal",NA,NA,NA,"High Priority. Geologic storage costs vary drastically. Consider spatial raster."
-"beccs_capital_cost","BECCS capital cost","$/kW","4000","Medium","log-normal",NA,NA,NA,"Medium Priority. Differ significantly due to local labor/material costs."
-"beccs_om_factor","BECCS O&M factor","fraction","0.05","Medium","uniform",NA,NA,NA,"Medium Priority. Highly labor-dependent."
-"early_adoption","BECCS early adoption scenario","logical","FALSE",NA,"none",NA,NA,NA,""
-"allow_eor","Allow Enhanced Oil Recovery","logical","FALSE",NA,"none",NA,NA,NA,""
-"py_temp","Pyrolysis temperature","°C","500","Low","uniform",NA,NA,NA,""
-"py_life","Pyrolysis project lifetime","years","20","Low","none",NA,NA,NA,""
-"py_cc","Pyrolysis capital cost","$/kW","500","Medium","log-normal",NA,NA,NA,""
-"lignin","Lignin fraction","fraction","0.2","Low","uniform",NA,NA,NA,""
-"time_frame","Time frame for stability","years","100",NA,"none",NA,NA,NA,""
-"bc_stab_factor","Biochar stability factor","factor","4.6","High","uniform",NA,NA,NA,"Validation needed: Ensure aligns with IPCC or verified carbon standard methodologies."
-"bc_cce","Calcium Carbonate Equivalent","fraction","0.15","Medium","uniform",NA,NA,NA,"Validation needed: Does 15% hold true globally, or should it scale with bm_ash?"
-"bc_n_content","Biochar Nitrogen content","fraction","0.005","Low","uniform",NA,NA,NA,""
-"bc_p_content","Biochar Phosphorus content","fraction","0.002","Low","uniform",NA,NA,NA,""
-"bc_k_content","Biochar Potassium content","fraction","0.005","Low","uniform",NA,NA,NA,""
-"ag_impact_duration","Agronomic impact duration","years","10","Medium","uniform",NA,NA,NA,"Medium Priority. Duration depends heavily on local climate and soil. 10-year flat assumption poorly validated."
-"bc_ag_value","Biochar agronomic value","$/Mg","0","Medium","normal",NA,NA,NA,""
-"bc_valuation_method","Biochar valuation method","character","advanced_mechanistic",NA,"none",NA,NA,NA,""
-"h_c_org","H:C organic molar ratio","ratio","0.35","Low","uniform",NA,NA,NA,""
-"n_app_rate","Nitrogen application rate","kg/ha","100",NA,"normal",NA,NA,NA,""
-"n2o_factor","N2O emission factor","fraction","0.01","High","uniform",NA,NA,NA,"Validation needed: Ensure model accounts for biochar-induced N2O suppression."
+name,description,units,default_value,uncertainty_level,distribution,dispersion,minimum,maximum,notes,ref
+discount_rate,Discount rate,fraction,0.02,NA,none,,,,,1. EPA. EPA Report on the Social Cost of Greenhouse Gases: Estimates Incorporating Recent Scientific Advances. (2023).
+plant_mw_th,Plant thermal capacity,MWth,50,NA,none,,,,,
+O_M_factor,Operations & Maintenance,% of Capex,0.04,Medium,uniform,,,,,
+bm_lhv,Biomass lower heating value,GJ/Mg,18.6,Medium,normal,,,,"Medium Priority. Varies by regional feedstock (e.g., rice straw vs corn stover).",
+bm_c,Carbon fraction of biomass,fraction,0.48,Low,normal,,,,,
+bm_transport_fixed,Fixed transport cost (Loading/Handling),$/Mg,5,Medium,normal,,,,,
+bm_transport_var,Variable transport cost (Trucking),$/Mg/km,0.15,Medium,normal,,,,,
+bm_ash,Biomass ash content,fraction,0.05,Medium,normal,,,,Medium Priority. Varies by regional feedstock.,
+bm_h2o,Biomass moisture content,fraction,0.1,Low,normal,,,,,
+bm_feed_rate,Biomass feed rate,kg/hr,250,Low,normal,,,,,
+elec_price,Electricity price,$/MWh,100,Medium,normal,,,,,
+wholesale_discount_factor,Ratio of Wholesale to Retail,ratio,0.4,Medium,uniform,,,,,
+c_price,Carbon price,$/tCO2e,100,NA,none,,,,,
+bc_price,Biochar price,$/t Biochar,100,High,normal,,,,,
+price_lime,Bulk Ag Lime price,$/Mg,60,Medium,normal,,,,Low Priority. Varies by local transport distance.,
+price_n,Nitrogen fertilizer price,$/kg N,0.92,High,normal,,,,High Priority. Massive regional variations due to subsidies and tariffs.,
+price_p,Phosphorus fertilizer price,$/kg P2O5,1.1,High,normal,,,,High Priority. Massive regional variations due to subsidies and tariffs.,
+price_k,Potassium fertilizer price,$/kg K2O,0.62,High,normal,,,,High Priority. Massive regional variations due to subsidies and tariffs.,
+bes_life,BES project lifetime,years,30,Low,none,,,,,
+bes_energy_efficiency,BES energy efficiency,fraction,0.3,Low,uniform,,,,,
+bes_capital_cost,BES capital cost,$/kW,3000,Medium,log-normal,,,,Medium Priority. Differ significantly due to local labor/material costs.,
+bes_om_factor,BES O&M factor,fraction,0.04,Medium,uniform,,,,Medium Priority. Highly labor-dependent.,
+ff_c_intensity,Fossil fuel carbon intensity,tCO2eq/GJ,0.00333333333333333,Medium,uniform,,,,,
+use_flat_ci,Use flat carbon intensity,logical,FALSE,NA,none,,,,,
+flat_ci_tCO2_GJ,Flat carbon intensity value,tCO2eq/GJ,0.00333333333333333,NA,uniform,,,,,
+optimize_scale,Optimize plant scale,logical,FALSE,NA,none,,,,,
+plant_sizes_mw_th,Available plant sizes,MWth,"5,25,50,100,250,500",NA,none,,,,,
+rebound,Rebound effect,fraction,0,NA,uniform,,,,,
+beccs_available,Is BECCS available,logical,TRUE,NA,none,,,,,
+beccs_eff_penalty,BECCS efficiency penalty,fraction,0.08,Low,uniform,,,,,
+ccs_cc,CCS capital cost,$/kW,500,High,log-normal,,,,,
+beccs_seq_fraction,BECCS sequestration fraction,fraction,0.9,Low,uniform,,,,,
+beccs_efficiency,BECCS efficiency,fraction,0.28,Low,uniform,,,,,
+capture_rate,CO2 capture rate,fraction,0.9,Low,uniform,,,,Validation needed: Real-world data is sparse. Recommend sensitivity analysis (85-95%).,
+ccs_distance,CCS transport distance,km,100,Medium,log-normal,,,,,
+ccs_storage_cost,CCS injection/monitoring cost,$/Mg CO2,15,High,log-normal,,,,High Priority. Geologic storage costs vary drastically. Consider spatial raster.,
+beccs_capital_cost,BECCS capital cost,$/kW,4000,Medium,log-normal,,,,Medium Priority. Differ significantly due to local labor/material costs.,
+beccs_om_factor,BECCS O&M factor,fraction,0.05,Medium,uniform,,,,Medium Priority. Highly labor-dependent.,
+early_adoption,BECCS early adoption scenario,logical,FALSE,NA,none,,,,,
+allow_eor,Allow Enhanced Oil Recovery,logical,FALSE,NA,none,,,,,
+py_temp,Pyrolysis temperature,°C,500,Low,uniform,,,,,
+py_life,Pyrolysis project lifetime,years,20,Low,none,,,,,
+py_cc,Pyrolysis capital cost,$/kW,500,Medium,log-normal,,,,,
+lignin,Lignin fraction,fraction,0.2,Low,uniform,,,,,
+time_frame,Time frame for stability,years,100,NA,none,,,,,
+bc_stab_factor,Biochar stability factor,factor,4.6,High,uniform,,,,Validation needed: Ensure aligns with IPCC or verified carbon standard methodologies.,
+bc_cce,Calcium Carbonate Equivalent,fraction,0.15,Medium,uniform,,,,"Validation needed: Does 15% hold true globally, or should it scale with bm_ash?",
+bc_n_content,Biochar Nitrogen content,fraction,0.005,Low,uniform,,,,,
+bc_p_content,Biochar Phosphorus content,fraction,0.002,Low,uniform,,,,,
+bc_k_content,Biochar Potassium content,fraction,0.005,Low,uniform,,,,,
+ag_impact_duration,Agronomic impact duration,years,10,Medium,uniform,,,,Medium Priority. Duration depends heavily on local climate and soil. 10-year flat assumption poorly validated.,
+bc_ag_value,Biochar agronomic value,$/Mg,0,Medium,normal,,,,,
+bc_valuation_method,Biochar valuation method,character,advanced_mechanistic,NA,none,,,,,
+h_c_org,H:C organic molar ratio,ratio,0.35,Low,uniform,,,,,
+n_app_rate,Nitrogen application rate,kg/ha,100,NA,normal,,,,,
+n2o_factor,N2O emission factor,fraction,0.01,High,uniform,,,,Validation needed: Ensure model accounts for biochar-induced N2O suppression.,
