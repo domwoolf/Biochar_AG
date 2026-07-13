@@ -259,7 +259,7 @@ calculate_regional_feedstock_cost <- function(region, params) {
 
     cost_usd <- 0
 
-    if (region == "US") {
+    if (region %in% c("US", "USA")) {
         # Baseline US Farm-gate
         base_cost <- if (!is.null(params$us_base_cost)) params$us_base_cost else 70.0
 
@@ -267,7 +267,7 @@ calculate_regional_feedstock_cost <- function(region, params) {
         nutrient_cost <- if (!is.null(params$us_nutrient_cost)) params$us_nutrient_cost else 25.06
 
         cost_usd <- base_cost + nutrient_cost
-    } else if (region == "EU") {
+    } else if (region %in% c("EU", "Europe")) {
         # Baseline NUTS-3 Road-side cost (EUR)
         base_eur <- if (!is.null(params$eu_base_eur)) params$eu_base_eur else 40.0
 
@@ -302,7 +302,7 @@ calculate_regional_feedstock_cost <- function(region, params) {
 
         cost_usd <- (base_cny * weather_risk * expansion_risk) * xr_cny
     } else {
-        stop("Region not supported. Use US, EU, India, or China.")
+        stop("Region not supported: ", region, ". Use US, EU/Europe, India, or China.")
     }
 
     return(cost_usd)
