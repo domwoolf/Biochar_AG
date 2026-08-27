@@ -1,0 +1,1090 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\PassOptionsToPackage{dvipsnames,svgnames,x11names}{xcolor}
+%
+\documentclass[
+  letterpaper,
+]{article}
+
+\usepackage{amsmath,amssymb}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else  
+    % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\setcounter{secnumdepth}{5}
+% Make \paragraph and \subparagraph free-standing
+\makeatletter
+\ifx\paragraph\undefined\else
+  \let\oldparagraph\paragraph
+  \renewcommand{\paragraph}{
+    \@ifstar
+      \xxxParagraphStar
+      \xxxParagraphNoStar
+  }
+  \newcommand{\xxxParagraphStar}[1]{\oldparagraph*{#1}\mbox{}}
+  \newcommand{\xxxParagraphNoStar}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+  \let\oldsubparagraph\subparagraph
+  \renewcommand{\subparagraph}{
+    \@ifstar
+      \xxxSubParagraphStar
+      \xxxSubParagraphNoStar
+  }
+  \newcommand{\xxxSubParagraphStar}[1]{\oldsubparagraph*{#1}\mbox{}}
+  \newcommand{\xxxSubParagraphNoStar}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+\makeatother
+
+
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}\usepackage{longtable,booktabs,array}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\usepackage{graphicx}
+\makeatletter
+\newsavebox\pandoc@box
+\newcommand*\pandocbounded[1]{% scales image to fit in text height/width
+  \sbox\pandoc@box{#1}%
+  \Gscale@div\@tempa{\textheight}{\dimexpr\ht\pandoc@box+\dp\pandoc@box\relax}%
+  \Gscale@div\@tempb{\linewidth}{\wd\pandoc@box}%
+  \ifdim\@tempb\p@<\@tempa\p@\let\@tempa\@tempb\fi% select the smaller of both
+  \ifdim\@tempa\p@<\p@\scalebox{\@tempa}{\usebox\pandoc@box}%
+  \else\usebox{\pandoc@box}%
+  \fi%
+}
+% Set default figure placement to htbp
+\def\fps@figure{htbp}
+\makeatother
+% definitions for citeproc citations
+\NewDocumentCommand\citeproctext{}{}
+\NewDocumentCommand\citeproc{mm}{%
+  \begingroup\def\citeproctext{#2}\cite{#1}\endgroup}
+\makeatletter
+ % allow citations to break across lines
+ \let\@cite@ofmt\@firstofone
+ % avoid brackets around text for \cite:
+ \def\@biblabel#1{}
+ \def\@cite#1#2{{#1\if@tempswa , #2\fi}}
+\makeatother
+\newlength{\cslhangindent}
+\setlength{\cslhangindent}{1.5em}
+\newlength{\csllabelwidth}
+\setlength{\csllabelwidth}{3em}
+\newenvironment{CSLReferences}[2] % #1 hanging-indent, #2 entry-spacing
+ {\begin{list}{}{%
+  \setlength{\itemindent}{0pt}
+  \setlength{\leftmargin}{0pt}
+  \setlength{\parsep}{0pt}
+  % turn on hanging indent if param 1 is 1
+  \ifodd #1
+   \setlength{\leftmargin}{\cslhangindent}
+   \setlength{\itemindent}{-1\cslhangindent}
+  \fi
+  % set entry spacing
+  \setlength{\itemsep}{#2\baselineskip}}}
+ {\end{list}}
+\usepackage{calc}
+\newcommand{\CSLBlock}[1]{\hfill\break\parbox[t]{\linewidth}{\strut\ignorespaces#1\strut}}
+\newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{\strut#1\strut}}
+\newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{\strut#1\strut}}
+\newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
+
+\usepackage{setspace}
+\doublespacing
+\usepackage{lineno}
+\linenumbers
+\usepackage{authblk}
+\usepackage{marvosym}
+\author[1]{Dominic Woolf\,\thanks{Correspondence to d.woolf@cornell.edu}}
+\author[2]{Jocelyn Lavallee}
+\author[2]{Anna Raffeld}
+\author[2]{Doria Gordon}
+\affil[1]{Cornell University}
+\affil[2]{Environmental Defense Fund}
+\renewcommand\author[2][]{}
+\makeatletter
+\@ifpackageloaded{caption}{}{\usepackage{caption}}
+\AtBeginDocument{%
+\ifdefined\contentsname
+  \renewcommand*\contentsname{Table of contents}
+\else
+  \newcommand\contentsname{Table of contents}
+\fi
+\ifdefined\listfigurename
+  \renewcommand*\listfigurename{List of Figures}
+\else
+  \newcommand\listfigurename{List of Figures}
+\fi
+\ifdefined\listtablename
+  \renewcommand*\listtablename{List of Tables}
+\else
+  \newcommand\listtablename{List of Tables}
+\fi
+\ifdefined\figurename
+  \renewcommand*\figurename{Figure}
+\else
+  \newcommand\figurename{Figure}
+\fi
+\ifdefined\tablename
+  \renewcommand*\tablename{Table}
+\else
+  \newcommand\tablename{Table}
+\fi
+}
+\@ifpackageloaded{float}{}{\usepackage{float}}
+\floatstyle{ruled}
+\@ifundefined{c@chapter}{\newfloat{codelisting}{h}{lop}}{\newfloat{codelisting}{h}{lop}[chapter]}
+\floatname{codelisting}{Listing}
+\newcommand*\listoflistings{\listof{codelisting}{List of Listings}}
+\makeatother
+\makeatletter
+\makeatother
+\makeatletter
+\@ifpackageloaded{caption}{}{\usepackage{caption}}
+\@ifpackageloaded{subcaption}{}{\usepackage{subcaption}}
+\makeatother
+
+\usepackage{bookmark}
+
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same} % disable monospaced font for URLs
+\hypersetup{
+  pdftitle={Technoeconomic Potential of Biomass-based Climate Change Mitigation Strategies},
+  colorlinks=true,
+  linkcolor={blue},
+  filecolor={Maroon},
+  citecolor={Blue},
+  urlcolor={Blue},
+  pdfcreator={LaTeX via pandoc}}
+
+
+\title{Technoeconomic Potential of Biomass-based Climate Change
+Mitigation Strategies}
+\author{}
+\date{2026-08-27}
+
+\begin{document}
+\maketitle
+
+
+\section{Introduction}\label{introduction}
+
+Biochar has been widely promoted for climate change mitigation, with
+co-benefits for soil health and crop production when used as a soil
+amendment.(\citeproc{ref-woolf2010}{\emph{1}},
+\citeproc{ref-lehmann2021biochar}{\emph{2}}) Globally, biochar has the
+sustainable technical potential for carbon sequestration and emissions
+reductions of up to 3.4--6.3 Pg CO\textsubscript{2}e. However, the
+costs, benefits and tradeoffs for biochar vary spatially, creating
+substantial heterogeneity in its feasibility at a given carbon price.
+This variability is further affected by the fact that biochar must
+compete with alternative uses for the limited supply of available waste
+biomass. Indeed, alternative uses of biomass, such producing bioenergy
+with or without carbon capture and sequestration can also help to
+mitigate climate change and may provide greater climate mitigation,
+lower costs, and/or greater co-benefits in certain
+contexts.(\citeproc{ref-woolf2016}{\emph{3}}) This depends on a number
+of different factors, including soil type, cropland productivity,
+climate, energy fuel mix, feedstock availability, distance to
+CO\textsubscript{2} sinks for carbon capture and storage, energy prices
+and food prices. For example, bioenergy production may provide a greater
+climate benefit in regions that are highly dependent on carbon-intensive
+energy sources and have high soil fertility, whereas biochar is more
+favorable where low-fertility soils can benefit from its soil-health
+improvement.(\citeproc{ref-woolf2016}{\emph{3}})
+
+It is, therefore, critical to understand where biochar could be the best
+use of resources from a climate mitigation perspective. Currently, most
+biochar assessments focus on the technical potential, without mapping
+out the tradeoffs or identifying optimal pathways based on location.
+While there are some biochar life-cycle assessments that account for
+alternative biomass uses, they are highly context-specific and difficult
+to scale up on(\citeproc{ref-peters2015}{\emph{4}},
+\citeproc{ref-lefebvre2021}{\emph{5}}). As such, this project aims to
+provide a detailed feasibility and tradeoff analysis across four regions
+(North America, India, China, and Europe) to map where biochar
+represents the most efficient use of biomass to reduce atmospheric
+greenhouse gasses (GHGs). These regions represent a diversity of
+geographic, socio-economic, and agro-ecological conditions for a broad
+assessment of how constraints, tradeoffs and benefits vary across
+regions. This work will allow policy-makers and practitioners to make
+scientifically-informed decisions about which mitigation pathways are
+best suited for their geographies. It can also help right-size biochar's
+mitigation potential by identifying areas that maximize its climate
+benefits and realistically support its production and application.
+
+\section{Methods}\label{methods}
+
+\subsection{Model Architecture}\label{model-architecture}
+
+The \texttt{BiocharAG} model evaluates three biomass utilization
+pathways: Bioenergy (BE), Bioenergy with Carbon Capture and Storage
+(BECCS), and Bioenergy with Biochar Carbon Storage (BEBCS). The model
+evaluates a spatially-varying net present value (NPV) for each
+technology using a discounted cost-benefit analysis, with GHG emissions
+and removals converted to 100-year CO\textsubscript{2} equivalent values
+and internalized into the economic analysis using an assumed carbon
+price.
+
+The model was deployed across the coterminous United States, Europe,
+India, and China. All spatial inputs were projected into
+region-specific, equal-area coordinate reference systems (EPSG:5070,
+EPSG:3035, EPSG:8859, and ESRI:102025, for the US, Europe, India, and
+China, respectively), and harmonized to a 0.1-degree resolution. The
+model was implemented in the R programming language, using the Terra
+package for spatial analysis.
+
+The following model description outlines the assumptions,m equations and
+parameters used in the model. The default parameter values are provided
+in a table at the end of the Methods.
+
+\subsubsection{Biomass Feedstock Sourcing and
+Logistics}\label{biomass-feedstock-sourcing-and-logistics}
+
+\paragraph{Biomass Transport Costs and
+Emissions}\label{biomass-transport-costs-and-emissions}
+
+High resolution rasters of available crop residue biomass were derived
+from Karan et al.(\citeproc{ref-karan2023}{\emph{6}}). The average
+transport distance for biomass was calculated from this using focal
+statistics based on the annual biomass requirement for the conversion
+facility. The required annual biomass mass (\(M_{req}\)) is determined
+by the target thermal capacity, the capacity factor, and the biomass
+lower heating value (LHV). A spatial focal sum algorithm was applied to
+aggregate the surrounding biomass over a discrete series of expanding
+radii (from 5 km up to 500 km). The required collection radius was then
+calculated via quadratic interpolation between these radial bins. All
+domains were uniformly projected and resampled to the 0.1 degree
+(\(\sim 10\text{ km}\)) equal-area grid prior to executing the focal sum
+algorithms to ensure methodological consistency. Assuming a circular
+catchment geometry, the average straight-line collection distance is
+approximated as two-thirds of the interpolated bounding radius
+(i.e.~assuming homogeneous distribution within the catchment area). The
+average straight-line distance was multiplied by a tortuosity factor of
+1.3 to calculate the effective road transport
+distance.(\citeproc{ref-sultana2014}{\emph{7}}) Biomass logistical costs
+were modeled using a fixed material handling and loading cost and a
+variable trucking cost applied to the effective road distance. Scope
+three transportation emissions associated with feedstock procurement
+were estimated using a heavy-duty diesel transport emissions factor
+applied to the effective distance and deducted from the net carbon
+abatement.
+
+\paragraph{Fuel Quality}\label{fuel-quality}
+
+Agricultural crop residues typically have a higher ash content than the
+wood chips more commonly used in bioenergy combustion. High-ash
+feedstocks carry significant fouling and slagging risks, requiring
+additional capital expenditures (CAPEX) and operating expenditure
+(OPEX), for example through deployment of Circulating Fluidized Bed
+(CFB) boilers. This fuel quality penalty is modelled as a proportional
+(25\%) increase in base CAPEX for combustion technologies (BE and
+BECCS), a 50\% increase in operations and maintenance (O\&M) costs, and
+a 10\% reduction in overall electrical conversion efficiency, relative
+to a wood-chip fired bioenergy
+plant.(\citeproc{ref-luan2025a}{\emph{8}}--\citeproc{ref-garcuxeda2017}{\emph{10}})
+
+\paragraph{Regional Pricing
+Structures}\label{regional-pricing-structures}
+
+Feedstock pricing is not treated as a static global constant; rather, it
+is derived via a spatially explicit shadow-pricing logic converted to a
+normalized \(\text{USD/Mg}\) equivalent.
+
+\begin{itemize}
+\item
+  \textbf{United States:} Establishes a baseline farm-gate cost
+  (\(\$70.00/\text{Mg}\)) combined with a nutrient replacement penalty
+  (e.g., \(\$25.06/\text{Mg}\) for corn stover) to compensate for the
+  export of field nutrients.
+\item
+  \textbf{Europe:} Utilizes a baseline NUTS-3 regional roadside cost,
+  modified by a temporal volatility multiplier that accounts for interim
+  storage costs (up to a 36.4\% premium for 6-month storage).
+\item
+  \textbf{India:} Capitalizes on the necessity to avoid crop stubble
+  burning. The model assumes a \(\$0\) stumpage fee, but imposes a
+  step-cost for densification: raw bale transport costs apply under 50
+  km, while more expensive pelletization costs are triggered for
+  catchment zones exceeding 50 km\footnote{\textbf{Query - India
+    Densification Threshold:} The codebase (\texttt{spatial\_tea.R})
+    applies a hard 50 km threshold where India feedstock shifts from
+    baling to pelletization costs. Given that the archetype is fixed at
+    \(250\text{ MW}_{\text{th}}\), the collection radius will almost
+    certainly exceed 50 km in all but the densest agricultural zones. We
+    should verify if this rigid step-function is appropriate at this
+    industrial scale, or if a blended cost based on the radius
+    proportion is more physically realistic.}.
+\item
+  \textbf{China:} Modifies a baseline plant-gate cost with exogenous
+  spatial risk multipliers, applying premiums for localized weather
+  volatility and rural expansion risks.
+\end{itemize}
+
+\subsubsection{Technology Pathways and
+Thermodynamics}\label{technology-pathways-and-thermodynamics}
+
+The core thermodynamic engine evaluates three distinct biomass
+utilization pathways, processing the standardized
+\(250\text{ MW}_{\text{th}}\) biomass input into varying ratios of
+exported electrical energy and sequestered carbon.
+
+\paragraph{Bioenergy (BES)}\label{bioenergy-bes}
+
+The BES pathway represents a traditional, dedicated biomass combustion
+facility. In this baseline scenario, the feedstock is fully oxidized to
+maximize electricity exported to the regional grid. Because there is no
+active carbon capture, the physical carbon embedded in the biomass is
+returned to the atmosphere.
+
+The technoeconomic parameters for this modern combustion archetype
+assume an electrical conversion efficiency of 30\%. Capital expenditures
+(CAPEX) are standardized at \(\$3,000/\text{kW}_e\), scaling
+non-linearly with plant capacity via a standard 0.7 scaling factor.
+Operations and maintenance (O\&M) are assessed as a fixed annual rate of
+4\% of total CAPEX. Total electrical output is derived directly from the
+biomass lower heating value (LHV, assumed as \(18.6\text{ GJ/Mg}\) for
+dry, ash-free feedstock) and the plant's operational capacity factor
+(85\%).
+
+\paragraph{Bioenergy with Carbon Capture and Storage
+(BECCS)}\label{bioenergy-with-carbon-capture-and-storage-beccs}
+
+The BECCS pathway augments the standard combustion baseline with a
+post-combustion carbon capture unit. The addition of this unit imposes a
+significant parasitic energy penalty, primarily driven by solvent
+regeneration and CO\textsubscript{2} compression requirements.
+Consequently, the net electrical conversion efficiency drops from the
+30\% BES baseline to 28\%.\footnote{\textbf{Critique - Carbon Capture
+  Efficiency:} The current implementation sets 2 percentage point lower
+  efficiency for BECCS than baseline. This may be low. See e.g.
+  (\citeproc{ref-woolf2016optimal}{\emph{11}}) who suggest a penalty in
+  the range 4--11 percentage points.}
+
+The capture process is parameterized with a 90\% capture efficiency
+rate. The total volume of captured CO\textsubscript{2} routed to
+geological storage is calculated stoichiometrically based on the carbon
+fraction of the incoming biomass feed (default 48\% C), converted to
+CO\textsubscript{2} mass equivalents using the 44/12 molar ratio. The
+increased infrastructure complexity elevates the base CAPEX to
+\(\$4,000/\text{kW}_e\), with annual O\&M scaling concurrently to 5\% of
+CAPEX.
+
+\paragraph{Bioenergy with Biochar Storage (BEBCS) and Pyrolysis
+Physics}\label{bioenergy-with-biochar-storage-bebcs-and-pyrolysis-physics}
+
+Unlike the fully oxidative pathways, the BEBCS pathway relies on
+thermochemical pyrolysis, producing a solid, recalcitrant carbon matrix
+(biochar) alongside volatile syngas and bio-oil. The model employs a
+rigorous mass and energy balance approach constrained by elemental
+conservation of Carbon, Hydrogen, and Oxygen (C, H, O).
+
+The mass yield and elemental composition of the resulting biochar are
+determined dynamically as a function of the peak pyrolysis temperature
+(\(T_{py}\)) agarnd the lignin fraction of the feedstock. Specific
+yields for non-condensable gases---hydrogen (\(H_2\)), carbon monoxide
+(\(CO\)), methane (\(CH_4\)), and ethylene (\(C_2H_4\))---are calculated
+explicitly based on temperature-dependent reaction kinetics.
+
+To close the mass balance, the unaccounted elemental fractions
+(\(U_c, U_h, U_o\)) are stoichiometrically partitioned into bio-oil,
+water (\(H_2O\)), and carbon dioxide (CO\textsubscript{2}). The model
+restricts bio-oil to a fixed empirical composition
+(\(62.5\%\text{ C}, 7.56\%\text{ H}, 29.94\%\text{ O}\)) to solve the
+final product distribution analytically.
+
+The net usable energy flux for the BEBCS pathway is calculated by
+subtracting the process heat requirements from the total enthalpy of the
+gaseous and liquid products. The higher heating value (HHV) of the
+biochar is calculated via the Dulong formula, utilizing the
+temperature-dependent C, H, and O fractions. Heat for the endothermic
+pyrolysis reaction is supplied entirely by the combustion of the
+volatile syngas and bio-oil fractions; any surplus thermal energy is
+converted to electricity using the baseline BES efficiency
+parameters\footnote{\textbf{Query - Default Pyrolysis Temperature:} The
+  current code sets \texttt{py\_temp\ =\ 500} °C as a static global
+  default in \texttt{parameters.R}. Because the BEBCS net present value
+  (NPV) is highly sensitive to the trade-off between energy yield and
+  biochar stability (both driven by \(T_{py}\)), you may want to note in
+  the manuscript whether 500 °C is assumed universally for the spatial
+  runs, or if an optimization routine is run to find the ideal
+  temperature per grid cell.}. If the syngas and bio-oil are
+insufficient to meet the thermal load, a portion of the biochar is
+oxidized to close the energy balance, proportionally reducing the final
+carbon sequestration yield.
+
+\subsubsection{Carbon Transport and Geological
+Storage}\label{carbon-transport-and-geological-storage}
+
+\paragraph{Spatial Routing and Terrain
+Friction}\label{spatial-routing-and-terrain-friction}
+
+The spatial routing of captured CO\textsubscript{2} is governed by an
+economic optimization algorithm that dynamically selects the lowest-cost
+transport modality---pipeline or maritime shipping---for every grid
+cell. Standard spatial optimization models frequently rely on simple
+Euclidean distances or Voronoi tessellations, which artificially
+generate circular geographical discontinuities in net present value
+(NPV) maps. To eliminate these artifacts and accurately model the
+economic constraints of CO\textsubscript{2} transport, this framework
+implements a deterministic Lowest Cost Routing logic that relies on a
+terrain-optimized Least Cost Path (LCP) algorithm rather than linear
+assumptions.
+
+Topographic friction surfaces were generated by deriving the slope (in
+degrees) from the Global Digital Elevation Model (GDEM). To preserve
+localized linear barriers---such as mountain ridges or steep
+ravines---during spatial aggregation to the base model resolution, the
+high-resolution slope data was aggregated using a 95th percentile
+percolation threshold. The terrain friction surface was then
+parameterized using an exponential cost function:
+
+\[M(\theta) = \exp(0.25 \cdot \theta)\]
+
+where \(\theta\) represents the aggregated slope. Furthermore, to ensure
+that proposed CO\textsubscript{2} infrastructure avoids ecologically
+sensitive or legally restricted regions, protected areas from the World
+Database on Protected Areas (WDPA) were rasterized and treated as
+absolute barriers. This forces the routing algorithm to find the most
+efficient path around protected zones. Once the minimal effective
+transport route is mapped, the distances are adjusted by a standard
+tortuosity multiplier of 1.25 to account for right-of-way routing and
+localized physical avoidance.
+
+\paragraph{Maritime Shipping Modality}\label{maritime-shipping-modality}
+
+For offshore geological sinks, or for highly isolated onshore sources,
+CO\textsubscript{2} is transported via maritime or rail networks. This
+modality is modeled with a step-cost function dominated by the
+capital-intensive fixed entry costs of liquefaction and terminal
+buffering, paired with highly efficient variable voyage costs:
+
+\[C_{shipping} = C_{liquefaction} + C_{terminal} + (c_{voyage} \cdot d_{effective})\]
+
+\paragraph{Hub-and-Spoke Pipeline Modality (Piecewise
+Linear)}\label{hub-and-spoke-pipeline-modality-piecewise-linear}
+
+Standard length-invariant TEA cost functions for CO\textsubscript{2}
+pipelines adequately model regional networks but fundamentally
+underestimate the capital and energetic burdens of long-distance
+transport. Specifically, maintaining CO\textsubscript{2} in a dense or
+supercritical phase over extended distances requires the deployment of
+intermediate booster compression stations to overcome frictional
+pressure drops.
+
+To simulate this without computationally intensive grid-level pump
+topology, pipeline CAPEX is calculated using a piecewise linear
+hub-and-spoke framework:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  \textbf{The Feeder Leg:} Sources build a dedicated feeder pipeline for
+  the first 50 km (\(d_{feeder}\)), bearing the full capacity-scaled
+  CAPEX.
+\item
+  \textbf{The Trunk Leg (Base Phase):} For distances up to 700 km, the
+  source connects to a regional trunkline operating at an efficient
+  scale (e.g., 3 Mtpa), paying only a proportional mass share of the
+  CAPEX.
+\item
+  \textbf{The Trunk Leg (Booster Phase):} For distances exceeding 700
+  km, the marginal cost of the trunkline increases by a penalty factor
+  (\(P_{booster} = 2.0\)) to approximate the compounding capital and
+  operational costs of intermediate booster stations.
+\end{enumerate}
+
+The trunkline CAPEX share (\(CAPEX_{trunk}\)) is calculated as:
+
+\[CAPEX_{trunk} =
+\begin{cases}
+C_{base} \cdot (d_{effective} - 50) & \text{if } d_{effective} \le 700 \\
+C_{base} \cdot (700 - 50) + (C_{base} \cdot P_{booster}) \cdot (d_{effective} - 700) & \text{if } d_{effective} > 700
+\end{cases}\]
+
+where \(C_{base}\) is the unit length cost of the efficient-scale
+trunkline, scaled to the site's proportional mass.
+
+\paragraph{Modality Optimization}\label{modality-optimization}
+
+To eliminate artifactual spatial boundaries, the algorithm evaluates
+both modalities for all onshore sinks and selects the optimal route:
+
+\[Cost_{transport} = \min(C_{pipeline}, C_{shipping})\]
+
+Because of the piecewise booster penalty, the pipeline cost curve
+steepens significantly beyond 700 km. This guarantees a natural
+mathematical intersection with the flat \(C_{shipping}\) cost floor,
+allowing the model to smoothly transition to shipping modalities at
+extreme distances.
+
+\paragraph{Biochar Permanence and Agronomic Valuation (BEBCS
+Feedbacks)}\label{biochar-permanence-and-agronomic-valuation-bebcs-feedbacks}
+
+The Bioenergy with Biochar Storage (BEBCS) pathway diverts a fraction of
+the original biomass carbon into a recalcitrant solid matrix. While
+physical disposal methods such as the landfilling of biochar represent a
+highly effective method to definitively sequester the carbon 100\%, this
+framework strictly evaluates soil application to quantify the cascading
+agronomic co-benefits and regional substitution values. Consequently,
+the carbon retention within the soil matrix is finite and must be
+modeled dynamically based on localized biogeochemical conditions.
+
+\subparagraph{\texorpdfstring{Biochar Carbon Permanence
+(\(F_{perm}\))}{Biochar Carbon Permanence (F\_\{perm\})}}\label{biochar-carbon-permanence-f_perm}
+
+To accurately quantify the net carbon dioxide removal (CDR) of the BEBCS
+pathway, the model calculates the permanent carbon fraction
+(\(F_{perm}\)) that remains stabilized in the soil after a 100-year time
+horizon. This fraction is derived using the multi-pool decay methodology
+established by (\citeproc{ref-woolf2021greenhouse}{\emph{12}}).
+
+The baseline degradation rates of the biochar's labile and recalcitrant
+carbon pools are fitted to either the peak pyrolysis temperature
+(\(T_{py}\)) or the molar Hydrogen-to-Organic-Carbon (H:C) ratio of the
+final char. Because microbial and chemical degradation kinetics are
+highly temperature-dependent, these reference decay rates are spatially
+adjusted to match the localized mean annual soil temperature using a
+\(Q_{10}\) temperature sensitivity function. To optimize spatial
+computational efficiency across the high-resolution rasters, the
+thermodynamic engine utilizes bilinear interpolation over a
+pre-calculated matrix of \(F_{perm}\) values bounded by soil
+temperatures (\(-55^\circ\text{C}\) to \(40^\circ\text{C}\)) and H:C
+ratios (\(0.0\) to \(0.7\)).
+
+Total carbon sequestered per megagram of feedstock is therefore modeled
+as:
+
+\[C_{seq} = Yield_{bc} \cdot C_{content} \cdot F_{perm} \cdot \left(\frac{44}{12}\right)\]
+
+where \(Yield_{bc}\) is the mass fraction of biochar produced,
+\(C_{content}\) is the carbon mass fraction of the biochar, and the
+\(44/12\) ratio converts the elemental carbon to CO\textsubscript{2}
+mass equivalents.
+
+\paragraph{Mechanistic Agronomic
+Valuation}\label{mechanistic-agronomic-valuation}
+
+Previous spatial models frequently value biochar using a static,
+exogenous global market price. To better reflect real-world agricultural
+economics, \texttt{BiocharAG} endogenously determines the economic
+credit of biochar through a mechanistic substitution valuation. This
+assumes that the rational economic value of biochar is equal to the cost
+of the conventional agricultural inputs it successfully offsets:
+
+\[Value_{ag} = Value_{lime} + Value_{nutrients} + Value_{physical}\]
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \textbf{Liming Equivalence (}\(Value_{lime}\)): The model spatially
+  evaluates the native soil pH against a neutral agricultural target (pH
+  6.5). If the soil is acidic, the biochar's Calcium Carbonate
+  Equivalent (CCE, default 15\%) is credited against the localized
+  market price of bulk agricultural lime (e.g., \(\$60/\text{Mg}\)). If
+  the regional soil is already alkaline, the liming value is strictly
+  zero.
+\item
+  \textbf{Nutrient Substitution (}\(Value_{nutrients}\)): The available
+  nitrogen (N), phosphorus (P), and potassium (K) fractions within the
+  biochar are credited against prevailing regional fertilizer costs.
+  Baseline valuations rely on standard commercial substitutes, deriving
+  elemental prices from Urea (\(\$0.92/\text{kg N}\)), Diammonium
+  Phosphate (\(\$1.10/\text{kg P}_2\text{O}_5\)), and Potash
+  (\(\$0.62/\text{kg K}_2\text{O}\)).
+\item
+  \textbf{Physical/CEC Improvements (}\(Value_{physical}\)): Biochar
+  provides long-term yield efficiency gains by increasing water
+  retention and buffering nutrient leaching, effects that are most
+  pronounced in degraded or sandy soils. This value is heuristically
+  scaled inversely to the soil's native Cation Exchange Capacity (CEC).
+  Soils with severe CEC deficits receive higher annual premiums (up to
+  \(\$50/\text{Mg}\)), while heavy clay soils (CEC
+  \(> 30\text{ cmol/kg}\)) receive zero premium.
+\end{enumerate}
+
+Because physical and chemical soil improvements degrade or saturate over
+time, the total annual physical and nutrient benefits are amortized as a
+Present Value of an Annuity over a conservative 10-year agronomic impact
+duration, discounted at the baseline financial discount rate.
+
+\paragraph{Consequential Life Cycle Assessment and Climate
+Mitigation}\label{consequential-life-cycle-assessment-and-climate-mitigation}
+
+To robustly account for the climate mitigation benefit of bioenergy
+generation, the framework evaluates greenhouse gas offsets using a
+consequential Life Cycle Assessment (LCA) boundary. Total carbon
+abatement is calculated distinctively for each technology pathway,
+balancing active sequestration, grid displacement credits, and Scope 3
+supply chain emissions.
+
+\subparagraph{Net Carbon Abatement
+Balances}\label{net-carbon-abatement-balances}
+
+The net carbon abatement for each grid cell is defined as the sum of
+physical carbon sequestered and emissions displaced, minus the
+transportation emissions penalty:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{BES:} Abatement relies entirely on the displacement of grid
+  emissions, minus the Scope 3 emissions associated with diesel trucking
+  of the biomass feedstock.
+\item
+  \textbf{BECCS:} Abatement includes the physical CO\textsubscript{2}
+  captured and injected into the geological sink (assuming a 90\%
+  capture rate) plus the grid displacement credit. However, because the
+  parasitic energy load of the capture process reduces the net
+  electrical efficiency (from 30\% to 28\%), the total energy
+  exported---and thus the resulting grid displacement credit---is
+  proportionally lower for BECCS than for pure BES{[}\^{}5{]}.
+\item
+  \textbf{BEBCS:} Abatement combines the grid displacement credit with
+  the permanent CO\textsubscript{2} equivalent of the biochar carbon
+  retained in the soil (\(F_{perm}\)), alongside a minor fixed soil
+  greenhouse gas abatement credit (e.g., suppressed \(N_2O\) emissions).
+\end{itemize}
+
+For all pathways, Scope 3 feedstock transport emissions are modeled
+dynamically by applying a heavy-duty diesel transport emissions factor
+(\(0.0001\text{ Mg CO}_2\text{e}\) per \(\text{Mg}\cdot\text{km}\)) to
+the effective biomass collection distance.
+
+\paragraph{Grid Displacement Methodology (Marginal Carbon
+Intensity)}\label{grid-displacement-methodology-marginal-carbon-intensity}
+
+We estimate the Marginal Carbon Intensity (MCI) of displaced energy
+under two bounding scenarios to reflect differing macro-economic climate
+trajectories.
+
+\paragraph{Scenario A: Empirical Baseline (Short-Run Marginal
+Capacity)}\label{scenario-a-empirical-baseline-short-run-marginal-capacity}
+
+Under a Business-as-Usual (BAU) trajectory, the model assumes that new
+bioenergy capacity displaces the technology mix currently expanding on
+regional grids. Using multi-country historical electricity supply data
+(e.g., Ember, EIA, Eurostat), the model isolates generation sources
+experiencing positive net growth (\(\Delta G > 0\)) over a trailing
+five-year window (2018--2023).
+
+The regional MCI is calculated as a generation-weighted average of these
+expanding sources:
+
+\[MCI = \frac{\sum(\Delta G_{i} \times CI_{i})}{\sum\Delta G_{i}}\]
+
+where \(\Delta G_{i}\) represents the net positive generation added for
+source \(i\), and \(CI_{i}\) represents the static Intergovernmental
+Panel on Climate Change (IPCC) lifecycle greenhouse gas intensity for
+that specific technology. Standard IPCC reference intensities utilized
+include coal (820 \(\text{gCO}_2\text{eq/kWh}\)), natural gas (490
+\(\text{gCO}_2\text{eq/kWh}\)), dedicated biomass (230
+\(\text{gCO}_2\text{eq/kWh}\)), utility solar (48
+\(\text{gCO}_2\text{eq/kWh}\)), wind (11.5
+\(\text{gCO}_2\text{eq/kWh}\)), and nuclear (12
+\(\text{gCO}_2\text{eq/kWh}\)). Applying this short-run marginal logic
+yields empirical baseline MCIs of approximately 278
+\(\text{gCO}_2\text{eq/kWh}\) for the United States and 528
+\(\text{gCO}_2\text{eq/kWh}\) for China.
+
+\paragraph{Scenario B: Paris-Aligned Counterfactual (Long-Run Structural
+Shift)}\label{scenario-b-paris-aligned-counterfactual-long-run-structural-shift}
+
+To account for structural shifts in energy systems operating under
+strict climate stabilization limits (e.g., 1.5°C or 2.0°C targets), a
+secondary counterfactual scenario is evaluated. In a deep mitigation
+regime, fossil fuels are systematically phased out by hard policy caps.
+Therefore, the deployment of a baseload negative-emissions technology
+like BECCS or BEBCS does not offset high-emission fossil generation;
+rather, it displaces or delays the deployment of the next most
+capital-intensive low-carbon baseload alternative.
+
+Under this sensitivity mode, the model assumes the displaced marginal
+generation is nuclear power. This scenario aggressively compresses net
+mitigation margins, dropping the grid displacement credit to a
+standardized lifecycle factor of 12 \(\text{gCO}_2\text{eq/kWh}\)
+globally.
+
+\subsubsection{Model Parameters and Data
+Sources}\label{model-parameters-and-data-sources}
+
+To ensure full reproducibility and transparency, the operational,
+financial, and biophysical parameters utilized within the
+\texttt{BiocharAG} framework are tabulated below. Parameters are
+classified by their spatial resolution: \textbf{Scalar} values are held
+constant globally; \textbf{Regional} values act as constants but are
+overridden based on the macro-economic domain (e.g., India, China,
+Europe, US); and \textbf{Spatial} values are resolved dynamically at the
+grid-cell level using high-resolution raster datasets.
+
+\phantomsection\label{tbl-parameters}
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.3300}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.1400}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.1600}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.1100}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Parameter
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Description
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Type
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Default Value
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Units
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+\textbf{Financial \& Market} & & & & \\
+\texttt{discount\_rate} & Baseline cost of capital & Regional & 0.08
+(0.12 in India) & Fraction \\
+\texttt{elec\_price} & Wholesale electricity price & Spatial / Regional
+& 100.00 & USD / MWh \\
+\texttt{wholesale\_discount\_factor} & Ratio of wholesale to retail
+price & Regional & 0.4 (1.0 in India) & Fraction \\
+\texttt{c\_price} & Carbon abatement credit price & Scalar & 50.00 & USD
+/ tCO\textsubscript{2}e \\
+\texttt{bes\_life} / \texttt{beccs\_life} & Infrastructure project
+lifetime & Scalar & 30 & Years \\
+\texttt{capacity\_factor} & Annual plant capacity utilization & Scalar &
+0.85 & Fraction \\
+\texttt{scaling\_factor} & Capital cost scale exponent & Scalar & 0.7 &
+- \\
+\textbf{Technology \& Thermodynamics} & & & & \\
+\texttt{plant\_mw\_th} & Target plant thermal capacity & Scalar & 250.0
+& MWth \\
+\texttt{bes\_capital\_cost} & Base CAPEX for BES (50 MWe ref) & Regional
+& 3,000 & USD / kWe \\
+\texttt{beccs\_capital\_cost} & Base CAPEX for BECCS (50 MWe ref) &
+Regional & 4,000 & USD / kWe \\
+\texttt{bes\_om\_factor} & O\&M cost as fraction of CAPEX & Regional &
+0.04 & Fraction \\
+\texttt{beccs\_om\_factor} & O\&M cost for BECCS & Regional & 0.05 &
+Fraction \\
+\texttt{bes\_energy\_efficiency} & Electrical efficiency for BES &
+Scalar & 0.30 & Fraction \\
+\texttt{beccs\_efficiency} & Electrical efficiency for BECCS & Scalar &
+0.28 & Fraction \\
+\texttt{capture\_rate} & CO\textsubscript{2} capture efficiency for
+BECCS & Scalar & 0.90 & Fraction \\
+\texttt{py\_temp} & Peak pyrolysis temperature & Scalar & 500 & °C \\
+\texttt{heat\_loss} & Pyrolysis process heat loss & Scalar & 2.35 & GJ /
+Mg \\
+\texttt{bo\_hhv} & Bio-oil higher heating value & Scalar & 27.63 & GJ /
+Mg \\
+\texttt{bo\_c}, \texttt{bo\_h}, \texttt{bo\_o} & Bio-oil elemental mass
+fractions & Scalar & 0.625, 0.0756, 0.2994 & Fraction \\
+\textbf{Feedstock \& Logistics} & & & & \\
+\texttt{bm\_lhv} & Biomass lower heating value & Scalar & 18.6 & GJ /
+Mg \\
+\texttt{bm\_c} & Biomass carbon mass fraction & Scalar & 0.48 &
+Fraction \\
+\texttt{bm\_ash} & Biomass ash mass fraction & Regional & 0.05 (0.15 in
+India) & Fraction \\
+\texttt{bm\_transport\_fixed} & Fixed loading/handling cost & Scalar &
+5.00 & USD / Mg \\
+\texttt{bm\_transport\_var} & Variable trucking cost & Scalar & 0.15 &
+USD / Mg / km \\
+\texttt{transport\_emissions\_factor} & Scope 3 heavy-duty truck
+emissions & Scalar & 0.0001 & Mg CO\textsubscript{2}e / Mg·km \\
+\textbf{CO\textsubscript{2} Transport Infrastructure} & & & & \\
+\texttt{ccs\_storage\_cost} & Onshore injection and monitoring & Spatial
+& 12.0 & USD / tCO\textsubscript{2} \\
+\texttt{base\_cost\_offshore\_storage} & Offshore injection and
+monitoring & Scalar & 40.0 & USD / tCO\textsubscript{2} \\
+\texttt{feeder\_threshold\_km} & Dedicated feeder pipeline limit &
+Scalar & 50 & km \\
+\texttt{booster\_threshold\_km} & Distance triggering booster penalty &
+Scalar & 700 & km \\
+\texttt{booster\_penalty} & Marginal cost multiplier for boosters &
+Scalar & 2.0 & - \\
+\texttt{trunk\_mass\_flow} & Ref. capacity for trunkline sharing &
+Scalar & 3,000,000 & Mg / year \\
+\texttt{liq\_cost} & CO\textsubscript{2} Liquefaction cost (shipping) &
+Scalar & 20.0 & USD / tCO\textsubscript{2} \\
+\texttt{term\_cost} & Terminal handling cost (shipping) & Scalar & 15.0
+& USD / tCO\textsubscript{2} \\
+\texttt{voyage\_rate} & Variable voyage cost (shipping) & Scalar & 0.035
+& USD / tCO\textsubscript{2} / km \\
+\texttt{transport\_elec\_price} & Electricity price for compression &
+Scalar & 0.10 & USD / kWh \\
+\textbf{Biochar \& Agronomic} & & & & \\
+\texttt{h\_c\_org} & Molar H:C ratio for permanence & Scalar & 0.35 &
+Molar Ratio \\
+\texttt{time\_frame} & Time horizon for permanence assessment & Scalar &
+100 & Years \\
+\texttt{target\_ph} & Target agricultural soil pH & Scalar & 6.5 & pH \\
+\texttt{bc\_cce} & Calcium Carbonate Equivalent & Scalar & 0.15 &
+Fraction \\
+\texttt{price\_lime} & Market price for agricultural lime & Regional &
+60.00 & USD / Mg \\
+\texttt{price\_n} & Market price for Nitrogen & Regional & 0.92 (0.30 in
+India) & USD / kg N \\
+\texttt{price\_p} & Market price for Phosphorus & Regional & 1.10 (0.80
+in India) & USD / kg P\textsubscript{2}O\textsubscript{5} \\
+\texttt{price\_k} & Market price for Potassium & Regional & 0.62 (0.40
+in India) & USD / kg K\textsubscript{2}O \\
+\texttt{avail\_n}, \texttt{avail\_p}, \texttt{avail\_k} & First-year
+nutrient availability & Scalar & 0.1, 0.5, 0.8 & Fraction \\
+\texttt{ag\_impact\_duration} & Duration of nutrient/liming benefit &
+Scalar & 10 & Years \\
+\texttt{soil\_ghg\_abatement} & Suppressed soil emissions credit &
+Scalar & 0.1 & tCO\textsubscript{2}e / Mg \\
+\textbf{Spatial \& Environmental} & & & & \\
+\texttt{ff\_c\_intensity} & Displaced grid carbon intensity & Spatial /
+Regional & Scenario Dependent & tCO\textsubscript{2}eq / GJ \\
+\texttt{biomass\_density} & Available spatial crop residues & Spatial &
+- & Mg / km\textsuperscript{2} \\
+\texttt{soil\_ph} & Native topsoil pH & Spatial & - & pH \\
+\texttt{soil\_cec} & Cation Exchange Capacity & Spatial & - & cmol /
+kg \\
+\texttt{soil\_temp} & Mean annual soil temperature & Spatial & - & °C \\
+\end{longtable}
+
+\section{Results}\label{results}
+
+\begin{figure}
+
+\centering{
+
+\includegraphics[width=1\linewidth,height=\textheight,keepaspectratio]{images/Global_Fig8_Breakeven_CPrice_CP100_MW250_reg.png}
+
+}
+
+\caption{\label{fig-break-even}Minimum Break-even carbon price for each
+technology option. The technology with the lowest break-even price is
+shown as the ``best technology'' in the penultimate row. The final row
+shows the break-even price of this technology.}
+
+\end{figure}%
+
+\begin{figure}
+
+\centering{
+
+\includegraphics[width=1\linewidth,height=\textheight,keepaspectratio]{images/US_Fig3_Evaporation_Maps_CP100_MW250.png}
+
+}
+
+\caption{\label{fig-evap-usa}Optimal technology as a function of carbon
+price and discount rate (USA).}
+
+\end{figure}%
+
+\begin{figure}
+
+\centering{
+
+\includegraphics[width=1\linewidth,height=\textheight,keepaspectratio]{images/Europe_Fig3_Evaporation_Maps_CP100_MW250.png}
+
+}
+
+\caption{\label{fig-evap-eur}Optimal technology as a function of carbon
+price and discount rate (Europe).}
+
+\end{figure}%
+
+\begin{figure}
+
+\centering{
+
+\includegraphics[width=1\linewidth,height=\textheight,keepaspectratio]{images/US_Fig3_Evaporation_Maps_CP100_MW250_reg.png}
+
+}
+
+\caption{\label{fig-evap-india}Optimal technology as a function of
+carbon price and discount rate (India).}
+
+\end{figure}%
+
+\begin{figure}
+
+\centering{
+
+\includegraphics[width=1\linewidth,height=\textheight,keepaspectratio]{images/China_Fig3_Evaporation_Maps_CP100_MW250_reg.png}
+
+}
+
+\caption{\label{fig-evap-china}Optimal technology as a function of
+carbon price and discount rate (China).}
+
+\end{figure}%
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.5\linewidth,height=\textheight,keepaspectratio]{images/Europe_Fig6_MACC_CP100_MW250.png}
+
+}
+
+\caption{Marginal abatement cost curve for Europe.}
+
+\end{figure}%%
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.5\linewidth,height=\textheight,keepaspectratio]{images/India_Fig6_MACC_EA_CP100_MW250.png}
+
+}
+
+\caption{Marginal abatement cost curve for India.}
+
+\end{figure}%%
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.5\linewidth,height=\textheight,keepaspectratio]{images/China_Fig6_MACC_EA_CP100_MW250.png}
+
+}
+
+\caption{Marginal abatement cost curve for China.}
+
+\end{figure}%
+
+\pandocbounded{\includegraphics[keepaspectratio]{images/map_dominant_shap_feature.png}}
+
+\pandocbounded{\includegraphics[keepaspectratio]{images/map_max_shap_magnitude-2.png}}
+
+\section{References}\label{references}
+
+\phantomsection\label{refs}
+\begin{CSLReferences}{0}{1}
+\bibitem[\citeproctext]{ref-woolf2010}
+\CSLLeftMargin{1. }%
+\CSLRightInline{D. Woolf, J. E. Amonette, F. A. Street-Perrott, J.
+Lehmann, S. Joseph,
+\href{https://doi.org/10.1038/ncomms1053}{Sustainable biochar to
+mitigate global climate change}. \emph{Nature Communications}
+\textbf{1}, 56 (2010).}
+
+\bibitem[\citeproctext]{ref-lehmann2021biochar}
+\CSLLeftMargin{2. }%
+\CSLRightInline{J. Lehmann, A. Cowie, A. Allison, M. Brandão, S. Joseph,
+D. Powlson, D. Woolf,
+\href{https://doi.org/10.1038/s41561-021-00852-8}{Biochar in climate
+change mitigation}. \emph{Nature Geoscience} \textbf{14}, 883--892
+(2021).}
+
+\bibitem[\citeproctext]{ref-woolf2016}
+\CSLLeftMargin{3. }%
+\CSLRightInline{D. Woolf, J. Lehmann, D. R. Lee,
+\href{https://doi.org/10/f87kfp}{Optimal bioenergy power generation for
+climate change mitigation with or without carbon sequestration}.
+\emph{Nature Communications} \textbf{7}, 13160 (2016).}
+
+\bibitem[\citeproctext]{ref-peters2015}
+\CSLLeftMargin{4. }%
+\CSLRightInline{J. F. Peters, D. Iribarren, J. Dufour,
+\href{https://doi.org/10.1021/es5060786}{Biomass pyrolysis for biochar
+or energy applications? A life cycle assessment}. \emph{Environmental
+Science \& Technology} \textbf{49}, 5195--5202 (2015).}
+
+\bibitem[\citeproctext]{ref-lefebvre2021}
+\CSLLeftMargin{5. }%
+\CSLRightInline{D. Lefebvre, A. Williams, G. J. D. Kirk, J. Meersmans,
+S. Sohi, P. Goglio, P. Smith,
+\href{https://doi.org/10.1016/j.jclepro.2021.127764}{An anticipatory
+life cycle assessment of the use of biochar from sugarcane residues as a
+greenhouse gas removal technology}. \emph{Journal of Cleaner Production}
+\textbf{312}, 127764 (2021).}
+
+\bibitem[\citeproctext]{ref-karan2023}
+\CSLLeftMargin{6. }%
+\CSLRightInline{S. K. Karan, D. Woolf, E. S. Azzi, C. Sundberg, S. A.
+Wood, \href{https://doi.org/10.1111/gcbb.13102}{Potential for biochar
+carbon sequestration from crop residues: A global spatially explicit
+assessment}. \emph{GCB Bioenergy} \textbf{15}, 1424--1436 (2023).}
+
+\bibitem[\citeproctext]{ref-sultana2014}
+\CSLLeftMargin{7. }%
+\CSLRightInline{A. Sultana, A. Kumar,
+\href{https://doi.org/10.1016/j.apenergy.2013.12.036}{Development of
+tortuosity factor for assessment of lignocellulosic biomass delivery
+cost to a biorefinery}. \emph{Applied Energy} \textbf{119}, 288--295
+(2014).}
+
+\bibitem[\citeproctext]{ref-luan2025a}
+\CSLLeftMargin{8. }%
+\CSLRightInline{J. Luan, Q. Wang, D. Shao, B. Cui, P. Han, Q. He,
+\href{https://doi.org/10.3389/fenrg.2025.1634354}{Research progress on
+influencing factors and control methods of slagging in biomass
+combustion}. \emph{Frontiers in Energy Research} \textbf{13} (2025).}
+
+\bibitem[\citeproctext]{ref-baxter1998}
+\CSLLeftMargin{9. }%
+\CSLRightInline{L. L. Baxter, T. R. Miles, T. R. Miles, B. M. Jenkins,
+T. Milne, D. Dayton, R. W. Bryers, L. L. Oden,
+\href{https://doi.org/10.1016/S0378-3820(97)00060-X}{The behavior of
+inorganic material in biomass-fired power boilers: Field and laboratory
+experiences}. \emph{Fuel Processing Technology} \textbf{54}, 47--78
+(1998).}
+
+\bibitem[\citeproctext]{ref-garcuxeda2017}
+\CSLLeftMargin{10. }%
+\CSLRightInline{R. García, C. Pizarro, A. G. Lavín, J. L. Bueno,
+\href{https://doi.org/10.1016/j.fuel.2017.01.063}{Biomass sources for
+thermal conversion. Techno-economical overview}. \emph{Fuel}
+\textbf{195}, 182--189 (2017).}
+
+\bibitem[\citeproctext]{ref-woolf2016optimal}
+\CSLLeftMargin{11. }%
+\CSLRightInline{D. Woolf, J. Lehmann, D. R. Lee,
+\href{https://doi.org/10.1038/ncomms13160}{Optimal bioenergy power
+generation for climate change mitigation with or without carbon
+sequestration}. \emph{Nature Communications} \textbf{7}, 13160 (2016).}
+
+\bibitem[\citeproctext]{ref-woolf2021greenhouse}
+\CSLLeftMargin{12. }%
+\CSLRightInline{D. Woolf, J. Lehmann, S. Ogle, A. W. Kishimoto-Mo, B.
+McConkey, J. Baldock,
+\href{https://doi.org/10.3389/fclim.2021.684182}{Greenhouse gas removal
+and emissions negative technologies}. \emph{Frontiers in Climate}
+\textbf{3}, 684182 (2021).}
+
+\end{CSLReferences}
+
+
+
+
+\end{document}

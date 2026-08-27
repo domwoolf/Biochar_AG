@@ -7,7 +7,7 @@ library(dplyr)
 library(tidyr)
 
 # Sourcing script for helper load function and package loading
-source("scripts/generate_manuscript_figures.R")
+source("scripts/manuscript_figures.R")
 
 # --- Configuration ---
 SCENARIO_NAME <- "CP100_MW250" # Predefined scenario name (e.g. "default", "CP100_MW250", "EA", "EA_CP100_MW250", "EA_CP100_MW250_EOR")

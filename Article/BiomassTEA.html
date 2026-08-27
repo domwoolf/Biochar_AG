@@ -1,0 +1,1293 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.40">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="dcterms.date" content="2026-08-26">
+
+<title>Technoeconomic Potential of Biomass-based Climate Change Mitigation Strategies</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="BiomassTEA_files/libs/clipboard/clipboard.min.js"></script>
+<script src="BiomassTEA_files/libs/quarto-html/quarto.js"></script>
+<script src="BiomassTEA_files/libs/quarto-html/popper.min.js"></script>
+<script src="BiomassTEA_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="BiomassTEA_files/libs/quarto-html/anchor.min.js"></script>
+<link href="BiomassTEA_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="BiomassTEA_files/libs/quarto-html/quarto-syntax-highlighting-549806ee2085284f45b00abea8c6df48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="BiomassTEA_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="BiomassTEA_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="BiomassTEA_files/libs/bootstrap/bootstrap-00cffd31a40993c5410271c702a3b17b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body>
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+<div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="BiomassTEA.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Technoeconomic Potential of Biomass-based Climate Change Mitigation Strategies</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">August 26, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="introduction" class="level1">
+<h1>Introduction</h1>
+<p>Biochar has been widely promoted for climate change mitigation, with co-benefits for soil health and crop production when used as a soil amendment. Globally, biochar has the sustainable technical potential for carbon sequestration and emissions reductions of up to 3.4–6.3 Pg CO<sub>2</sub>e.1,2 However, the costs, benefits and tradeoffs for biochar vary spatially, creating substantial heterogeneity in its feasibility at a given carbon price. This variability is further affected by the fact that biochar must compete with alternative uses for the limited supply of available waste biomass. Indeed, alternative uses of biomass, such producing bioenergy with or without carbon capture and sequestration can also help to mitigate climate change and may provide greater climate mitigation, lower costs, and/or greater co-benefits in certain contexts. This depends on a number of different factors, including soil type, cropland productivity, climate, energy fuel mix, feedstock availability, distance to CO<sub>2</sub> sinks for carbon capture and storage, energy prices and food prices. For example, bioenergy production may provide a greater climate benefit in regions that are highly dependent on carbon-intensive energy sources and have high soil fertility, whereas biochar is more favorable where low-fertility soils can benefit from its soil-health improvement3.</p>
+<p>It is, therefore, critical to understand where biochar could be the best use of resources from a climate mitigation perspective. Currently, most biochar assessments focus on the technical potential, without mapping out the tradeoffs or identifying optimal pathways based on location. While there are some biochar life-cycle assessments that account for alternative biomass uses, they are highly context-specific and difficult to scale up on4,5. As such, this project aims to provide a detailed feasibility and tradeoff analysis across four regions (North America, India, China, and Europe) to map where biochar represents the most efficient use of biomass to reduce atmospheric greenhouse gasses (GHGs). These regions represent a diversity of geographic, socio-economic, and agro-ecological conditions for a broad assessment of how constraints, tradeoffs and benefits vary across regions. This work has a direct path to impact, as it will allow policy-makers and practitioners to make scientifically-informed decisions about which mitigation pathways are best suited for their geographies. It can also help right-size biochar’s mitigation potential by identifying areas that maximize its climate benefits and realistically support its production and application.</p>
+</section>
+<section id="methods" class="level1">
+<h1>Methods</h1>
+<section id="model-architecture" class="level2">
+<h2 class="anchored" data-anchor-id="model-architecture">Model Architecture</h2>
+<p>The <code>BiocharAG</code> model evaluates three biomass utilization pathways: Bioenergy (BE), Bioenergy with Carbon Capture and Storage (BECCS), and Bioenergy with Biochar Carbon Storage (BEBCS). The model evaluates a spatially-varying net present value (NPV) for each technology using a discounted cost-benefit analysis, with GHG emissions and removals converted to 100-year CO<sub>2</sub> equivalent values and internalized into the economic analysis using an assumed carbon price.</p>
+<p>The model was deployed across the coterminous United States, Europe, India, and China. All spatial inputs were projected into region-specific, equal-area coordinate reference systems (EPSG:5070, EPSG:3035, EPSG:8859, and ESRI:102025, for the US, Europe, India, and China, respectively), and harmonized to a 0.1-degree resolution. The model was implemented in the R programming language, using the Terra package for spatial analysis.</p>
+<section id="biomass-feedstock-sourcing-and-logistics" class="level3">
+<h3 class="anchored" data-anchor-id="biomass-feedstock-sourcing-and-logistics">Biomass Feedstock Sourcing and Logistics</h3>
+<section id="biomass-transport-costs-and-emissions" class="level4">
+<h4 class="anchored" data-anchor-id="biomass-transport-costs-and-emissions">Biomass Transport Costs and Emissions</h4>
+<p>High resolution rasters of available crop residue biomass were derived from Karan et (ref). The average transport distance for biomass was calculated from this using focal statistics based on the annual biomass requirement for the conversion facility. The required annual biomass mass (<span class="math inline">\(M_{req}\)</span>) is determined by the target thermal capacity, assuming a capacity factor of 0.85 and a default biomass lower heating value (LHV) of <span class="math inline">\(18.6\text{ GJ/Mg}\)</span>. A spatial focal sum algorithm was applied to aggregate the surrounding biomass over a discrete series of expanding radii (from 5 km up to 500 km). The required collection radius was then calculated via quadratic interpolation between these radial bins. Assuming a circular catchment geometry, the average straight-line collection distance is approximated as two-thirds of the interpolated bounding radius<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> (i.e.&nbsp;assuming homogeneous distribution within the catchment area<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>). The average straight-line distance was multiplied by a tortuosity factor of 1.3 to calculate the effective road transport distance. Biomass logistical costs were modeled using a fixed material handling and loading cost (<span class="math inline">\(\$5.00/\text{Mg}\)</span>) and a variable trucking cost (<span class="math inline">\(\$0.15/\text{Mg}\cdot\text{km}\)</span>) applied to the effective road distance. Scope 3 transportation emissions associated with feedstock procurement were estimated using heavy-duty diesel transport emissions factor of <span class="math inline">\(0.0001\text{ Mg CO}_2\text{e}/(\text{Mg}\cdot\text{km})\)</span> applied to the effective distance and deducted from the net carbon abatement.</p>
+</section>
+<section id="fuel-quality" class="level4">
+<h4 class="anchored" data-anchor-id="fuel-quality">Fuel Quality</h4>
+<p>Agricultural crop residues typically have a higher ash content (<span class="math inline">\(&gt;5\%\)</span> fraction) than the wood chips more commonly used in bioenergy combustion. High-ash feedstocks carry significant fouling and slagging risks, requiring additional capital expenditures (CAPEX) and OPEX, for example through deployment of Circulating Fluidized Bed (CFB) boilers. This fuel quality penalty results in a 25% increase in base CAPEX for combustion technologies (BE and BECCS), a 50% increase in operations and maintenance (O&amp;M) costs, and a 10% reduction in overall electrical conversion efficiency, relative to a wood-chip fired bioenergy plant<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a>.</p>
+</section>
+<section id="regional-pricing-structures" class="level4">
+<h4 class="anchored" data-anchor-id="regional-pricing-structures">Regional Pricing Structures</h4>
+<p>Feedstock pricing is not treated as a static global constant; rather, it is derived via a spatially explicit shadow-pricing logic converted to a normalized <span class="math inline">\(\text{USD/Mg}\)</span> equivalent.</p>
+<ul>
+<li><p><strong>United States:</strong> Establishes a baseline farm-gate cost (<span class="math inline">\(\$70.00/\text{Mg}\)</span>) combined with a nutrient replacement penalty (e.g., <span class="math inline">\(\$25.06/\text{Mg}\)</span> for corn stover) to compensate for the export of field nutrients.</p></li>
+<li><p><strong>Europe:</strong> Utilizes a baseline NUTS-3 regional roadside cost, modified by a temporal volatility multiplier that accounts for interim storage costs (up to a 36.4% premium for 6-month storage).</p></li>
+<li><p><strong>India:</strong> Capitalizes on the necessity to avoid crop stubble burning. The model assumes a <span class="math inline">\(\$0\)</span> stumpage fee, but imposes a step-cost for densification: raw bale transport costs apply under 50 km, while more expensive pelletization costs are triggered for catchment zones exceeding 50 km<a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a>.</p></li>
+<li><p><strong>China:</strong> Modifies a baseline plant-gate cost with exogenous spatial risk multipliers, applying premiums for localized weather volatility and rural expansion risks.</p></li>
+</ul>
+</section>
+</section>
+<section id="technology-pathways-and-thermodynamics" class="level3">
+<h3 class="anchored" data-anchor-id="technology-pathways-and-thermodynamics">Technology Pathways and Thermodynamics</h3>
+<p>The core thermodynamic engine evaluates three distinct biomass utilization pathways, processing the standardized <span class="math inline">\(250\text{ MW}_{\text{th}}\)</span> biomass input into varying ratios of exported electrical energy and sequestered carbon.</p>
+<section id="bioenergy-bes" class="level4">
+<h4 class="anchored" data-anchor-id="bioenergy-bes">Bioenergy (BES)</h4>
+<p>The BES pathway represents a traditional, dedicated biomass combustion facility. In this baseline scenario, the feedstock is fully oxidized to maximize electricity exported to the regional grid. Because there is no active carbon capture, the physical carbon embedded in the biomass is returned to the atmosphere.</p>
+<p>The technoeconomic parameters for this modern combustion archetype assume an electrical conversion efficiency of 30%. Capital expenditures (CAPEX) are standardized at <span class="math inline">\(\$3,000/\text{kW}_e\)</span>, scaling non-linearly with plant capacity via a standard 0.7 scaling factor. Operations and maintenance (O&amp;M) are assessed as a fixed annual rate of 4% of total CAPEX. Total electrical output is derived directly from the biomass lower heating value (LHV, assumed as <span class="math inline">\(18.6\text{ GJ/Mg}\)</span> for dry, ash-free feedstock) and the plant’s operational capacity factor (85%).</p>
+</section>
+<section id="bioenergy-with-carbon-capture-and-storage-beccs" class="level4">
+<h4 class="anchored" data-anchor-id="bioenergy-with-carbon-capture-and-storage-beccs">Bioenergy with Carbon Capture and Storage (BECCS)</h4>
+<p>The BECCS pathway augments the standard combustion baseline with a post-combustion carbon capture unit. The addition of this unit imposes a significant parasitic energy penalty, primarily driven by solvent regeneration and CO<sub>2</sub> compression requirements. Consequently, the net electrical conversion efficiency drops from the 30% BES baseline to 28%.<a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a></p>
+<p>The capture process is parameterized with a 90% capture efficiency rate. The total volume of captured CO<sub>2</sub> routed to geological storage is calculated stoichiometrically based on the carbon fraction of the incoming biomass feed (default 48% C), converted to CO<sub>2</sub> mass equivalents using the 44/12 molar ratio. The increased infrastructure complexity elevates the base CAPEX to <span class="math inline">\(\$4,000/\text{kW}_e\)</span>, with annual O&amp;M scaling concurrently to 5% of CAPEX.</p>
+</section>
+<section id="bioenergy-with-biochar-storage-bebcs-and-pyrolysis-physics" class="level4">
+<h4 class="anchored" data-anchor-id="bioenergy-with-biochar-storage-bebcs-and-pyrolysis-physics">Bioenergy with Biochar Storage (BEBCS) and Pyrolysis Physics</h4>
+<p>Unlike the fully oxidative pathways, the BEBCS pathway relies on thermochemical pyrolysis, producing a solid, recalcitrant carbon matrix (biochar) alongside volatile syngas and bio-oil. The model employs a rigorous mass and energy balance approach constrained by elemental conservation of Carbon, Hydrogen, and Oxygen (C, H, O).</p>
+<p>The mass yield and elemental composition of the resulting biochar are determined dynamically as a function of the peak pyrolysis temperature (<span class="math inline">\(T_{py}\)</span>) and the lignin fraction of the feedstock. Specific yields for non-condensable gases—hydrogen (<span class="math inline">\(H_2\)</span>), carbon monoxide (<span class="math inline">\(CO\)</span>), methane (<span class="math inline">\(CH_4\)</span>), and ethylene (<span class="math inline">\(C_2H_4\)</span>)—are calculated explicitly based on temperature-dependent reaction kinetics.</p>
+<p>To close the mass balance, the unaccounted elemental fractions (<span class="math inline">\(U_c, U_h, U_o\)</span>) are stoichiometrically partitioned into bio-oil, water (<span class="math inline">\(H_2O\)</span>), and carbon dioxide (CO<sub>2</sub>). The model restricts bio-oil to a fixed empirical composition (<span class="math inline">\(62.5\%\text{ C}, 7.56\%\text{ H}, 29.94\%\text{ O}\)</span>) to solve the final product distribution analytically.</p>
+<p>The net usable energy flux for the BEBCS pathway is calculated by subtracting the process heat requirements from the total enthalpy of the gaseous and liquid products. The higher heating value (HHV) of the biochar is calculated via the Dulong formula, utilizing the temperature-dependent C, H, and O fractions. Heat for the endothermic pyrolysis reaction is supplied entirely by the combustion of the volatile syngas and bio-oil fractions; any surplus thermal energy is converted to electricity using the baseline BES efficiency parameters<a href="#fn6" class="footnote-ref" id="fnref6" role="doc-noteref"><sup>6</sup></a>. If the syngas and bio-oil are insufficient to meet the thermal load, a portion of the biochar is oxidized to close the energy balance, proportionally reducing the final carbon sequestration yield.</p>
+</section>
+</section>
+<section id="carbon-transport-and-geological-storage" class="level3">
+<h3 class="anchored" data-anchor-id="carbon-transport-and-geological-storage">Carbon Transport and Geological Storage</h3>
+<section id="spatial-routing-and-terrain-friction" class="level4">
+<h4 class="anchored" data-anchor-id="spatial-routing-and-terrain-friction">Spatial Routing and Terrain Friction</h4>
+<p>The spatial routing of captured CO<sub>2</sub> is governed by an economic optimization algorithm that dynamically selects the lowest-cost transport modality—pipeline or maritime shipping—for every grid cell. Standard spatial optimization models frequently rely on simple Euclidean distances or Voronoi tessellations, which artificially generate circular geographical discontinuities in net present value (NPV) maps. To eliminate these artifacts and accurately model the economic constraints of CO<sub>2</sub> transport, this framework implements a deterministic Lowest Cost Routing logic that relies on a terrain-optimized Least Cost Path (LCP) algorithm rather than linear assumptions.</p>
+<p>Topographic friction surfaces were generated by deriving the slope (in degrees) from the Global Digital Elevation Model (GDEM). To preserve localized linear barriers—such as mountain ridges or steep ravines—during spatial aggregation to the base model resolution, the high-resolution slope data was aggregated using a 95th percentile percolation threshold. The terrain friction surface was then parameterized using an exponential cost function:</p>
+<p><span class="math display">\[M(\theta) = \exp(0.25 \cdot \theta)\]</span></p>
+<p>where <span class="math inline">\(\theta\)</span> represents the aggregated slope. Furthermore, to ensure that proposed CO<sub>2</sub> infrastructure avoids ecologically sensitive or legally restricted regions, protected areas from the World Database on Protected Areas (WDPA) were rasterized and treated as absolute barriers. This forces the routing algorithm to find the most efficient path around protected zones. Once the minimal effective transport route is mapped, the distances are adjusted by a standard tortuosity multiplier of 1.25 to account for right-of-way routing and localized physical avoidance.</p>
+</section>
+<section id="maritime-shipping-modality" class="level4">
+<h4 class="anchored" data-anchor-id="maritime-shipping-modality">Maritime Shipping Modality</h4>
+<p>For offshore geological sinks, or for highly isolated onshore sources, CO<sub>2</sub> is transported via maritime or rail networks. This modality is modeled with a step-cost function dominated by the capital-intensive fixed entry costs of liquefaction and terminal buffering, paired with highly efficient variable voyage costs:</p>
+<p><span class="math display">\[C_{shipping} = C_{liquefaction} + C_{terminal} + (c_{voyage} \cdot d_{effective})\]</span></p>
+</section>
+<section id="hub-and-spoke-pipeline-modality-piecewise-linear" class="level4">
+<h4 class="anchored" data-anchor-id="hub-and-spoke-pipeline-modality-piecewise-linear">Hub-and-Spoke Pipeline Modality (Piecewise Linear)</h4>
+<p>Standard length-invariant TEA cost functions for CO<sub>2</sub> pipelines adequately model regional networks but fundamentally underestimate the capital and energetic burdens of long-distance transport. Specifically, maintaining CO<sub>2</sub> in a dense or supercritical phase over extended distances requires the deployment of intermediate booster compression stations to overcome frictional pressure drops.</p>
+<p>To simulate this without computationally intensive grid-level pump topology, pipeline CAPEX is calculated using a piecewise linear hub-and-spoke framework:</p>
+<ol type="1">
+<li><p><strong>The Feeder Leg:</strong> Sources build a dedicated feeder pipeline for the first 50 km (<span class="math inline">\(d_{feeder}\)</span>), bearing the full capacity-scaled CAPEX.</p></li>
+<li><p><strong>The Trunk Leg (Base Phase):</strong> For distances up to 700 km, the source connects to a regional trunkline operating at an efficient scale (e.g., 3 Mtpa), paying only a proportional mass share of the CAPEX.</p></li>
+<li><p><strong>The Trunk Leg (Booster Phase):</strong> For distances exceeding 700 km, the marginal cost of the trunkline increases by a penalty factor (<span class="math inline">\(P_{booster} = 2.0\)</span>) to approximate the compounding capital and operational costs of intermediate booster stations.</p></li>
+</ol>
+<p>The trunkline CAPEX share (<span class="math inline">\(CAPEX_{trunk}\)</span>) is calculated as:</p>
+<p><span class="math display">\[CAPEX_{trunk} =
+\begin{cases}
+C_{base} \cdot (d_{effective} - 50) &amp; \text{if } d_{effective} \le 700 \\
+C_{base} \cdot (700 - 50) + (C_{base} \cdot P_{booster}) \cdot (d_{effective} - 700) &amp; \text{if } d_{effective} &gt; 700
+\end{cases}\]</span></p>
+<p>where <span class="math inline">\(C_{base}\)</span> is the unit length cost of the efficient-scale trunkline, scaled to the site’s proportional mass.</p>
+</section>
+<section id="modality-optimization" class="level4">
+<h4 class="anchored" data-anchor-id="modality-optimization">Modality Optimization</h4>
+<p>To eliminate artifactual spatial boundaries, the algorithm evaluates both modalities for all onshore sinks and selects the optimal route:</p>
+<p><span class="math display">\[Cost_{transport} = \min(C_{pipeline}, C_{shipping})\]</span></p>
+<p>Because of the piecewise booster penalty, the pipeline cost curve steepens significantly beyond 700 km. This guarantees a natural mathematical intersection with the flat <span class="math inline">\(C_{shipping}\)</span> cost floor, allowing the model to smoothly transition to shipping modalities at extreme distances.</p>
+</section>
+<section id="biochar-permanence-and-agronomic-valuation-bebcs-feedbacks" class="level4">
+<h4 class="anchored" data-anchor-id="biochar-permanence-and-agronomic-valuation-bebcs-feedbacks">Biochar Permanence and Agronomic Valuation (BEBCS Feedbacks)</h4>
+<p>The Bioenergy with Biochar Storage (BEBCS) pathway diverts a fraction of the original biomass carbon into a recalcitrant solid matrix. While physical disposal methods such as the landfilling of biochar represent a highly effective method to definitively sequester the carbon 100%, this framework strictly evaluates soil application to quantify the cascading agronomic co-benefits and regional substitution values. Consequently, the carbon retention within the soil matrix is finite and must be modeled dynamically based on localized biogeochemical conditions.</p>
+<section id="biochar-carbon-permanence-f_perm" class="level5">
+<h5 class="anchored" data-anchor-id="biochar-carbon-permanence-f_perm">Biochar Carbon Permanence (<span class="math inline">\(F_{perm}\)</span>)</h5>
+<p>To accurately quantify the net carbon dioxide removal (CDR) of the BEBCS pathway, the model calculates the permanent carbon fraction (<span class="math inline">\(F_{perm}\)</span>) that remains stabilized in the soil after a 100-year time horizon. This fraction is derived using the multi-pool decay methodology established by <span class="citation" data-cites="woolf2021greenhouse">(<a href="#ref-woolf2021greenhouse" role="doc-biblioref"><em>2</em></a>)</span>.</p>
+<p>The baseline degradation rates of the biochar’s labile and recalcitrant carbon pools are fitted to either the peak pyrolysis temperature (<span class="math inline">\(T_{py}\)</span>) or the molar Hydrogen-to-Organic-Carbon (H:C) ratio of the final char. Because microbial and chemical degradation kinetics are highly temperature-dependent, these reference decay rates are spatially adjusted to match the localized mean annual soil temperature using a <span class="math inline">\(Q_{10}\)</span> temperature sensitivity function. To optimize spatial computational efficiency across the high-resolution rasters, the thermodynamic engine utilizes bilinear interpolation over a pre-calculated matrix of <span class="math inline">\(F_{perm}\)</span> values bounded by soil temperatures (<span class="math inline">\(-55^\circ\text{C}\)</span> to <span class="math inline">\(40^\circ\text{C}\)</span>) and H:C ratios (<span class="math inline">\(0.0\)</span> to <span class="math inline">\(0.7\)</span>).</p>
+<p>Total carbon sequestered per megagram of feedstock is therefore modeled as:</p>
+<p><span class="math display">\[C_{seq} = Yield_{bc} \cdot C_{content} \cdot F_{perm} \cdot \left(\frac{44}{12}\right)\]</span></p>
+<p>where <span class="math inline">\(Yield_{bc}\)</span> is the mass fraction of biochar produced, <span class="math inline">\(C_{content}\)</span> is the carbon mass fraction of the biochar, and the <span class="math inline">\(44/12\)</span> ratio converts the elemental carbon to CO<sub>2</sub> mass equivalents.</p>
+</section>
+</section>
+<section id="mechanistic-agronomic-valuation" class="level4">
+<h4 class="anchored" data-anchor-id="mechanistic-agronomic-valuation">Mechanistic Agronomic Valuation</h4>
+<p>Previous spatial models frequently value biochar using a static, exogenous global market price. To better reflect real-world agricultural economics, <code>BiocharAG</code> endogenously determines the economic credit of biochar through a mechanistic substitution valuation. This assumes that the rational economic value of biochar is equal to the cost of the conventional agricultural inputs it successfully offsets:</p>
+<p><span class="math display">\[Value_{ag} = Value_{lime} + Value_{nutrients} + Value_{physical}\]</span></p>
+<ol type="1">
+<li><strong>Liming Equivalence (</strong><span class="math inline">\(Value_{lime}\)</span>): The model spatially evaluates the native soil pH against a neutral agricultural target (pH 6.5). If the soil is acidic, the biochar’s Calcium Carbonate Equivalent (CCE, default 15%) is credited against the localized market price of bulk agricultural lime (e.g., <span class="math inline">\(\$60/\text{Mg}\)</span>). If the regional soil is already alkaline, the liming value is strictly zero.</li>
+<li><strong>Nutrient Substitution (</strong><span class="math inline">\(Value_{nutrients}\)</span>): The available nitrogen (N), phosphorus (P), and potassium (K) fractions within the biochar are credited against prevailing regional fertilizer costs. Baseline valuations rely on standard commercial substitutes, deriving elemental prices from Urea (<span class="math inline">\(\$0.92/\text{kg N}\)</span>), Diammonium Phosphate (<span class="math inline">\(\$1.10/\text{kg P}_2\text{O}_5\)</span>), and Potash (<span class="math inline">\(\$0.62/\text{kg K}_2\text{O}\)</span>).</li>
+<li><strong>Physical/CEC Improvements (</strong><span class="math inline">\(Value_{physical}\)</span>): Biochar provides long-term yield efficiency gains by increasing water retention and buffering nutrient leaching, effects that are most pronounced in degraded or sandy soils. This value is heuristically scaled inversely to the soil’s native Cation Exchange Capacity (CEC). Soils with severe CEC deficits receive higher annual premiums (up to <span class="math inline">\(\$50/\text{Mg}\)</span>), while heavy clay soils (CEC <span class="math inline">\(&gt; 30\text{ cmol/kg}\)</span>) receive zero premium.</li>
+</ol>
+<p>Because physical and chemical soil improvements degrade or saturate over time, the total annual physical and nutrient benefits are amortized as a Present Value of an Annuity over a conservative 10-year agronomic impact duration, discounted at the baseline financial discount rate.</p>
+</section>
+<section id="consequential-life-cycle-assessment-and-climate-mitigation" class="level4">
+<h4 class="anchored" data-anchor-id="consequential-life-cycle-assessment-and-climate-mitigation">Consequential Life Cycle Assessment and Climate Mitigation</h4>
+<p>To robustly account for the climate mitigation benefit of bioenergy generation, the framework evaluates greenhouse gas offsets using a consequential Life Cycle Assessment (LCA) boundary. Total carbon abatement is calculated distinctively for each technology pathway, balancing active sequestration, grid displacement credits, and Scope 3 supply chain emissions.</p>
+<section id="net-carbon-abatement-balances" class="level5">
+<h5 class="anchored" data-anchor-id="net-carbon-abatement-balances">Net Carbon Abatement Balances</h5>
+<p>The net carbon abatement for each grid cell is defined as the sum of physical carbon sequestered and emissions displaced, minus the transportation emissions penalty:</p>
+<ul>
+<li><strong>BES:</strong> Abatement relies entirely on the displacement of grid emissions, minus the Scope 3 emissions associated with diesel trucking of the biomass feedstock.</li>
+<li><strong>BECCS:</strong> Abatement includes the physical CO<sub>2</sub> captured and injected into the geological sink (assuming a 90% capture rate) plus the grid displacement credit. However, because the parasitic energy load of the capture process reduces the net electrical efficiency (from 30% to 28%), the total energy exported—and thus the resulting grid displacement credit—is proportionally lower for BECCS than for pure BES[^5].</li>
+<li><strong>BEBCS:</strong> Abatement combines the grid displacement credit with the permanent CO<sub>2</sub> equivalent of the biochar carbon retained in the soil (<span class="math inline">\(F_{perm}\)</span>), alongside a minor fixed soil greenhouse gas abatement credit (e.g., suppressed <span class="math inline">\(N_2O\)</span> emissions).</li>
+</ul>
+<p>For all pathways, Scope 3 feedstock transport emissions are modeled dynamically by applying a heavy-duty diesel transport emissions factor (<span class="math inline">\(0.0001\text{ Mg CO}_2\text{e}\)</span> per <span class="math inline">\(\text{Mg}\cdot\text{km}\)</span>) to the effective biomass collection distance.</p>
+</section>
+</section>
+<section id="grid-displacement-methodology-marginal-carbon-intensity" class="level4">
+<h4 class="anchored" data-anchor-id="grid-displacement-methodology-marginal-carbon-intensity">Grid Displacement Methodology (Marginal Carbon Intensity)</h4>
+<p>We estimate the Marginal Carbon Intensity (MCI) of displaced energy under two bounding scenarios to reflect differing macro-economic climate trajectories.</p>
+</section>
+<section id="scenario-a-empirical-baseline-short-run-marginal-capacity" class="level4">
+<h4 class="anchored" data-anchor-id="scenario-a-empirical-baseline-short-run-marginal-capacity">Scenario A: Empirical Baseline (Short-Run Marginal Capacity)</h4>
+<p>Under a Business-as-Usual (BAU) trajectory, the model assumes that new bioenergy capacity displaces the technology mix currently expanding on regional grids. Using multi-country historical electricity supply data (e.g., Ember, EIA, Eurostat), the model isolates generation sources experiencing positive net growth (<span class="math inline">\(\Delta G &gt; 0\)</span>) over a trailing five-year window (2018–2023).</p>
+<p>The regional MCI is calculated as a generation-weighted average of these expanding sources:</p>
+<p><span class="math display">\[MCI = \frac{\sum(\Delta G_{i} \times CI_{i})}{\sum\Delta G_{i}}\]</span></p>
+<p>where <span class="math inline">\(\Delta G_{i}\)</span> represents the net positive generation added for source <span class="math inline">\(i\)</span>, and <span class="math inline">\(CI_{i}\)</span> represents the static Intergovernmental Panel on Climate Change (IPCC) lifecycle greenhouse gas intensity for that specific technology. Standard IPCC reference intensities utilized include coal (820 <span class="math inline">\(\text{gCO}_2\text{eq/kWh}\)</span>), natural gas (490 <span class="math inline">\(\text{gCO}_2\text{eq/kWh}\)</span>), dedicated biomass (230 <span class="math inline">\(\text{gCO}_2\text{eq/kWh}\)</span>), utility solar (48 <span class="math inline">\(\text{gCO}_2\text{eq/kWh}\)</span>), wind (11.5 <span class="math inline">\(\text{gCO}_2\text{eq/kWh}\)</span>), and nuclear (12 <span class="math inline">\(\text{gCO}_2\text{eq/kWh}\)</span>). Applying this short-run marginal logic yields empirical baseline MCIs of approximately 278 <span class="math inline">\(\text{gCO}_2\text{eq/kWh}\)</span> for the United States and 528 <span class="math inline">\(\text{gCO}_2\text{eq/kWh}\)</span> for China.</p>
+</section>
+<section id="scenario-b-paris-aligned-counterfactual-long-run-structural-shift" class="level4">
+<h4 class="anchored" data-anchor-id="scenario-b-paris-aligned-counterfactual-long-run-structural-shift">Scenario B: Paris-Aligned Counterfactual (Long-Run Structural Shift)</h4>
+<p>To account for structural shifts in energy systems operating under strict climate stabilization limits (e.g., 1.5°C or 2.0°C targets), a secondary counterfactual scenario is evaluated. In a deep mitigation regime, fossil fuels are systematically phased out by hard policy caps. Therefore, the deployment of a baseload negative-emissions technology like BECCS or BEBCS does not offset high-emission fossil generation; rather, it displaces or delays the deployment of the next most capital-intensive low-carbon baseload alternative.</p>
+<p>Under this sensitivity mode, the model assumes the displaced marginal generation is nuclear power. This scenario aggressively compresses net mitigation margins, dropping the grid displacement credit to a standardized lifecycle factor of 12 <span class="math inline">\(\text{gCO}_2\text{eq/kWh}\)</span> globally.</p>
+</section>
+</section>
+<section id="model-parameters-and-data-sources" class="level3">
+<h3 class="anchored" data-anchor-id="model-parameters-and-data-sources">Model Parameters and Data Sources</h3>
+<p>To ensure full reproducibility and transparency, the operational, financial, and biophysical parameters utilized within the <code>BiocharAG</code> framework are tabulated below. Parameters are classified by their spatial resolution: <strong>Scalar</strong> values are held constant globally; <strong>Regional</strong> values act as constants but are overridden based on the macro-economic domain (e.g., India, China, Europe, US); and <strong>Spatial</strong> values are resolved dynamically at the grid-cell level using high-resolution raster datasets.</p>
+<div id="tbl-parameters" data-tbl-colwidths="[34, 21, 9, 11, 10, 15]" class="anchored">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 34%">
+<col style="width: 21%">
+<col style="width: 9%">
+<col style="width: 11%">
+<col style="width: 10%">
+<col style="width: 15%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Parameter<a href="#fn7" class="footnote-ref" id="fnref7" role="doc-noteref"><sup>7</sup></a></th>
+<th style="text-align: left;">Description</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Default Value</th>
+<th style="text-align: left;">Units</th>
+<th style="text-align: left;">Data Source</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>Financial &amp; Market</strong></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>discount_rate</code></td>
+<td style="text-align: left;">Baseline cost of capital</td>
+<td style="text-align: left;">Regional</td>
+<td style="text-align: left;">0.08 (0.12 in India)</td>
+<td style="text-align: left;">Fraction</td>
+<td style="text-align: left;">Market Assumptions</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>elec_price</code></td>
+<td style="text-align: left;">Wholesale electricity price</td>
+<td style="text-align: left;">Spatial / Regional</td>
+<td style="text-align: left;">100.00</td>
+<td style="text-align: left;">USD / MWh</td>
+<td style="text-align: left;">EIA, Eurostat, NDRC, CERC</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>wholesale_discount_factor</code></td>
+<td style="text-align: left;">Ratio of wholesale to retail price</td>
+<td style="text-align: left;">Regional</td>
+<td style="text-align: left;">0.4 (1.0 in India)</td>
+<td style="text-align: left;">Fraction</td>
+<td style="text-align: left;">Market Assumptions</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>c_price</code></td>
+<td style="text-align: left;">Carbon abatement credit price</td>
+<td style="text-align: left;">Scalar</td>
+<td style="text-align: left;">50.00</td>
+<td style="text-align: left;">USD / tCO<sub>2</sub>e</td>
+<td style="text-align: left;">Scenario Variable</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>bes_life</code> / <code>beccs_life</code></td>
+<td style="text-align: left;">Infrastructure project lifetime</td>
+<td style="text-align: left;">Scalar</td>
+<td style="text-align: left;">30</td>
+<td style="text-align: left;">Years</td>
+<td style="text-align: left;">-</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>capacity_factor</code></td>
+<td style="text-align: left;">Annual plant capacity utilization</td>
+<td style="text-align: left;">Scalar</td>
+<td style="text-align: left;">0.85</td>
+<td style="text-align: left;">Fraction</td>
+<td style="text-align: left;">-</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>scaling_factor</code></td>
+<td style="text-align: left;">Capital cost scale exponent</td>
+<td style="text-align: left;">Scalar</td>
+<td style="text-align: left;">0.7</td>
+<td style="text-align: left;">-</td>
+<td style="text-align: left;">Standard Engineering Estimations</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Technology &amp; Thermodynamics</strong></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>plant_mw_th</code></td>
+<td style="text-align: left;">Target plant thermal capacity</td>
+<td style="text-align: left;">Scalar</td>
+<td style="text-align: left;">250.0</td>
+<td style="text-align: left;">MWth</td>
+<td style="text-align: left;">Industrial Archetype</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>bes_capital_cost</code></td>
+<td style="text-align: left;">Base CAPEX for BES (50 MWe ref)</td>
+<td style="text-align: left;">Regional</td>
+<td style="text-align: left;">3,000</td>
+<td style="text-align: left;">USD / kWe</td>
+<td style="text-align: left;">IRENA (2023/2024)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>beccs_capital_cost</code></td>
+<td style="text-align: left;">Base CAPEX for BECCS (50 MWe ref)</td>
+<td style="text-align: left;">Regional</td>
+<td style="text-align: left;">4,000</td>
+<td style="text-align: left;">USD / kWe</td>
+<td style="text-align: left;">Global CCS Institute (2024)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>bes_om_factor</code></td>
+<td style="text-align: left;">O&amp;M cost as fraction of CAPEX</td>
+<td style="text-align: left;">Regional</td>
+<td style="text-align: left;">0.04</td>
+<td style="text-align: left;">Fraction</td>
+<td style="text-align: left;">NREL ATB (2024)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>beccs_om_factor</code></td>
+<td style="text-align: left;">O&amp;M cost for BECCS</td>
+<td style="text-align: left;">Regional</td>
+<td style="text-align: left;">0.05</td>
+<td style="text-align: left;">Fraction</td>
+<td style="text-align: left;">-</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>bes_energy_efficiency</code></td>
+<td style="text-align: left;">Electrical efficiency for BES</td>
+<td style="text-align: left;">Scalar</td>
+<td style="text-align: left;">0.30</td>
+<td style="text-align: left;">Fraction</td>
+<td style="text-align: left;">IEA / NREL ATB (2024)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>beccs_efficiency</code></td>
+<td style="text-align: left;">Electrical efficiency for BECCS</td>
+<td style="text-align: left;">Scalar</td>
+<td style="text-align: left;">0.28</td>
+<td style="text-align: left;">Fraction</td>
+<td style="text-align: left;">Drax / Literature</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>capture_rate</code></td>
+<td style="text-align: left;">CO<sub>2</sub> capture efficiency for BECCS</td>
+<td style="text-align: left;">Scalar</td>
+<td style="text-align: left;">0.90</td>
+<td style="text-align: left;">Fraction</td>
+<td style="text-align: left;">Zero Emissions Platform</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>py_temp</code></td>
+<td style="text-align: left;">Peak pyrolysis temperature</td>
+<td style="text-align: left;">Scalar</td>
+<td style="text-align: left;">500</td>
+<td style="text-align: left;">°C</td>
+<td style="text-align: left;">Operational Choice</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>heat_loss</code></td>
+<td style="text-align: left;">Pyrolysis process heat loss</td>
+<td style="text-align: left;">Scalar</td>
+<td style="text-align: left;">2.35</td>
+<td style="text-align: left;">GJ / Mg</td>
+<td style="text-align: left;">-</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>bo_hhv</code></td>
+<td style="text-align: left;">Bio-oil higher heating value</td>
+<td style="text-align: left;">Scalar</td>
+<td style="text-align: left;">27.63</td>
+<td style="text-align: left;">GJ / Mg</td>
+<td style="text-align: left;">-</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>bo_c</code>, <code>bo_h</code>, <code>bo_o</code></td>
+<td style="text-align: left;">Bio-oil elemental mass fractions</td>
+<td style="text-align: left;">Scalar</td>
+<td style="text-align: left;">0.625, 0.0756, 0.2994</td>
+<td style="text-align: left;">Fraction</td>
+<td style="text-align: left;">-</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Feedstock &amp; Logistics</strong></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>bm_lhv</code></td>
+<td style="text-align: left;">Biomass lower heating value</td>
+<td style="text-align: left;">Scalar</td>
+<td style="text-align: left;">18.6</td>
+<td style="text-align: left;">GJ / Mg</td>
+<td style="text-align: left;">-</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>bm_c</code></td>
+<td style="text-align: left;">Biomass carbon mass fraction</td>
+<td style="text-align: left;">Scalar</td>
+<td style="text-align: left;">0.48</td>
+<td style="text-align: left;">Fraction</td>
+<td style="text-align: left;">-</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>bm_ash</code></td>
+<td style="text-align: left;">Biomass ash mass fraction</td>
+<td style="text-align: left;">Regional</td>
+<td style="text-align: left;">0.05 (0.15 in India)</td>
+<td style="text-align: left;">Fraction</td>
+<td style="text-align: left;">-</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>bm_transport_fixed</code></td>
+<td style="text-align: left;">Fixed loading/handling cost</td>
+<td style="text-align: left;">Scalar</td>
+<td style="text-align: left;">5.00</td>
+<td style="text-align: left;">USD / Mg</td>
+<td style="text-align: left;">-</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>bm_transport_var</code></td>
+<td style="text-align: left;">Variable trucking cost</td>
+<td style="text-align: left;">Scalar</td>
+<td style="text-align: left;">0.15</td>
+<td style="text-align: left;">USD / Mg / km</td>
+<td style="text-align: left;">-</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>transport_emissions_factor</code></td>
+<td style="text-align: left;">Scope 3 heavy-duty truck emissions</td>
+<td style="text-align: left;">Scalar</td>
+<td style="text-align: left;">0.0001</td>
+<td style="text-align: left;">Mg CO<sub>2</sub>e / Mg·km</td>
+<td style="text-align: left;">GHG Protocol / EPA</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>CO<sub>2</sub> Transport Infrastructure</strong></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>ccs_storage_cost</code></td>
+<td style="text-align: left;">Onshore injection and monitoring</td>
+<td style="text-align: left;">Spatial</td>
+<td style="text-align: left;">12.0</td>
+<td style="text-align: left;">USD / tCO<sub>2</sub></td>
+<td style="text-align: left;">Zero Emissions Platform</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>base_cost_offshore_storage</code></td>
+<td style="text-align: left;">Offshore injection and monitoring</td>
+<td style="text-align: left;">Scalar</td>
+<td style="text-align: left;">40.0</td>
+<td style="text-align: left;">USD / tCO<sub>2</sub></td>
+<td style="text-align: left;">Zero Emissions Platform</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>feeder_threshold_km</code></td>
+<td style="text-align: left;">Dedicated feeder pipeline limit</td>
+<td style="text-align: left;">Scalar</td>
+<td style="text-align: left;">50</td>
+<td style="text-align: left;">km</td>
+<td style="text-align: left;">Zero Emissions Platform</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>booster_threshold_km</code></td>
+<td style="text-align: left;">Distance triggering booster penalty</td>
+<td style="text-align: left;">Scalar</td>
+<td style="text-align: left;">700</td>
+<td style="text-align: left;">km</td>
+<td style="text-align: left;">Zero Emissions Platform</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>booster_penalty</code></td>
+<td style="text-align: left;">Marginal cost multiplier for boosters</td>
+<td style="text-align: left;">Scalar</td>
+<td style="text-align: left;">2.0</td>
+<td style="text-align: left;">-</td>
+<td style="text-align: left;">Zero Emissions Platform</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>trunk_mass_flow</code></td>
+<td style="text-align: left;">Ref. capacity for trunkline sharing</td>
+<td style="text-align: left;">Scalar</td>
+<td style="text-align: left;">3,000,000</td>
+<td style="text-align: left;">Mg / year</td>
+<td style="text-align: left;">Zero Emissions Platform</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>liq_cost</code></td>
+<td style="text-align: left;">CO<sub>2</sub> Liquefaction cost (shipping)</td>
+<td style="text-align: left;">Scalar</td>
+<td style="text-align: left;">20.0</td>
+<td style="text-align: left;">USD / tCO<sub>2</sub></td>
+<td style="text-align: left;">-</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>term_cost</code></td>
+<td style="text-align: left;">Terminal handling cost (shipping)</td>
+<td style="text-align: left;">Scalar</td>
+<td style="text-align: left;">15.0</td>
+<td style="text-align: left;">USD / tCO<sub>2</sub></td>
+<td style="text-align: left;">-</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>voyage_rate</code></td>
+<td style="text-align: left;">Variable voyage cost (shipping)</td>
+<td style="text-align: left;">Scalar</td>
+<td style="text-align: left;">0.035</td>
+<td style="text-align: left;">USD / tCO<sub>2</sub> / km</td>
+<td style="text-align: left;">-</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>transport_elec_price</code></td>
+<td style="text-align: left;">Electricity price for compression</td>
+<td style="text-align: left;">Scalar</td>
+<td style="text-align: left;">0.10</td>
+<td style="text-align: left;">USD / kWh</td>
+<td style="text-align: left;">-</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Biochar &amp; Agronomic</strong></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>h_c_org</code></td>
+<td style="text-align: left;">Molar H:C ratio for permanence</td>
+<td style="text-align: left;">Scalar</td>
+<td style="text-align: left;">0.35</td>
+<td style="text-align: left;">Molar Ratio</td>
+<td style="text-align: left;"><span class="citation" data-cites="woolf2021greenhouse">(<a href="#ref-woolf2021greenhouse" role="doc-biblioref"><em>2</em></a>)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>time_frame</code></td>
+<td style="text-align: left;">Time horizon for permanence assessment</td>
+<td style="text-align: left;">Scalar</td>
+<td style="text-align: left;">100</td>
+<td style="text-align: left;">Years</td>
+<td style="text-align: left;">Standard LCA timeframe</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>target_ph</code></td>
+<td style="text-align: left;">Target agricultural soil pH</td>
+<td style="text-align: left;">Scalar</td>
+<td style="text-align: left;">6.5</td>
+<td style="text-align: left;">pH</td>
+<td style="text-align: left;">Agronomic Assumptions</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>bc_cce</code></td>
+<td style="text-align: left;">Calcium Carbonate Equivalent</td>
+<td style="text-align: left;">Scalar</td>
+<td style="text-align: left;">0.15</td>
+<td style="text-align: left;">Fraction</td>
+<td style="text-align: left;">Agronomic Literature</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>price_lime</code></td>
+<td style="text-align: left;">Market price for agricultural lime</td>
+<td style="text-align: left;">Regional</td>
+<td style="text-align: left;">60.00</td>
+<td style="text-align: left;">USD / Mg</td>
+<td style="text-align: left;">US Market Averages (2024)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>price_n</code></td>
+<td style="text-align: left;">Market price for Nitrogen</td>
+<td style="text-align: left;">Regional</td>
+<td style="text-align: left;">0.92 (0.30 in India)</td>
+<td style="text-align: left;">USD / kg N</td>
+<td style="text-align: left;">Derived from Urea pricing</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>price_p</code></td>
+<td style="text-align: left;">Market price for Phosphorus</td>
+<td style="text-align: left;">Regional</td>
+<td style="text-align: left;">1.10 (0.80 in India)</td>
+<td style="text-align: left;">USD / kg P<sub>2</sub>O<sub>5</sub></td>
+<td style="text-align: left;">Derived from DAP pricing</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>price_k</code></td>
+<td style="text-align: left;">Market price for Potassium</td>
+<td style="text-align: left;">Regional</td>
+<td style="text-align: left;">0.62 (0.40 in India)</td>
+<td style="text-align: left;">USD / kg K<sub>2</sub>O</td>
+<td style="text-align: left;">Derived from Potash pricing</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>avail_n</code>, <code>avail_p</code>, <code>avail_k</code></td>
+<td style="text-align: left;">First-year nutrient availability</td>
+<td style="text-align: left;">Scalar</td>
+<td style="text-align: left;">0.1, 0.5, 0.8</td>
+<td style="text-align: left;">Fraction</td>
+<td style="text-align: left;">Agronomic Assumptions</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>ag_impact_duration</code></td>
+<td style="text-align: left;">Duration of nutrient/liming benefit</td>
+<td style="text-align: left;">Scalar</td>
+<td style="text-align: left;">10</td>
+<td style="text-align: left;">Years</td>
+<td style="text-align: left;">Agronomic Assumptions</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>soil_ghg_abatement</code></td>
+<td style="text-align: left;">Suppressed soil emissions credit</td>
+<td style="text-align: left;">Scalar</td>
+<td style="text-align: left;">0.1</td>
+<td style="text-align: left;">tCO<sub>2</sub>e / Mg</td>
+<td style="text-align: left;">-</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Spatial &amp; Environmental</strong></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>ff_c_intensity</code></td>
+<td style="text-align: left;">Displaced grid carbon intensity</td>
+<td style="text-align: left;">Spatial / Regional</td>
+<td style="text-align: left;">Scenario Dependent</td>
+<td style="text-align: left;">tCO<sub>2</sub>eq / GJ</td>
+<td style="text-align: left;">IPCC, Ember (2024)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>biomass_density</code></td>
+<td style="text-align: left;">Available spatial crop residues</td>
+<td style="text-align: left;">Spatial</td>
+<td style="text-align: left;">-</td>
+<td style="text-align: left;">Mg / km<sup>2</sup></td>
+<td style="text-align: left;">Dataverse Global Repositories</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>soil_ph</code></td>
+<td style="text-align: left;">Native topsoil pH</td>
+<td style="text-align: left;">Spatial</td>
+<td style="text-align: left;">-</td>
+<td style="text-align: left;">pH</td>
+<td style="text-align: left;">ISRIC SoilGrids</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>soil_cec</code></td>
+<td style="text-align: left;">Cation Exchange Capacity</td>
+<td style="text-align: left;">Spatial</td>
+<td style="text-align: left;">-</td>
+<td style="text-align: left;">cmol / kg</td>
+<td style="text-align: left;">ISRIC SoilGrids</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>soil_temp</code></td>
+<td style="text-align: left;">Mean annual soil temperature</td>
+<td style="text-align: left;">Spatial</td>
+<td style="text-align: left;">-</td>
+<td style="text-align: left;">°C</td>
+<td style="text-align: left;">WorldClim / SBIO1</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr>
+</section>
+</section>
+<section id="critique---pyrolysis-heat-integration-the-pyrolysis.r-script-determines-net-energy-by-balancing-the-enthalpy-of-products-against-the-required-process-heat-inclusive-of-a-2.35text-gjmg-thermal-loss.-the-resulting-surplus-is-multiplied-by-the-bes_energy_efficiency-30-in-bebcs.r-to-yield-electricity.-the-manuscript-should-clarify-whether-this-30-efficiency-represents-a-standalone-steam-cycle-running-purely-on-syngasbio-oil-or-if-the-pyrolysis-unit-is-thermally-integrated-into-a-larger-boiler-system." class="level2">
+<h2 class="anchored" data-anchor-id="critique---pyrolysis-heat-integration-the-pyrolysis.r-script-determines-net-energy-by-balancing-the-enthalpy-of-products-against-the-required-process-heat-inclusive-of-a-2.35text-gjmg-thermal-loss.-the-resulting-surplus-is-multiplied-by-the-bes_energy_efficiency-30-in-bebcs.r-to-yield-electricity.-the-manuscript-should-clarify-whether-this-30-efficiency-represents-a-standalone-steam-cycle-running-purely-on-syngasbio-oil-or-if-the-pyrolysis-unit-is-thermally-integrated-into-a-larger-boiler-system.">[^5]: <strong>Critique - Pyrolysis Heat Integration:</strong> The <code>pyrolysis.R</code> script determines net energy by balancing the enthalpy of products against the required process heat (inclusive of a <span class="math inline">\(2.35\text{ GJ/Mg}\)</span> thermal loss). The resulting surplus is multiplied by the <code>bes_energy_efficiency</code> (30%) in <code>bebcs.R</code> to yield electricity. The manuscript should clarify whether this 30% efficiency represents a standalone steam cycle running purely on syngas/bio-oil, or if the pyrolysis unit is thermally integrated into a larger boiler system.</h2>
+<p>Outlined here are the findings from an audit of the constants defined in <code>BiocharAG/R/parameters.R</code>. The goal is to identify parameters that currently use a global constant but should ideally vary spatially, differ by region, or require stronger empirical validation to ensure robust results.</p>
+<p><strong>Parameters Requiring Spatial Variation:</strong></p>
+<p>The following parameters are currently defined as global constants but are inherently spatial in nature. While some (like <code>elec_price</code>) have spatial overrides in <code>spatial_tea.R</code>, others do not.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Current Default</th>
+<th style="text-align: left;">Recommendation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>ccs_storage_cost</code></td>
+<td style="text-align: left;"><code>$15\text{ / Mg CO}_2$</code></td>
+<td style="text-align: left;"><strong>High Priority</strong>. Geologic storage costs vary drastically based on basin depth, onshore vs.&nbsp;offshore location, and whether the sink is a saline aquifer or Depleted Oil/Gas (EOR) site. We should consider replacing this with a spatial cost raster or a look-up table mapped to the <code>co2_sinks</code> database.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>ag_impact_duration</code></td>
+<td style="text-align: left;"><code>10 Years</code></td>
+<td style="text-align: left;"><strong>Medium Priority</strong>. The duration of biochar’s agronomic benefit (liming and nutrient release) depends heavily on local climate (weathering and leaching rates) and soil buffering capacity. A flat 10-year assumption across all global soils is likely poorly validated.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>bm_lhv</code> &amp; <code>bm_ash</code></td>
+<td style="text-align: left;"><code>18.6 GJ/Mg</code> / <code>0.05</code></td>
+<td style="text-align: left;"><strong>Medium Priority</strong>. Biomass properties vary significantly depending on the dominant regional feedstock (e.g., high-ash rice straw in India/China vs.&nbsp;forestry residues vs.&nbsp;corn stover in the US). If we know the dominant feedstock per region, we should map these properties accordingly.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Parameters Requiring Regional/Country Overrides:</strong></p>
+<p>Similar to the logic applied in <code>parameters_india.R</code>, several financial and market parameters should not be global constants due to macro-economic differences between the US, Europe, China, and India.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Current Default</th>
+<th style="text-align: left;">Recommendation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>discount_rate</code></td>
+<td style="text-align: left;"><code>0.08</code> (8%)</td>
+<td style="text-align: left;"><strong>High Priority</strong>. Cost of capital varies wildly by country risk profiles. Developing markets (India, China) typically face higher discount rates than established western markets. We should establish explicit regional discount rates.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>price_n</code>, <code>price_p</code>, <code>price_k</code></td>
+<td style="text-align: left;"><code>$0.92</code>, <code>$1.10</code>, <code>$0.62 / kg</code></td>
+<td style="text-align: left;"><strong>High Priority</strong>. Fertilizer prices are subject to massive regional variations due to government subsidies (e.g., heavy urea subsidies in India), import tariffs, and local supply chains.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>price_lime</code></td>
+<td style="text-align: left;"><code>$60 / Mg</code></td>
+<td style="text-align: left;"><strong>Low Priority</strong>. Bulk ag lime prices vary by local transport distance since it is cheap but heavy. However, a regional average may suffice if data is sparse.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>bes_capital_cost</code> / <code>beccs_capital_cost</code></td>
+<td style="text-align: left;"><code>$3000</code> / <code>$4000 / kW</code></td>
+<td style="text-align: left;"><strong>Medium Priority</strong>. Capital construction costs differ significantly due to local labor and material costs. We currently have a 0.7x factor for India, but China and Europe should also have their own specific construction cost modifiers.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>bes_om_factor</code> / <code>beccs_om_factor</code></td>
+<td style="text-align: left;"><code>0.04</code> / <code>0.05</code></td>
+<td style="text-align: left;"><strong>Medium Priority</strong>. O&amp;M is highly labor-dependent. Regional modifiers should be applied.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Parameters Requiring Stronger Empirical Validation:</strong></p>
+<p>The following assumptions and technical constants may need to be double-checked against recent literature or flagged for sensitivity analysis.</p>
+<ul>
+<li><strong><code>bc_stab_factor = 4.6</code></strong>: This stability factor calculation dictates the permanence of biochar. Ensure this aligns precisely with the latest IPCC or verified carbon standard methodologies for biochar permanence.</li>
+<li><strong><code>bc_cce = 0.15</code> (15% Calcium Carbonate Equivalent)</strong>: This is a critical driver for the agronomic value in acidic soils. Does a 15% CCE hold true across the diverse feedstocks represented globally, or should this scale with the <code>bm_ash</code> parameter?</li>
+<li><strong><code>capture_rate = 0.90</code> (90%)</strong>: While 90% is the standard target for BECCS, real-world deployment data is sparse. A sensitivity analysis around this (e.g., 85% to 95%) might be necessary.</li>
+<li><strong><code>n2o_factor = 0.01</code> (1%)</strong>: The 1% default emission factor for nitrogen application is standard (IPCC Tier 1), but biochar is known to interact with N<sub>2</sub>O emissions. Ensure the model accounts for any biochar-induced N<sub>2</sub>O suppression if applicable.</li>
+</ul>
+<p><strong>Suggested Next Actions</strong></p>
+<ol type="1">
+<li><strong>Review and Advise</strong>: Please review the above lists. Let me know which of the <strong>High Priority</strong> items you would like to actively tackle (e.g., creating region-specific configuration files like <code>parameters_china.R</code> and <code>parameters_europe.R</code>, or converting <code>ccs_storage_cost</code> to a spatial layer).</li>
+<li><strong>Sensitivity Variables</strong>: If any poorly validated parameters lack solid empirical data, we can flag them to be included in a Monte Carlo or sensitivity analysis step later.</li>
+</ol>
+</section>
+</section>
+<section id="references" class="level1">
+<h1>References</h1>
+<div id="refs" class="references csl-bib-body" role="list">
+<div id="ref-woolf2016optimal" class="csl-entry" role="listitem">
+<div class="csl-left-margin">1. </div><div class="csl-right-inline">D. Woolf, J. Lehmann, D. R. Lee, <a href="https://doi.org/10.1038/ncomms13160">Optimal bioenergy power generation for climate change mitigation with or without carbon sequestration</a>. <em>Nature Communications</em> <strong>7</strong>, 13160 (2016).</div>
+</div>
+<div id="ref-woolf2021greenhouse" class="csl-entry" role="listitem">
+<div class="csl-left-margin">2. </div><div class="csl-right-inline">D. Woolf, J. Lehmann, S. Ogle, A. W. Kishimoto-Mo, B. McConkey, J. Baldock, <a href="https://doi.org/10.3389/fclim.2021.684182">Greenhouse gas removal and emissions negative technologies</a>. <em>Frontiers in Climate</em> <strong>3</strong>, 684182 (2021).</div>
+</div>
+</div>
+</section>
+
+
+<div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
+
+<ol>
+<li id="fn1"><p><strong>Critique - Grid Resolution Harmonization:</strong> As discussed, the data processing scripts indicate mixed native resolutions for the biomass inputs (e.g., 0.2 degrees for the US vs.&nbsp;0.1 degrees for Europe/China). The final manuscript text should specify that all domains were uniformly projected and resampled to the 0.1 degree (<span class="math inline">\(\sim 10\text{ km}\)</span>) equal-area grid prior to executing the focal sum algorithms to ensure methodological consistency.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2"><p>How hard would it be calculate actual distance for spatial distribution within those bins?<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3"><p>Check these values and provide citations<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn4"><p><strong>Query - India Densification Threshold:</strong> The codebase (<code>spatial_tea.R</code>) applies a hard 50 km threshold where India feedstock shifts from baling to pelletization costs. Given that the archetype is fixed at <span class="math inline">\(250\text{ MW}_{\text{th}}\)</span>, the collection radius will almost certainly exceed 50 km in all but the densest agricultural zones. We should verify if this rigid step-function is appropriate at this industrial scale, or if a blended cost based on the radius proportion is more physically realistic.<a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn5"><p><strong>Critique - Carbon Capture Efficiency:</strong> The current implementation sets 2 percentage point lower efficiency for BECCS than baseline. This may be low. See e.g. <span class="citation" data-cites="woolf2016optimal">(<a href="#ref-woolf2016optimal" role="doc-biblioref"><em>1</em></a>)</span> who suggest a penalty in the range 4–11 percentage points.<a href="#fnref5" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn6"><p><strong>Query - Default Pyrolysis Temperature:</strong> The current code sets <code>py_temp = 500</code> °C as a static global default in <code>parameters.R</code>. Because the BEBCS net present value (NPV) is highly sensitive to the trade-off between energy yield and biochar stability (both driven by <span class="math inline">\(T_{py}\)</span>), you may want to note in the manuscript whether 500 °C is assumed universally for the spatial runs, or if an optimization routine is run to find the ideal temperature per grid cell.<a href="#fnref6" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn7"><p><strong>Critique - Missing</strong> CO<sub>2</sub> Transport Emissions: While the framework rigorously calculates the capital and operational <em>financial costs</em> of CO<sub>2</sub> pumping, booster stations, and maritime shipping (via the <code>calculate_ccs_transport</code> and <code>calc_transport_cost</code> functions), the model currently fails to deduct the greenhouse gas emissions associated with these downstream transport processes from the BECCS net abatement tally. The <code>tot_c_abatement</code> calculation in <code>beccs.R</code> currently only deducts the upstream Scope 3 emissions associated with biomass trucking. This oversight artificially inflates the net CDR efficiency of BECCS, particularly for sinks requiring maritime shipping or extended booster-phase pipelines. N.B. check whether these have already been implicitly included in the efficiency penalty applied to BECCS. If they have it still makes sense to explicitly account for them, since they will vary by distance to sink and shipping modality.<a href="#fnref7" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section></div></main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

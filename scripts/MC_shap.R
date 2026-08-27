@@ -301,8 +301,10 @@ plot_global_beeswarm <- function(
   p_bee <- sv_importance(shp, kind = "beeswarm") +
     theme_bw(base_size = 12) +
     labs(
-      title = paste0("Global SHAP Beeswarm Plot (Carbon Price = $", target_c_price, ")\n",
-                     technology_name, " - All Regions Aggregated (DR=", discount_rate*100, "%)")
+      title = paste0(
+        "Global SHAP Beeswarm Plot (Carbon Price = $", target_c_price, ")\n",
+        technology_name, " - All Regions Aggregated (DR=", discount_rate * 100, "%)"
+      )
     ) +
     theme(plot.title = element_text(face = "bold", size = 12, hjust = 0.5))
 
@@ -340,9 +342,7 @@ plot_global_beeswarm <- function(
   return(p_bee)
 }
 
-# Run the analysis
-if (sys.nframe() == 0L) {
-  # Run the original regional analyses
+generate_evolution_plots <- function() {
   plot_sensitivity_evolution(
     data_path = "results/mc_analysis_results.csv",
     technology_name = "BECCS",
@@ -374,8 +374,9 @@ if (sys.nframe() == 0L) {
     discount_rate = 0.08,
     target_c_price = 100
   )
+}
 
-  # Run global beeswarm analysis for all three technologies
+generate_global_beeswarm_plots <- function() {
   plot_global_beeswarm(
     data_path = "results/mc_analysis_results.csv",
     technology_name = "BECCS",
@@ -396,4 +397,10 @@ if (sys.nframe() == 0L) {
     discount_rate = 0.08,
     target_c_price = 100
   )
+}
+
+# Run the analysis
+if (sys.nframe() == 0L) {
+  generate_evolution_plots()
+  generate_global_beeswarm_plots()
 }

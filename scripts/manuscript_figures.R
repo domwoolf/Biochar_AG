@@ -1,5 +1,5 @@
 # nolint start: indentation_linter, line_length_linter, object_usage_linter, commented_code_linter
-# generate_manuscript_figures.R
+# manuscript_figures.R
 # Script to generate publication-quality display items for the
 # BiocharAG manuscript.
 
@@ -191,10 +191,12 @@ generate_fig2_booster_penalty <- function(dat, region_name, save_map = FALSE,
 generate_fig3_evaporation <- function(
   dat, region_name, save_map = FALSE,
   d_rates = c(0.02, 0.08, 0.15), c_prices = c(30, 100, 150),
-  scenario = "default"
+  scenario = "default",
+  metric = c("optimal_tech", "max_npv", "both")
 ) {
+    metric <- match.arg(metric)
     params <- set_scenario(scenarios[[scenario]])
-    message("Generating Figure 3: Evaporation Maps for ", region_name, "...")
+    message("Generating Figure 3: Evaporation Maps for ", region_name, " (Metric: ", metric, ")...")
     params$region <- region_name
     all_df <- data.frame()
     for (cp in c_prices) {
@@ -207,11 +209,26 @@ generate_fig3_evaporation <- function(
             res <- run_scenario(dat[["template", exact = TRUE]], dat[["layers", exact = TRUE]], params, vec = dat[["vec", exact = TRUE]])
 
             opt_raster <- res$opt
+            if (!is.null(res$vec_res)) {
+                max_npv_raster <- terra::rast(dat[["template", exact = TRUE]], nlyrs = 1, vals = NA)
+                max_npv_raster[dat$vec$active_indices] <- pmax(
+                    res$vec_res$net[, 1],
+                    res$vec_res$net[, 2],
+                    res$vec_res$net[, 3],
+                    na.rm = TRUE
+                )
+            } else {
+                max_npv_raster <- terra::app(res$net, max, na.rm = TRUE)
+            }
+
             if (!is.null(dat$admin0)) {
                 opt_raster <- terra::mask(opt_raster, terra::vect(dat$admin0))
+                max_npv_raster <- terra::mask(max_npv_raster, terra::vect(dat$admin0))
             }
-            df <- terra::as.data.frame(opt_raster, xy = TRUE, na.rm = TRUE)
-            names(df)[3] <- "opt_tech"
+            comb_r <- c(opt_raster, max_npv_raster)
+            names(comb_r) <- c("opt_tech", "max_npv")
+            df <- terra::as.data.frame(comb_r, xy = TRUE, na.rm = TRUE)
+
             tech_levels <- c("1" = "BES", "2" = "BECCS", "3" = "BEBCS")
             df$tech <- tech_levels[as.character(df$opt_tech)]
             df$dr_label <- paste0("Discount Rate: ", dr * 100, "%")
@@ -229,58 +246,95 @@ generate_fig3_evaporation <- function(
         levels = paste0("Carbon Price: $", sort(unique(c_prices)), "/t")
     )
 
-    plt <- ggplot() +
-        geom_tile(data = all_df, aes(x = .data$x, y = .data$y, fill = .data$tech))
-    if (!is.null(dat$admin0)) {
-        plt <- plt + geom_sf(
-            data = dat$admin0,
-            fill = NA,
-            color = "black",
-            linewidth = 0.5
+    build_tech_plot <- function(df_data) {
+        plt <- ggplot() +
+            geom_tile(data = df_data, aes(x = .data$x, y = .data$y, fill = .data$tech))
+        if (!is.null(dat$admin0)) {
+            plt <- plt + geom_sf(
+                data = dat$admin0,
+                fill = NA, color = "black", linewidth = 0.5
+            )
+        }
+        if (!is.null(dat$admin1)) {
+            plt <- plt + geom_sf(
+                data = dat$admin1,
+                fill = NA, color = "black", linetype = "dotted", linewidth = 0.2
+            )
+        }
+        plt +
+            coord_sf(crs = 4326) +
+            scale_fill_manual(
+                values = c("BES" = "#1f77b4", "BECCS" = "#d62728", "BEBCS" = "#2ca02c")
+            ) +
+            facet_grid(cp_label ~ dr_label) +
+            theme_void(base_size = 14) +
+            theme(
+                strip.text = element_text(face = "bold", margin = margin(b = 5, t = 5)),
+                legend.position = "bottom"
+            ) +
+            labs(fill = "Optimal Technology")
+    }
+
+    build_npv_plot <- function(df_data) {
+        plt <- ggplot() +
+            geom_tile(data = df_data, aes(x = .data$x, y = .data$y, fill = .data$max_npv))
+        if (!is.null(dat$admin0)) {
+            plt <- plt + geom_sf(
+                data = dat$admin0,
+                fill = NA, color = "black", linewidth = 0.5
+            )
+        }
+        if (!is.null(dat$admin1)) {
+            plt <- plt + geom_sf(
+                data = dat$admin1,
+                fill = NA, color = "black", linetype = "dotted", linewidth = 0.2
+            )
+        }
+        plt +
+            coord_sf(crs = 4326) +
+            scale_fill_viridis_c(option = "viridis", name = "Max NPV ($/Mg)") +
+            facet_grid(cp_label ~ dr_label) +
+            theme_void(base_size = 14) +
+            theme(
+                strip.text = element_text(face = "bold", margin = margin(b = 5, t = 5)),
+                legend.position = "bottom"
+            ) +
+            labs(fill = "Max NPV ($/Mg)")
+    }
+
+    out_plot <- if (metric == "optimal_tech") {
+        build_tech_plot(all_df)
+    } else if (metric == "max_npv") {
+        build_npv_plot(all_df)
+    } else {
+        # metric == "both"
+        patchwork::wrap_plots(
+            build_tech_plot(all_df) + labs(title = paste0("Optimal Technology - ", region_name)),
+            build_npv_plot(all_df) + labs(title = paste0("Highest NPV - ", region_name)),
+            ncol = 2
         )
     }
-    if (!is.null(dat$admin1)) {
-        plt <- plt + geom_sf(
-            data = dat$admin1,
-            fill = NA,
-            color = "black",
-            linetype = "dotted",
-            linewidth = 0.2
-        )
-    }
-    plt <- plt +
-        coord_sf(crs = 4326) +
-        scale_fill_manual(
-            values = c("BES" = "#1f77b4", "BECCS" = "#d62728", "BEBCS" = "#2ca02c")
-        ) +
-        facet_grid(cp_label ~ dr_label) +
-        theme_void(base_size = 14) +
-        theme(
-            strip.text = element_text(
-                face = "bold",
-                margin = margin(b = 5, t = 5)
-            ),
-            legend.position = "bottom"
-        ) +
-        labs(
-            fill = "Optimal Technology"
-            #      title = paste0("Financial Gravity: Evaporation of BECCS - ", region_name)
-        )
 
     if (save_map) {
+        fname_suffix <- switch(metric,
+            "optimal_tech" = "_Fig3_Evaporation_Maps.png",
+            "max_npv"      = "_Fig3_Evaporation_NPV.png",
+            "both"         = "_Fig3_Evaporation_Both.png"
+        )
+        save_w <- if (metric == "both") 18 else 10
         ggsave_with_scenario(
-            paste0(out_dir, region_name, "_Fig3_Evaporation_Maps.png"),
-            plt,
+            paste0(out_dir, region_name, fname_suffix),
+            out_plot,
             scenario = scenario,
-            width = 10,
+            width = save_w,
             height = 7,
             bg = "white",
             dpi = 300
         )
     } else {
-        print(plt)
+        print(out_plot)
     }
-    plt
+    out_plot
 }
 
 # Figure 4: Capital Lock-Out Wedge
@@ -1085,19 +1139,10 @@ generate_fig10_biomass_density <- function(save_map = FALSE) {
     return(combined_plot)
 }
 
-
-# --- Execution block ---
-if (sys.nframe() == 0) {
-    # read parameters from file
-    params <- load_parameters("/media/dominic/Data/git/Biochar_AG/parameters.csv")
-    dir.create(out_dir, showWarnings = FALSE)
-    .regions <- c("US", "China", "Europe", "India")
-    .scenarios <- c("default", "CP100_MW250", "CP100_MW250_reg", "EA_CP100_MW250", "EA_CP100_MW250_reg")
-
+run_all_manuscript_figures <- function(save_map = TRUE) {
     for (scenario_name in .scenarios) {
         for (r in .regions) {
             dat <- load_region_data(r)
-            save_map <- TRUE
             # generate_fig1_phys_boundary(dat, r, save_map, scenario = scenario_name)
             # generate_fig2_booster_penalty(dat, r, save_map, scenario = scenario_name)
             generate_fig3_evaporation(dat, r, save_map, scenario = scenario_name)
@@ -1113,4 +1158,13 @@ if (sys.nframe() == 0) {
     # generate_fig10_biomass_density(save_map = TRUE)
 }
 
+# --- Execution block ---
+if (sys.nframe() == 0) {
+    # read parameters from file
+    params <- load_parameters("/media/dominic/Data/git/Biochar_AG/parameters.csv")
+    dir.create(out_dir, showWarnings = FALSE)
+    .regions <- c("US", "China", "Europe", "India")
+    .scenarios <- c("default", "CP100_MW250", "CP100_MW250_reg", "EA_CP100_MW250", "EA_CP100_MW250_reg")
+    run_all_manuscript_figures(save_map = TRUE)
+}
 # nolint end

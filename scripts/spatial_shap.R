@@ -11,7 +11,7 @@ library(patchwork)
 library(terra)
 library(sf)
 
-source("scripts/generate_manuscript_figures.R")
+source("scripts/manuscript_figures.R")
 
 INPUT_FILE <- "results/spatial_sensitivity_results.csv"
 OUTPUT_CSV <- "results/spatial_shap_values_by_location.csv"
@@ -96,7 +96,7 @@ for (cls in class_levels) {
       x = "SHAP Value (Impact on Log-Odds of Class Prediction)"
     ) +
     theme(plot.title = element_text(face = "bold", hjust = 0.5))
-  
+
   out_png <- sprintf("results/spatial_shap_beeswarm_%s.png", cls)
   ggsave(out_png, plot = p_bee, width = 8, height = 6, dpi = 300)
 }
@@ -116,11 +116,11 @@ names(shap_matrices) <- class_levels
 for (i in seq_len(n_cells)) {
   winning_cls <- df_valid$best_technology[i]
   S_win <- shap_matrices[[winning_cls]][i, ]
-  
+
   idx_win <- which.max(abs(S_win))
   dominant_feat_winning[i] <- features[idx_win]
   max_shap_winning[i] <- S_win[idx_win]
-  
+
   # Across all classes
   abs_all <- sapply(shap_matrices, function(M) abs(M[i, ]))
   # Find row (feature) with overall maximum absolute SHAP
@@ -166,14 +166,14 @@ plot_dominant_feature_map <- function(data_loc, var_name, title_text, out_path) 
   for (r in regions) {
     reg_df <- data_loc %>% filter(region == r)
     dat <- load_region_data(r)
-    
+
     p <- ggplot() +
       geom_tile(data = reg_df, aes(x = x, y = y, fill = .data[[var_name]]))
-    
+
     if (!is.null(dat$admin0)) {
       p <- p + geom_sf(data = dat$admin0, fill = NA, color = "black", linewidth = 0.4)
     }
-    
+
     p <- p +
       coord_sf(crs = 4326) +
       scale_fill_manual(
@@ -186,10 +186,10 @@ plot_dominant_feature_map <- function(data_loc, var_name, title_text, out_path) 
       theme(
         plot.subtitle = element_text(face = "bold", hjust = 0.5, margin = margin(b = 4))
       )
-    
+
     plots[[r]] <- p
   }
-  
+
   combined <- patchwork::wrap_plots(plots, ncol = 2) +
     patchwork::plot_layout(guides = "collect") +
     patchwork::plot_annotation(
@@ -199,7 +199,7 @@ plot_dominant_feature_map <- function(data_loc, var_name, title_text, out_path) 
         legend.position = "bottom"
       )
     )
-  
+
   ggsave(out_path, plot = combined, width = 12, height = 9, dpi = 300)
   message("Saved categorical dominant SHAP map to: ", out_path)
 }
@@ -210,14 +210,14 @@ plot_shap_magnitude_map <- function(data_loc, var_name, title_text, out_path) {
   for (r in regions) {
     reg_df <- data_loc %>% filter(region == r)
     dat <- load_region_data(r)
-    
+
     p <- ggplot() +
       geom_tile(data = reg_df, aes(x = x, y = y, fill = abs(.data[[var_name]])))
-    
+
     if (!is.null(dat$admin0)) {
       p <- p + geom_sf(data = dat$admin0, fill = NA, color = "black", linewidth = 0.4)
     }
-    
+
     p <- p +
       coord_sf(crs = 4326) +
       scale_fill_viridis_c(
@@ -230,10 +230,10 @@ plot_shap_magnitude_map <- function(data_loc, var_name, title_text, out_path) {
       theme(
         plot.subtitle = element_text(face = "bold", hjust = 0.5, margin = margin(b = 4))
       )
-    
+
     plots[[r]] <- p
   }
-  
+
   combined <- patchwork::wrap_plots(plots, ncol = 2) +
     patchwork::plot_layout(guides = "collect") +
     patchwork::plot_annotation(
@@ -243,7 +243,7 @@ plot_shap_magnitude_map <- function(data_loc, var_name, title_text, out_path) {
         legend.position = "bottom"
       )
     )
-  
+
   ggsave(out_path, plot = combined, width = 12, height = 9, dpi = 300)
   message("Saved numeric SHAP magnitude map to: ", out_path)
 }

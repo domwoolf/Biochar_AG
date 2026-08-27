@@ -9,7 +9,7 @@ library(dplyr)
 library(tidyr)
 
 # Sourcing script for helper load function and devtools packages loading
-source("scripts/generate_manuscript_figures.R")
+source("scripts/manuscript_figures.R")
 
 # Configuration
 n_runs <- 500 # Number of MC iterations per scenario combination (default 20 for testing)
