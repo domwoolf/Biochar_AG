@@ -1,6 +1,8 @@
 ---
 title: "Optimal biomass-based climate change mitigation pathways are spatially heterogeneous due to localized technoeconomic and biophysical constraints"
 date: last-modified
+abstract: |
+  The use of biomass for climate change mitigation offers substantial technical potential, but optimal deployment is highly dependent on spatial, technoeconomic, and biophysical constraints. Blanket climate policies frequently fail to capture this heterogeneity. Here we apply a spatially explicit techno-economic and consequential life cycle assessment framework deployed at a 0.1-degree resolution across the United States, Europe, India, and China. We evaluate the economic viability and carbon abatement potential of three distinct biomass utilization pathways: Bioenergy (BES), Bioenergy with Carbon Capture and Storage (BECCS), and Bioenergy with Biochar Carbon Storage (BEBCS). Localized constraints, such as distance to geological CO~2~ sinks, baseline grid carbon intensity, and native soil cation exchange capacity, dictate the economically optimal pathway. Traditional BES tends to dominate at low carbon prices, particularly in regions with high wholesale energy prices like Europe, or high grid carbon intensities like India. Biochar (BEBCS) emerges as a highly competitive transition technology at moderate carbon prices, and serves as the optimal long-term pathway in specific agro-ecological zones with degraded soils, such as southern China. Conversely, high capital costs and piecewise long-distance pipeline penalties act as severe barriers to BECCS, which only achieves universal dominance at high carbon prices (e.g., $150/tCO~2~e) where carbon capture revenues finally overwhelm infrastructure penalties. Ultimately, effective climate mitigation requires localized policies that match biomass resources to their most efficient regional end-use.
 bibliography: references.bib
 csl: science.csl
 link-citations: true
@@ -32,15 +34,15 @@ format:
 
 # Introduction
 
-Biochar has been widely promoted for climate change mitigation, with co-benefits for soil health and crop production when used as a soil amendment.[@woolf2010; @lehmann2021biochar] Globally, biochar has the sustainable technical potential for carbon sequestration and emissions reductions of up to 3.4–6.3 Pg CO~2~e. However, the costs, benefits and tradeoffs for biochar vary spatially, creating substantial heterogeneity in its feasibility at a given carbon price. This variability is further affected by the fact that biochar must compete with alternative uses for the limited supply of available waste biomass. Indeed, alternative uses of biomass, such producing bioenergy with or without carbon capture and sequestration can also help to mitigate climate change and may provide greater climate mitigation, lower costs, and/or greater co-benefits in certain contexts.[@woolf2016] This depends on a number of different factors, including soil type, cropland productivity, climate, energy fuel mix, feedstock availability, distance to CO~2~ sinks for carbon capture and storage, energy prices and food prices. For example, bioenergy production may provide a greater climate benefit in regions that are highly dependent on carbon-intensive energy sources and have high soil fertility, whereas biochar is more favorable where low-fertility soils can benefit from its soil-health improvement.[@woolf2016]
+Biochar has been widely promoted for climate change mitigation, with co-benefits for soil health and crop production when used as a soil amendment.[@woolf2010; @lehmann2021biochar] Globally, biochar has the sustainable technical potential for carbon sequestration and emissions reductions of up to 3.4–6.3 Pg CO~2~e. However, the costs, benefits and tradeoffs for biochar vary spatially, creating substantial heterogeneity in its feasibility at a given carbon price. This variability is further affected by the fact that biochar must compete with alternative uses for the limited supply of available waste biomass. Indeed, alternative uses of biomass, such as producing bioenergy with or without carbon capture and sequestration can also help to mitigate climate change and may provide greater climate mitigation, lower costs, and/or greater co-benefits in certain contexts.[@woolf2016] This depends on a number of different factors, including soil type, cropland productivity, climate, energy fuel mix, feedstock availability, distance to CO~2~ sinks for carbon capture and storage, energy prices and food prices. For example, bioenergy production may provide a greater climate benefit in regions that are highly dependent on carbon-intensive energy sources and have high soil fertility, whereas biochar is more favorable where low-fertility soils can benefit from its soil-health improvement.[@woolf2016]
 
-It is, therefore, critical to understand where biochar could be the best use of resources from a climate mitigation perspective. Currently, most biochar assessments focus on the technical potential, without mapping out the tradeoffs or identifying optimal pathways based on location. While there are some biochar life-cycle assessments that account for alternative biomass uses, they are highly context-specific and difficult to scale up on[@peters2015; @lefebvre2021]. As such, this project aims to provide a detailed feasibility and tradeoff analysis across four regions (North America, India, China, and Europe) to map where biochar represents the most efficient use of biomass to reduce atmospheric greenhouse gasses (GHGs). These regions represent a diversity of geographic, socio-economic, and agro-ecological conditions for a broad assessment of how constraints, tradeoffs and benefits vary across regions. This work will allow policy-makers and practitioners to make scientifically-informed decisions about which mitigation pathways are best suited for their geographies. It can also help right-size biochar’s mitigation potential by identifying areas that maximize its climate benefits and realistically support its production and application.
+It is, therefore, critical to understand where biochar could be the best use of resources from a climate mitigation perspective. Currently, most biochar assessments focus on the technical potential, without mapping out the tradeoffs or identifying optimal pathways based on location. While there are some biochar life-cycle assessments that account for alternative biomass uses, they are highly context-specific and difficult to scale up on[@peters2015; @lefebvre2021]. As such, this project aims to provide a detailed feasibility and tradeoff analysis across four regions (North America, India, China, and Europe) to map where biochar represents the most efficient use of biomass to reduce atmospheric greenhouse gasses (GHGs). These regions represent a diversity of geographic, socio-economic, and agro-ecological conditions for a broad assessment of how constraints, tradeoffs and benefits vary across regions. This work will allow policy-makers and practitioners to make scientifically-informed decisions about which mitigation pathways are best suited for their geographies. It can also help contextualize biochar's mitigation potential by identifying areas that maximize its climate benefits and realistically support its production and application.
 
 # Methods
 
 ## Model Architecture
 
-The `BiocharAG` model evaluates three biomass utilization pathways: Bioenergy (BE), Bioenergy with Carbon Capture and Storage (BECCS), and Bioenergy with Biochar Carbon Storage (BEBCS). The model evaluates a spatially-varying net present value (NPV) for each technology using a discounted cost-benefit analysis, with GHG emissions and removals converted to 100-year CO~2~ equivalent values and internalized into the economic analysis using an assumed carbon price.
+The C-SCAPE (Carbon Spatial Cost and Allocation Pathways Evaluator) model (version 1.0) evaluates three biomass utilization pathways: Bioenergy (BE), Bioenergy with Carbon Capture and Storage (BECCS), and Bioenergy with Biochar Carbon Storage (BEBCS). The model evaluates a spatially-varying net present value (NPV) for each technology using a discounted cost-benefit analysis, with GHG emissions and removals converted to 100-year CO~2~ equivalent values and internalized into the economic analysis using an assumed carbon price.
 
 The model was deployed across the coterminous United States, Europe, India, and China. All spatial inputs were projected into region-specific, equal-area coordinate reference systems (EPSG:5070, EPSG:3035, EPSG:8859, and ESRI:102025, for the US, Europe, India, and China, respectively), and harmonized to a 0.1-degree resolution. The model was implemented in the R programming language, using the Terra package for spatial analysis.
 
@@ -64,11 +66,10 @@ Feedstock pricing is not treated as a static global constant; rather, it is deri
 
 -   **Europe:** Utilizes a baseline NUTS-3 regional roadside cost, modified by a temporal volatility multiplier that accounts for interim storage costs (up to a 36.4% premium for 6-month storage).
 
--   **India:** Capitalizes on the necessity to avoid crop stubble burning. The model assumes a $\$0$ stumpage fee, but imposes a step-cost for densification: raw bale transport costs apply under 50 km, while more expensive pelletization costs are triggered for catchment zones exceeding 50 km[^1].
+-   **India:** Capitalizes on the necessity to avoid crop stubble burning. The model assumes a $\$0$ stumpage fee, but imposes a step-cost for densification: raw bale transport costs apply under 50 km, while more expensive pelletization costs are triggered for catchment zones exceeding 50 km.
 
 -   **China:** Modifies a baseline plant-gate cost with exogenous spatial risk multipliers, applying premiums for localized weather volatility and rural expansion risks.
 
-[^1]: **Query - India Densification Threshold:** The codebase (`spatial_tea.R`) applies a hard 50 km threshold where India feedstock shifts from baling to pelletization costs. Given that the archetype is fixed at $250\text{ MW}_{\text{th}}$, the collection radius will almost certainly exceed 50 km in all but the densest agricultural zones. We should verify if this rigid step-function is appropriate at this industrial scale, or if a blended cost based on the radius proportion is more physically realistic.
 
 ### Technology Pathways and Thermodynamics
 
@@ -82,9 +83,7 @@ The technoeconomic parameters for this modern combustion archetype assume an ele
 
 #### Bioenergy with Carbon Capture and Storage (BECCS)
 
-The BECCS pathway augments the standard combustion baseline with a post-combustion carbon capture unit. The addition of this unit imposes a significant parasitic energy penalty, primarily driven by solvent regeneration and CO~2~ compression requirements. Consequently, the net electrical conversion efficiency drops from the 30% BES baseline to 28%.[^2]
-
-[^2]: **Critique - Carbon Capture Efficiency:** The current implementation sets 2 percentage point lower efficiency for BECCS than baseline. This may be low. See e.g. @woolf2016optimal who suggest a penalty in the range 4--11 percentage points.
+The BECCS pathway augments the standard combustion baseline with a post-combustion carbon capture unit. The addition of this unit imposes a significant parasitic energy penalty, primarily driven by solvent regeneration and CO~2~ compression requirements. Consequently, the net electrical conversion efficiency drops from the 30% BES baseline to 28%.
 
 The capture process is parameterized with a 90% capture efficiency rate. The total volume of captured CO~2~ routed to geological storage is calculated stoichiometrically based on the carbon fraction of the incoming biomass feed (default 48% C), converted to CO~2~ mass equivalents using the 44/12 molar ratio. The increased infrastructure complexity elevates the base CAPEX to $\$4,000/\text{kW}_e$, with annual O&M scaling concurrently to 5% of CAPEX.
 
@@ -96,9 +95,7 @@ The mass yield and elemental composition of the resulting biochar are determined
 
 To close the mass balance, the unaccounted elemental fractions ($U_c, U_h, U_o$) are stoichiometrically partitioned into bio-oil, water ($H_2O$), and carbon dioxide (CO~2~). The model restricts bio-oil to a fixed empirical composition ($62.5\%\text{ C}, 7.56\%\text{ H}, 29.94\%\text{ O}$) to solve the final product distribution analytically.
 
-The net usable energy flux for the BEBCS pathway is calculated by subtracting the process heat requirements from the total enthalpy of the gaseous and liquid products. The higher heating value (HHV) of the biochar is calculated via the Dulong formula, utilizing the temperature-dependent C, H, and O fractions. Heat for the endothermic pyrolysis reaction is supplied entirely by the combustion of the volatile syngas and bio-oil fractions; any surplus thermal energy is converted to electricity using the baseline BES efficiency parameters[^3]. If the syngas and bio-oil are insufficient to meet the thermal load, a portion of the biochar is oxidized to close the energy balance, proportionally reducing the final carbon sequestration yield.
-
-[^3]: **Query - Default Pyrolysis Temperature:** The current code sets `py_temp = 500` °C as a static global default in `parameters.R`. Because the BEBCS net present value (NPV) is highly sensitive to the trade-off between energy yield and biochar stability (both driven by $T_{py}$), you may want to note in the manuscript whether 500 °C is assumed universally for the spatial runs, or if an optimization routine is run to find the ideal temperature per grid cell.
+The net usable energy flux for the BEBCS pathway is calculated by subtracting the process heat requirements from the total enthalpy of the gaseous and liquid products. The higher heating value (HHV) of the biochar is calculated via the Dulong formula, utilizing the temperature-dependent C, H, and O fractions. Heat for the endothermic pyrolysis reaction is supplied entirely by the combustion of the volatile syngas and bio-oil fractions; any surplus thermal energy is converted to electricity using the baseline BES efficiency parameters. If the syngas and bio-oil are insufficient to meet the thermal load, a portion of the biochar is oxidized to close the energy balance, proportionally reducing the final carbon sequestration yield.
 
 ### Carbon Transport and Geological Storage
 
@@ -146,17 +143,17 @@ To eliminate artifactual spatial boundaries, the algorithm evaluates both modali
 
 $$Cost_{transport} = \min(C_{pipeline}, C_{shipping})$$
 
-Because of the piecewise booster penalty, the pipeline cost curve steepens significantly beyond 700 km. This guarantees a natural mathematical intersection with the flat $C_{shipping}$ cost floor, allowing the model to smoothly transition to shipping modalities at extreme distances.
+Because of the piecewise booster penalty, the pipeline cost curve steepens significantly beyond 700 km. This ensures the pipeline cost curve intersects with the flat $C_{shipping}$ cost floor, allowing the model to smoothly transition to shipping modalities at very long distances.
 
 #### Biochar Permanence and Agronomic Valuation (BEBCS Feedbacks)
 
-The Bioenergy with Biochar Storage (BEBCS) pathway diverts a fraction of the original biomass carbon into a recalcitrant solid matrix. While physical disposal methods such as the landfilling of biochar represent a highly effective method to definitively sequester the carbon 100%, this framework strictly evaluates soil application to quantify the cascading agronomic co-benefits and regional substitution values. Consequently, the carbon retention within the soil matrix is finite and must be modeled dynamically based on localized biogeochemical conditions.
+The Bioenergy with Biochar Storage (BEBCS) pathway diverts a fraction of the original biomass carbon into a recalcitrant solid matrix. While physical disposal methods such as the landfilling of biochar represent a highly effective method to provide highly stable carbon storage, this framework strictly evaluates soil application to quantify the cascading agronomic co-benefits and regional substitution values. Consequently, the carbon retention within the soil matrix is finite and must be modeled dynamically based on localized biogeochemical conditions.
 
 ##### Biochar Carbon Permanence ($F_{perm}$)
 
 To accurately quantify the net carbon dioxide removal (CDR) of the BEBCS pathway, the model calculates the permanent carbon fraction ($F_{perm}$) that remains stabilized in the soil after a 100-year time horizon. This fraction is derived using the multi-pool decay methodology established by @woolf2021greenhouse.
 
-The baseline degradation rates of the biochar's labile and recalcitrant carbon pools are fitted to either the peak pyrolysis temperature ($T_{py}$) or the molar Hydrogen-to-Organic-Carbon (H:C) ratio of the final char. Because microbial and chemical degradation kinetics are highly temperature-dependent, these reference decay rates are spatially adjusted to match the localized mean annual soil temperature using a $Q_{10}$ temperature sensitivity function. To optimize spatial computational efficiency across the high-resolution rasters, the thermodynamic engine utilizes bilinear interpolation over a pre-calculated matrix of $F_{perm}$ values bounded by soil temperatures ($-55^\circ\text{C}$ to $40^\circ\text{C}$) and H:C ratios ($0.0$ to $0.7$).
+The baseline degradation rates of the biochar's labile and recalcitrant carbon pools are fitted to either the peak pyrolysis temperature ($T_{py}$) or the molar Hydrogen-to-Organic-Carbon (H:C) ratio of the final char. Because microbial and chemical degradation kinetics are highly temperature-dependent, these reference decay rates are spatially adjusted to match the localized mean annual soil temperature using a $Q_{10}$ temperature sensitivity function. To optimize spatial computational efficiency across the high-resolution rasters, the thermodynamic module utilizes bilinear interpolation over a pre-calculated matrix of $F_{perm}$ values bounded by soil temperatures ($-55^\circ\text{C}$ to $40^\circ\text{C}$) and H:C ratios ($0.0$ to $0.7$).
 
 Total carbon sequestered per megagram of feedstock is therefore modeled as:
 
@@ -166,7 +163,7 @@ where $Yield_{bc}$ is the mass fraction of biochar produced, $C_{content}$ is th
 
 #### Mechanistic Agronomic Valuation
 
-Previous spatial models frequently value biochar using a static, exogenous global market price. To better reflect real-world agricultural economics, `BiocharAG` endogenously determines the economic credit of biochar through a mechanistic substitution valuation. This assumes that the rational economic value of biochar is equal to the cost of the conventional agricultural inputs it successfully offsets:
+Previous spatial models frequently value biochar using a static, exogenous global market price. To better reflect real-world agricultural economics, C-SCAPE endogenously determines the economic credit of biochar through a mechanistic substitution valuation. This assumes that the rational economic value of biochar is equal to the cost of the conventional agricultural inputs it successfully offsets:
 
 $$Value_{ag} = Value_{lime} + Value_{nutrients} + Value_{physical}$$
 
@@ -212,71 +209,89 @@ Under this sensitivity mode, the model assumes the displaced marginal generation
 
 ### Model Parameters and Data Sources
 
-To ensure full reproducibility and transparency, the operational, financial, and biophysical parameters utilized within the `BiocharAG` framework are tabulated below. Parameters are classified by their spatial resolution: **Scalar** values are held constant globally; **Regional** values act as constants but are overridden based on the macro-economic domain (e.g., India, China, Europe, US); and **Spatial** values are resolved dynamically at the grid-cell level using high-resolution raster datasets.
+To ensure full reproducibility and transparency, the operational, financial, and biophysical parameters utilized within the C-SCAPE framework are tabulated below. Parameters are classified by their spatial resolution: **Scalar** values are held constant globally; **Regional** values act as constants but are overridden based on the macro-economic domain (e.g., India, China, Europe, US); and **Spatial** values are resolved dynamically at the grid-cell level using high-resolution raster datasets.
 
-::: {#tbl-parameters tbl-colwidths="[33, 25, 14, 16, 11]"}
-| Parameter | Description | Type | Default Value | Units |
-|:--------------|:--------------|:--------------|:--------------|:--------------|
-| **Financial & Market** |  |  |  |  |
-| `discount_rate` | Baseline cost of capital | Regional | 0.08 (0.12 in India) | Fraction |
-| `elec_price` | Wholesale electricity price | Spatial / Regional | 100.00 | USD / MWh |
-| `wholesale_discount_factor` | Ratio of wholesale to retail price | Regional | 0.4 (1.0 in India) | Fraction |
-| `c_price` | Carbon abatement credit price | Scalar | 50.00 | USD / tCO~2~e |
-| `bes_life` / `beccs_life` | Infrastructure project lifetime | Scalar | 30 | Years |
-| `capacity_factor` | Annual plant capacity utilization | Scalar | 0.85 | Fraction |
-| `scaling_factor` | Capital cost scale exponent | Scalar | 0.7 | \- |
-| **Technology & Thermodynamics** |  |  |  |  |
-| `plant_mw_th` | Target plant thermal capacity | Scalar | 250.0 | MWth |
-| `bes_capital_cost` | Base CAPEX for BES (50 MWe ref) | Regional | 3,000 | USD / kWe |
-| `beccs_capital_cost` | Base CAPEX for BECCS (50 MWe ref) | Regional | 4,000 | USD / kWe |
-| `bes_om_factor` | O&M cost as fraction of CAPEX | Regional | 0.04 | Fraction |
-| `beccs_om_factor` | O&M cost for BECCS | Regional | 0.05 | Fraction |
-| `bes_energy_efficiency` | Electrical efficiency for BES | Scalar | 0.30 | Fraction |
-| `beccs_efficiency` | Electrical efficiency for BECCS | Scalar | 0.28 | Fraction |
-| `capture_rate` | CO~2~ capture efficiency for BECCS | Scalar | 0.90 | Fraction |
-| `py_temp` | Peak pyrolysis temperature | Scalar | 500 | °C |
-| `heat_loss` | Pyrolysis process heat loss | Scalar | 2.35 | GJ / Mg |
-| `bo_hhv` | Bio-oil higher heating value | Scalar | 27.63 | GJ / Mg |
-| `bo_c`, `bo_h`, `bo_o` | Bio-oil elemental mass fractions | Scalar | 0.625, 0.0756, 0.2994 | Fraction |
-| **Feedstock & Logistics** |  |  |  |  |
-| `bm_lhv` | Biomass lower heating value | Scalar | 18.6 | GJ / Mg |
-| `bm_c` | Biomass carbon mass fraction | Scalar | 0.48 | Fraction |
-| `bm_ash` | Biomass ash mass fraction | Regional | 0.05 (0.15 in India) | Fraction |
-| `bm_transport_fixed` | Fixed loading/handling cost | Scalar | 5.00 | USD / Mg |
-| `bm_transport_var` | Variable trucking cost | Scalar | 0.15 | USD / Mg / km |
-| `transport_emissions_factor` | Scope 3 heavy-duty truck emissions | Scalar | 0.0001 | Mg CO~2~e / Mg·km |
-| **CO~2~ Transport Infrastructure** |  |  |  |  |
-| `ccs_storage_cost` | Onshore injection and monitoring | Spatial | 12.0 | USD / tCO~2~ |
-| `base_cost_offshore_storage` | Offshore injection and monitoring | Scalar | 40.0 | USD / tCO~2~ |
-| `feeder_threshold_km` | Dedicated feeder pipeline limit | Scalar | 50 | km |
-| `booster_threshold_km` | Distance triggering booster penalty | Scalar | 700 | km |
-| `booster_penalty` | Marginal cost multiplier for boosters | Scalar | 2.0 | \- |
-| `trunk_mass_flow` | Ref. capacity for trunkline sharing | Scalar | 3,000,000 | Mg / year |
-| `liq_cost` | CO~2~ Liquefaction cost (shipping) | Scalar | 20.0 | USD / tCO~2~ |
-| `term_cost` | Terminal handling cost (shipping) | Scalar | 15.0 | USD / tCO~2~ |
-| `voyage_rate` | Variable voyage cost (shipping) | Scalar | 0.035 | USD / tCO~2~ / km |
-| `transport_elec_price` | Electricity price for compression | Scalar | 0.10 | USD / kWh |
-| **Biochar & Agronomic** |  |  |  |  |
-| `h_c_org` | Molar H:C ratio for permanence | Scalar | 0.35 | Molar Ratio |
-| `time_frame` | Time horizon for permanence assessment | Scalar | 100 | Years |
-| `target_ph` | Target agricultural soil pH | Scalar | 6.5 | pH |
-| `bc_cce` | Calcium Carbonate Equivalent | Scalar | 0.15 | Fraction |
-| `price_lime` | Market price for agricultural lime | Regional | 60.00 | USD / Mg |
-| `price_n` | Market price for Nitrogen | Regional | 0.92 (0.30 in India) | USD / kg N |
-| `price_p` | Market price for Phosphorus | Regional | 1.10 (0.80 in India) | USD / kg P~2~O~5~ |
-| `price_k` | Market price for Potassium | Regional | 0.62 (0.40 in India) | USD / kg K~2~O |
-| `avail_n`, `avail_p`, `avail_k` | First-year nutrient availability | Scalar | 0.1, 0.5, 0.8 | Fraction |
-| `ag_impact_duration` | Duration of nutrient/liming benefit | Scalar | 10 | Years |
-| `soil_ghg_abatement` | Suppressed soil emissions credit | Scalar | 0.1 | tCO~2~e / Mg |
-| **Spatial & Environmental** |  |  |  |  |
-| `ff_c_intensity` | Displaced grid carbon intensity | Spatial / Regional | Scenario Dependent | tCO~2~eq / GJ |
-| `biomass_density` | Available spatial crop residues | Spatial | \- | Mg / km^2^ |
-| `soil_ph` | Native topsoil pH | Spatial | \- | pH |
-| `soil_cec` | Cation Exchange Capacity | Spatial | \- | cmol / kg |
-| `soil_temp` | Mean annual soil temperature | Spatial | \- | °C |
-:::
+```{r}
+#| label: tbl-parameters
+#| tbl-cap: "Operational, financial, and biophysical parameters utilized within the BiocharAG framework."
+#| echo: false
+#| message: false
+#| warning: false
+
+library(gt)
+
+params_df <- read.csv("parameters_table.csv", check.names = FALSE, na.strings = "")
+
+# Identify rows where all regional values are identical
+is_uniform <- with(params_df, !is.na(USA) & USA == Europe & Europe == China & China == India)
+
+display_df <- params_df
+display_df$Europe[is_uniform] <- ""
+display_df$China[is_uniform] <- ""
+display_df$India[is_uniform] <- ""
+
+gt(display_df, groupname_col = "Category") |>
+    tab_spanner(
+        label = "Value",
+        columns = c(USA, Europe, China, India)
+    ) |>
+    cols_label(
+        Parameter = "Parameter",
+        Description = "Description",
+        USA = "USA/Default",
+        Europe = "Europe",
+        China = "China",
+        India = "India",
+        Units = "Units"
+    ) |>
+    cols_width(
+        Parameter ~ pct(18),
+        Description ~ pct(24),
+        USA ~ pct(12),
+        Europe ~ pct(10),
+        China ~ pct(10),
+        India ~ pct(10),
+        Units ~ pct(16)
+    ) |>
+    fmt_markdown(columns = c(Category, Parameter, Description, USA, Europe, China, India, Units)) |>
+    tab_options(
+        table.font.size = px(9),
+        data_row.padding = px(2),
+        row_group.font.weight = "bold",
+        latex.use_longtable = TRUE,
+        latex.header_repeat = TRUE
+    )
+```
 
 # Results
+
+## Capital Intensive Pathways are Highly Sensitive to Discount Rates and Carbon Prices
+
+Figures [fig-evap-usa](#fig-evap-usa) to [fig-evap-china](#fig-evap-china) illustrate the core vulnerability of CDR pathways to capital lock-out. Because both BECCS (heavy upfront infrastructure) and BEBCS (deferred agronomic value) are highly sensitive to the cost of capital, high discount rates act as a strong barrier to adoption, forcing a retreat to traditional Bioenergy (BES) without high carbon prices. For example, in the USA, at a 2% social discount rate and a $30/t carbon price, BEBCS covers a large extent of the US Midwest and South, with BECCS only being viable close to CO~2~ sinks. However, stepping up to the 8% market baseline eliminates BEBCS's advantage, replacing it with almost entirely with BES. The value of biochar relies heavily on liming and nutrient substitution benefits that are amortized over a 10-year agronomic impact duration. At an 8% or 15% discount rate, the present value of those future soil benefits is diminished, rendering the upfront thermal penalties of pyrolysis economically unviable at low carbon prices. At a 2% discount rate and intermediate carbon price (around $100/t), BECCS is nearly universal across the US. At 15%, the BECCS dominance is fractured, with BES reclaiming the geographic margins (e.g., the Northeast and far West), and BEBCS remaining only in localized pockets where soil conditions make it particularly attractive. This occurs because, when capital is expensive, the penalty for long-distance pipelines becomes insurmountable until carbon prices reach the $150/t range. By the time the carbon price reaches $150/t, the maps become almost entirely red across all discount rates. At this pricing level, the high CDR capture efficiency overwhelms the high cost of capital, making BECCS the most economically attractive option.
+
+## Biochar provides a mid-price transition technology option and a long term solution for specific agro-ecological zones
+
+Figure [fig-evap-china](#fig-evap-china) provides a counterpoint to the US results. It shows how soils with strong production constraints that can be alleviated by biochar can create a persistent competitive advantage for biochar, particularly when combined with large distances to CO~2~ storage sites. BEBCS performs a central role as a transition technology that peaks at intermediate carbon prices that are high enough to make its carbon sequestration competitive with BES, but not so high that the more efficient CDR of BECCS per unit biomass outcompetes it (Figures [fig-MACC-eur](#fig-MACC-eur), [fig-MACC-india](#fig-MACC-india), and [fig-MACC-china](#fig-MACC-china)).  Nonetheless, while BECCS ultimately becomes the optimal technology across the entire US spatial domain at high carbon prices, BEBCS remains the most viable pathway in southern China across almost all price and discount rate scenarios. This demonstrates that BEBCS is not merely a transition technology, but the optimal long-term pathway for specific agro-ecological zones. In Southern China, characterized by highly weathered, acidic soils, the biochar's liming and nutrient use efficiency benefits provide a substantial economic credit that buffers against high processing costs. The model scales physical yield efficiency gains inversely to the soil's native Cation Exchange Capacity (CEC), thus granting severe CEC deficits higher premiums. This is confirmed by the SHAP analysis (Figure [fig-shap-dominant](#fig-shap-dominant)), which identifies soil CEC as the dominant spatial driver in this region.
+
+## Regional Policies Hinder Biochar Competitiveness
+
+In India, on the other hand, the mid carbon price advantage of BEBCS is almost entirely eliminated, with BECCS eventually covering most of the map at high carbon prices. Here, fertilizer subsidies hamper BEBCS's economic viability. Because BEBCS economics relies on improved nutrient use efficiency and lower fertilizer inputs per unit crop yield, cheap subsidized synthetic fertilizers erode biochar's nutrient substitution value. Despite this, Biochar maintains a strong foothold in the regions in the North East, North West, and central Eastern coastal regions of India where low soil CEC is a major constraint to crop production.
+
+## Regional Energy prices and Carbon Intensity provide a critical constraint on the optimal CDR pathways
+
+At lower carbon prices The optimal technology in Europe is almost universally BES, driven by high energy prices as the dominant driver across Europe. At $30 / t CO~2~, the revenue from maximized power generation in BES outweighs the incentive to capture and sequester carbon, rendering the capital expenditure for BECCS and BEBCS unviable across all discount rates. As carbon prices increase, BECCS begins to dominate across central and northern Europe. BEBCS gains a strong advantage in Southern Europe, and Eastern Scandinavia where various combinations of large distances to CO~2~ sinks, already-low carbon intensity of the energy systems, and infertile soils make it more competitive. As in China, we see BEBCS maintain its advantage in these regions, even at very high carbon prices.
+
+# Conclusion
+
+The deployment of biomass for climate change mitigation cannot be guided by a single universal pathway. Our spatial analysis demonstrates that the economic viability of BES, BECCS, and BEBCS is dictated by a complex interplay of localized biophysical constraints and regional market dynamics.
+
+While BECCS offers the highest theoretical carbon removal potential, its heavy infrastructure requirements and sensitivity to the cost of capital create significant barriers to entry, particularly where biomass is located far from suitable geological sinks. In contrast, biochar (BEBCS) circumvents these transport constraints and establishes a resilient economic niche in regions with degraded, low-CEC soils, where its agronomic co-benefits—such as liming equivalence and nutrient substitution—offset its lower electrical conversion efficiencies. Southern China exemplifies this dynamic, demonstrating that BEBCS is a robust, long-term mitigation strategy for specific agro-ecological zones rather than merely a transition technology.
+
+Furthermore, baseline energy markets and agricultural policies heavily distort optimal pathways. In Europe, high wholesale electricity prices establish BES as the dominant pathway at low carbon prices, while in India, fertilizer subsidies artificially suppress biochar's agronomic value, pushing the market toward traditional BES.
+
+Realizing the climate mitigation potential of global biomass requires moving beyond blanket technological mandates. Policymakers must adopt spatially explicit strategies that target BECCS deployment near geological sinks, incentivize BEBCS in agro-ecological zones suffering from soil degradation, and recognize the enduring role of BES in displacing highly carbon-intensive fossil grids.
+
+# Figures
 
 ![Minimum Break-even carbon price for each technology option. The technology with the lowest break-even price is shown as the "best technology" in the penultimate row. The final row shows the break-even price of this technology.](images/Global_Fig8_Breakeven_CPrice_CP100_MW250_reg.png){#fig-break-even width="100%"}
 
@@ -288,15 +303,15 @@ To ensure full reproducibility and transparency, the operational, financial, and
 
 ![Optimal technology as a function of carbon price and discount rate (China).](images/China_Fig3_Evaporation_Maps_CP100_MW250_reg.png){#fig-evap-china width="100%"}
 
-![Marginal abatement cost curve for Europe.](images/Europe_Fig6_MACC_CP100_MW250.png){width="50%"}
+![Marginal abatement cost curve for Europe.](images/Europe_Fig6_MACC_CP100_MW250.png){#fig-MACC-eur width="50%"}
 
-![Marginal abatement cost curve for India.](images/India_Fig6_MACC_EA_CP100_MW250.png){width="50%"}
+![Marginal abatement cost curve for India.](images/India_Fig6_MACC_EA_CP100_MW250.png){#fig-MACC-india width="50%"}
 
-![Marginal abatement cost curve for China.](images/China_Fig6_MACC_EA_CP100_MW250.png){width="50%"}
+![Marginal abatement cost curve for China.](images/China_Fig6_MACC_EA_CP100_MW250.png){#fig-MACC-china width="50%"}
 
-![Dominant driver of breakeven carbon prices (Shapley decomposition).](images/map_dominant_shap_feature.png){width="100%"}
+![Dominant driver of breakeven carbon prices (Shapley decomposition).](images/map_dominant_shap_feature.png){#fig-shap-dominant width="100%"}
 
-![Magnitude of the dominant driver (Shapley decomposition).](images/map_max_shap_magnitude-2.png){width="100%"}
+![Magnitude of the dominant driver (Shapley decomposition).](images/map_max_shap_magnitude-2.png){#fig-shap-magnitude width="100%"}
 
 # References
 

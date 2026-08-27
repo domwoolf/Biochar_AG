@@ -1,0 +1,52 @@
+Category,Parameter,Description,USA,Europe,China,India,Units
+Financial & Market,`discount_rate`,Cost of capital,0.05,0.045,0.045,0.1,Fraction
+Financial & Market,`elec_price`,Wholesale electricity price,Spatially explicit,Spatially explicit,Spatially explicit,Spatially explicit,USD / MWh
+Financial & Market,`wholesale_discount`,Ratio of wholesale to retail price,0.4,0.4,0.4,1,Fraction
+Financial & Market,`c_price`,Carbon abatement credit price,50,50,50,50,USD / tCO~2~e
+Financial & Market,`bes_life` / `beccs_life`,Infrastructure project lifetime,30,30,30,30,Years
+Financial & Market,`capacity_factor`,Annual plant capacity utilization,0.85,0.85,0.85,0.85,Fraction
+Financial & Market,`scaling_factor`,Capital cost scale exponent,0.7,0.7,0.7,0.7,—
+Technology & Thermodynamics,`plant_mw_th`,Target plant thermal capacity,250,250,250,250,MWth
+Technology & Thermodynamics,`bes_capital_cost`,Base CAPEX for BES,3750,3450,2100,1950,USD / kWe
+Technology & Thermodynamics,`beccs_capital_cost`,Base CAPEX for BECCS,5000,4600,2800,2600,USD / kWe
+Technology & Thermodynamics,`bes_om_factor`,O&M cost as fraction of CAPEX,0.045,0.045,0.03,0.025,Fraction
+Technology & Thermodynamics,`beccs_om_factor`,O&M cost for BECCS,0.055,0.055,0.035,0.03,Fraction
+Technology & Thermodynamics,`bes_energy_efficiency`,Electrical efficiency for BES,0.3,0.3,0.3,0.3,Fraction
+Technology & Thermodynamics,`beccs_efficiency`,Electrical efficiency for BECCS,0.28,0.28,0.28,0.28,Fraction
+Technology & Thermodynamics,`capture_rate`,BECCS CO2 capture efficiency,0.9,0.9,0.9,0.9,Fraction
+Technology & Thermodynamics,`py_temp`,Peak pyrolysis temperature,500,500,500,500,°C
+Technology & Thermodynamics,`heat_loss`,Pyrolysis process heat loss,2.35,2.35,2.35,2.35,GJ / Mg
+Technology & Thermodynamics,`bo_hhv`,Bio-oil higher heating value,27.63,27.63,27.63,27.63,GJ / Mg
+Technology & Thermodynamics,"`bo_c`, `bo_h`, `bo_o`",Bio-oil elemental mass fractions,"0.625, 0.0756, 0.2994","0.625, 0.0756, 0.2994","0.625, 0.0756, 0.2994","0.625, 0.0756, 0.2994",Fraction
+Feedstock & Logistics,`bm_lhv`,Biomass lower heating value,18.6,18.6,18.6,18.6,GJ / Mg
+Feedstock & Logistics,`bm_c`,Biomass carbon mass fraction,0.48,0.48,0.48,0.48,Fraction
+Feedstock & Logistics,`bm_ash`,Biomass ash mass fraction,0.05,0.05,0.05,0.15,Fraction
+Feedstock & Logistics,`bm_transport_fixed`,Fixed loading/handling cost,5,5,5,5,USD / Mg
+Feedstock & Logistics,`bm_transport_var`,Variable trucking cost,0.15,0.15,0.15,0.15,USD / Mg / km
+Feedstock & Logistics,`transport_EF`,Heavy-duty truck emissions,0.0001,0.0001,0.0001,0.0001,Mg CO~2~e / Mg·km
+CO~2~ Transport Infrastructure,`ccs_storage_cost`,Onshore injection and monitoring,12,12,12,12,USD / tCO~2~
+CO~2~ Transport Infrastructure,`cost_offshore_storage`,Offshore injection and monitoring,40,40,40,40,USD / tCO~2~
+CO~2~ Transport Infrastructure,`feeder_threshold`,Dedicated feeder pipeline limit,50,50,50,50,km
+CO~2~ Transport Infrastructure,`booster_threshold`,Distance triggering booster penalty,700,700,700,700,km
+CO~2~ Transport Infrastructure,`booster_penalty`,Marginal cost multiplier for boosters,2,2,2,2,—
+CO~2~ Transport Infrastructure,`trunk_mass_flow`,Ref. capacity for trunkline sharing,3000000,3000000,3000000,3000000,Mg / year
+CO~2~ Transport Infrastructure,`liq_cost`,CO~2~ Liquefaction cost (shipping),20,20,20,20,USD / tCO~2~
+CO~2~ Transport Infrastructure,`term_cost`,Terminal handling cost (shipping),15,15,15,15,USD / tCO~2~
+CO~2~ Transport Infrastructure,`voyage_rate`,Variable voyage cost (shipping),0.035,0.035,0.035,0.035,USD / tCO~2~ / km
+CO~2~ Transport Infrastructure,`transport_elec_price`,Electricity price for compression,0.1,0.1,0.1,0.1,USD / kWh
+Biochar & Agronomic,`h_c_org`,Molar H:C ratio for permanence,0.35,0.35,0.35,0.35,Molar Ratio
+Biochar & Agronomic,`time_frame`,Time horizon of pyC permanence,100,100,100,100,Years
+Biochar & Agronomic,`target_ph`,Target agricultural soil pH,6.5,6.5,6.5,6.5,pH
+Biochar & Agronomic,`bc_cce`,Calcium Carbonate Equivalent,0.15,0.15,0.15,0.15,Fraction
+Biochar & Agronomic,`price_lime`,Market price for agricultural lime,45,50,35,35,USD / Mg
+Biochar & Agronomic,`price_n`,Market price for Nitrogen,1.59,1.75,0.79,0.14,USD / kg N
+Biochar & Agronomic,`price_p`,Market price for Phosphorus,2.08,2.29,1.1,0.7,USD / kg P~2~O~5~
+Biochar & Agronomic,`price_k`,Market price for Potassium,0.82,0.9,0.55,0.68,USD / kg K~2~O
+Biochar & Agronomic,`avail-n / -p / -k`,First-year nutrient availability,"0.1, 0.5, 0.8","0.1, 0.5, 0.8","0.1, 0.5, 0.8","0.1, 0.5, 0.8",Fraction
+Biochar & Agronomic,`ag_impact_duration`,Duration of nutrient/liming benefit,5,5,5,5,Years
+Biochar & Agronomic,`soil_ghg_abatement`,Suppressed soil emissions credit,0.1,0.1,0.1,0.1,tCO~2~e / Mg
+Spatial & Environmental,`ff_c_intensity`,Displaced grid carbon intensity,Spatially explicit,Spatially explicit,Spatially explicit,Spatially explicit,tCO~2~eq / GJ
+Spatial & Environmental,`biomass_density`,Available spatial crop residues,Spatially explicit,Spatially explicit,Spatially explicit,Spatially explicit,Mg / km^2^
+Spatial & Environmental,`soil_ph`,Native topsoil pH,Spatially explicit,Spatially explicit,Spatially explicit,Spatially explicit,pH
+Spatial & Environmental,`soil_cec`,Cation Exchange Capacity,Spatially explicit,Spatially explicit,Spatially explicit,Spatially explicit,cmol / kg
+Spatial & Environmental,`soil_temp`,Mean annual soil temperature,Spatially explicit,Spatially explicit,Spatially explicit,Spatially explicit,°C
