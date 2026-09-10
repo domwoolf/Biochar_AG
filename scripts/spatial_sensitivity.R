@@ -10,7 +10,7 @@ library(tidyr)
 source("scripts/manuscript_figures.R")
 
 # --- Configuration ---
-SCENARIO_NAME <- "CP100_MW250" # Predefined scenario name (e.g. "default", "CP100_MW250", "EA", "EA_CP100_MW250", "EA_CP100_MW250_EOR")
+SCENARIO_NAME <- "CP100_MW250"
 OUTPUT_FILE <- "results/spatial_sensitivity_results.csv"
 
 message("Starting Spatial Sensitivity Analysis...")
@@ -75,7 +75,7 @@ evaluate_tech_vectorized <- function(tech_fun, tech_name, base_params, spatial_l
       }
 
       p_sz$feedstock_cost <- BiocharAG::calculate_regional_feedstock_cost(
-        if (region_name == "Europe") "EU" else region_name,
+        region_name,
         p_sz
       )
 
@@ -133,7 +133,7 @@ evaluate_tech_vectorized <- function(tech_fun, tech_name, base_params, spatial_l
     }
 
     p$feedstock_cost <- BiocharAG::calculate_regional_feedstock_cost(
-      if (region_name == "Europe") "EU" else region_name,
+      region_name,
       p
     )
 

@@ -1,3 +1,4 @@
+### Content of file BiocharAG/R/bebcs.R ###
 #' Calculate Biochar-Energy (BEBCS) Metrics
 #'
 #' @param params A list of parameters.
@@ -13,7 +14,10 @@ calculate_bebcs <- function(params) {
       lignin = lignin,
       bm_lhv = bm_lhv,
       moisture = if (exists("bm_h2o")) bm_h2o else 0.1,
-      ash = if (exists("bm_ash")) bm_ash else 0.05
+      ash = if (exists("bm_ash")) bm_ash else 0.05,
+      feed_c = if (exists("bm_c")) bm_c else 0.50,
+      feed_h = if (exists("bm_h")) bm_h else 0.06,
+      feed_o = if (exists("bm_o")) bm_o else 0.44
     )
 
     bc_yield <- phys$yield_bc
@@ -131,6 +135,8 @@ calculate_bebcs <- function(params) {
     )
   })
 }
+
+### Content of file BiocharAG/R/beccs.R ###
 #' Calculate Bioenergy Carbon Capture and Storage (BECCS) Metrics
 #'
 #' Modernized logic (2024 Basis):
@@ -315,6 +321,8 @@ calculate_beccs <- function(params) {
     )
   })
 }
+
+### Content of file BiocharAG/R/bes.R ###
 #' Calculate Bioenergy System (BES) Metrics
 #'
 #' Modernized logic (2024 Basis):
@@ -432,6 +440,8 @@ calculate_bes <- function(params) {
     )
   })
 }
+
+### Content of file BiocharAG/R/biochar_valuation.R ###
 #' Calculate Biochar Economic Value
 #'
 #' Determines the economic value of the biochar fraction based on the selected valuation method.
@@ -533,6 +543,8 @@ calculate_biochar_value <- function(params, bc_yield) {
         detail = detail
     )
 }
+
+### Content of file BiocharAG/R/comparison.R ###
 #' Calculate Relative Present Value (RPV)
 #'
 #' @param results_list List of result objects from calculate_bes, calculate_beccs, calculate_bebcs.
@@ -559,6 +571,8 @@ calculate_rpv <- function(results_list) {
         RPV = unlist(rpv_res)
     )
 }
+
+### Content of file BiocharAG/R/data.R ###
 #' Biochar Permanence Reference Data
 #'
 #' A dataset containing experimental biochar stability data from Woolf et al. (2021).
@@ -590,6 +604,8 @@ calculate_rpv <- function(results_list) {
 #'   \item{py_temps}{Vector of pyrolysis temperatures}
 #' }
 "fperm_lut"
+
+### Content of file BiocharAG/R/distance.R ###
 #' Calculate and optionally save a distance raster for a given plant capacity
 #'
 #' @param dens_wgs84 SpatRaster of biomass density in WGS84
@@ -685,6 +701,8 @@ calculate_distance_raster <- function(dens_wgs84, target_mw_th, region, gis_dir 
 
     return(avg_dist_wgs84)
 }
+
+### Content of file BiocharAG/R/fuel_adjustment.R ###
 #' Adjust TEA Costs based on Fuel Quality (Ash Content)
 #'
 #' Applies cost penalties for high-ash biomass (e.g., crop residues) which require
@@ -744,6 +762,8 @@ adjust_costs_for_fuel <- function(params) {
 
     params
 }
+
+### Content of file BiocharAG/R/geospatial.R ###
 #' Find Nearest CO2 Sink
 #'
 #' Calculates the geodesic distance from a given projected location to the nearest
@@ -786,6 +806,8 @@ find_nearest_sink <- function(lat, lon) {
         sink_region = nearest_sink$Region
     )
 }
+
+### Content of file BiocharAG/R/npv.R ###
 #' Calculate Annuity Factor
 #'
 #' Calculates the Present Value of an Annuity Factor.
@@ -810,6 +832,8 @@ calculate_npv <- function(cash_flows, discount_rate) {
   # This function is a placeholder for direct cash flow streams if needed.
   sum(cash_flows / (1 + discount_rate)^t)
 }
+
+### Content of file BiocharAG/R/parameters_india.R ###
 #' Default Parameters for India (North-West)
 #'
 #' Deprecated: Returns a list of parameters customized for the Indian context
@@ -821,12 +845,108 @@ parameters_india <- function() {
     .Deprecated("set_scenario(region = 'India')")
     set_scenario(region = "India")
 }
+
+### Content of file BiocharAG/R/parameters.R ###
 #' Default Parameters Dataset
 #'
 #' A list containing the default parameters for the BiocharAG model.
 #'
 #' @format A named list.
 "default_parameters"
+
+#' Regional Overrides List
+#'
+#' A predefined list of regional parameter overrides for non-spatial parameters
+#' (financial, capital cost modifiers, O&M labor factors, and fertilizer prices).
+#' @export
+regional_overrides <- list(
+  US = list(
+    discount_rate = 0.05,
+    bes_capital_cost = 3000 * 1.25,
+    beccs_capital_cost = 4000 * 1.25,
+    bes_om_factor = 0.045,
+    beccs_om_factor = 0.055,
+    price_n = 1.59,
+    price_p = 2.08,
+    price_k = 0.82,
+    price_lime = 45,
+    soil_ph_target = 6.5
+  ),
+  India = list(
+    discount_rate = 0.10,
+    bes_capital_cost = 3000 * 0.65,
+    beccs_capital_cost = 4000 * 0.65,
+    bes_om_factor = 0.025,
+    beccs_om_factor = 0.03,
+    price_n = 0.14,
+    price_p = 0.70,
+    price_k = 0.68,
+    price_lime = 35,
+    soil_ph_target = 6.5
+  ),
+  China = list(
+    discount_rate = 0.045,
+    bes_capital_cost = 3000 * 0.7,
+    beccs_capital_cost = 4000 * 0.7,
+    bes_om_factor = 0.03,
+    beccs_om_factor = 0.035,
+    price_n = 0.79,
+    price_p = 1.10,
+    price_k = 0.55,
+    price_lime = 35,
+    soil_ph_target = 6.5
+  ),
+  Europe = list(
+    discount_rate = 0.045,
+    bes_capital_cost = 3000 * 1.15,
+    beccs_capital_cost = 4000 * 1.15,
+    bes_om_factor = 0.045,
+    beccs_om_factor = 0.055,
+    price_n = 1.75,
+    price_p = 2.29,
+    price_k = 0.9,
+    price_lime = 50,
+    soil_ph_target = 6.5
+  )
+)
+
+#' Scenarios List
+#'
+#' A predefined list of scenarios used to override default parameters.
+scenarios_base <- list(
+  default = list(),
+  CP100_MW250 = list(
+    c_price = 100,
+    plant_mw_th = c(BES = 250, BECCS = 250, BEBCS = 250)
+  ),
+  CP100_MW150 = list(
+    c_price = 100,
+    plant_mw_th = c(BES = 150, BECCS = 150, BEBCS = 150)
+  ),
+  EA = list(
+    early_adoption = TRUE
+  ),
+  EA_CP100_MW250 = list(
+    c_price = 100,
+    plant_mw_th = c(BES = 250, BECCS = 250, BEBCS = 250),
+    early_adoption = TRUE
+  ),
+  EA_CP100_MW250_EOR = list(
+    c_price = 100,
+    plant_mw_th = c(BES = 250, BECCS = 250, BEBCS = 250),
+    early_adoption = TRUE,
+    allow_eor = TRUE
+  )
+)
+
+scenarios_reg <- lapply(scenarios_base, \(s) c(s, list(regional = regional_overrides)))
+names(scenarios_reg) <- paste0(names(scenarios_reg), "_reg")
+#' Regionalized Scenarios
+#'
+#' A predefined list of scenarios that includes global and regional parameter overrides.
+#' @export
+scenarios <- c(scenarios_base, scenarios_reg)
+
 
 #' Normalize Region Name
 #'
@@ -849,46 +969,6 @@ normalize_region_name <- function(region) {
   return(r)
 }
 
-#' Regional Overrides List
-#'
-#' A predefined list of regional parameter overrides for non-spatial parameters
-#' (financial, capital cost modifiers, O&M labor factors, and fertilizer prices).
-#' @export
-regional_overrides <- list(
-  US = list(),
-  India = list(
-    discount_rate = 0.12,
-    bes_capital_cost = 3000 * 0.7,
-    beccs_capital_cost = 4000 * 0.7,
-    bes_om_factor = 0.025,
-    beccs_om_factor = 0.03,
-    price_n = 0.30,
-    price_p = 0.80,
-    price_k = 0.40,
-    price_lime = 40,
-    soil_ph_target = 6.5
-  ),
-  China = list(
-    discount_rate = 0.10,
-    bes_capital_cost = 3000 * 0.75,
-    beccs_capital_cost = 4000 * 0.75,
-    bes_om_factor = 0.03,
-    beccs_om_factor = 0.035,
-    price_n = 0.70,
-    price_p = 0.90,
-    price_k = 0.55
-  ),
-  Europe = list(
-    discount_rate = 0.07,
-    bes_capital_cost = 3000 * 1.15,
-    beccs_capital_cost = 4000 * 1.15,
-    bes_om_factor = 0.045,
-    beccs_om_factor = 0.055,
-    price_n = 1.05,
-    price_p = 1.25,
-    price_k = 0.75
-  )
-)
 
 #' Apply Regional Overrides
 #'
@@ -920,7 +1000,11 @@ apply_regional_overrides <- function(params, region = NULL) {
 #'
 #' Returns a list of default parameters overridden by a specific scenario
 #' and optional regional parameter overrides.
-#' Order of precedence: default_parameters -> regional_overrides -> scenario overrides.
+#' 4-tier precedence hierarchy:
+#'   1. default_parameters (global defaults)
+#'   2. regional_overrides for region (baseline regional overrides)
+#'   3. scenario (global scenario overrides)
+#'   4. scenario regional sublist for region (scenario-specific regional variants)
 #' Values inferred from op_space_2.41.xlsm and tea_literature_review.md.
 #'
 #' @param scenario A named list of parameters to override the defaults. Defaults to an empty list.
@@ -929,17 +1013,54 @@ apply_regional_overrides <- function(params, region = NULL) {
 #' @export
 set_scenario <- function(scenario = list(), region = NULL) {
   params <- BiocharAG::default_parameters
+
+  # 1. Determine region
   if (is.null(region) && !is.null(scenario[["region", exact = TRUE]])) {
     region <- scenario[["region", exact = TRUE]]
   }
-  if (!is.null(region)) {
-    params <- apply_regional_overrides(params, region = region)
+  r_key <- if (!is.null(region)) normalize_region_name(region) else NULL
+
+  # 2. Apply baseline regional overrides (Tier 2)
+  if (!is.null(r_key)) {
+    params <- apply_regional_overrides(params, region = r_key)
   }
+
+  # 3. Apply global scenario overrides (Tier 3), excluding regional variant sublists
   if (length(scenario) > 0) {
-    params[names(scenario)] <- scenario
+    global_scen <- scenario[setdiff(names(scenario), c("regional", "regions"))]
+    if (length(global_scen) > 0) {
+      params[names(global_scen)] <- global_scen
+    }
   }
-  if (!is.null(region)) {
-    params$region <- normalize_region_name(region)
+
+  # 4. Apply scenario-specific regional variants (Tier 4)
+  if (!is.null(r_key) && length(scenario) > 0) {
+    reg_variants <- NULL
+    if (!is.null(scenario$regional)) {
+      reg_variants <- scenario$regional
+    } else if (!is.null(scenario$regions)) {
+      reg_variants <- scenario$regions
+    }
+
+    if (!is.null(reg_variants) && is.list(reg_variants)) {
+      # Match against exact key or normalized aliases
+      matched_var <- reg_variants[[r_key]]
+      if (is.null(matched_var)) {
+        for (k in names(reg_variants)) {
+          if (normalize_region_name(k) == r_key) {
+            matched_var <- reg_variants[[k]]
+            break
+          }
+        }
+      }
+      if (!is.null(matched_var) && is.list(matched_var) && length(matched_var) > 0) {
+        params[names(matched_var)] <- matched_var
+      }
+    }
+  }
+
+  if (!is.null(r_key)) {
+    params$region <- r_key
   }
   return(params)
 }
@@ -956,21 +1077,21 @@ load_parameters <- function(file, as_dataframe = FALSE) {
   if (as_dataframe) {
     return(df)
   }
-  
+
   params <- BiocharAG::default_parameters
   for (i in seq_len(nrow(df))) {
     name <- df$name[i]
     val_str <- df$default_value[i]
-    
+
     if (name %in% names(params)) {
       orig_val <- params[[name]]
       if (is.logical(orig_val)) {
         params[[name]] <- as.logical(val_str)
       } else if (is.numeric(orig_val)) {
         if (length(orig_val) > 1) {
-           params[[name]] <- as.numeric(trimws(unlist(strsplit(val_str, ","))))
+          params[[name]] <- as.numeric(trimws(unlist(strsplit(val_str, ","))))
         } else {
-           params[[name]] <- as.numeric(val_str)
+          params[[name]] <- as.numeric(val_str)
         }
       } else {
         params[[name]] <- val_str
@@ -1000,32 +1121,7 @@ resolve_plant_mw_th <- function(plant_mw_th, tech) {
   return(plant_mw_th)
 }
 
-#' Scenarios List
-#'
-#' A predefined list of scenarios used to override default parameters.
-#' @export
-scenarios <- list(
-  default = list(),
-  CP100_MW250 = list(
-    c_price = 100,
-    plant_mw_th = c(BES = 250, BECCS = 250, BEBCS = 250)
-  ),
-  EA = list(
-    early_adoption = TRUE
-  ),
-  EA_CP100_MW250 = list(
-    c_price = 100,
-    plant_mw_th = c(BES = 250, BECCS = 250, BEBCS = 250),
-    early_adoption = TRUE
-  ),
-  EA_CP100_MW250_EOR = list(
-    c_price = 100,
-    plant_mw_th = c(BES = 250, BECCS = 250, BEBCS = 250),
-    early_adoption = TRUE,
-    allow_eor = TRUE
-  )
-
-)
+### Content of file BiocharAG/R/permanence.R ###
 #' Calculate Biochar Permanence (Fperm)
 #'
 #' Calculates the fraction of biochar carbon remaining after a specified time frame (Fperm),
@@ -1340,6 +1436,8 @@ calculate_fperm_vectorized <- function(prep, soil_temp) {
     res <- v0 * (1 - wy) + v1 * wy
     return(as.numeric(res))
 }
+
+### Content of file BiocharAG/R/plotting.R ###
 #' Plot RPV vs Carbon Price
 #'
 #' Generates a plot of Net Present Value (or RPV) for BES, BECCS, and BEBCS
@@ -1397,6 +1495,8 @@ plot_rpv_vs_c_price <- function(params, c_price_range = seq(0, 150, 10), metric 
 
     return(p)
 }
+
+### Content of file BiocharAG/R/pyrolysis.R ###
 #' Calculate Pyrolysis Yields and Energy Balance (Woolf et al. 2016)
 #'
 #' Implements the sophisticated mass and energy balance from op_space_2.41.xlsm.
@@ -1413,8 +1513,7 @@ plot_rpv_vs_c_price <- function(params, c_price_range = seq(0, 150, 10), metric 
 #' @param feed_o Feedstock Oxygen fraction (DAF). Default 0.44.
 #' @return A list containing yields, HHVs, and net energy flux.
 #' @export
-calculate_pyrolysis_physics <- function(py_temp, lignin, bm_lhv, moisture = 0.1, ash = 0.05,
-                                        feed_c = 0.50, feed_h = 0.06, feed_o = 0.44) {
+calculate_pyrolysis_physics <- function(py_temp, lignin, bm_lhv, moisture = 0.1, ash = 0.05, feed_c = 0.50, feed_h = 0.06, feed_o = 0.44) {
     T_k <- py_temp + 273.15
 
     # --- 1. Biochar Yield & Composition ---
@@ -1553,6 +1652,8 @@ calculate_pyrolysis_physics <- function(py_temp, lignin, bm_lhv, moisture = 0.1,
         energy_char = e_net_bc
     )
 }
+
+### Content of file BiocharAG/R/spatial_tea.R ###
 #' Run Spatial TEA Analysis
 #'
 #' Runs the Techno-Economic Assessment over a spatial grid defined by a template raster.
@@ -1814,7 +1915,7 @@ calculate_regional_feedstock_cost <- function(region, params) {
 
     cost_usd <- 0
 
-    if (region == "US") {
+    if (region %in% c("US", "USA")) {
         # Baseline US Farm-gate
         base_cost <- if (!is.null(params$us_base_cost)) params$us_base_cost else 70.0
 
@@ -1822,7 +1923,7 @@ calculate_regional_feedstock_cost <- function(region, params) {
         nutrient_cost <- if (!is.null(params$us_nutrient_cost)) params$us_nutrient_cost else 25.06
 
         cost_usd <- base_cost + nutrient_cost
-    } else if (region == "EU") {
+    } else if (region %in% c("EU", "Europe")) {
         # Baseline NUTS-3 Road-side cost (EUR)
         base_eur <- if (!is.null(params$eu_base_eur)) params$eu_base_eur else 40.0
 
@@ -1857,13 +1958,15 @@ calculate_regional_feedstock_cost <- function(region, params) {
 
         cost_usd <- (base_cny * weather_risk * expansion_risk) * xr_cny
     } else {
-        stop("Region not supported. Use US, EU, India, or China.")
+        stop("Region not supported: ", region, ". Use US, EU/Europe, India, or China.")
     }
 
     return(cost_usd)
 }
 
 # nolint end
+
+### Content of file BiocharAG/R/transport.R ###
 #' Calculate CO2 Transport Costs (Pipeline vs. Shipping)
 #'
 #' Implements the technoeconomic cost functions from the "Global Geologic Carbon Storage Assessment".
@@ -1871,7 +1974,7 @@ calculate_regional_feedstock_cost <- function(region, params) {
 #'
 #' @param mass_flow_mtpa Numeric. Annual CO2 mass flow in Million Tonnes Per Annum (Mtpa).
 #' @param distance_km Numeric. Transport distance in kilometers.
-#' @param region Character. One of "North America", "Europe", "China", "India".
+#' @param region Character. One of "US", "Europe", "China", "India".
 #' @param is_offshore Logical. If TRUE, applies offshore multipliers to pipeline costs.
 #' @param force_mode Character (optional). "pipeline" or "shipping" to override the optimization logic.
 #'
@@ -1890,7 +1993,7 @@ calc_transport_cost <- function(mass_flow_mtpa, distance_km, region, is_offshore
   # --- 2. Regional Factors [cite: 281] ---
   # US = 1.0 (Base), EU = 1.2, China/India = 0.7
   reg_factor <- dplyr::case_when(
-    region == "North America" ~ 1.0,
+    region == "US" ~ 1.0,
     region == "Europe" ~ 1.2,
     region %in% c("China", "India") ~ 0.7,
     TRUE ~ 1.0
@@ -2061,6 +2164,8 @@ calculate_ccs_transport <- function(co2_mass, distance, is_offshore = FALSE, dis
 
   return(ifelse_raster(co2_mass <= 0, 0, final_cost))
 }
+
+### Content of file BiocharAG/R/utils.R ###
 #' Raster-Aware Conditional Element Selection (ifelse)
 #'
 #' Internal helper that delegates to terra::ifel if the test is a SpatRaster,
@@ -2116,3 +2221,206 @@ pmax_raster <- function(x, y) {
         pmax(x, y)
     }
 }
+
+#' Load Region Spatial Data and Pre-Extract 1D Vectors
+#'
+#' Loads GIS raster layers and administrative boundaries for a given region,
+#' and pre-extracts 1D vectors for active grid cells to enable fast vectorized TEA calculations.
+#'
+#' @param region_name Character string ("US", "China", "Europe", "India").
+#' @param gis_path Optional path to GIS/processed/ directory.
+#' @return A list containing `template`, `layers`, `admin0`, `admin1`, and `vec`.
+#' @export
+load_region_data <- function(region_name, gis_path = NULL) {
+    if (is.null(gis_path)) {
+        candidates <- c("../GIS/processed/", "GIS/processed/", "/media/dominic/Data/git/Biochar_AG/GIS/processed/")
+        for (cand in candidates) {
+            if (dir.exists(cand)) {
+                gis_path <- cand
+                break
+            }
+        }
+        if (is.null(gis_path)) {
+            stop("Could not locate GIS/processed/ directory.")
+        }
+    }
+
+    prefix_map <- list(
+        "US" = list(base = "us", dist = "us"),
+        "China" = list(base = "china", dist = "china"),
+        "Europe" = list(base = "europe", dist = "europe"),
+        "India" = list(base = "india", dist = "india")
+    )
+
+    if (!(region_name %in% names(prefix_map))) {
+        stop("Unknown region: ", region_name)
+    }
+
+    p_base <- prefix_map[[region_name, exact = TRUE]][["base", exact = TRUE]]
+    p_dist <- prefix_map[[region_name, exact = TRUE]][["dist", exact = TRUE]]
+
+    bm <- terra::rast(file.path(gis_path, paste0(p_base, "_biomass.tif")))
+    st <- terra::rast(file.path(gis_path, paste0(p_base, "_soil_temp.tif")))
+    ep <- terra::rast(file.path(gis_path, paste0(p_base, "_elec_price.tif")))
+    ds <- terra::rast(file.path(gis_path, paste0(p_dist, "_dist_sink.tif")))
+    dss <- terra::rast(file.path(gis_path, paste0(p_dist, "_dist_sink_saline.tif")))
+    stype <- terra::rast(file.path(gis_path, paste0(p_dist, "_sink_type.tif")))
+    ph <- terra::rast(file.path(gis_path, paste0(p_base, "_soil_ph.tif")))
+    cec <- terra::rast(file.path(gis_path, paste0(p_base, "_soil_cec.tif")))
+
+    ci_path <- file.path(gis_path, paste0(p_base, "_ff_c_intensity.tif"))
+    ci <- if (file.exists(ci_path)) terra::rast(ci_path) else NULL
+
+    a0_path <- file.path(gis_path, paste0(p_dist, "_admin0.gpkg"))
+    a1_path <- file.path(gis_path, paste0(p_dist, "_admin1.gpkg"))
+    admin0 <- if (file.exists(a0_path)) {
+        sf::st_read(a0_path, quiet = TRUE)
+    } else {
+        NULL
+    }
+    admin1 <- if (file.exists(a1_path)) {
+        sf::st_read(a1_path, quiet = TRUE)
+    } else {
+        NULL
+    }
+
+    layers <- list(
+        biomass_density = bm,
+        soil_temp = st,
+        elec_price = ep,
+        dist_sink_km = ds,
+        dist_sink_saline_km = dss,
+        sink_is_offshore = stype,
+        soil_ph = ph,
+        soil_cec = cec
+    )
+
+    if (!is.null(ci)) {
+        layers[["ff_c_intensity"]] <- ci
+    }
+
+    for (sz in c(5, 25, 50, 100, 250, 500, 1000)) {
+        dist_name <- paste0("dist_", sz, "MWth")
+        dist_file <- file.path(gis_path, paste0(p_dist, "_", dist_name, ".tif"))
+        if (file.exists(dist_file)) {
+            layers[[dist_name]] <- terra::rast(dist_file)
+        }
+    }
+
+    # Pre-extract 1D vectors for active indices (biomass_density > 0 and not NA)
+    bm_vals <- terra::values(layers[["biomass_density", exact = TRUE]], mat = FALSE)
+    active_indices <- which(!is.na(bm_vals) & bm_vals > 0)
+    xy_active <- terra::xyFromCell(layers[["biomass_density", exact = TRUE]], active_indices)
+    cell_area_raster <- terra::cellSize(layers[["biomass_density", exact = TRUE]], unit = "km")
+    cell_area_vals <- terra::values(cell_area_raster, mat = FALSE)[active_indices]
+
+    vec_layers <- list()
+    for (layer_name in names(layers)) {
+        vals <- terra::values(layers[[layer_name, exact = TRUE]], mat = FALSE)
+        if (is.matrix(vals)) {
+            vec_layers[[layer_name]] <- vals[active_indices, 1]
+        } else {
+            vec_layers[[layer_name]] <- vals[active_indices]
+        }
+    }
+
+    vec_data <- list(
+        active_indices = active_indices,
+        xy = xy_active,
+        cell_area = cell_area_vals,
+        layers = vec_layers
+    )
+
+    list(template = bm, layers = layers, admin0 = admin0, admin1 = admin1, vec = vec_data)
+}
+
+#' Run Scenario Spatial TEA
+#'
+#' Evaluates spatial TEA across BES, BECCS, and BEBCS for a scenario.
+#' If `vec` (pre-extracted 1D spatial vectors) is provided, executes fast vectorized
+#' calculations and maps the results onto SpatRaster objects matching `template`.
+#' Otherwise, falls back to standard raster-based `run_spatial_tea`.
+#'
+#' @param template Reference SpatRaster template.
+#' @param layers List of spatial layers (SpatRaster objects).
+#' @param params Scenario parameter list.
+#' @param vec Optional list of pre-extracted 1D spatial vectors from `load_region_data()$vec`.
+#' @return A list containing `net` (SpatRaster stack), `abate` (SpatRaster stack), `opt` (SpatRaster), and optionally `vec_res`.
+#' @export
+run_scenario <- function(template, layers, params, vec = NULL) {
+    if (!is.null(vec) && is.list(vec) && !is.null(vec[["active_indices", exact = TRUE]])) {
+        spatial_layers <- vec[["layers", exact = TRUE]]
+        p <- params
+
+        if ("soil_temp" %in% names(spatial_layers)) p[["soil_temp"]] <- spatial_layers[["soil_temp", exact = TRUE]]
+        if ("elec_price" %in% names(spatial_layers)) {
+            factor <- if (!is.null(p[["wholesale_discount_factor", exact = TRUE]])) p[["wholesale_discount_factor", exact = TRUE]] else 0.4
+            p[["elec_price"]] <- spatial_layers[["elec_price", exact = TRUE]] * factor
+        }
+        if ("soil_ph" %in% names(spatial_layers)) p[["soil_ph"]] <- spatial_layers[["soil_ph", exact = TRUE]]
+        if ("soil_cec" %in% names(spatial_layers)) p[["soil_cec"]] <- spatial_layers[["soil_cec", exact = TRUE]]
+        if ("dist_sink_km" %in% names(spatial_layers)) p[["dist_sink_km"]] <- spatial_layers[["dist_sink_km", exact = TRUE]]
+        if ("dist_sink_saline_km" %in% names(spatial_layers)) p[["dist_sink_saline_km"]] <- spatial_layers[["dist_sink_saline_km", exact = TRUE]]
+        if ("sink_is_offshore" %in% names(spatial_layers)) p[["sink_is_offshore"]] <- spatial_layers[["sink_is_offshore", exact = TRUE]]
+        if ("ff_c_intensity" %in% names(spatial_layers)) p[["ff_c_intensity"]] <- spatial_layers[["ff_c_intensity", exact = TRUE]]
+
+        for (layer_name in c("cn_weather_risk", "cn_expansion_risk", "eu_base_eur", "us_base_cost")) {
+            if (layer_name %in% names(spatial_layers)) p[[layer_name]] <- spatial_layers[[layer_name, exact = TRUE]]
+        }
+
+        sz <- if (!is.null(p[["plant_mw_th", exact = TRUE]])) resolve_plant_mw_th(p[["plant_mw_th", exact = TRUE]], "BES") else 50
+        dist_layer_name <- paste0("dist_", sz, "MWth")
+        if (dist_layer_name %in% names(spatial_layers)) {
+            p[["avg_dist"]] <- spatial_layers[[dist_layer_name, exact = TRUE]]
+        }
+
+        feedstock_region <- if (!is.null(p[["region", exact = TRUE]])) p[["region", exact = TRUE]] else "US"
+        p[["feedstock_cost"]] <- calculate_regional_feedstock_cost(feedstock_region, p)
+
+        res_bes <- calculate_bes(p)
+        res_beccs <- calculate_beccs(p)
+        res_bebcs <- calculate_bebcs(p)
+
+        net_matrix <- cbind(res_bes[["net_value", exact = TRUE]], res_beccs[["net_value", exact = TRUE]], res_bebcs[["net_value", exact = TRUE]])
+        abate_matrix <- cbind(res_bes[["tot_c_abatement", exact = TRUE]], res_beccs[["tot_c_abatement", exact = TRUE]], res_bebcs[["tot_c_abatement", exact = TRUE]])
+
+        opt_vec <- max.col(net_matrix, ties.method = "first")
+        opt_vec[rowSums(is.na(net_matrix)) == 3] <- NA
+
+        active_idx <- vec[["active_indices", exact = TRUE]]
+
+        opt_r <- terra::rast(template, nlyrs = 1, vals = NA)
+        opt_r[active_idx] <- opt_vec
+        names(opt_r) <- "Optimal_Tech"
+
+        net_stack <- terra::rast(template, nlyrs = 3, vals = NA)
+        net_stack[active_idx] <- net_matrix
+        names(net_stack) <- c("BES", "BECCS", "BEBCS")
+
+        abate_stack <- terra::rast(template, nlyrs = 3, vals = NA)
+        abate_stack[active_idx] <- abate_matrix
+        names(abate_stack) <- c("BES", "BECCS", "BEBCS")
+
+        return(list(
+            net = net_stack,
+            abate = abate_stack,
+            opt = opt_r,
+            vec_res = list(net = net_matrix, abate = abate_matrix, opt = opt_vec)
+        ))
+    }
+
+    bes <- run_spatial_tea(template, params, layers, fun = calculate_bes)
+    beccs <- run_spatial_tea(template, params, layers, fun = calculate_beccs)
+    bebcs <- run_spatial_tea(template, params, layers, fun = calculate_bebcs)
+
+    net_stack <- c(bes[["Net_Value_USD", exact = TRUE]], beccs[["Net_Value_USD", exact = TRUE]], bebcs[["Net_Value_USD", exact = TRUE]])
+    names(net_stack) <- c("BES", "BECCS", "BEBCS")
+
+    abate_stack <- c(bes[["Abatement_tCO2", exact = TRUE]], beccs[["Abatement_tCO2", exact = TRUE]], bebcs[["Abatement_tCO2", exact = TRUE]])
+    names(abate_stack) <- c("BES", "BECCS", "BEBCS")
+
+    opt_idx <- terra::which.max(net_stack)
+
+    list(net = net_stack, abate = abate_stack, opt = opt_idx)
+}
+

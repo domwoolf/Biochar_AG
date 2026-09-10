@@ -26,8 +26,8 @@ ui <- fluidPage(
         sidebarPanel(
             width = 3,
             selectInput("region", "Region:",
-                choices = c("USA" = "USA", "India" = "India", "China" = "China", "Europe" = "Europe"),
-                selected = "USA"
+                choices = c("US" = "US", "India" = "India", "China" = "China", "Europe" = "Europe"),
+                selected = "US"
             ),
             hr(),
             conditionalPanel(
@@ -183,7 +183,7 @@ server <- function(input, output, session) {
 
             template <- bm
         } else {
-            # USA Logic
+            # US Logic
             bm <- terra::rast(paste0(gis_path, "us_biomass.tif"))
             st <- terra::rast(paste0(gis_path, "us_soil_temp.tif"))
             if (file.exists(paste0(gis_path, "us_elec_price.tif"))) {
@@ -241,7 +241,7 @@ server <- function(input, output, session) {
             template <- bm
         }
 
-        prefix_for_dist <- if (input$region == "USA") "us" else tolower(input$region)
+        prefix_for_dist <- if (input$region == "US") "us" else tolower(input$region)
         for (sz in c(5, 25, 50, 100, 250, 500)) {
             dist_name <- paste0("dist_", sz, "MWth")
             dist_file <- file.path(gis_path, paste0(prefix_for_dist, "_", dist_name, ".tif"))
@@ -269,7 +269,7 @@ server <- function(input, output, session) {
         p$bc_valuation_method <- input$bc_valuation_method
 
         # Pass Region for Transport Cost Factors
-        p$region <- if (input$region == "USA") "North America" else input$region
+        p$region <- input$region
         p$allow_eor <- input$allow_eor
 
 
@@ -435,7 +435,7 @@ server <- function(input, output, session) {
                     p <- default_parameters()
                     p$c_price <- cp
                     p$discount_rate <- dr
-                    p$region <- if (input$region == "USA") "North America" else input$region
+                    p$region <- input$region
                     p$bc_valuation_method <- "advanced_mechanistic"
 
                     p$plant_mw_th <- 50

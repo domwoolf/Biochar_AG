@@ -1,0 +1,31 @@
+{
+    "folders": [
+        {
+            "name": "📦 BiocharAG (Package)",
+            "path": "BiocharAG"
+        },
+        {
+            "name": "📝 Scripts",
+            "path": "scripts"
+        },
+        {
+            "name": "📁 Project Root",
+            "path": "."
+        }
+    ],
+    "settings": {
+        "files.exclude": {
+            "BiocharAG": true,
+            "scripts": true
+        },
+        "r.lsp.debug": true,
+        "r.workspace.launchRFromWorkspaceRoot": true,
+        "[r]": {
+            "editor.detectIndentation": false,
+            "editor.tabSize": 2,
+            "editor.insertSpaces": true,
+            "editor.formatOnSave": true,
+            "editor.defaultFormatter": "REditorSupport.r"
+        }
+    }
+}

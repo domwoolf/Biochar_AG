@@ -14,19 +14,19 @@ library(sf)
 
 # Always load from source to ensure we use the latest code modifications
 if (dir.exists("BiocharAG")) {
-    devtools::load_all("BiocharAG")
+  devtools::load_all("BiocharAG")
 } else if (dir.exists("../BiocharAG")) {
-    devtools::load_all("../BiocharAG")
+  devtools::load_all("../BiocharAG")
 } else {
-    stop("Could not locate BiocharAG package directory.")
+  stop("Could not locate BiocharAG package directory.")
 }
 
 # --- GLOBAL CONFIGURATION ---
 # Global Tech Colors
 TECH_COLORS <- c(
-    "BES" = "#1f77b4", # Blue
-    "BECCS" = "#d62728", # Red
-    "BEBCS" = "#2ca02c" # Green
+  "BES" = "#1f77b4", # Blue
+  "BECCS" = "#d62728", # Red
+  "BEBCS" = "#2ca02c" # Green
 )
 
 # Figure Output Directory
@@ -35,27 +35,27 @@ out_dir <- if (dir.exists("figures")) "figures/" else if (dir.exists("../figures
 # --- HELPER FUNCTIONS ---
 
 ggsave_with_scenario <- function(filename, plot, width, height, bg = "white", dpi = 300, scenario = "default") {
-    if (scenario != "default") {
-        ext_idx <- regexpr("\\.[^\\.]*$", filename)
-        if (ext_idx > 0) {
-            base_name <- substr(filename, 1, ext_idx - 1)
-            ext <- substr(filename, ext_idx, nchar(filename))
-            filename <- paste0(base_name, "_", scenario, ext)
-        } else {
-            filename <- paste0(filename, "_", scenario)
-        }
+  if (scenario != "default") {
+    ext_idx <- regexpr("\\.[^\\.]*$", filename)
+    if (ext_idx > 0) {
+      base_name <- substr(filename, 1, ext_idx - 1)
+      ext <- substr(filename, ext_idx, nchar(filename))
+      filename <- paste0(base_name, "_", scenario, ext)
+    } else {
+      filename <- paste0(filename, "_", scenario)
     }
+  }
 
-    ggplot2::ggsave(filename = filename, plot = plot, width = width, height = height, bg = bg, dpi = dpi)
+  ggplot2::ggsave(filename = filename, plot = plot, width = width, height = height, bg = bg, dpi = dpi)
 }
 
 # Linear interpolation for fast sweeps
 # Net_Value(C) = Net_Value(0) + C * Abatement
 get_linear_baseline <- function(template, layers, base_params, vec = NULL) {
-    p0 <- base_params
-    p0[["c_price"]] <- 0
-    res0 <- run_scenario(template, layers, p0, vec = vec)
-    res0 # Returns net at C=0, and abatement
+  p0 <- base_params
+  p0[["c_price"]] <- 0
+  res0 <- run_scenario(template, layers, p0, vec = vec)
+  res0 # Returns net at C=0, and abatement
 }
 
 # --- FIGURE GENERATORS ---
@@ -63,128 +63,128 @@ get_linear_baseline <- function(template, layers, base_params, vec = NULL) {
 # Figure 1: Scale vs. Sink Bivariate Map
 generate_fig1_phys_boundary <- function(dat, region_name, save_map = FALSE,
                                         scenario = "default") {
-    params <- set_scenario(scenarios[[scenario]])
-    message("Generating Figure 1: Physical Boundary for ", region_name, "...")
-    params$region <- region_name
-    res <- run_scenario(dat[["template", exact = TRUE]], dat[["layers", exact = TRUE]], params, vec = dat[["vec", exact = TRUE]])
+  params <- set_scenario(scenarios[[scenario]])
+  message("Generating Figure 1: Physical Boundary for ", region_name, "...")
+  params$region <- region_name
+  res <- run_scenario(dat[["template", exact = TRUE]], dat[["layers", exact = TRUE]], params, vec = dat[["vec", exact = TRUE]])
 
-    stack_df <- terra::as.data.frame(
-        c(dat$layers$biomass_density, dat$layers$dist_sink_km, res$opt),
-        xy = TRUE,
-        na.rm = TRUE
+  stack_df <- terra::as.data.frame(
+    c(dat$layers$biomass_density, dat$layers$dist_sink_km, res$opt),
+    xy = TRUE,
+    na.rm = TRUE
+  )
+  names(stack_df)[3:5] <- c("biomass", "dist", "opt_tech")
+
+  tech_levels <- c("1" = "BES", "2" = "BECCS", "3" = "BEBCS")
+  stack_df$tech <- tech_levels[as.character(stack_df$opt_tech)]
+
+  p <- ggplot(stack_df, aes(x = .data$dist, y = .data$biomass)) +
+    geom_point(aes(color = .data$tech), alpha = 0.5, size = 1) +
+    scale_color_manual(
+      values = c("BES" = "#1f77b4", "BECCS" = "#d62728", "BEBCS" = "#2ca02c")
+    ) +
+    theme_minimal(base_size = 14) +
+    labs(
+      #      title = paste0("Scale vs. Sink (Optimal Tech at $150/t CO2) - ", region_name),
+      x = "Distance to Sink (km)",
+      y = expression("Biomass Density (Mg/km"^2 * ")"),
+      color = "Optimal Technology"
     )
-    names(stack_df)[3:5] <- c("biomass", "dist", "opt_tech")
 
-    tech_levels <- c("1" = "BES", "2" = "BECCS", "3" = "BEBCS")
-    stack_df$tech <- tech_levels[as.character(stack_df$opt_tech)]
+  # Contour for BECCS
+  if (any(stack_df$tech == "BECCS", na.rm = TRUE)) {
+    p <- p + geom_density_2d(
+      data = stack_df[
+        !is.na(stack_df$tech) & stack_df$tech == "BECCS",
+      ],
+      color = "black",
+      alpha = 0.7
+    )
+  }
 
-    p <- ggplot(stack_df, aes(x = .data$dist, y = .data$biomass)) +
-        geom_point(aes(color = .data$tech), alpha = 0.5, size = 1) +
-        scale_color_manual(
-            values = c("BES" = "#1f77b4", "BECCS" = "#d62728", "BEBCS" = "#2ca02c")
-        ) +
-        theme_minimal(base_size = 14) +
-        labs(
-            #      title = paste0("Scale vs. Sink (Optimal Tech at $150/t CO2) - ", region_name),
-            x = "Distance to Sink (km)",
-            y = expression("Biomass Density (Mg/km"^2 * ")"),
-            color = "Optimal Technology"
-        )
-
-    # Contour for BECCS
-    if (any(stack_df$tech == "BECCS", na.rm = TRUE)) {
-        p <- p + geom_density_2d(
-            data = stack_df[
-                !is.na(stack_df$tech) & stack_df$tech == "BECCS",
-            ],
-            color = "black",
-            alpha = 0.7
-        )
-    }
-
-    if (save_map) {
-        ggsave_with_scenario(
-            paste0(out_dir, region_name, "_Fig1_Physical_Boundary.png"),
-            p,
-            scenario = scenario,
-            width = 8,
-            height = 6,
-            bg = "white",
-            dpi = 300
-        )
-    } else {
-        print(p)
-    }
-    p
+  if (save_map) {
+    ggsave_with_scenario(
+      paste0(out_dir, region_name, "_Fig1_Physical_Boundary.png"),
+      p,
+      scenario = scenario,
+      width = 8,
+      height = 6,
+      bg = "white",
+      dpi = 300
+    )
+  } else {
+    print(p)
+  }
+  p
 }
 
 # Figure 2: Booster Penalty CDF
 generate_fig2_booster_penalty <- function(dat, region_name, save_map = FALSE,
                                           scenario = "default") {
-    params <- set_scenario(scenarios[[scenario]])
-    message("Generating Figure 2: Booster Penalty CDF for ", region_name, "...")
-    params$region <- region_name
+  params <- set_scenario(scenarios[[scenario]])
+  message("Generating Figure 2: Booster Penalty CDF for ", region_name, "...")
+  params$region <- region_name
 
-    res <- run_scenario(dat[["template", exact = TRUE]], dat[["layers", exact = TRUE]], params, vec = dat[["vec", exact = TRUE]])
-    cell_area <- terra::cellSize(dat$template, unit = "km")
+  res <- run_scenario(dat[["template", exact = TRUE]], dat[["layers", exact = TRUE]], params, vec = dat[["vec", exact = TRUE]])
+  cell_area <- terra::cellSize(dat$template, unit = "km")
 
-    stack_df <- terra::as.data.frame(
-        c(dat$layers$biomass_density, dat$layers$dist_sink_km, res$opt, cell_area),
-        na.rm = TRUE
+  stack_df <- terra::as.data.frame(
+    c(dat$layers$biomass_density, dat$layers$dist_sink_km, res$opt, cell_area),
+    na.rm = TRUE
+  )
+  names(stack_df) <- c("biomass_density", "dist", "opt_tech", "area_km2")
+
+  tech_levels <- c("1" = "BES", "2" = "BECCS", "3" = "BEBCS")
+  stack_df$tech <- tech_levels[as.character(stack_df$opt_tech)]
+  stack_df$cell_biomass <- stack_df$biomass_density * stack_df$area_km2
+
+  beccs_df <- stack_df |>
+    filter(.data$tech == "BECCS") |>
+    arrange(.data$dist) |>
+    mutate(cumulative_biomass = cumsum(.data$cell_biomass))
+
+  if (nrow(beccs_df) == 0) {
+    message("  No BECCS optimal cells found for Figure 2. Skipping plot.")
+    return(NULL)
+  }
+
+  total_biomass <- sum(stack_df$cell_biomass, na.rm = TRUE)
+  beccs_df$percent_national <-
+    (beccs_df$cumulative_biomass / total_biomass) * 100
+
+  p <- ggplot(beccs_df, aes(x = .data$dist, y = .data$percent_national)) +
+    geom_line(color = "#d62728", linewidth = 1.5) +
+    geom_vline(xintercept = 700, linetype = "dashed", color = "black") +
+    annotate(
+      "text",
+      x = 750,
+      y = max(beccs_df$percent_national, na.rm = TRUE) * 0.5,
+      label = "700km Booster Threshold",
+      angle = 90
+    ) +
+    theme_minimal(base_size = 14) +
+    labs(
+      #      title = paste0("BECCS Addressable Biomass vs Distance to Sink - ",
+      #        region_name
+      #      ),
+      x = "Distance to Sink (km)",
+      y = "% of Total Available Biomass"
     )
-    names(stack_df) <- c("biomass_density", "dist", "opt_tech", "area_km2")
 
-    tech_levels <- c("1" = "BES", "2" = "BECCS", "3" = "BEBCS")
-    stack_df$tech <- tech_levels[as.character(stack_df$opt_tech)]
-    stack_df$cell_biomass <- stack_df$biomass_density * stack_df$area_km2
-
-    beccs_df <- stack_df |>
-        filter(.data$tech == "BECCS") |>
-        arrange(.data$dist) |>
-        mutate(cumulative_biomass = cumsum(.data$cell_biomass))
-
-    if (nrow(beccs_df) == 0) {
-        message("  No BECCS optimal cells found for Figure 2. Skipping plot.")
-        return(NULL)
-    }
-
-    total_biomass <- sum(stack_df$cell_biomass, na.rm = TRUE)
-    beccs_df$percent_national <-
-        (beccs_df$cumulative_biomass / total_biomass) * 100
-
-    p <- ggplot(beccs_df, aes(x = .data$dist, y = .data$percent_national)) +
-        geom_line(color = "#d62728", linewidth = 1.5) +
-        geom_vline(xintercept = 700, linetype = "dashed", color = "black") +
-        annotate(
-            "text",
-            x = 750,
-            y = max(beccs_df$percent_national, na.rm = TRUE) * 0.5,
-            label = "700km Booster Threshold",
-            angle = 90
-        ) +
-        theme_minimal(base_size = 14) +
-        labs(
-            #      title = paste0("BECCS Addressable Biomass vs Distance to Sink - ",
-            #        region_name
-            #      ),
-            x = "Distance to Sink (km)",
-            y = "% of Total Available Biomass"
-        )
-
-    if (save_map) {
-        ggsave_with_scenario(
-            paste0(out_dir, region_name, "_Fig2_Booster_Penalty_CDF.png"),
-            p,
-            scenario = scenario,
-            width = 8,
-            height = 6,
-            bg = "white",
-            dpi = 300
-        )
-    } else {
-        print(p)
-    }
-    p
+  if (save_map) {
+    ggsave_with_scenario(
+      paste0(out_dir, region_name, "_Fig2_Booster_Penalty_CDF.png"),
+      p,
+      scenario = scenario,
+      width = 8,
+      height = 6,
+      bg = "white",
+      dpi = 300
+    )
+  } else {
+    print(p)
+  }
+  p
 }
 
 # Figure 3: Evaporation Maps
@@ -194,353 +194,353 @@ generate_fig3_evaporation <- function(
   scenario = "default",
   metric = c("optimal_tech", "max_npv", "both")
 ) {
-    metric <- match.arg(metric)
-    params <- set_scenario(scenarios[[scenario]])
-    message("Generating Figure 3: Evaporation Maps for ", region_name, " (Metric: ", metric, ")...")
-    params$region <- region_name
-    all_df <- data.frame()
-    for (cp in c_prices) {
-        for (dr in d_rates) {
-            message("  Running DR: ", dr * 100, "%, C Price: $", cp)
-            params$c_price <- cp
-            params$discount_rate <- dr
-            params$bc_valuation_method <- "advanced_mechanistic"
+  metric <- match.arg(metric)
+  params <- set_scenario(scenarios[[scenario]])
+  message("Generating Figure 3: Evaporation Maps for ", region_name, " (Metric: ", metric, ")...")
+  params$region <- region_name
+  all_df <- data.frame()
+  for (cp in c_prices) {
+    for (dr in d_rates) {
+      message("  Running DR: ", dr * 100, "%, C Price: $", cp)
+      params$c_price <- cp
+      params$discount_rate <- dr
+      params$bc_valuation_method <- "advanced_mechanistic"
 
-            res <- run_scenario(dat[["template", exact = TRUE]], dat[["layers", exact = TRUE]], params, vec = dat[["vec", exact = TRUE]])
+      res <- run_scenario(dat[["template", exact = TRUE]], dat[["layers", exact = TRUE]], params, vec = dat[["vec", exact = TRUE]])
 
-            opt_raster <- res$opt
-            if (!is.null(res$vec_res)) {
-                max_npv_raster <- terra::rast(dat[["template", exact = TRUE]], nlyrs = 1, vals = NA)
-                max_npv_raster[dat$vec$active_indices] <- pmax(
-                    res$vec_res$net[, 1],
-                    res$vec_res$net[, 2],
-                    res$vec_res$net[, 3],
-                    na.rm = TRUE
-                )
-            } else {
-                max_npv_raster <- terra::app(res$net, max, na.rm = TRUE)
-            }
+      opt_raster <- res$opt
+      if (!is.null(res$vec_res)) {
+        max_npv_raster <- terra::rast(dat[["template", exact = TRUE]], nlyrs = 1, vals = NA)
+        max_npv_raster[dat$vec$active_indices] <- pmax(
+          res$vec_res$net[, 1],
+          res$vec_res$net[, 2],
+          res$vec_res$net[, 3],
+          na.rm = TRUE
+        )
+      } else {
+        max_npv_raster <- terra::app(res$net, max, na.rm = TRUE)
+      }
 
-            if (!is.null(dat$admin0)) {
-                opt_raster <- terra::mask(opt_raster, terra::vect(dat$admin0))
-                max_npv_raster <- terra::mask(max_npv_raster, terra::vect(dat$admin0))
-            }
-            comb_r <- c(opt_raster, max_npv_raster)
-            names(comb_r) <- c("opt_tech", "max_npv")
-            df <- terra::as.data.frame(comb_r, xy = TRUE, na.rm = TRUE)
+      if (!is.null(dat$admin0)) {
+        opt_raster <- terra::mask(opt_raster, terra::vect(dat$admin0))
+        max_npv_raster <- terra::mask(max_npv_raster, terra::vect(dat$admin0))
+      }
+      comb_r <- c(opt_raster, max_npv_raster)
+      names(comb_r) <- c("opt_tech", "max_npv")
+      df <- terra::as.data.frame(comb_r, xy = TRUE, na.rm = TRUE)
 
-            tech_levels <- c("1" = "BES", "2" = "BECCS", "3" = "BEBCS")
-            df$tech <- tech_levels[as.character(df$opt_tech)]
-            df$dr_label <- paste0("Discount Rate: ", dr * 100, "%")
-            df$cp_label <- paste0("Carbon Price: $", cp, "/t")
-            all_df <- bind_rows(all_df, df)
-        }
+      tech_levels <- c("1" = "BES", "2" = "BECCS", "3" = "BEBCS")
+      df$tech <- tech_levels[as.character(df$opt_tech)]
+      df$dr_label <- paste0("Discount Rate: ", dr * 100, "%")
+      df$cp_label <- paste0("Carbon Price: $", cp, "/t")
+      all_df <- bind_rows(all_df, df)
     }
+  }
 
-    all_df$dr_label <- factor(
-        all_df$dr_label,
-        levels = c("Discount Rate: 2%", "Discount Rate: 8%", "Discount Rate: 15%")
+  all_df$dr_label <- factor(
+    all_df$dr_label,
+    levels = c("Discount Rate: 2%", "Discount Rate: 8%", "Discount Rate: 15%")
+  )
+  all_df$cp_label <- factor(
+    all_df$cp_label,
+    levels = paste0("Carbon Price: $", sort(unique(c_prices)), "/t")
+  )
+
+  build_tech_plot <- function(df_data) {
+    plt <- ggplot() +
+      geom_tile(data = df_data, aes(x = .data$x, y = .data$y, fill = .data$tech))
+    if (!is.null(dat$admin0)) {
+      plt <- plt + geom_sf(
+        data = dat$admin0,
+        fill = NA, color = "black", linewidth = 0.5
+      )
+    }
+    if (!is.null(dat$admin1)) {
+      plt <- plt + geom_sf(
+        data = dat$admin1,
+        fill = NA, color = "black", linetype = "dotted", linewidth = 0.2
+      )
+    }
+    plt +
+      coord_sf(crs = 4326) +
+      scale_fill_manual(
+        values = c("BES" = "#1f77b4", "BECCS" = "#d62728", "BEBCS" = "#2ca02c")
+      ) +
+      facet_grid(cp_label ~ dr_label) +
+      theme_void(base_size = 14) +
+      theme(
+        strip.text = element_text(face = "bold", margin = margin(b = 5, t = 5)),
+        legend.position = "bottom"
+      ) +
+      labs(fill = "Optimal Technology")
+  }
+
+  build_npv_plot <- function(df_data) {
+    plt <- ggplot() +
+      geom_tile(data = df_data, aes(x = .data$x, y = .data$y, fill = .data$max_npv))
+    if (!is.null(dat$admin0)) {
+      plt <- plt + geom_sf(
+        data = dat$admin0,
+        fill = NA, color = "black", linewidth = 0.5
+      )
+    }
+    if (!is.null(dat$admin1)) {
+      plt <- plt + geom_sf(
+        data = dat$admin1,
+        fill = NA, color = "black", linetype = "dotted", linewidth = 0.2
+      )
+    }
+    plt +
+      coord_sf(crs = 4326) +
+      scale_fill_viridis_c(option = "viridis", name = "Max NPV ($/Mg)") +
+      facet_grid(cp_label ~ dr_label) +
+      theme_void(base_size = 14) +
+      theme(
+        strip.text = element_text(face = "bold", margin = margin(b = 5, t = 5)),
+        legend.position = "bottom"
+      ) +
+      labs(fill = "Max NPV ($/Mg)")
+  }
+
+  out_plot <- if (metric == "optimal_tech") {
+    build_tech_plot(all_df)
+  } else if (metric == "max_npv") {
+    build_npv_plot(all_df)
+  } else {
+    # metric == "both"
+    patchwork::wrap_plots(
+      build_tech_plot(all_df) + labs(title = paste0("Optimal Technology - ", region_name)),
+      build_npv_plot(all_df) + labs(title = paste0("Highest NPV - ", region_name)),
+      ncol = 2
     )
-    all_df$cp_label <- factor(
-        all_df$cp_label,
-        levels = paste0("Carbon Price: $", sort(unique(c_prices)), "/t")
+  }
+
+  if (save_map) {
+    fname_suffix <- switch(metric,
+      "optimal_tech" = "_Fig3_Evaporation_Maps.png",
+      "max_npv"      = "_Fig3_Evaporation_NPV.png",
+      "both"         = "_Fig3_Evaporation_Both.png"
     )
-
-    build_tech_plot <- function(df_data) {
-        plt <- ggplot() +
-            geom_tile(data = df_data, aes(x = .data$x, y = .data$y, fill = .data$tech))
-        if (!is.null(dat$admin0)) {
-            plt <- plt + geom_sf(
-                data = dat$admin0,
-                fill = NA, color = "black", linewidth = 0.5
-            )
-        }
-        if (!is.null(dat$admin1)) {
-            plt <- plt + geom_sf(
-                data = dat$admin1,
-                fill = NA, color = "black", linetype = "dotted", linewidth = 0.2
-            )
-        }
-        plt +
-            coord_sf(crs = 4326) +
-            scale_fill_manual(
-                values = c("BES" = "#1f77b4", "BECCS" = "#d62728", "BEBCS" = "#2ca02c")
-            ) +
-            facet_grid(cp_label ~ dr_label) +
-            theme_void(base_size = 14) +
-            theme(
-                strip.text = element_text(face = "bold", margin = margin(b = 5, t = 5)),
-                legend.position = "bottom"
-            ) +
-            labs(fill = "Optimal Technology")
-    }
-
-    build_npv_plot <- function(df_data) {
-        plt <- ggplot() +
-            geom_tile(data = df_data, aes(x = .data$x, y = .data$y, fill = .data$max_npv))
-        if (!is.null(dat$admin0)) {
-            plt <- plt + geom_sf(
-                data = dat$admin0,
-                fill = NA, color = "black", linewidth = 0.5
-            )
-        }
-        if (!is.null(dat$admin1)) {
-            plt <- plt + geom_sf(
-                data = dat$admin1,
-                fill = NA, color = "black", linetype = "dotted", linewidth = 0.2
-            )
-        }
-        plt +
-            coord_sf(crs = 4326) +
-            scale_fill_viridis_c(option = "viridis", name = "Max NPV ($/Mg)") +
-            facet_grid(cp_label ~ dr_label) +
-            theme_void(base_size = 14) +
-            theme(
-                strip.text = element_text(face = "bold", margin = margin(b = 5, t = 5)),
-                legend.position = "bottom"
-            ) +
-            labs(fill = "Max NPV ($/Mg)")
-    }
-
-    out_plot <- if (metric == "optimal_tech") {
-        build_tech_plot(all_df)
-    } else if (metric == "max_npv") {
-        build_npv_plot(all_df)
-    } else {
-        # metric == "both"
-        patchwork::wrap_plots(
-            build_tech_plot(all_df) + labs(title = paste0("Optimal Technology - ", region_name)),
-            build_npv_plot(all_df) + labs(title = paste0("Highest NPV - ", region_name)),
-            ncol = 2
-        )
-    }
-
-    if (save_map) {
-        fname_suffix <- switch(metric,
-            "optimal_tech" = "_Fig3_Evaporation_Maps.png",
-            "max_npv"      = "_Fig3_Evaporation_NPV.png",
-            "both"         = "_Fig3_Evaporation_Both.png"
-        )
-        save_w <- if (metric == "both") 18 else 10
-        ggsave_with_scenario(
-            paste0(out_dir, region_name, fname_suffix),
-            out_plot,
-            scenario = scenario,
-            width = save_w,
-            height = 7,
-            bg = "white",
-            dpi = 300
-        )
-    } else {
-        print(out_plot)
-    }
-    out_plot
+    save_w <- if (metric == "both") 18 else 10
+    ggsave_with_scenario(
+      paste0(out_dir, region_name, fname_suffix),
+      out_plot,
+      scenario = scenario,
+      width = save_w,
+      height = 7,
+      bg = "white",
+      dpi = 300
+    )
+  } else {
+    print(out_plot)
+  }
+  out_plot
 }
 
 # Figure 4: Capital Lock-Out Wedge
 generate_fig4_capital_wedge <- function(dat, region_name, save_map = FALSE,
                                         scenario = "default") {
-    params <- set_scenario(scenarios[[scenario]])
-    message("Generating Figure 4: Capital Lock-Out Wedge for ", region_name, "...")
-    cell_area <- terra::cellSize(dat$template, unit = "km")
+  params <- set_scenario(scenarios[[scenario]])
+  message("Generating Figure 4: Capital Lock-Out Wedge for ", region_name, "...")
+  cell_area <- terra::cellSize(dat$template, unit = "km")
 
-    # We loop over discount rates. C price fixed.
-    dr_seq <- seq(0, 0.20, by = 0.02)
-    results <- list()
-    params$region <- region_name
-    for (dr in dr_seq) {
-        message("  Calculating DR: ", dr * 100, "%")
-        params$discount_rate <- dr
-        res <- run_scenario(dat[["template", exact = TRUE]], dat[["layers", exact = TRUE]], params, vec = dat[["vec", exact = TRUE]])
-        stack_df <- terra::as.data.frame(
-            c(dat$layers$biomass_density, res$opt, cell_area),
-            na.rm = TRUE
-        )
-        names(stack_df) <- c("biomass_density", "opt_tech", "area_km2")
-        tech_levels <- c("1" = "BES", "2" = "BECCS", "3" = "BEBCS")
-        stack_df$tech <- tech_levels[as.character(stack_df$opt_tech)]
-        stack_df$cell_biomass <- stack_df$biomass_density * stack_df$area_km2
+  # We loop over discount rates. C price fixed.
+  dr_seq <- seq(0, 0.20, by = 0.02)
+  results <- list()
+  params$region <- region_name
+  for (dr in dr_seq) {
+    message("  Calculating DR: ", dr * 100, "%")
+    params$discount_rate <- dr
+    res <- run_scenario(dat[["template", exact = TRUE]], dat[["layers", exact = TRUE]], params, vec = dat[["vec", exact = TRUE]])
+    stack_df <- terra::as.data.frame(
+      c(dat$layers$biomass_density, res$opt, cell_area),
+      na.rm = TRUE
+    )
+    names(stack_df) <- c("biomass_density", "opt_tech", "area_km2")
+    tech_levels <- c("1" = "BES", "2" = "BECCS", "3" = "BEBCS")
+    stack_df$tech <- tech_levels[as.character(stack_df$opt_tech)]
+    stack_df$cell_biomass <- stack_df$biomass_density * stack_df$area_km2
 
-        agg <- stack_df |>
-            group_by(.data$tech) |>
-            summarize(
-                total_biomass = sum(.data$cell_biomass, na.rm = TRUE),
-                .groups = "drop"
-            )
-        agg$dr <- dr * 100
-        results[[length(results) + 1]] <- agg
-    }
+    agg <- stack_df |>
+      group_by(.data$tech) |>
+      summarize(
+        total_biomass = sum(.data$cell_biomass, na.rm = TRUE),
+        .groups = "drop"
+      )
+    agg$dr <- dr * 100
+    results[[length(results) + 1]] <- agg
+  }
 
-    df_plot <- bind_rows(results)
+  df_plot <- bind_rows(results)
 
-    p <- ggplot(
-        df_plot,
-        aes(
-            x = .data$dr,
-            y = .data$total_biomass / 1e6,
-            fill = .data$tech
-        )
+  p <- ggplot(
+    df_plot,
+    aes(
+      x = .data$dr,
+      y = .data$total_biomass / 1e6,
+      fill = .data$tech
+    )
+  ) +
+    geom_area(alpha = 0.8) +
+    scale_fill_manual(
+      values = c("BES" = "#1f77b4", "BECCS" = "#d62728", "BEBCS" = "#2ca02c")
     ) +
-        geom_area(alpha = 0.8) +
-        scale_fill_manual(
-            values = c("BES" = "#1f77b4", "BECCS" = "#d62728", "BEBCS" = "#2ca02c")
-        ) +
-        theme_minimal(base_size = 14) +
-        labs(
-            #      title = paste0("Capital Lock-Out Wedge at $150/t CO2 - ", region_name),
-            x = "Discount Rate (%)",
-            y = "Addressable Biomass (Million Mg)",
-            fill = "Winning Technology"
-        )
+    theme_minimal(base_size = 14) +
+    labs(
+      #      title = paste0("Capital Lock-Out Wedge at $150/t CO2 - ", region_name),
+      x = "Discount Rate (%)",
+      y = "Addressable Biomass (Million Mg)",
+      fill = "Winning Technology"
+    )
 
-    if (save_map) {
-        ggsave_with_scenario(
-            paste0(out_dir, region_name, "_Fig4_Capital_Wedge.png"),
-            p,
-            scenario = scenario,
-            width = 8,
-            height = 6,
-            bg = "white",
-            dpi = 300
-        )
-    } else {
-        print(p)
-    }
-    p
+  if (save_map) {
+    ggsave_with_scenario(
+      paste0(out_dir, region_name, "_Fig4_Capital_Wedge.png"),
+      p,
+      scenario = scenario,
+      width = 8,
+      height = 6,
+      bg = "white",
+      dpi = 300
+    )
+  } else {
+    print(p)
+  }
+  p
 }
 
 # Figure 5: Carbon Price Threshold Map
 generate_fig5_cprice_threshold <- function(dat, region_name, save_map = FALSE,
                                            scenario = "default") {
-    params <- set_scenario(scenarios[[scenario]])
-    message(
-        "Generating Figure 5: Carbon Price Threshold Map for ",
-        region_name, "..."
+  params <- set_scenario(scenarios[[scenario]])
+  message(
+    "Generating Figure 5: Carbon Price Threshold Map for ",
+    region_name, "..."
+  )
+
+  # Get base NPV (at C=0) and Abatement using linear baseline
+  params$region <- region_name
+  base_res <- get_linear_baseline(dat[["template", exact = TRUE]], dat[["layers", exact = TRUE]], params, vec = dat[["vec", exact = TRUE]])
+
+  npv0 <- base_res$net
+  abate <- base_res$abate
+
+  # Calculate break-even prices
+  # P = (NPV0_Base - NPV0_Target) / (Abate_Target - Abate_Base)
+  # Threshold to leave BES: minimum C price where BECCS or BEBCS beats BES.
+
+  # To BEBCS
+  num_bebcs <- npv0[["BES"]] - npv0[["BEBCS"]]
+  den_bebcs <- abate[["BEBCS"]] - abate[["BES"]]
+  p_bebcs <- num_bebcs / den_bebcs
+  p_bebcs[den_bebcs <= 0] <- Inf # If abatement isn't higher, it won't win
+  # If it's negative, it already wins at $0 (unlikely for CDR vs BES)
+  p_bebcs[p_bebcs < 0] <- Inf
+
+  # To BECCS
+  num_beccs <- npv0[["BES"]] - npv0[["BECCS"]]
+  den_beccs <- abate[["BECCS"]] - abate[["BES"]]
+  p_beccs <- num_beccs / den_beccs
+  p_beccs[den_beccs <= 0] <- Inf
+  p_beccs[p_beccs < 0] <- Inf
+
+  # Min Threshold to leave BES
+  min_p <- min(c(p_bebcs, p_beccs), na.rm = TRUE)
+  min_p[min_p > 500] <- NA # Cap for plotting
+
+  if (!is.null(dat$admin0)) {
+    min_p <- terra::mask(min_p, terra::vect(dat$admin0))
+  }
+  df_map <- terra::as.data.frame(min_p, xy = TRUE, na.rm = TRUE)
+  names(df_map)[3] <- "threshold"
+
+  p <- ggplot() +
+    geom_tile(
+      data = df_map,
+      aes(x = .data$x, y = .data$y, fill = .data$threshold)
+    )
+  if (!is.null(dat$admin0)) {
+    p <- p + geom_sf(
+      data = dat$admin0,
+      fill = NA,
+      color = "black",
+      linewidth = 0.5
+    )
+  }
+  if (!is.null(dat$admin1)) {
+    p <- p + geom_sf(
+      data = dat$admin1,
+      fill = NA,
+      color = "black",
+      linetype = "dotted",
+      linewidth = 0.2
+    )
+  }
+  p <- p +
+    coord_sf(crs = 4326) +
+    scale_fill_viridis_c(
+      option = "magma",
+      direction = -1,
+      limits = c(0, 300),
+      oob = scales::squish
+    ) +
+    theme_void(base_size = 14) +
+    theme(legend.position = "bottom") +
+    labs(
+      #      title = paste0("Activation Threshold Map - ", region_name),
+      subtitle = "Minimum Carbon Price ($/t) to transition from BES to CDR",
+      fill = "$/t CO2"
     )
 
-    # Get base NPV (at C=0) and Abatement using linear baseline
-    params$region <- region_name
-    base_res <- get_linear_baseline(dat[["template", exact = TRUE]], dat[["layers", exact = TRUE]], params, vec = dat[["vec", exact = TRUE]])
-
-    npv0 <- base_res$net
-    abate <- base_res$abate
-
-    # Calculate break-even prices
-    # P = (NPV0_Base - NPV0_Target) / (Abate_Target - Abate_Base)
-    # Threshold to leave BES: minimum C price where BECCS or BEBCS beats BES.
-
-    # To BEBCS
-    num_bebcs <- npv0[["BES"]] - npv0[["BEBCS"]]
-    den_bebcs <- abate[["BEBCS"]] - abate[["BES"]]
-    p_bebcs <- num_bebcs / den_bebcs
-    p_bebcs[den_bebcs <= 0] <- Inf # If abatement isn't higher, it won't win
-    # If it's negative, it already wins at $0 (unlikely for CDR vs BES)
-    p_bebcs[p_bebcs < 0] <- Inf
-
-    # To BECCS
-    num_beccs <- npv0[["BES"]] - npv0[["BECCS"]]
-    den_beccs <- abate[["BECCS"]] - abate[["BES"]]
-    p_beccs <- num_beccs / den_beccs
-    p_beccs[den_beccs <= 0] <- Inf
-    p_beccs[p_beccs < 0] <- Inf
-
-    # Min Threshold to leave BES
-    min_p <- min(c(p_bebcs, p_beccs), na.rm = TRUE)
-    min_p[min_p > 500] <- NA # Cap for plotting
-
-    if (!is.null(dat$admin0)) {
-        min_p <- terra::mask(min_p, terra::vect(dat$admin0))
-    }
-    df_map <- terra::as.data.frame(min_p, xy = TRUE, na.rm = TRUE)
-    names(df_map)[3] <- "threshold"
-
-    p <- ggplot() +
-        geom_tile(
-            data = df_map,
-            aes(x = .data$x, y = .data$y, fill = .data$threshold)
-        )
-    if (!is.null(dat$admin0)) {
-        p <- p + geom_sf(
-            data = dat$admin0,
-            fill = NA,
-            color = "black",
-            linewidth = 0.5
-        )
-    }
-    if (!is.null(dat$admin1)) {
-        p <- p + geom_sf(
-            data = dat$admin1,
-            fill = NA,
-            color = "black",
-            linetype = "dotted",
-            linewidth = 0.2
-        )
-    }
-    p <- p +
-        coord_sf(crs = 4326) +
-        scale_fill_viridis_c(
-            option = "magma",
-            direction = -1,
-            limits = c(0, 300),
-            oob = scales::squish
-        ) +
-        theme_void(base_size = 14) +
-        theme(legend.position = "bottom") +
-        labs(
-            #      title = paste0("Activation Threshold Map - ", region_name),
-            subtitle = "Minimum Carbon Price ($/t) to transition from BES to CDR",
-            fill = "$/t CO2"
-        )
-
-    if (save_map) {
-        ggsave_with_scenario(
-            paste0(out_dir, region_name, "_Fig5_Threshold_Map.png"),
-            p,
-            scenario = scenario,
-            width = 8,
-            height = 6,
-            bg = "white",
-            dpi = 300
-        )
-    } else {
-        print(p)
-    }
-    p
+  if (save_map) {
+    ggsave_with_scenario(
+      paste0(out_dir, region_name, "_Fig5_Threshold_Map.png"),
+      p,
+      scenario = scenario,
+      width = 8,
+      height = 6,
+      bg = "white",
+      dpi = 300
+    )
+  } else {
+    print(p)
+  }
+  p
 }
 
 # Figure 6: Fractured Regional MACC
-generate_fig6_macc <- function(dat, region_name, save_map = FALSE,
-                               scenario = "default") {
-    params <- set_scenario(scenarios[[scenario]])
-    message("Generating Figure 6: Fractured Regional MACC for ", region_name, "...")
+generate_fig6_macc <- function(save_map = FALSE, scenario = "default") {
+  params <- set_scenario(scenarios[[scenario]])
+  message("Generating Figure 6: Fractured Regional MACC (4-panel)...")
+
+  regions_ordered <- c("US", "China", "Europe", "India")
+  all_macc <- list()
+
+  for (r in regions_ordered) {
+    dat <- load_region_data(r)
     cell_area <- terra::cellSize(dat$template, unit = "km")
 
-    params$region <- region_name
+    params$region <- r
     base_res <- get_linear_baseline(dat[["template", exact = TRUE]], dat[["layers", exact = TRUE]], params, vec = dat[["vec", exact = TRUE]])
 
     npv0 <- base_res$net
     abate <- base_res$abate
 
     stack_df <- terra::as.data.frame(
-        c(dat$layers$biomass_density, cell_area, npv0, abate),
-        xy = TRUE,
-        na.rm = TRUE
+      c(dat$layers$biomass_density, cell_area, npv0, abate),
+      xy = TRUE,
+      na.rm = TRUE
     )
-    # Names: biomass, area, BES_n, BECCS_n, BEBCS_n, BES_a, BECCS_a, BEBCS_a
     names(stack_df)[3:10] <- c(
-        "biomass", "area", "NPV0_BES", "NPV0_BECCS", "NPV0_BEBCS",
-        "A_BES", "A_BECCS", "A_BEBCS"
+      "biomass", "area", "NPV0_BES", "NPV0_BECCS", "NPV0_BEBCS",
+      "A_BES", "A_BECCS", "A_BEBCS"
     )
 
     stack_df$cell_bm <- stack_df$biomass * stack_df$area
 
-    # Sweep C price from -50 to 250
     c_prices <- seq(-50, 250, by = 1)
     results <- list()
 
-    message("  Sweeping C Prices for MACC...")
-
-    # Extract columns to vectors for faster vectorized operations
     npv0_bes <- stack_df$NPV0_BES
     npv0_beccs <- stack_df$NPV0_BECCS
     npv0_bebcs <- stack_df$NPV0_BEBCS
@@ -549,622 +549,621 @@ generate_fig6_macc <- function(dat, region_name, save_map = FALSE,
     a_beccs <- stack_df$A_BECCS
     a_bebcs <- stack_df$A_BEBCS
 
-    # Abatement amounts pre-multiplied by cell biomass
     total_a_bes <- a_bes * stack_df$cell_bm
     total_a_beccs <- a_beccs * stack_df$cell_bm
     total_a_bebcs <- a_bebcs * stack_df$cell_bm
 
     for (cp in c_prices) {
-        val_bes <- npv0_bes + cp * a_bes
-        val_beccs <- npv0_beccs + cp * a_beccs
-        val_bebcs <- npv0_bebcs + cp * a_bebcs
+      val_bes <- npv0_bes + cp * a_bes
+      val_beccs <- npv0_beccs + cp * a_beccs
+      val_bebcs <- npv0_bebcs + cp * a_bebcs
 
-        # Max NPV across the 3 techs
-        max_val <- pmax(val_bes, val_beccs, val_bebcs, na.rm = TRUE)
+      max_val <- pmax(val_bes, val_beccs, val_bebcs, na.rm = TRUE)
+      adopted <- !is.na(max_val) & (max_val >= 0)
 
-        # A pixel is adopted if max_val >= 0
-        adopted <- !is.na(max_val) & (max_val >= 0)
+      is_bes <- adopted & (max_val == val_bes)
+      is_beccs <- adopted & (!is_bes) & (max_val == val_beccs)
+      is_bebcs <- adopted & (!is_bes) & (!is_beccs) & (max_val == val_bebcs)
 
-        # Which tech is the max? Ties handled sequentially.
-        is_bes <- adopted & (max_val == val_bes)
-        is_beccs <- adopted & (!is_bes) & (max_val == val_beccs)
-        is_bebcs <- adopted & (!is_bes) & (!is_beccs) & (max_val == val_bebcs)
+      sum_bes <- sum(total_a_bes[is_bes], na.rm = TRUE)
+      sum_beccs <- sum(total_a_beccs[is_beccs], na.rm = TRUE)
+      sum_bebcs <- sum(total_a_bebcs[is_bebcs], na.rm = TRUE)
 
-        # Sum total abatement for the adopted pixels of each tech
-        sum_bes <- sum(total_a_bes[is_bes], na.rm = TRUE)
-        sum_beccs <- sum(total_a_beccs[is_beccs], na.rm = TRUE)
-        sum_bebcs <- sum(total_a_bebcs[is_bebcs], na.rm = TRUE)
-
-        results[[length(results) + 1]] <- data.frame(
-            Price = cp,
-            BES = sum_bes,
-            BECCS = sum_beccs,
-            BEBCS = sum_bebcs
-        )
+      results[[length(results) + 1]] <- data.frame(
+        Price = cp,
+        BES = sum_bes,
+        BECCS = sum_beccs,
+        BEBCS = sum_bebcs
+      )
     }
 
     macc_df <- dplyr::bind_rows(results)
-
-    # Pivot to long format for stacked area plot
     macc_long <- tidyr::pivot_longer(macc_df,
-        cols = c("BES", "BECCS", "BEBCS"),
-        names_to = "Technology", values_to = "Abatement"
+      cols = c("BES", "BECCS", "BEBCS"),
+      names_to = "Technology", values_to = "Abatement"
     )
-
-    # Convert Abatement to Million tCO2e
     macc_long$Abatement <- macc_long$Abatement / 1e6
+    macc_long$Region <- r
+    all_macc[[r]] <- macc_long
+  }
 
-    # Factor levels to control stacking order
-    macc_long$Technology <- factor(macc_long$Technology, levels = c("BECCS", "BEBCS", "BES"))
+  combined_macc <- dplyr::bind_rows(all_macc)
+  combined_macc$Technology <- factor(combined_macc$Technology, levels = c("BECCS", "BEBCS", "BES"))
 
-    if (sum(macc_long$Abatement, na.rm = TRUE) > 0) {
-        p <- ggplot(macc_long, aes(x = Price, y = Abatement, fill = Technology)) +
-            geom_area(alpha = 0.9, color = "black", linewidth = 0.2) +
-            scale_fill_manual(values = TECH_COLORS) +
-            theme_minimal(base_size = 14) +
-            labs(
-                x = "Carbon Price ($/t)",
-                y = "Total Annual Abatement Potential (Million tCO2e/yr)"
-            ) +
-            theme(
-                legend.position = "bottom",
-                legend.title = element_blank()
-            )
+  region_labels <- c("US" = "a", "China" = "b", "Europe" = "c", "India" = "d")
+  combined_macc$Panel <- factor(region_labels[combined_macc$Region], levels = c("a", "b", "c", "d"))
 
-        if (save_map) {
-            ggsave_with_scenario(
-                paste0(out_dir, region_name, "_Fig6_MACC.png"),
-                p,
-                scenario = scenario,
-                width = 8,
-                height = 6,
-                bg = "white",
-                dpi = 300
-            )
-        } else {
-            print(p)
-        }
-        p
+  if (sum(combined_macc$Abatement, na.rm = TRUE) > 0) {
+    p <- ggplot(combined_macc, aes(x = Price, y = Abatement, fill = Technology)) +
+      geom_area(alpha = 0.9, color = "black", linewidth = 0.2) +
+      scale_fill_manual(values = TECH_COLORS) +
+      facet_wrap(~Panel, ncol = 1, scales = "free_y") +
+      theme_minimal(base_size = 14) +
+      labs(
+        x = "Carbon Price ($/t)",
+        y = "Total Annual Abatement Potential (Million tCO2e/yr)"
+      ) +
+      theme(
+        legend.position = "none",
+        strip.text = element_text(hjust = 0, face = "bold", size = 16),
+        strip.background = element_blank(),
+        plot.title = element_blank()
+      )
+
+    if (save_map) {
+      ggsave_with_scenario(
+        paste0(out_dir, "All_Fig6_MACC.png"),
+        p,
+        scenario = scenario,
+        width = 6,
+        height = 10,
+        bg = "white",
+        dpi = 300
+      )
     } else {
-        message("No positive abatement transitions found!")
-        NULL
+      print(p)
     }
+    p
+  } else {
+    message("No positive abatement transitions found!")
+    NULL
+  }
 }
 
 # Figure 7: Agronomic Bridge
 generate_fig7_agronomic_bridge <- function(dat, region_name, save_map = FALSE,
                                            scenario = "default",
                                            c_price = 30) {
-    params <- set_scenario(scenarios[[scenario]])
-    message("Generating Figure 7: Agronomic Bridge for ", region_name, "...")
+  params <- set_scenario(scenarios[[scenario]])
+  message("Generating Figure 7: Agronomic Bridge for ", region_name, "...")
 
-    # 1. With Ag Value
-    params$c_price <- c_price
-    params$region <- region_name
-    res_ag <- run_scenario(dat[["template", exact = TRUE]], dat[["layers", exact = TRUE]], params, vec = dat[["vec", exact = TRUE]])
+  # 1. With Ag Value
+  params$c_price <- c_price
+  params$region <- region_name
+  res_ag <- run_scenario(dat[["template", exact = TRUE]], dat[["layers", exact = TRUE]], params, vec = dat[["vec", exact = TRUE]])
 
-    # 2. Without Ag Value
-    params$bc_valuation_method <- "ag_value"
-    params$bc_ag_value <- 0
-    res_no <- run_scenario(dat[["template", exact = TRUE]], dat[["layers", exact = TRUE]], params, vec = dat[["vec", exact = TRUE]])
+  # 2. Without Ag Value
+  params$bc_valuation_method <- "ag_value"
+  params$bc_ag_value <- 0
+  res_no <- run_scenario(dat[["template", exact = TRUE]], dat[["layers", exact = TRUE]], params, vec = dat[["vec", exact = TRUE]])
 
-    opt_stack <- c(res_no$opt, res_ag$opt)
-    if (!is.null(dat$admin0)) {
-        opt_stack <- terra::mask(opt_stack, terra::vect(dat$admin0))
-    }
-    stack_df <- terra::as.data.frame(
-        opt_stack,
-        xy = TRUE,
-        na.rm = TRUE
+  opt_stack <- c(res_no$opt, res_ag$opt)
+  if (!is.null(dat$admin0)) {
+    opt_stack <- terra::mask(opt_stack, terra::vect(dat$admin0))
+  }
+  stack_df <- terra::as.data.frame(
+    opt_stack,
+    xy = TRUE,
+    na.rm = TRUE
+  )
+  names(stack_df)[3:4] <- c("opt_no", "opt_ag")
+
+  tech_levels <- c("1" = "BES", "2" = "BECCS", "3" = "BEBCS")
+  stack_df$tech_no <- tech_levels[as.character(stack_df$opt_no)]
+  stack_df$tech_ag <- tech_levels[as.character(stack_df$opt_ag)]
+
+  # Classify changes
+  stack_df$status <- paste0(stack_df$tech_no, " (Baseline)")
+  switched_mask <- stack_df$tech_no != stack_df$tech_ag
+  stack_df$status[switched_mask] <- paste0(
+    "Switched to ",
+    stack_df$tech_ag[switched_mask]
+  )
+
+  color_map <- c(
+    "BES (Baseline)" = "#aec7e8", # Faded blue
+    "BECCS (Baseline)" = "#ff9896", # Faded red
+    "BEBCS (Baseline)" = "#98df8a", # Faded green
+    "Switched to BEBCS" = unname(TECH_COLORS["BEBCS"]),
+    "Switched to BECCS" = unname(TECH_COLORS["BECCS"]),
+    "Switched to BES" = unname(TECH_COLORS["BES"])
+  )
+
+  p <- ggplot() +
+    geom_tile(
+      data = stack_df,
+      aes(x = .data$x, y = .data$y, fill = .data$status)
     )
-    names(stack_df)[3:4] <- c("opt_no", "opt_ag")
-
-    tech_levels <- c("1" = "BES", "2" = "BECCS", "3" = "BEBCS")
-    stack_df$tech_no <- tech_levels[as.character(stack_df$opt_no)]
-    stack_df$tech_ag <- tech_levels[as.character(stack_df$opt_ag)]
-
-    # Classify changes
-    stack_df$status <- paste0(stack_df$tech_no, " (Baseline)")
-    switched_mask <- stack_df$tech_no != stack_df$tech_ag
-    stack_df$status[switched_mask] <- paste0(
-        "Switched to ",
-        stack_df$tech_ag[switched_mask]
+  if (!is.null(dat$admin0)) {
+    p <- p + geom_sf(
+      data = dat$admin0,
+      fill = NA,
+      color = "black",
+      linewidth = 0.5
+    )
+  }
+  if (!is.null(dat$admin1)) {
+    p <- p + geom_sf(
+      data = dat$admin1,
+      fill = NA,
+      color = "black",
+      linetype = "dotted",
+      linewidth = 0.2
+    )
+  }
+  p <- p +
+    coord_sf(crs = 4326) +
+    scale_fill_manual(values = color_map) +
+    theme_void(base_size = 14) +
+    labs(
+      #      title = paste0("The Agronomic Bridge at $30/t CO2 - ", region_name),
+      #      subtitle = paste0(
+      #        "Difference in optimal tech with vs without ",
+      #        "Mechanistic Biochar Ag Value"
+      #      ),
+      fill = "Impact"
     )
 
-    color_map <- c(
-        "BES (Baseline)" = "#aec7e8", # Faded blue
-        "BECCS (Baseline)" = "#ff9896", # Faded red
-        "BEBCS (Baseline)" = "#98df8a", # Faded green
-        "Switched to BEBCS" = unname(TECH_COLORS["BEBCS"]),
-        "Switched to BECCS" = unname(TECH_COLORS["BECCS"]),
-        "Switched to BES" = unname(TECH_COLORS["BES"])
+  if (save_map) {
+    ggsave_with_scenario(
+      paste0(out_dir, region_name, "_Fig7_Agronomic_Bridge.png"),
+      p,
+      scenario = scenario,
+      width = 8,
+      height = 6,
+      bg = "white",
+      dpi = 300
     )
-
-    p <- ggplot() +
-        geom_tile(
-            data = stack_df,
-            aes(x = .data$x, y = .data$y, fill = .data$status)
-        )
-    if (!is.null(dat$admin0)) {
-        p <- p + geom_sf(
-            data = dat$admin0,
-            fill = NA,
-            color = "black",
-            linewidth = 0.5
-        )
-    }
-    if (!is.null(dat$admin1)) {
-        p <- p + geom_sf(
-            data = dat$admin1,
-            fill = NA,
-            color = "black",
-            linetype = "dotted",
-            linewidth = 0.2
-        )
-    }
-    p <- p +
-        coord_sf(crs = 4326) +
-        scale_fill_manual(values = color_map) +
-        theme_void(base_size = 14) +
-        labs(
-            #      title = paste0("The Agronomic Bridge at $30/t CO2 - ", region_name),
-            #      subtitle = paste0(
-            #        "Difference in optimal tech with vs without ",
-            #        "Mechanistic Biochar Ag Value"
-            #      ),
-            fill = "Impact"
-        )
-
-    if (save_map) {
-        ggsave_with_scenario(
-            paste0(out_dir, region_name, "_Fig7_Agronomic_Bridge.png"),
-            p,
-            scenario = scenario,
-            width = 8,
-            height = 6,
-            bg = "white",
-            dpi = 300
-        )
-    } else {
-        print(p)
-    }
-    p
+  } else {
+    print(p)
+  }
+  p
 }
 
 # Figure 8: Global Break-Even Carbon Price Grid
 generate_fig8_breakeven_cprice <- function(save_map = FALSE,
                                            scenario = "default") {
-    params <- set_scenario(scenarios[[scenario]])
-    message("Generating Figure 8: Break-Even Carbon Price Grid...")
+  params <- set_scenario(scenarios[[scenario]])
+  message("Generating Figure 8: Break-Even Carbon Price Grid...")
 
-    # Ordered regions for columns
-    regions_ordered <- c("India", "China", "US", "Europe")
+  # Ordered regions for columns
+  regions_ordered <- c("India", "China", "US", "Europe")
 
-    # Rows definitions
-    techs <- c("BES", "BECCS", "BEBCS", "Best_Tech", "Best_C")
-    row_labels <- c(
-        "BES" = "Bioenergy", "BECCS" = "BECCS", "BEBCS" = "Biochar",
-        "Best_Tech" = "Best Tech.", "Best_C" = "Best C Price"
+  # Rows definitions
+  techs <- c("BES", "BECCS", "BEBCS", "Best_Tech", "Best_C")
+  row_labels <- c(
+    "BES" = "Bioenergy", "BECCS" = "BECCS", "BEBCS" = "Biochar",
+    "Best_Tech" = "Best Tech.", "Best_C" = "Best C Price"
+  )
+
+  df_list <- list()
+  admin_list <- list()
+
+  for (r in regions_ordered) {
+    message("  Processing Region for Fig 8: ", r)
+    dat <- load_region_data(r)
+
+    # Prepare parameters
+    params$region <- r
+
+    # Get baseline NPV(0) and Abatement
+    base_res <- get_linear_baseline(dat[["template", exact = TRUE]], dat[["layers", exact = TRUE]], params, vec = dat[["vec", exact = TRUE]])
+
+    bes_npv <- base_res$net[["BES"]]
+    beccs_npv <- base_res$net[["BECCS"]]
+    bebcs_npv <- base_res$net[["BEBCS"]]
+
+    bes_abt <- base_res$abate[["BES"]]
+    beccs_abt <- base_res$abate[["BECCS"]]
+    bebcs_abt <- base_res$abate[["BEBCS"]]
+
+    calc_breakeven <- function(npv, abt) {
+      c_req <- -npv / abt
+      # Pixels physically impossible or strictly unprofitable
+      c_req <- terra::ifel(abt <= 0, NA, c_req)
+      return(c_req)
+    }
+
+    bes_c <- calc_breakeven(bes_npv, bes_abt)
+    beccs_c <- calc_breakeven(beccs_npv, beccs_abt)
+    bebcs_c <- calc_breakeven(bebcs_npv, bebcs_abt)
+
+    c_stack <- c(bes_c, beccs_c, bebcs_c)
+    names(c_stack) <- c("BES", "BECCS", "BEBCS")
+
+    # Find minimum break-even price across the 3 techs
+    best_c <- min(c_stack, na.rm = TRUE)
+    names(best_c) <- "Best_C"
+
+    # Find which tech has that minimum
+    best_idx <- terra::which.min(c_stack)
+    names(best_idx) <- "Best_Tech"
+
+    full_stack <- c(c_stack, best_c, best_idx)
+
+    if (!is.null(dat$admin0)) {
+      full_stack <- terra::mask(full_stack, terra::vect(dat$admin0))
+      # Save admin boundaries for plotting
+      admin_r <- dat$admin0
+      admin_r$Region <- r
+      admin_list[[r]] <- admin_r
+    }
+
+    # Convert to dataframe (keep NAs initially to allow independent NA patterns per tech)
+    df_r <- terra::as.data.frame(full_stack, xy = TRUE, na.rm = FALSE)
+    df_r <- df_r[!is.na(df_r$BES) | !is.na(df_r$BECCS) | !is.na(df_r$BEBCS), ]
+
+    # Map integer best_tech back to strings
+    tech_names <- c("BES", "BECCS", "BEBCS")
+    if ("Best_Tech" %in% names(df_r)) {
+      df_r$Best_Tech <- factor(tech_names[df_r$Best_Tech], levels = tech_names)
+    }
+
+    # Pivot numeric columns
+    df_num <- tidyr::pivot_longer(df_r,
+      cols = c("BES", "BECCS", "BEBCS", "Best_C"),
+      names_to = "Technology", values_to = "Breakeven_C",
+      values_drop_na = TRUE
     )
+    df_num$Tech_Factor <- factor(NA, levels = tech_names)
 
-    df_list <- list()
-    admin_list <- list()
+    # Format categorical column
+    if ("Best_Tech" %in% names(df_r)) {
+      df_cat <- df_r[!is.na(df_r$Best_Tech), c("x", "y", "Best_Tech")]
+      df_cat$Technology <- "Best_Tech"
+      names(df_cat)[names(df_cat) == "Best_Tech"] <- "Tech_Factor"
+      df_cat$Breakeven_C <- NA_real_
 
+      df_long <- rbind(
+        as.data.frame(df_num[, c("x", "y", "Technology", "Breakeven_C", "Tech_Factor")]),
+        as.data.frame(df_cat[, c("x", "y", "Technology", "Breakeven_C", "Tech_Factor")])
+      )
+    } else {
+      df_long <- as.data.frame(df_num[, c("x", "y", "Technology", "Breakeven_C", "Tech_Factor")])
+    }
+
+    df_long$Region <- r
+    df_list[[r]] <- df_long
+  }
+
+  message("  Combining data and rendering plot...")
+
+  # Combine all regions
+  df_all <- dplyr::bind_rows(df_list)
+
+  # Fix factor levels for desired ordering
+  df_all$Region <- factor(df_all$Region, levels = regions_ordered)
+  df_all$Technology <- factor(df_all$Technology, levels = techs)
+
+  if (length(admin_list) > 0) {
+    admin_all <- do.call(rbind, lapply(admin_list, function(x) x[, "Region", drop = FALSE]))
+    admin_all$Region <- factor(admin_all$Region, levels = regions_ordered)
+  } else {
+    admin_all <- NULL
+  }
+
+  # Plotting using patchwork to avoid coord_sf() free scaling issues
+  library(patchwork)
+  plot_list <- list()
+
+  # Define fixed limits for the color scale
+  scale_limits <- c(-50, 200)
+
+  for (t in techs) {
     for (r in regions_ordered) {
-        message("  Processing Region for Fig 8: ", r)
-        dat <- load_region_data(r)
+      sub_df <- df_all[df_all$Technology == t & df_all$Region == r, ]
+      sub_admin <- if (!is.null(admin_all)) admin_all[admin_all$Region == r, ] else NULL
 
-        # Prepare parameters
-        params$region <- r
+      if (r == regions_ordered[length(regions_ordered)]) {
+        sub_df$RowLabel <- row_labels[t]
+      }
 
-        # Get baseline NPV(0) and Abatement
-        base_res <- get_linear_baseline(dat[["template", exact = TRUE]], dat[["layers", exact = TRUE]], params, vec = dat[["vec", exact = TRUE]])
+      p <- ggplot()
 
-        bes_npv <- base_res$net[["BES"]]
-        beccs_npv <- base_res$net[["BECCS"]]
-        bebcs_npv <- base_res$net[["BEBCS"]]
+      # Map fills depending on row type
+      if (t == "Best_Tech") {
+        p <- p + geom_tile(data = sub_df[!is.na(sub_df$Tech_Factor), ], aes(x = x, y = y, fill = Tech_Factor))
+      } else {
+        p <- p + geom_tile(data = sub_df, aes(x = x, y = y, fill = Breakeven_C))
+      }
 
-        bes_abt <- base_res$abate[["BES"]]
-        beccs_abt <- base_res$abate[["BECCS"]]
-        bebcs_abt <- base_res$abate[["BEBCS"]]
+      if (!is.null(sub_admin)) {
+        p <- p + geom_sf(data = sub_admin, fill = NA, color = "black", linewidth = 0.2)
+      }
 
-        calc_breakeven <- function(npv, abt) {
-            c_req <- -npv / abt
-            # Pixels physically impossible or strictly unprofitable
-            c_req <- terra::ifel(abt <= 0, NA, c_req)
-            return(c_req)
-        }
+      p <- p + coord_sf(crs = 4326) + theme_void(base_size = 10) +
+        theme(legend.position = "none")
 
-        bes_c <- calc_breakeven(bes_npv, bes_abt)
-        beccs_c <- calc_breakeven(beccs_npv, beccs_abt)
-        bebcs_c <- calc_breakeven(bebcs_npv, bebcs_abt)
-
-        c_stack <- c(bes_c, beccs_c, bebcs_c)
-        names(c_stack) <- c("BES", "BECCS", "BEBCS")
-
-        # Find minimum break-even price across the 3 techs
-        best_c <- min(c_stack, na.rm = TRUE)
-        names(best_c) <- "Best_C"
-
-        # Find which tech has that minimum
-        best_idx <- terra::which.min(c_stack)
-        names(best_idx) <- "Best_Tech"
-
-        full_stack <- c(c_stack, best_c, best_idx)
-
-        if (!is.null(dat$admin0)) {
-            full_stack <- terra::mask(full_stack, terra::vect(dat$admin0))
-            # Save admin boundaries for plotting
-            admin_r <- dat$admin0
-            admin_r$Region <- r
-            admin_list[[r]] <- admin_r
-        }
-
-        # Convert to dataframe (keep NAs initially to allow independent NA patterns per tech)
-        df_r <- terra::as.data.frame(full_stack, xy = TRUE, na.rm = FALSE)
-        df_r <- df_r[!is.na(df_r$BES) | !is.na(df_r$BECCS) | !is.na(df_r$BEBCS), ]
-
-        # Map integer best_tech back to strings
-        tech_names <- c("BES", "BECCS", "BEBCS")
-        if ("Best_Tech" %in% names(df_r)) {
-            df_r$Best_Tech <- factor(tech_names[df_r$Best_Tech], levels = tech_names)
-        }
-
-        # Pivot numeric columns
-        df_num <- tidyr::pivot_longer(df_r,
-            cols = c("BES", "BECCS", "BEBCS", "Best_C"),
-            names_to = "Technology", values_to = "Breakeven_C",
-            values_drop_na = TRUE
+      # Scales
+      if (t == "Best_Tech") {
+        p <- p + scale_fill_manual(
+          values = TECH_COLORS,
+          limits = c("BES", "BECCS", "BEBCS"),
+          na.translate = FALSE,
+          drop = FALSE
         )
-        df_num$Tech_Factor <- factor(NA, levels = tech_names)
-
-        # Format categorical column
-        if ("Best_Tech" %in% names(df_r)) {
-            df_cat <- df_r[!is.na(df_r$Best_Tech), c("x", "y", "Best_Tech")]
-            df_cat$Technology <- "Best_Tech"
-            names(df_cat)[names(df_cat) == "Best_Tech"] <- "Tech_Factor"
-            df_cat$Breakeven_C <- NA_real_
-
-            df_long <- rbind(
-                as.data.frame(df_num[, c("x", "y", "Technology", "Breakeven_C", "Tech_Factor")]),
-                as.data.frame(df_cat[, c("x", "y", "Technology", "Breakeven_C", "Tech_Factor")])
-            )
-        } else {
-            df_long <- as.data.frame(df_num[, c("x", "y", "Technology", "Breakeven_C", "Tech_Factor")])
-        }
-
-        df_long$Region <- r
-        df_list[[r]] <- df_long
-    }
-
-    message("  Combining data and rendering plot...")
-
-    # Combine all regions
-    df_all <- dplyr::bind_rows(df_list)
-
-    # Fix factor levels for desired ordering
-    df_all$Region <- factor(df_all$Region, levels = regions_ordered)
-    df_all$Technology <- factor(df_all$Technology, levels = techs)
-
-    if (length(admin_list) > 0) {
-        admin_all <- do.call(rbind, lapply(admin_list, function(x) x[, "Region", drop = FALSE]))
-        admin_all$Region <- factor(admin_all$Region, levels = regions_ordered)
-    } else {
-        admin_all <- NULL
-    }
-
-    # Plotting using patchwork to avoid coord_sf() free scaling issues
-    library(patchwork)
-    plot_list <- list()
-
-    # Define fixed limits for the color scale
-    scale_limits <- c(-50, 200)
-
-    for (t in techs) {
-        for (r in regions_ordered) {
-            sub_df <- df_all[df_all$Technology == t & df_all$Region == r, ]
-            sub_admin <- if (!is.null(admin_all)) admin_all[admin_all$Region == r, ] else NULL
-
-            if (r == regions_ordered[length(regions_ordered)]) {
-                sub_df$RowLabel <- row_labels[t]
-            }
-
-            p <- ggplot()
-
-            # Map fills depending on row type
-            if (t == "Best_Tech") {
-                p <- p + geom_tile(data = sub_df[!is.na(sub_df$Tech_Factor), ], aes(x = x, y = y, fill = Tech_Factor))
-            } else {
-                p <- p + geom_tile(data = sub_df, aes(x = x, y = y, fill = Breakeven_C))
-            }
-
-            if (!is.null(sub_admin)) {
-                p <- p + geom_sf(data = sub_admin, fill = NA, color = "black", linewidth = 0.2)
-            }
-
-            p <- p + coord_sf(crs = 4326) + theme_void(base_size = 10) +
-                theme(legend.position = "none")
-
-            # Scales
-            if (t == "Best_Tech") {
-                p <- p + scale_fill_manual(
-                    values = TECH_COLORS,
-                    limits = c("BES", "BECCS", "BEBCS"),
-                    na.translate = FALSE,
-                    drop = FALSE
-                )
-            } else {
-                p <- p + scale_fill_gradientn(
-                    colors = c("#00008B", "#006400", "#FFD700", "#FF8C00", "#8B0000"),
-                    na.value = "transparent",
-                    limits = scale_limits,
-                    oob = scales::squish
-                )
-            }
-
-            # --- Layout Adjustments ---
-            theme_adj <- theme()
-
-            # Top Headers (Region Names)
-            if (t == techs[1]) {
-                p <- p + ggtitle(r)
-                theme_adj <- theme_adj + theme(plot.title = element_text(hjust = 0.5, face = "bold", size = 12))
-            }
-
-            # Right Headers (Technology Names)
-            if (r == regions_ordered[length(regions_ordered)]) {
-                # Use a facet strip to place the label on the right side, as theme_void drops axis titles
-                p <- p + facet_grid(RowLabel ~ .)
-                theme_adj <- theme_adj + theme(
-                    strip.text.y = element_text(angle = -90, face = "bold", size = 12, margin = margin(l = 10)),
-                    strip.background = element_blank()
-                )
-            }
-
-            p <- p + theme_adj
-            plot_list[[paste(t, r, sep = "_")]] <- p
-        }
-    }
-
-    # Render with patchwork
-    n_regions <- length(regions_ordered)
-    main_plot <- patchwork::wrap_plots(plot_list, ncol = n_regions)
-
-    # Generate isolated legends using cowplot
-    p_leg_cat <- ggplot(data.frame(x = 1, y = 1, Tech = factor(c("BES", "BECCS", "BEBCS"), levels = c("BES", "BECCS", "BEBCS"))), aes(x, y, fill = Tech)) +
-        geom_tile() +
-        scale_fill_manual(values = TECH_COLORS, name = "Optimal\nTechnology") +
-        theme_void() +
-        theme(legend.position = "bottom", legend.title = element_text(vjust = 0.8), legend.margin = margin(t = 0, b = 0))
-
-    p_leg_cont <- ggplot(data.frame(x = 1, y = 1, z = c(-50, 200)), aes(x, y, fill = z)) +
-        geom_tile() +
-        scale_fill_gradientn(
-            colors = c("#00008B", "#006400", "#FFD700", "#FF8C00", "#8B0000"),
-            limits = scale_limits,
-            oob = scales::squish,
-            breaks = c(-50, 0, 50, 100, 150, 200),
-            labels = c("\u2264 -50", "0", "50", "100", "150", "\u2265 200"),
-            name = "Break-Even C-Price\n($/tCO2e)"
-        ) +
-        theme_void() +
-        theme(legend.position = "bottom", legend.key.width = unit(1, "cm"), legend.title = element_text(vjust = 0.8), legend.margin = margin(t = 0, b = 0))
-
-    leg_cat <- cowplot::get_legend(p_leg_cat)
-    leg_cont <- cowplot::get_legend(p_leg_cont)
-
-    combined_legends <- cowplot::plot_grid(leg_cont, leg_cat, nrow = 1, rel_widths = c(1.5, 1)) + theme(plot.margin = margin(t = -1))
-
-    combined_plot <- patchwork::wrap_elements(main_plot) / patchwork::wrap_elements(combined_legends) +
-        patchwork::plot_layout(heights = c(1, 0.04))
-
-    if (save_map) {
-        ggsave_with_scenario(
-            paste0(out_dir, "Global_Fig8_Breakeven_CPrice.png"),
-            combined_plot,
-            scenario = scenario,
-            width = 8,
-            height = 9,
-            bg = "white",
-            dpi = 300
+      } else {
+        p <- p + scale_fill_gradientn(
+          colors = c("#00008B", "#006400", "#FFD700", "#FF8C00", "#8B0000"),
+          na.value = "transparent",
+          limits = scale_limits,
+          oob = scales::squish
         )
-        message("Saved: Global_Fig8_Breakeven_CPrice.png")
-    } else {
-        print(combined_plot)
+      }
+
+      # --- Layout Adjustments ---
+      theme_adj <- theme()
+
+      # Top Headers (Region Names)
+      if (t == techs[1]) {
+        p <- p + ggtitle(r)
+        theme_adj <- theme_adj + theme(plot.title = element_text(hjust = 0.5, face = "bold", size = 12))
+      }
+
+      # Right Headers (Technology Names)
+      if (r == regions_ordered[length(regions_ordered)]) {
+        # Use a facet strip to place the label on the right side, as theme_void drops axis titles
+        p <- p + facet_grid(RowLabel ~ .)
+        theme_adj <- theme_adj + theme(
+          strip.text.y = element_text(angle = -90, face = "bold", size = 12, margin = margin(l = 10)),
+          strip.background = element_blank()
+        )
+      }
+
+      p <- p + theme_adj
+      plot_list[[paste(t, r, sep = "_")]] <- p
     }
-    return(combined_plot)
+  }
+
+  # Render with patchwork
+  n_regions <- length(regions_ordered)
+  main_plot <- patchwork::wrap_plots(plot_list, ncol = n_regions)
+
+  # Generate isolated legends using cowplot
+  p_leg_cat <- ggplot(data.frame(x = 1, y = 1, Tech = factor(c("BES", "BECCS", "BEBCS"), levels = c("BES", "BECCS", "BEBCS"))), aes(x, y, fill = Tech)) +
+    geom_tile() +
+    scale_fill_manual(values = TECH_COLORS, name = "Optimal\nTechnology") +
+    theme_void() +
+    theme(legend.position = "bottom", legend.title = element_text(vjust = 0.8), legend.margin = margin(t = 0, b = 0))
+
+  p_leg_cont <- ggplot(data.frame(x = 1, y = 1, z = c(-50, 200)), aes(x, y, fill = z)) +
+    geom_tile() +
+    scale_fill_gradientn(
+      colors = c("#00008B", "#006400", "#FFD700", "#FF8C00", "#8B0000"),
+      limits = scale_limits,
+      oob = scales::squish,
+      breaks = c(-50, 0, 50, 100, 150, 200),
+      labels = c("\u2264 -50", "0", "50", "100", "150", "\u2265 200"),
+      name = "Break-Even C-Price\n($/tCO2e)"
+    ) +
+    theme_void() +
+    theme(legend.position = "bottom", legend.key.width = unit(1, "cm"), legend.title = element_text(vjust = 0.8), legend.margin = margin(t = 0, b = 0))
+
+  leg_cat <- cowplot::get_legend(p_leg_cat)
+  leg_cont <- cowplot::get_legend(p_leg_cont)
+
+  combined_legends <- cowplot::plot_grid(leg_cont, leg_cat, nrow = 1, rel_widths = c(1.5, 1)) + theme(plot.margin = margin(t = -1))
+
+  combined_plot <- patchwork::wrap_elements(main_plot) / patchwork::wrap_elements(combined_legends) +
+    patchwork::plot_layout(heights = c(1, 0.04))
+
+  if (save_map) {
+    ggsave_with_scenario(
+      paste0(out_dir, "Global_Fig8_Breakeven_CPrice.png"),
+      combined_plot,
+      scenario = scenario,
+      width = 8,
+      height = 9,
+      bg = "white",
+      dpi = 300
+    )
+    message("Saved: Global_Fig8_Breakeven_CPrice.png")
+  } else {
+    print(combined_plot)
+  }
+  return(combined_plot)
 }
 
 # Figure 9: Optimal Scale per Tech Map
 generate_fig9_optimal_scale_map <- function(dat, region_name, save_map = FALSE,
                                             scenario = "default") {
-    params <- set_scenario(scenarios[[scenario]])
-    message("Generating Figure 9: Optimal Scale Map for ", region_name, "...")
-    params$region <- region_name
+  params <- set_scenario(scenarios[[scenario]])
+  message("Generating Figure 9: Optimal Scale Map for ", region_name, "...")
+  params$region <- region_name
 
-    # Run for each tech with optimize_scale = TRUE
-    params$optimize_scale <- TRUE
+  # Run for each tech with optimize_scale = TRUE
+  params$optimize_scale <- TRUE
 
-    res_bes <- run_spatial_tea(
-        dat$template, params, dat$layers,
-        fun = calculate_bes
+  res_bes <- run_spatial_tea(
+    dat$template, params, dat$layers,
+    fun = calculate_bes
+  )
+  res_beccs <- run_spatial_tea(
+    dat$template, params, dat$layers,
+    fun = calculate_beccs
+  )
+  res_bebcs <- run_spatial_tea(
+    dat$template, params, dat$layers,
+    fun = calculate_bebcs
+  )
+
+  # Extract Optimal_Plant_MW_th layer
+  sz_bes <- res_bes[["Optimal_Plant_MW_th"]]
+  sz_beccs <- res_beccs[["Optimal_Plant_MW_th"]]
+  sz_bebcs <- res_bebcs[["Optimal_Plant_MW_th"]]
+
+  # Combine into a stack
+  stack_r <- c(sz_bes, sz_beccs, sz_bebcs)
+  names(stack_r) <- c("BES", "BECCS", "BEBCS")
+
+  # Apply admin0 mask if available
+  if (!is.null(dat$admin0)) {
+    stack_r <- terra::mask(stack_r, terra::vect(dat$admin0))
+  }
+
+  # Convert to dataframe
+  df <- terra::as.data.frame(stack_r, xy = TRUE, na.rm = TRUE)
+  df_long <- tidyr::pivot_longer(df, cols = c("BES", "BECCS", "BEBCS"), names_to = "Technology", values_to = "Optimal_Size_MWth")
+
+  # Ensure Optimal_Size_MWth is treated as a factor for discrete colors
+  df_long$Optimal_Size_MWth <- factor(df_long$Optimal_Size_MWth, levels = c(5, 25, 50, 100, 250, 500))
+
+  # Plot
+  p <- ggplot(df_long, aes(x = x, y = y, fill = Optimal_Size_MWth)) +
+    geom_tile() +
+    facet_wrap(~Technology, ncol = 3) +
+    scale_fill_viridis_d(option = "plasma", drop = FALSE) +
+    theme_minimal(base_size = 14) +
+    coord_fixed() +
+    labs(
+      x = "", y = "",
+      fill = "Optimal Size (MWth)"
+    ) +
+    theme(
+      axis.text = element_blank(),
+      axis.ticks = element_blank(),
+      panel.grid = element_blank(),
+      strip.text = element_text(face = "bold", size = 16)
     )
-    res_beccs <- run_spatial_tea(
-        dat$template, params, dat$layers,
-        fun = calculate_beccs
+
+  if (save_map) {
+    ggsave_with_scenario(
+      paste0(out_dir, region_name, "_Fig9_Optimal_Scale_Map.png"),
+      p,
+      scenario = scenario,
+      width = 12,
+      height = 5,
+      bg = "white",
+      dpi = 300
     )
-    res_bebcs <- run_spatial_tea(
-        dat$template, params, dat$layers,
-        fun = calculate_bebcs
-    )
-
-    # Extract Optimal_Plant_MW_th layer
-    sz_bes <- res_bes[["Optimal_Plant_MW_th"]]
-    sz_beccs <- res_beccs[["Optimal_Plant_MW_th"]]
-    sz_bebcs <- res_bebcs[["Optimal_Plant_MW_th"]]
-
-    # Combine into a stack
-    stack_r <- c(sz_bes, sz_beccs, sz_bebcs)
-    names(stack_r) <- c("BES", "BECCS", "BEBCS")
-
-    # Apply admin0 mask if available
-    if (!is.null(dat$admin0)) {
-        stack_r <- terra::mask(stack_r, terra::vect(dat$admin0))
-    }
-
-    # Convert to dataframe
-    df <- terra::as.data.frame(stack_r, xy = TRUE, na.rm = TRUE)
-    df_long <- tidyr::pivot_longer(df, cols = c("BES", "BECCS", "BEBCS"), names_to = "Technology", values_to = "Optimal_Size_MWth")
-
-    # Ensure Optimal_Size_MWth is treated as a factor for discrete colors
-    df_long$Optimal_Size_MWth <- factor(df_long$Optimal_Size_MWth, levels = c(5, 25, 50, 100, 250, 500))
-
-    # Plot
-    p <- ggplot(df_long, aes(x = x, y = y, fill = Optimal_Size_MWth)) +
-        geom_tile() +
-        facet_wrap(~Technology, ncol = 3) +
-        scale_fill_viridis_d(option = "plasma", drop = FALSE) +
-        theme_minimal(base_size = 14) +
-        coord_fixed() +
-        labs(
-            x = "", y = "",
-            fill = "Optimal Size (MWth)"
-        ) +
-        theme(
-            axis.text = element_blank(),
-            axis.ticks = element_blank(),
-            panel.grid = element_blank(),
-            strip.text = element_text(face = "bold", size = 16)
-        )
-
-    if (save_map) {
-        ggsave_with_scenario(
-            paste0(out_dir, region_name, "_Fig9_Optimal_Scale_Map.png"),
-            p,
-            scenario = scenario,
-            width = 12,
-            height = 5,
-            bg = "white",
-            dpi = 300
-        )
-    } else {
-        print(p)
-    }
-    p
+  } else {
+    print(p)
+  }
+  p
 }
 
 
 # Figure 10: Global biomass density map
 generate_fig10_biomass_density <- function(save_map = FALSE) {
-    message("Generating Figure 10: Biomass Density...")
-    regions_ordered <- c("India", "China", "US", "Europe")
-    df_all <- list()
-    admin_all <- list()
-    region_widths <- numeric(length(regions_ordered))
+  message("Generating Figure 10: Biomass Density...")
+  regions_ordered <- c("India", "China", "US", "Europe")
+  df_all <- list()
+  admin_all <- list()
+  region_widths <- numeric(length(regions_ordered))
 
-    for (i in seq_along(regions_ordered)) {
-        r <- regions_ordered[i]
-        # load biomass density raster for region
-        dat <- load_region_data(r)
-        bm_den_r <- dat$layers$biomass_density
+  for (i in seq_along(regions_ordered)) {
+    r <- regions_ordered[i]
+    # load biomass density raster for region
+    dat <- load_region_data(r)
+    bm_den_r <- dat$layers$biomass_density
 
-        # Calculate bounding box width to preserve relative scales in patchwork
-        e <- terra::ext(bm_den_r)
-        region_widths[i] <- e$xmax - e$xmin
+    # Calculate bounding box width to preserve relative scales in patchwork
+    e <- terra::ext(bm_den_r)
+    region_widths[i] <- e$xmax - e$xmin
 
-        # Apply admin0 mask if available
-        if (!is.null(dat$admin0)) {
-            bm_den_r <- terra::mask(bm_den_r, terra::vect(dat$admin0))
-            admin_all[[r]] <- dat$admin0
-        }
-
-        # convert to dataframe
-        df <- terra::as.data.frame(bm_den_r, xy = TRUE, na.rm = TRUE)
-        names(df)[3] <- "biomass"
-        df_all[[r]] <- df
+    # Apply admin0 mask if available
+    if (!is.null(dat$admin0)) {
+      bm_den_r <- terra::mask(bm_den_r, terra::vect(dat$admin0))
+      admin_all[[r]] <- dat$admin0
     }
 
-    # Find global min and max for synchronized color scales
-    max_bm <- max(sapply(df_all, function(d) max(d$biomass, na.rm = TRUE)), na.rm = TRUE)
-    min_bm <- min(sapply(df_all, function(d) min(d$biomass, na.rm = TRUE)), na.rm = TRUE)
+    # convert to dataframe
+    df <- terra::as.data.frame(bm_den_r, xy = TRUE, na.rm = TRUE)
+    names(df)[3] <- "biomass"
+    df_all[[r]] <- df
+  }
 
-    # Plot each region individually with enforced global scales
-    plot_list <- list()
-    for (r in regions_ordered) {
-        p <- ggplot() +
-            geom_tile(data = df_all[[r]], aes(x = x, y = y, fill = biomass))
+  # Find global min and max for synchronized color scales
+  max_bm <- max(sapply(df_all, function(d) max(d$biomass, na.rm = TRUE)), na.rm = TRUE)
+  min_bm <- min(sapply(df_all, function(d) min(d$biomass, na.rm = TRUE)), na.rm = TRUE)
 
-        if (!is.null(admin_all[[r]])) {
-            p <- p + geom_sf(data = admin_all[[r]], fill = NA, color = "black", linewidth = 0.2, inherit.aes = FALSE)
-        }
+  # Plot each region individually with enforced global scales
+  plot_list <- list()
+  for (r in regions_ordered) {
+    p <- ggplot() +
+      geom_tile(data = df_all[[r]], aes(x = x, y = y, fill = biomass))
 
-        p <- p +
-            scale_fill_viridis_c(
-                option = "mako", direction = -1, trans = "log1p",
-                limits = c(min_bm, max_bm), # Enforce global limits for patchwork collection
-                name = expression("Biomass\n(Mg/km"^2 * ")")
-            ) +
-            theme_minimal(base_size = 14) +
-            coord_sf() +
-            ggtitle(r) +
-            theme(
-                axis.text = element_blank(),
-                axis.ticks = element_blank(),
-                axis.title = element_blank(),
-                panel.grid = element_blank(),
-                plot.title = element_text(hjust = 0.5, face = "bold")
-            )
-
-        plot_list[[r]] <- p
+    if (!is.null(admin_all[[r]])) {
+      p <- p + geom_sf(data = admin_all[[r]], fill = NA, color = "black", linewidth = 0.2, inherit.aes = FALSE)
     }
 
-    # Combine plots in a single row with relative widths preserved
-    combined_plot <- patchwork::wrap_plots(plot_list, nrow = 1) +
-        patchwork::plot_layout(guides = "collect", widths = region_widths) &
-        theme(legend.position = "bottom", legend.key.width = unit(2, "cm"))
+    p <- p +
+      scale_fill_viridis_c(
+        option = "mako", direction = -1, trans = "log1p",
+        limits = c(min_bm, max_bm), # Enforce global limits for patchwork collection
+        name = expression("Biomass\n(Mg/km"^2 * ")")
+      ) +
+      theme_minimal(base_size = 14) +
+      coord_sf() +
+      ggtitle(r) +
+      theme(
+        axis.text = element_blank(),
+        axis.ticks = element_blank(),
+        axis.title = element_blank(),
+        panel.grid = element_blank(),
+        plot.title = element_text(hjust = 0.5, face = "bold")
+      )
 
-    if (save_map) {
-        ggplot2::ggsave(
-            filename = paste0(out_dir, "Global_Fig10_Biomass_Density.png"),
-            plot = combined_plot,
-            width = 16,
-            height = 5,
-            bg = "white",
-            dpi = 300
-        )
-    } else {
-        print(combined_plot)
-    }
+    plot_list[[r]] <- p
+  }
 
-    return(combined_plot)
+  # Combine plots in a single row with relative widths preserved
+  combined_plot <- patchwork::wrap_plots(plot_list, nrow = 1) +
+    patchwork::plot_layout(guides = "collect", widths = region_widths) &
+    theme(legend.position = "bottom", legend.key.width = unit(2, "cm"))
+
+  if (save_map) {
+    ggplot2::ggsave(
+      filename = paste0(out_dir, "Global_Fig10_Biomass_Density.png"),
+      plot = combined_plot,
+      width = 16,
+      height = 5,
+      bg = "white",
+      dpi = 300
+    )
+  } else {
+    print(combined_plot)
+  }
+
+  return(combined_plot)
 }
 
-run_all_manuscript_figures <- function(save_map = TRUE) {
-    for (scenario_name in .scenarios) {
-        for (r in .regions) {
-            dat <- load_region_data(r)
-            # generate_fig1_phys_boundary(dat, r, save_map, scenario = scenario_name)
-            # generate_fig2_booster_penalty(dat, r, save_map, scenario = scenario_name)
-            generate_fig3_evaporation(dat, r, save_map, scenario = scenario_name)
-            # generate_fig4_capital_wedge(dat, r, save_map, scenario = scenario_name)
-            # generate_fig5_cprice_threshold(dat, r, save_map, scenario = scenario_name)
-            generate_fig6_macc(dat, r, save_map, scenario = scenario_name)
-            # generate_fig7_agronomic_bridge(dat, r, save_map, scenario = scenario_name)
-            # generate_fig9_optimal_scale_map(dat, r, save_map, scenario = scenario_name)
-        }
-        generate_fig8_breakeven_cprice(save_map, scenario = scenario_name)
-        message(paste0("All figures generated successfully for scenario: ", scenario_name, "\n"))
+run_all_manuscript_figures <- function(save_map = TRUE) { # xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  for (scenario_name in .scenarios) {
+    for (r in .regions) {
+      dat <- load_region_data(r)
+      # generate_fig1_phys_boundary(dat, r, save_map, scenario = scenario_name)
+      # generate_fig2_booster_penalty(dat, r, save_map, scenario = scenario_name)
+      generate_fig3_evaporation(dat, r, save_map, scenario = scenario_name)
+      # generate_fig4_capital_wedge(dat, r, save_map, scenario = scenario_name)
+      # generate_fig5_cprice_threshold(dat, r, save_map, scenario = scenario_name)
+      # generate_fig7_agronomic_bridge(dat, r, save_map, scenario = scenario_name)
+      # generate_fig9_optimal_scale_map(dat, r, save_map, scenario = scenario_name)
     }
-    # generate_fig10_biomass_density(save_map = TRUE)
+    generate_fig6_macc(save_map, scenario = scenario_name)
+    generate_fig8_breakeven_cprice(save_map, scenario = scenario_name)
+    message(paste0("All figures generated successfully for scenario: ", scenario_name, "\n"))
+  }
+  # generate_fig10_biomass_density(save_map = TRUE)
 }
 
 # --- Execution block ---
 if (sys.nframe() == 0) {
-    # read parameters from file
-    params <- load_parameters("/media/dominic/Data/git/Biochar_AG/parameters.csv")
-    dir.create(out_dir, showWarnings = FALSE)
-    .regions <- c("US", "China", "Europe", "India")
-    .scenarios <- c("default", "CP100_MW250", "CP100_MW250_reg", "EA_CP100_MW250", "EA_CP100_MW250_reg")
-    run_all_manuscript_figures(save_map = TRUE)
+  # read parameters from file
+  params <- load_parameters("/media/dominic/Data/git/Biochar_AG/parameters.csv")
+  dir.create(out_dir, showWarnings = FALSE)
+  .regions <- c("US", "China", "Europe", "India")
+  .scenarios <- c("default", "CP100_MW250", "CP100_MW250_reg", "EA_CP100_MW250", "EA_CP100_MW250_reg")
+  run_all_manuscript_figures(save_map = TRUE)
 }
 # nolint end

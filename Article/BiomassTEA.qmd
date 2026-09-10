@@ -22,6 +22,10 @@ format:
       \linenumbers
       \usepackage{authblk}
       \usepackage{marvosym}
+      \usepackage{draftwatermark}
+      \SetWatermarkText{DRAFT. Not for distribution}
+      \SetWatermarkScale{0.35}
+      \SetWatermarkColor[gray]{0.88}
       \author[1]{Dominic Woolf\,\thanks{Correspondence to d.woolf@cornell.edu}}
       \author[2]{Jocelyn Lavallee}
       \author[2]{Anna Raffeld}
@@ -70,7 +74,6 @@ Feedstock pricing is not treated as a static global constant; rather, it is deri
 
 -   **China:** Modifies a baseline plant-gate cost with exogenous spatial risk multipliers, applying premiums for localized weather volatility and rural expansion risks.
 
-
 ### Technology Pathways and Thermodynamics
 
 The core thermodynamic engine evaluates three distinct biomass utilization pathways, processing the standardized $250\text{ MW}_{\text{th}}$ biomass input into varying ratios of exported electrical energy and sequestered carbon.
@@ -87,19 +90,9 @@ The BECCS pathway augments the standard combustion baseline with a post-combusti
 
 The capture process is parameterized with a 90% capture efficiency rate. The total volume of captured CO~2~ routed to geological storage is calculated stoichiometrically based on the carbon fraction of the incoming biomass feed (default 48% C), converted to CO~2~ mass equivalents using the 44/12 molar ratio. The increased infrastructure complexity elevates the base CAPEX to $\$4,000/\text{kW}_e$, with annual O&M scaling concurrently to 5% of CAPEX.
 
-#### Bioenergy with Biochar Storage (BEBCS) and Pyrolysis Physics
-
-Unlike the fully oxidative pathways, the BEBCS pathway relies on thermochemical pyrolysis, producing a solid, recalcitrant carbon matrix (biochar) alongside volatile syngas and bio-oil. The model employs a rigorous mass and energy balance approach constrained by elemental conservation of Carbon, Hydrogen, and Oxygen (C, H, O).
-
-The mass yield and elemental composition of the resulting biochar are determined dynamically as a function of the peak pyrolysis temperature ($T_{py}$) agarnd the lignin fraction of the feedstock. Specific yields for non-condensable gases—hydrogen ($H_2$), carbon monoxide ($CO$), methane ($CH_4$), and ethylene ($C_2H_4$)—are calculated explicitly based on temperature-dependent reaction kinetics.
-
-To close the mass balance, the unaccounted elemental fractions ($U_c, U_h, U_o$) are stoichiometrically partitioned into bio-oil, water ($H_2O$), and carbon dioxide (CO~2~). The model restricts bio-oil to a fixed empirical composition ($62.5\%\text{ C}, 7.56\%\text{ H}, 29.94\%\text{ O}$) to solve the final product distribution analytically.
-
-The net usable energy flux for the BEBCS pathway is calculated by subtracting the process heat requirements from the total enthalpy of the gaseous and liquid products. The higher heating value (HHV) of the biochar is calculated via the Dulong formula, utilizing the temperature-dependent C, H, and O fractions. Heat for the endothermic pyrolysis reaction is supplied entirely by the combustion of the volatile syngas and bio-oil fractions; any surplus thermal energy is converted to electricity using the baseline BES efficiency parameters. If the syngas and bio-oil are insufficient to meet the thermal load, a portion of the biochar is oxidized to close the energy balance, proportionally reducing the final carbon sequestration yield.
-
 ### Carbon Transport and Geological Storage
 
-#### Spatial Routing and Terrain Friction
+#### Pipeline Routing
 
 The spatial routing of captured CO~2~ is governed by an economic optimization algorithm that dynamically selects the lowest-cost transport modality—pipeline or maritime shipping—for every grid cell. Standard spatial optimization models frequently rely on simple Euclidean distances or Voronoi tessellations, which artificially generate circular geographical discontinuities in net present value (NPV) maps. To eliminate these artifacts and accurately model the economic constraints of CO~2~ transport, this framework implements a deterministic Lowest Cost Routing logic that relies on a terrain-optimized Least Cost Path (LCP) algorithm rather than linear assumptions.
 
@@ -109,13 +102,7 @@ $$M(\theta) = \exp(0.25 \cdot \theta)$$
 
 where $\theta$ represents the aggregated slope. Furthermore, to ensure that proposed CO~2~ infrastructure avoids ecologically sensitive or legally restricted regions, protected areas from the World Database on Protected Areas (WDPA) were rasterized and treated as absolute barriers. This forces the routing algorithm to find the most efficient path around protected zones. Once the minimal effective transport route is mapped, the distances are adjusted by a standard tortuosity multiplier of 1.25 to account for right-of-way routing and localized physical avoidance.
 
-#### Maritime Shipping Modality
-
-For offshore geological sinks, or for highly isolated onshore sources, CO~2~ is transported via maritime or rail networks. This modality is modeled with a step-cost function dominated by the capital-intensive fixed entry costs of liquefaction and terminal buffering, paired with highly efficient variable voyage costs:
-
-$$C_{shipping} = C_{liquefaction} + C_{terminal} + (c_{voyage} \cdot d_{effective})$$
-
-#### Hub-and-Spoke Pipeline Modality (Piecewise Linear)
+#### Hub-and-Spoke Pipeline Modality
 
 Standard length-invariant TEA cost functions for CO~2~ pipelines adequately model regional networks but fundamentally underestimate the capital and energetic burdens of long-distance transport. Specifically, maintaining CO~2~ in a dense or supercritical phase over extended distances requires the deployment of intermediate booster compression stations to overcome frictional pressure drops.
 
@@ -137,6 +124,12 @@ C_{base} \cdot (700 - 50) + (C_{base} \cdot P_{booster}) \cdot (d_{effective} - 
 
 where $C_{base}$ is the unit length cost of the efficient-scale trunkline, scaled to the site's proportional mass.
 
+#### Maritime Shipping
+
+For offshore geological sinks, or for highly isolated onshore sources, CO~2~ is transported via maritime or rail networks. This modality is modeled with a step-cost function dominated by the capital-intensive fixed entry costs of liquefaction and terminal buffering, paired with highly efficient variable voyage costs:
+
+$$C_{shipping} = C_{liquefaction} + C_{terminal} + (c_{voyage} \cdot d_{effective})$$
+
 #### Modality Optimization
 
 To eliminate artifactual spatial boundaries, the algorithm evaluates both modalities for all onshore sinks and selects the optimal route:
@@ -145,7 +138,19 @@ $$Cost_{transport} = \min(C_{pipeline}, C_{shipping})$$
 
 Because of the piecewise booster penalty, the pipeline cost curve steepens significantly beyond 700 km. This ensures the pipeline cost curve intersects with the flat $C_{shipping}$ cost floor, allowing the model to smoothly transition to shipping modalities at very long distances.
 
-#### Biochar Permanence and Agronomic Valuation (BEBCS Feedbacks)
+#### CO2 Injection
+
+The model assumes a fixed cost per unit mass of Co2 for storage injection with default values of \$12 Mg-1 for onshore and \$40 Mg-1 for offshore storage [@ref].
+
+### Bioenergy with Biochar Storage (BEBCS)
+
+Unlike the fully oxidative pathways, the BEBCS pathway relies on thermochemical pyrolysis, producing a solid, recalcitrant carbon matrix (biochar) alongside volatile syngas and bio-oil. The model employs a mass and energy balance approach constrained by elemental conservation of Carbon, Hydrogen, and Oxygen (C, H, O).
+
+The mass yield and elemental composition of the resulting biochar are determined dynamically as a function of the peak pyrolysis temperature ($T_{py}$) and the lignin fraction of the feedstock. Specific yields for non-condensable gases hydrogen ($H_2$), carbon monoxide ($CO$), methane ($CH_4$), and ethylene ($C_2H_4$) are calculated based on temperature-dependent reaction kinetics [@woolf2014]. To close the mass balance, the unaccounted elemental fractions ($U_c, U_h, U_o$) are stoichiometrically partitioned into bio-oil, water ($H_2O$), and carbon dioxide (CO~2~). The model restricts bio-oil to a fixed empirical composition ($62.5\%\text{ C}, 7.56\%\text{ H}, 29.94\%\text{ O}$) to solve the final product distribution analytically.[@woolf2014]
+
+The net usable energy flux for the BEBCS pathway is calculated by subtracting the process heat requirements from the total enthalpy of the gaseous and liquid products. The higher heating value (HHV) of the biochar is calculated via the Dulong formula, utilizing the temperature-dependent C, H, and O fractions. Heat for the endothermic pyrolysis reaction is supplied entirely by the combustion of the volatile syngas and bio-oil fractions; any surplus thermal energy is converted to electricity using the baseline BES efficiency parameters. If the syngas and bio-oil are insufficient to meet the thermal load, a portion of the biochar is oxidized to close the energy balance, proportionally reducing the final carbon sequestration yield.
+
+#### Biochar Permanence
 
 The Bioenergy with Biochar Storage (BEBCS) pathway diverts a fraction of the original biomass carbon into a recalcitrant solid matrix. While physical disposal methods such as the landfilling of biochar represent a highly effective method to provide highly stable carbon storage, this framework strictly evaluates soil application to quantify the cascading agronomic co-benefits and regional substitution values. Consequently, the carbon retention within the soil matrix is finite and must be modeled dynamically based on localized biogeochemical conditions.
 
@@ -161,9 +166,9 @@ $$C_{seq} = Yield_{bc} \cdot C_{content} \cdot F_{perm} \cdot \left(\frac{44}{12
 
 where $Yield_{bc}$ is the mass fraction of biochar produced, $C_{content}$ is the carbon mass fraction of the biochar, and the $44/12$ ratio converts the elemental carbon to CO~2~ mass equivalents.
 
-#### Mechanistic Agronomic Valuation
+#### Biochar Agronomic Valuation
 
-Previous spatial models frequently value biochar using a static, exogenous global market price. To better reflect real-world agricultural economics, C-SCAPE endogenously determines the economic credit of biochar through a mechanistic substitution valuation. This assumes that the rational economic value of biochar is equal to the cost of the conventional agricultural inputs it successfully offsets:
+Previous spatial models frequently value biochar using a static, exogenous global market price. To better reflect real-world agricultural economics, C-SCAPE endogenously determines the economic credit of biochar through a mechanistic substitution valuation. This assumes that the shadow price of biochar is equal to the cost of the conventional agricultural inputs it offsets:
 
 $$Value_{ag} = Value_{lime} + Value_{nutrients} + Value_{physical}$$
 
@@ -173,7 +178,7 @@ $$Value_{ag} = Value_{lime} + Value_{nutrients} + Value_{physical}$$
 
 Because physical and chemical soil improvements degrade or saturate over time, the total annual physical and nutrient benefits are amortized as a Present Value of an Annuity over a conservative 10-year agronomic impact duration, discounted at the baseline financial discount rate.
 
-#### Consequential Life Cycle Assessment and Climate Mitigation
+### Baseline energy system and offsets
 
 To robustly account for the climate mitigation benefit of bioenergy generation, the framework evaluates greenhouse gas offsets using a consequential Life Cycle Assessment (LCA) boundary. Total carbon abatement is calculated distinctively for each technology pathway, balancing active sequestration, grid displacement credits, and Scope 3 supply chain emissions.
 
@@ -182,12 +187,12 @@ To robustly account for the climate mitigation benefit of bioenergy generation, 
 The net carbon abatement for each grid cell is defined as the sum of physical carbon sequestered and emissions displaced, minus the transportation emissions penalty:
 
 -   **BES:** Abatement relies entirely on the displacement of grid emissions, minus the Scope 3 emissions associated with diesel trucking of the biomass feedstock.
--   **BECCS:** Abatement includes the physical CO~2~ captured and injected into the geological sink (assuming a 90% capture rate) plus the grid displacement credit. However, because the parasitic energy load of the capture process reduces the net electrical efficiency (from 30% to 28%), the total energy exported—and thus the resulting grid displacement credit—is proportionally lower for BECCS than for pure BES\[\^5\].
--   **BEBCS:** Abatement combines the grid displacement credit with the permanent CO~2~ equivalent of the biochar carbon retained in the soil ($F_{perm}$), alongside a minor fixed soil greenhouse gas abatement credit (e.g., suppressed $N_2O$ emissions).
+-   **BECCS:** Abatement includes the physical CO~2~ captured and injected into the geological sink (assuming a 90% capture rate) plus the grid displacement credit. However, because the parasitic energy load of the capture process reduces the net electrical efficiency (from 30% to 28%), the total energy exported and thus the resulting grid displacement credit is proportionally lower for BECCS than for pure BES.
+-   **BEBCS:** Abatement combines the grid displacement credit with the permanent CO~2~ equivalent of the biochar carbon retained in the soil ($F_{perm}$), alongside a soil greenhouse gas abatement credit for suppressed $N_2O$ emissions.
 
 For all pathways, Scope 3 feedstock transport emissions are modeled dynamically by applying a heavy-duty diesel transport emissions factor ($0.0001\text{ Mg CO}_2\text{e}$ per $\text{Mg}\cdot\text{km}$) to the effective biomass collection distance.
 
-#### Grid Displacement Methodology (Marginal Carbon Intensity)
+#### Grid Displacement
 
 We estimate the Marginal Carbon Intensity (MCI) of displaced energy under two bounding scenarios to reflect differing macro-economic climate trajectories.
 
@@ -267,11 +272,11 @@ gt(display_df, groupname_col = "Category") |>
 
 ## Capital Intensive Pathways are Highly Sensitive to Discount Rates and Carbon Prices
 
-Figures [fig-evap-usa](#fig-evap-usa) to [fig-evap-china](#fig-evap-china) illustrate the core vulnerability of CDR pathways to capital lock-out. Because both BECCS (heavy upfront infrastructure) and BEBCS (deferred agronomic value) are highly sensitive to the cost of capital, high discount rates act as a strong barrier to adoption, forcing a retreat to traditional Bioenergy (BES) without high carbon prices. For example, in the USA, at a 2% social discount rate and a $30/t carbon price, BEBCS covers a large extent of the US Midwest and South, with BECCS only being viable close to CO~2~ sinks. However, stepping up to the 8% market baseline eliminates BEBCS's advantage, replacing it with almost entirely with BES. The value of biochar relies heavily on liming and nutrient substitution benefits that are amortized over a 10-year agronomic impact duration. At an 8% or 15% discount rate, the present value of those future soil benefits is diminished, rendering the upfront thermal penalties of pyrolysis economically unviable at low carbon prices. At a 2% discount rate and intermediate carbon price (around $100/t), BECCS is nearly universal across the US. At 15%, the BECCS dominance is fractured, with BES reclaiming the geographic margins (e.g., the Northeast and far West), and BEBCS remaining only in localized pockets where soil conditions make it particularly attractive. This occurs because, when capital is expensive, the penalty for long-distance pipelines becomes insurmountable until carbon prices reach the $150/t range. By the time the carbon price reaches $150/t, the maps become almost entirely red across all discount rates. At this pricing level, the high CDR capture efficiency overwhelms the high cost of capital, making BECCS the most economically attractive option.
+Figures [fig-evap-usa](#fig-evap-usa) to [fig-evap-china](#fig-evap-china) illustrate the core vulnerability of CDR pathways to capital lock-out. Because both BECCS (heavy upfront infrastructure) and BEBCS (deferred agronomic value) are highly sensitive to the cost of capital, high discount rates act as a strong barrier to adoption, forcing a retreat to traditional Bioenergy (BES) without high carbon prices. For example, in the USA, at a 2% social discount rate and a \$30/t carbon price, BEBCS covers a large extent of the US Midwest and South, with BECCS only being viable close to CO~2~ sinks. However, stepping up to the 8% market baseline eliminates BEBCS's advantage, replacing it with almost entirely with BES. The value of biochar relies heavily on liming and nutrient substitution benefits that are amortized over a 10-year agronomic impact duration. At an 8% or 15% discount rate, the present value of those future soil benefits is diminished, rendering the upfront thermal penalties of pyrolysis economically unviable at low carbon prices. At a 2% discount rate and intermediate carbon price (around \$100/t), BECCS is nearly universal across the US. At 15%, the BECCS dominance is fractured, with BES reclaiming the geographic margins (e.g., the Northeast and far West), and BEBCS remaining only in localized pockets where soil conditions make it particularly attractive. This occurs because, when capital is expensive, the penalty for long-distance pipelines becomes insurmountable until carbon prices reach the \$150/t range. By the time the carbon price reaches \$150/t, the maps become almost entirely red across all discount rates. At this pricing level, the high CDR capture efficiency overwhelms the high cost of capital, making BECCS the most economically attractive option.
 
 ## Biochar provides a mid-price transition technology option and a long term solution for specific agro-ecological zones
 
-Figure [fig-evap-china](#fig-evap-china) provides a counterpoint to the US results. It shows how soils with strong production constraints that can be alleviated by biochar can create a persistent competitive advantage for biochar, particularly when combined with large distances to CO~2~ storage sites. BEBCS performs a central role as a transition technology that peaks at intermediate carbon prices that are high enough to make its carbon sequestration competitive with BES, but not so high that the more efficient CDR of BECCS per unit biomass outcompetes it (Figures [fig-MACC-eur](#fig-MACC-eur), [fig-MACC-india](#fig-MACC-india), and [fig-MACC-china](#fig-MACC-china)).  Nonetheless, while BECCS ultimately becomes the optimal technology across the entire US spatial domain at high carbon prices, BEBCS remains the most viable pathway in southern China across almost all price and discount rate scenarios. This demonstrates that BEBCS is not merely a transition technology, but the optimal long-term pathway for specific agro-ecological zones. In Southern China, characterized by highly weathered, acidic soils, the biochar's liming and nutrient use efficiency benefits provide a substantial economic credit that buffers against high processing costs. The model scales physical yield efficiency gains inversely to the soil's native Cation Exchange Capacity (CEC), thus granting severe CEC deficits higher premiums. This is confirmed by the SHAP analysis (Figure [fig-shap-dominant](#fig-shap-dominant)), which identifies soil CEC as the dominant spatial driver in this region.
+Figure [fig-evap-china](#fig-evap-china) provides a counterpoint to the US results. It shows how soils with strong production constraints that can be alleviated by biochar can create a persistent competitive advantage for biochar, particularly when combined with large distances to CO~2~ storage sites. BEBCS performs a central role as a transition technology that peaks at intermediate carbon prices that are high enough to make its carbon sequestration competitive with BES, but not so high that the more efficient CDR of BECCS per unit biomass outcompetes it (Figures [fig-MACC-eur](#fig-MACC-eur), [fig-MACC-india](#fig-MACC-india), and [fig-MACC-china](#fig-MACC-china)). Nonetheless, while BECCS ultimately becomes the optimal technology across the entire US spatial domain at high carbon prices, BEBCS remains the most viable pathway in southern China across almost all price and discount rate scenarios. This demonstrates that BEBCS is not merely a transition technology, but the optimal long-term pathway for specific agro-ecological zones. In Southern China, characterized by highly weathered, acidic soils, the biochar's liming and nutrient use efficiency benefits provide a substantial economic credit that buffers against high processing costs. The model scales physical yield efficiency gains inversely to the soil's native Cation Exchange Capacity (CEC), thus granting severe CEC deficits higher premiums. This is confirmed by the SHAP analysis (Figure [fig-shap-dominant](#fig-shap-dominant)), which identifies soil CEC as the dominant spatial driver in this region.
 
 ## Regional Policies Hinder Biochar Competitiveness
 
@@ -279,7 +284,7 @@ In India, on the other hand, the mid carbon price advantage of BEBCS is almost e
 
 ## Regional Energy prices and Carbon Intensity provide a critical constraint on the optimal CDR pathways
 
-At lower carbon prices The optimal technology in Europe is almost universally BES, driven by high energy prices as the dominant driver across Europe. At $30 / t CO~2~, the revenue from maximized power generation in BES outweighs the incentive to capture and sequester carbon, rendering the capital expenditure for BECCS and BEBCS unviable across all discount rates. As carbon prices increase, BECCS begins to dominate across central and northern Europe. BEBCS gains a strong advantage in Southern Europe, and Eastern Scandinavia where various combinations of large distances to CO~2~ sinks, already-low carbon intensity of the energy systems, and infertile soils make it more competitive. As in China, we see BEBCS maintain its advantage in these regions, even at very high carbon prices.
+At lower carbon prices The optimal technology in Europe is almost universally BES, driven by high energy prices as the dominant driver across Europe. At \$30 / t CO~2~, the revenue from maximized power generation in BES outweighs the incentive to capture and sequester carbon, rendering the capital expenditure for BECCS and BEBCS unviable across all discount rates. As carbon prices increase, BECCS begins to dominate across central and northern Europe. BEBCS gains a strong advantage in Southern Europe, and Eastern Scandinavia where various combinations of large distances to CO~2~ sinks, already-low carbon intensity of the energy systems, and infertile soils make it more competitive. As in China, we see BEBCS maintain its advantage in these regions, even at very high carbon prices.
 
 # Conclusion
 

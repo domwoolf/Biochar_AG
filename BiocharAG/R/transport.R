@@ -5,7 +5,7 @@
 #'
 #' @param mass_flow_mtpa Numeric. Annual CO2 mass flow in Million Tonnes Per Annum (Mtpa).
 #' @param distance_km Numeric. Transport distance in kilometers.
-#' @param region Character. One of "North America", "Europe", "China", "India".
+#' @param region Character. One of "US", "Europe", "China", "India".
 #' @param is_offshore Logical. If TRUE, applies offshore multipliers to pipeline costs.
 #' @param force_mode Character (optional). "pipeline" or "shipping" to override the optimization logic.
 #'
@@ -24,7 +24,7 @@ calc_transport_cost <- function(mass_flow_mtpa, distance_km, region, is_offshore
   # --- 2. Regional Factors [cite: 281] ---
   # US = 1.0 (Base), EU = 1.2, China/India = 0.7
   reg_factor <- dplyr::case_when(
-    region == "North America" ~ 1.0,
+    region == "US" ~ 1.0,
     region == "Europe" ~ 1.2,
     region %in% c("China", "India") ~ 0.7,
     TRUE ~ 1.0

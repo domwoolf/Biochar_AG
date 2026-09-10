@@ -20,9 +20,7 @@ regional_overrides <- list(
     price_n = 1.59,
     price_p = 2.08,
     price_k = 0.82,
-    price_lime = 45,
-    soil_ph_target = 6.5
-  ),
+    price_lime = 45),
   India = list(
     discount_rate = 0.10,
     bes_capital_cost = 3000 * 0.65,
@@ -32,9 +30,7 @@ regional_overrides <- list(
     price_n = 0.14,
     price_p = 0.70,
     price_k = 0.68,
-    price_lime = 35,
-    soil_ph_target = 6.5
-  ),
+    price_lime = 35),
   China = list(
     discount_rate = 0.045,
     bes_capital_cost = 3000 * 0.7,
@@ -44,9 +40,7 @@ regional_overrides <- list(
     price_n = 0.79,
     price_p = 1.10,
     price_k = 0.55,
-    price_lime = 35,
-    soil_ph_target = 6.5
-  ),
+    price_lime = 35),
   Europe = list(
     discount_rate = 0.045,
     bes_capital_cost = 3000 * 1.15,
@@ -56,9 +50,7 @@ regional_overrides <- list(
     price_n = 1.75,
     price_p = 2.29,
     price_k = 0.9,
-    price_lime = 50,
-    soil_ph_target = 6.5
-  )
+    price_lime = 50)
 )
 
 #' Scenarios List

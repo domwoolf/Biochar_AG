@@ -14,8 +14,7 @@
 #' @param feed_o Feedstock Oxygen fraction (DAF). Default 0.44.
 #' @return A list containing yields, HHVs, and net energy flux.
 #' @export
-calculate_pyrolysis_physics <- function(py_temp, lignin, bm_lhv, moisture = 0.1, ash = 0.05,
-                                        feed_c = 0.50, feed_h = 0.06, feed_o = 0.44) {
+calculate_pyrolysis_physics <- function(py_temp, lignin, bm_lhv, moisture = 0.1, ash = 0.05, feed_c = 0.50, feed_h = 0.06, feed_o = 0.44) {
     T_k <- py_temp + 273.15
 
     # --- 1. Biochar Yield & Composition ---

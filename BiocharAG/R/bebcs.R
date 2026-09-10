@@ -13,7 +13,10 @@ calculate_bebcs <- function(params) {
       lignin = lignin,
       bm_lhv = bm_lhv,
       moisture = if (exists("bm_h2o")) bm_h2o else 0.1,
-      ash = if (exists("bm_ash")) bm_ash else 0.05
+      ash = if (exists("bm_ash")) bm_ash else 0.05,
+      feed_c = if (exists("bm_c")) bm_c else 0.50,
+      feed_h = if (exists("bm_h")) bm_h else 0.06,
+      feed_o = if (exists("bm_o")) bm_o else 0.44
     )
 
     bc_yield <- phys$yield_bc

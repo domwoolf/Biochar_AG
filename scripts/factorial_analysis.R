@@ -93,8 +93,7 @@ for (i in 1:nrow(factorial_grid)) {
     p$avg_dist <- spatial_layers[[dist_layer_name]]
   }
 
-  feedstock_region <- if (row$region == "Europe") "EU" else row$region
-  p$feedstock_cost <- BiocharAG::calculate_regional_feedstock_cost(feedstock_region, p)
+  p$feedstock_cost <- BiocharAG::calculate_regional_feedstock_cost(row$region, p)
 
   # Execute All 3 Technologies
   res_bes <- BiocharAG::calculate_bes(p)

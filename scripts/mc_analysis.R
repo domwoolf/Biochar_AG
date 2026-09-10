@@ -240,8 +240,7 @@ results_list <- parallel::mclapply(seq_len(nrow(factorial_grid)), function(s) {
       p$avg_dist <- spatial_layers[[dist_layer_name]]
     }
 
-    feedstock_region <- if (s_row$region == "Europe") "EU" else s_row$region
-    p$feedstock_cost <- BiocharAG::calculate_regional_feedstock_cost(feedstock_region, p)
+    p$feedstock_cost <- BiocharAG::calculate_regional_feedstock_cost(s_row$region, p)
 
     # Execute All 3 Technologies Competitively
     res_bes <- BiocharAG::calculate_bes(p)
