@@ -17,10 +17,9 @@ message("Starting Spatial Sensitivity Analysis...")
 message("Selected Scenario: ", SCENARIO_NAME)
 
 # 1. Load Parameter Definitions & Scenario
-params <- load_parameters("parameters.csv")
 if (SCENARIO_NAME %in% names(BiocharAG::scenarios)) {
   overrides <- BiocharAG::scenarios[[SCENARIO_NAME]]
-  params[names(overrides)] <- overrides
+  params <- BiocharAG::set_scenario(scenario = overrides)
   message("Successfully loaded scenario overrides.")
 } else {
   stop("Scenario '", SCENARIO_NAME, "' not found in BiocharAG::scenarios.")
@@ -263,7 +262,7 @@ for (r in regions) {
     feedstock_cost_BES = feedstock_cost_bes,
     capex_BES = res_bes$capital_cost_mg,
     opex_BES = res_bes$om_cost_mg,
-    energy_revenue_BES = res_bes$elec_revenue_mg,
+    energy_revenue_BES = res_bes$energy_revenue_mg,
     fossil_fuel_offset_revenue_BES = c_displaced_bes * c_price,
     cdr_revenue_BES = 0,
     co2_transport_storage_cost_BES = 0,
@@ -276,7 +275,7 @@ for (r in regions) {
     feedstock_cost_BECCS = feedstock_cost_beccs,
     capex_BECCS = res_beccs$capital_cost_mg,
     opex_BECCS = res_beccs$om_cost_mg,
-    energy_revenue_BECCS = res_beccs$elec_revenue_mg,
+    energy_revenue_BECCS = res_beccs$energy_revenue_mg,
     fossil_fuel_offset_revenue_BECCS = c_displaced_beccs * c_price,
     cdr_revenue_BECCS = res_beccs$c_sequestered * c_price,
     co2_transport_storage_cost_BECCS = res_beccs$ts_cost,
@@ -289,7 +288,7 @@ for (r in regions) {
     feedstock_cost_BEBCS = feedstock_cost_bebcs,
     capex_BEBCS = res_bebcs$capital_cost_mg,
     opex_BEBCS = res_bebcs$om_cost_mg,
-    energy_revenue_BEBCS = res_bebcs$elec_revenue_mg,
+    energy_revenue_BEBCS = res_bebcs$energy_revenue_mg,
     fossil_fuel_offset_revenue_BEBCS = c_displaced_bebcs * c_price,
     cdr_revenue_BEBCS = res_bebcs$c_sequestered * c_price,
     agronomic_revenue_BEBCS = res_bebcs$agronomic_revenue_mg,

@@ -1,57 +1,80 @@
-#' Default Parameters Dataset
-#'
-#' A list containing the default parameters for the BiocharAG model.
-#'
-#' @format A named list.
-"default_parameters"
+get_default_parameters <- function() {
+  csv_path <- system.file("extdata", "parameters.csv", package = "BiocharAG")
+  if (csv_path == "") {
+    # Fallback for development if not installed
+    csv_path <- file.path(getwd(), "inst", "extdata", "parameters.csv")
+    if (!file.exists(csv_path)) csv_path <- file.path(getwd(), "..", "inst", "extdata", "parameters.csv")
+  }
+  if (!file.exists(csv_path)) stop("parameters.csv not found")
+  
+  params_df <- utils::read.csv(csv_path, stringsAsFactors = FALSE)
+  
+  defaults <- list()
+  for (i in seq_len(nrow(params_df))) {
+     val_str <- params_df$default_value[i]
+     name <- params_df$name[i]
+     
+     if (is.na(val_str) || val_str == "NA" || val_str == "") next
+     
+     if (params_df$type[i] %in% c("control_flag", "logical")) {
+         defaults[[name]] <- as.logical(val_str)
+     } else if (grepl(",", val_str)) {
+         defaults[[name]] <- as.numeric(trimws(unlist(strsplit(val_str, ","))))
+     } else {
+         suppressWarnings({
+           num_val <- as.numeric(val_str)
+           if (!is.na(num_val)) defaults[[name]] <- num_val else defaults[[name]] <- val_str
+         })
+     }
+  }
+  return(defaults)
+}
 
-#' Regional Overrides List
+#' Get Regional Overrides from CSV
 #'
-#' A predefined list of regional parameter overrides for non-spatial parameters
-#' (financial, capital cost modifiers, O&M labor factors, and fertilizer prices).
+#' @return A named list of regional overrides.
 #' @export
-regional_overrides <- list(
-  US = list(
-    discount_rate = 0.05,
-    bes_capital_cost = 3000 * 1.25,
-    beccs_capital_cost = 4000 * 1.25,
-    bes_om_factor = 0.045,
-    beccs_om_factor = 0.055,
-    price_n = 1.59,
-    price_p = 2.08,
-    price_k = 0.82,
-    price_lime = 45),
-  India = list(
-    discount_rate = 0.10,
-    bes_capital_cost = 3000 * 0.65,
-    beccs_capital_cost = 4000 * 0.65,
-    bes_om_factor = 0.025,
-    beccs_om_factor = 0.03,
-    price_n = 0.14,
-    price_p = 0.70,
-    price_k = 0.68,
-    price_lime = 35),
-  China = list(
-    discount_rate = 0.045,
-    bes_capital_cost = 3000 * 0.7,
-    beccs_capital_cost = 4000 * 0.7,
-    bes_om_factor = 0.03,
-    beccs_om_factor = 0.035,
-    price_n = 0.79,
-    price_p = 1.10,
-    price_k = 0.55,
-    price_lime = 35),
-  Europe = list(
-    discount_rate = 0.045,
-    bes_capital_cost = 3000 * 1.15,
-    beccs_capital_cost = 4000 * 1.15,
-    bes_om_factor = 0.045,
-    beccs_om_factor = 0.055,
-    price_n = 1.75,
-    price_p = 2.29,
-    price_k = 0.9,
-    price_lime = 50)
-)
+get_regional_overrides <- function() {
+  csv_path <- system.file("extdata", "parameters.csv", package = "BiocharAG")
+  if (csv_path == "") {
+    csv_path <- file.path(getwd(), "inst", "extdata", "parameters.csv")
+    if (!file.exists(csv_path)) csv_path <- file.path(getwd(), "..", "inst", "extdata", "parameters.csv")
+  }
+  if (!file.exists(csv_path)) return(list())
+  
+  params_df <- utils::read.csv(csv_path, stringsAsFactors = FALSE)
+  
+  overrides <- list()
+  regions <- c("US", "Europe", "China", "India")
+  
+  for (r in regions) {
+    if (r %in% names(params_df)) {
+      reg_list <- list()
+      for (i in seq_len(nrow(params_df))) {
+        val_str <- params_df[[r]][i]
+        if (!is.na(val_str) && val_str != "" && val_str != "NA") {
+          name <- params_df$name[i]
+          
+          # Only override if different from default? 
+          # Actually, just parse it.
+          if (params_df$type[i] %in% c("control_flag", "logical")) {
+              parsed <- as.logical(val_str)
+          } else if (grepl(",", val_str)) {
+              parsed <- as.numeric(trimws(unlist(strsplit(val_str, ","))))
+          } else {
+              suppressWarnings({
+                num_val <- as.numeric(val_str)
+                if (!is.na(num_val)) parsed <- num_val else parsed <- val_str
+              })
+          }
+          reg_list[[name]] <- parsed
+        }
+      }
+      overrides[[r]] <- reg_list
+    }
+  }
+  return(overrides)
+}
 
 #' Scenarios List
 #'
@@ -82,7 +105,7 @@ scenarios_base <- list(
   )
 )
 
-scenarios_reg <- lapply(scenarios_base, \(s) c(s, list(regional = regional_overrides)))
+scenarios_reg <- lapply(scenarios_base, \(s) c(s, list(regional = get_regional_overrides())))
 names(scenarios_reg) <- paste0(names(scenarios_reg), "_reg")
 #' Regionalized Scenarios
 #'
@@ -129,8 +152,9 @@ apply_regional_overrides <- function(params, region = NULL) {
     return(params)
   }
   r_key <- normalize_region_name(region)
-  if (r_key %in% names(BiocharAG::regional_overrides)) {
-    overrides <- BiocharAG::regional_overrides[[r_key]]
+  reg_overrides <- get_regional_overrides()
+  if (r_key %in% names(reg_overrides)) {
+    overrides <- reg_overrides[[r_key]]
     if (length(overrides) > 0) {
       params[names(overrides)] <- overrides
     }
@@ -155,7 +179,7 @@ apply_regional_overrides <- function(params, region = NULL) {
 #' @return A named list of parameters.
 #' @export
 set_scenario <- function(scenario = list(), region = NULL) {
-  params <- BiocharAG::default_parameters
+  params <- get_default_parameters()
 
   # 1. Determine region
   if (is.null(region) && !is.null(scenario[["region", exact = TRUE]])) {
@@ -221,7 +245,7 @@ load_parameters <- function(file, as_dataframe = FALSE) {
     return(df)
   }
 
-  params <- BiocharAG::default_parameters
+  params <- get_default_parameters()
   for (i in seq_len(nrow(df))) {
     name <- df$name[i]
     val_str <- df$default_value[i]

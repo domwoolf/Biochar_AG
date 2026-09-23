@@ -17,7 +17,7 @@ calc_transport_cost(
 
 \item{distance_km}{Numeric. Transport distance in kilometers.}
 
-\item{region}{Character. One of "North America", "Europe", "China", "India".}
+\item{region}{Character. One of "US", "Europe", "China", "India".}
 
 \item{is_offshore}{Logical. If TRUE, applies offshore multipliers to pipeline costs.}
 

@@ -60,6 +60,17 @@ default_parameters <- list(
   lignin = 0.2,
   time_frame = 100,
   bc_stab_factor = 4.6,
+  bebcs_energy_mode = "power",
+  bebcs_power_efficiency = 0.35,
+  bebcs_power_capital_cost = 1500,
+  bebcs_power_om_factor = 0.05,
+  bebcs_power_life = 25,
+  bebcs_heat_efficiency = 0.80,
+  bebcs_heat_capital_cost = 400,
+  bebcs_heat_om_factor = 0.03,
+  bebcs_heat_life = 25,
+  heat_price = 30,
+  heat_c_intensity = 0.08,
 
   # Biochar Ag Properties (Defaults)
   bc_cce = 0.15,
@@ -83,6 +94,7 @@ df <- data.frame(
   units = character(length(default_parameters)),
   default_value = character(length(default_parameters)),
   distribution = character(length(default_parameters)),
+  uncertainty_level = character(length(default_parameters)),
   dispersion = rep(NA_real_, length(default_parameters)),
   minimum = rep(NA_real_, length(default_parameters)),
   maximum = rep(NA_real_, length(default_parameters)),
@@ -91,7 +103,7 @@ df <- data.frame(
 )
 
 # Helper function to populate row
-populate_row <- function(p_name, desc, unit, dist, note = "") {
+populate_row <- function(p_name, desc, unit, dist, note = "", unc = "medium") {
   idx <- which(df$name == p_name)
   if (length(idx) == 0) stop(paste("Parameter not found:", p_name))
   
@@ -106,6 +118,7 @@ populate_row <- function(p_name, desc, unit, dist, note = "") {
   }
   
   df$distribution[idx] <<- dist
+  df$uncertainty_level[idx] <<- unc
   df$notes[idx] <<- note
 }
 
@@ -161,6 +174,17 @@ populate_row("py_cc", "Pyrolysis capital cost", "$/kW", "log-normal")
 populate_row("lignin", "Lignin fraction", "fraction", "uniform")
 populate_row("time_frame", "Time frame for stability", "years", "none")
 populate_row("bc_stab_factor", "Biochar stability factor", "factor", "uniform", "Validation needed: Ensure aligns with IPCC or verified carbon standard methodologies.")
+populate_row("bebcs_energy_mode", "BEBCS energy mode (power/heat)", "character", "none", unc="none")
+populate_row("bebcs_power_efficiency", "BEBCS power efficiency", "fraction", "uniform", unc="medium")
+populate_row("bebcs_power_capital_cost", "BEBCS power capital cost", "$/kW", "log-normal", unc="medium")
+populate_row("bebcs_power_om_factor", "BEBCS power O&M factor", "fraction", "uniform", unc="low")
+populate_row("bebcs_power_life", "BEBCS power plant life", "years", "none", unc="none")
+populate_row("bebcs_heat_efficiency", "BEBCS heat efficiency", "fraction", "uniform", unc="medium")
+populate_row("bebcs_heat_capital_cost", "BEBCS heat capital cost", "$/kWth", "log-normal", unc="medium")
+populate_row("bebcs_heat_om_factor", "BEBCS heat O&M factor", "fraction", "uniform", unc="low")
+populate_row("bebcs_heat_life", "BEBCS heat plant life", "years", "none", unc="none")
+populate_row("heat_price", "Heat sale price", "$/MWh", "normal", unc="high")
+populate_row("heat_c_intensity", "Heat carbon offset intensity", "tCO2eq/GJ", "uniform", unc="medium")
 
 populate_row("bc_cce", "Calcium Carbonate Equivalent", "fraction", "uniform", "Validation needed: Does 15% hold true globally, or should it scale with bm_ash?")
 populate_row("bc_n_content", "Biochar Nitrogen content", "fraction", "uniform")
@@ -174,9 +198,44 @@ populate_row("h_c_org", "H:C organic molar ratio", "ratio", "uniform")
 populate_row("n_app_rate", "Nitrogen application rate", "kg/ha", "normal")
 populate_row("n2o_factor", "N2O emission factor", "fraction", "uniform", "Validation needed: Ensure model accounts for biochar-induced N2O suppression.")
 
+# Integrate param_uncertainty logic to calculate global default bounds
+library(dplyr)
+cv_map <- c("low" = 0.05, "medium" = 0.20, "high" = 0.40)
+
+df <- df %>%
+  mutate(
+    default_val_num = suppressWarnings(as.numeric(default_value)),
+    target_cv = cv_map[trimws(tolower(uncertainty_level))],
+    
+    dispersion = case_when(
+      is.na(target_cv) | tolower(distribution) == "none" ~ NA_real_,
+      tolower(distribution) == "normal" ~ abs(default_val_num * target_cv),
+      tolower(gsub("[- ]", "", distribution)) == "lognormal" ~ sqrt(log(1 + target_cv^2)),
+      TRUE ~ NA_real_
+    ),
+    
+    minimum = case_when(
+      is.na(target_cv) | tolower(distribution) == "none" ~ NA_real_,
+      tolower(distribution) == "uniform" ~ default_val_num - (abs(default_val_num) * target_cv * sqrt(3)),
+      tolower(distribution) == "normal" ~ default_val_num - (3 * dispersion),
+      tolower(gsub("[- ]", "", distribution)) == "lognormal" ~ 0,
+      TRUE ~ NA_real_
+    ),
+    
+    maximum = case_when(
+      is.na(target_cv) | tolower(distribution) == "none" ~ NA_real_,
+      tolower(distribution) == "uniform" ~ default_val_num + (abs(default_val_num) * target_cv * sqrt(3)),
+      tolower(distribution) == "normal" ~ default_val_num + (3 * dispersion),
+      tolower(gsub("[- ]", "", distribution)) == "lognormal" ~ exp(log(default_val_num) - (dispersion^2)/2 + 3*dispersion),
+      TRUE ~ NA_real_
+    )
+  ) %>%
+  mutate(
+    minimum = ifelse(!is.na(minimum) & !is.na(default_val_num) & default_val_num > 0 & minimum < 0, 0, minimum),
+    maximum = ifelse(!is.na(maximum) & grepl("fraction|%|ratio", units, ignore.case = TRUE) & maximum > 1, 1.0, maximum)
+  ) %>%
+  select(-target_cv, -default_val_num)
+
 # Write CSV
 dir.create("data-raw", showWarnings = FALSE)
 write.csv(df, "data-raw/parameters.csv", row.names = FALSE)
-
-# Export dataset
-usethis::use_data(default_parameters, internal = FALSE, overwrite = TRUE)

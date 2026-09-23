@@ -254,15 +254,7 @@ server <- function(input, output, session) {
     })
     # Reactive values to modify params based on inputs
     params_r <- reactive({
-        if (!exists("default_parameters")) stop("CRITICAL: default_parameters is missing inside server scope!")
-
-        p <- default_parameters()
-        if (input$region == "India") {
-            p <- tryCatch(parameters_india(), error = function(e) {
-                message("Warning: parameters_india not found, falling back to default.")
-                default_parameters()
-            })
-        }
+        p <- set_scenario(region = input$region)
         p$c_price <- input$c_price
         p$discount_rate <- input$discount_rate / 100
         p$bc_ag_value <- input$bc_ag_value
@@ -432,7 +424,7 @@ server <- function(input, output, session) {
                     run_count <- run_count + 1
                     incProgress(1 / total_runs, detail = paste0("Running DR: ", dr * 100, "%, CP: $", cp))
 
-                    p <- default_parameters()
+                    p <- set_scenario(region = input$region)
                     p$c_price <- cp
                     p$discount_rate <- dr
                     p$region <- input$region

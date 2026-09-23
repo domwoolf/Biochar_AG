@@ -511,7 +511,7 @@ generate_fig5_cprice_threshold <- function(dat, region_name, save_map = FALSE,
 # Figure 6: Fractured Regional MACC
 generate_fig6_macc <- function(save_map = FALSE, scenario = "default") {
   params <- set_scenario(scenarios[[scenario]])
-  message("Generating Figure 6: Fractured Regional MACC (4-panel)...")
+  message("Generating Figure 6: Fractured Regional MACC (12-panel)...")
 
   regions_ordered <- c("US", "China", "Europe", "India")
   all_macc <- list()
@@ -553,6 +553,9 @@ generate_fig6_macc <- function(save_map = FALSE, scenario = "default") {
     total_a_beccs <- a_beccs * stack_df$cell_bm
     total_a_bebcs <- a_bebcs * stack_df$cell_bm
 
+    cell_area_vec <- stack_df$area
+    cell_bm_vec <- stack_df$cell_bm
+
     for (cp in c_prices) {
       val_bes <- npv0_bes + cp * a_bes
       val_beccs <- npv0_beccs + cp * a_beccs
@@ -565,24 +568,45 @@ generate_fig6_macc <- function(save_map = FALSE, scenario = "default") {
       is_beccs <- adopted & (!is_bes) & (max_val == val_beccs)
       is_bebcs <- adopted & (!is_bes) & (!is_beccs) & (max_val == val_bebcs)
 
-      sum_bes <- sum(total_a_bes[is_bes], na.rm = TRUE)
-      sum_beccs <- sum(total_a_beccs[is_beccs], na.rm = TRUE)
-      sum_bebcs <- sum(total_a_bebcs[is_bebcs], na.rm = TRUE)
+      sum_a_bes <- sum(total_a_bes[is_bes], na.rm = TRUE)
+      sum_a_beccs <- sum(total_a_beccs[is_beccs], na.rm = TRUE)
+      sum_a_bebcs <- sum(total_a_bebcs[is_bebcs], na.rm = TRUE)
+
+      sum_area_bes <- sum(cell_area_vec[is_bes], na.rm = TRUE)
+      sum_area_beccs <- sum(cell_area_vec[is_beccs], na.rm = TRUE)
+      sum_area_bebcs <- sum(cell_area_vec[is_bebcs], na.rm = TRUE)
+
+      sum_bm_bes <- sum(cell_bm_vec[is_bes], na.rm = TRUE)
+      sum_bm_beccs <- sum(cell_bm_vec[is_beccs], na.rm = TRUE)
+      sum_bm_bebcs <- sum(cell_bm_vec[is_bebcs], na.rm = TRUE)
 
       results[[length(results) + 1]] <- data.frame(
         Price = cp,
-        BES = sum_bes,
-        BECCS = sum_beccs,
-        BEBCS = sum_bebcs
+        Abatement_BES = sum_a_bes,
+        Abatement_BECCS = sum_a_beccs,
+        Abatement_BEBCS = sum_a_bebcs,
+        Area_BES = sum_area_bes,
+        Area_BECCS = sum_area_beccs,
+        Area_BEBCS = sum_area_bebcs,
+        Biomass_BES = sum_bm_bes,
+        Biomass_BECCS = sum_bm_beccs,
+        Biomass_BEBCS = sum_bm_bebcs
       )
     }
 
     macc_df <- dplyr::bind_rows(results)
-    macc_long <- tidyr::pivot_longer(macc_df,
-      cols = c("BES", "BECCS", "BEBCS"),
-      names_to = "Technology", values_to = "Abatement"
+    macc_long <- tidyr::pivot_longer(
+      macc_df,
+      cols = -Price,
+      names_to = c("Metric", "Technology"),
+      names_sep = "_",
+      values_to = "Value"
     )
-    macc_long$Abatement <- macc_long$Abatement / 1e6
+    
+    macc_long$Value[macc_long$Metric == "Abatement"] <- macc_long$Value[macc_long$Metric == "Abatement"] / 1e6
+    macc_long$Value[macc_long$Metric == "Area"] <- macc_long$Value[macc_long$Metric == "Area"] / 1e4 # km2 to Mha
+    macc_long$Value[macc_long$Metric == "Biomass"] <- macc_long$Value[macc_long$Metric == "Biomass"] / 1e6
+    
     macc_long$Region <- r
     all_macc[[r]] <- macc_long
   }
@@ -590,32 +614,38 @@ generate_fig6_macc <- function(save_map = FALSE, scenario = "default") {
   combined_macc <- dplyr::bind_rows(all_macc)
   combined_macc$Technology <- factor(combined_macc$Technology, levels = c("BECCS", "BEBCS", "BES"))
 
-  region_labels <- c("US" = "a", "China" = "b", "Europe" = "c", "India" = "d")
-  combined_macc$Panel <- factor(region_labels[combined_macc$Region], levels = c("a", "b", "c", "d"))
+  combined_macc$Region <- factor(combined_macc$Region, levels = c("US", "China", "Europe", "India"))
+  
+  metric_labels <- c(
+    "Abatement" = "Abatement Potential\n(MtCO2e/yr)",
+    "Area" = "Land Area Used\n(Mha)",
+    "Biomass" = "Biomass Converted\n(Mt dry)"
+  )
+  combined_macc$Metric <- factor(combined_macc$Metric, levels = c("Abatement", "Area", "Biomass"), labels = metric_labels)
 
-  if (sum(combined_macc$Abatement, na.rm = TRUE) > 0) {
-    p <- ggplot(combined_macc, aes(x = Price, y = Abatement, fill = Technology)) +
+  if (sum(combined_macc$Value, na.rm = TRUE) > 0) {
+    p <- ggplot(combined_macc, aes(x = Price, y = Value, fill = Technology)) +
       geom_area(alpha = 0.9, color = "black", linewidth = 0.2) +
       scale_fill_manual(values = TECH_COLORS) +
-      facet_wrap(~Panel, ncol = 1, scales = "free_y") +
+      ggh4x::facet_grid2(Region ~ Metric, scales = "free_y", independent = "y") +
       theme_minimal(base_size = 14) +
       labs(
         x = "Carbon Price ($/t)",
-        y = "Total Annual Abatement Potential (Million tCO2e/yr)"
+        y = ""
       ) +
       theme(
-        legend.position = "none",
-        strip.text = element_text(hjust = 0, face = "bold", size = 16),
-        strip.background = element_blank(),
+        legend.position = "bottom",
+        strip.text = element_text(face = "bold", size = 12),
+        strip.background = element_rect(fill = "grey90", color = NA),
         plot.title = element_blank()
       )
 
     if (save_map) {
       ggsave_with_scenario(
-        paste0(out_dir, "All_Fig6_MACC.png"),
+        paste0(out_dir, "All_Fig6_MACC_12panel.png"),
         p,
         scenario = scenario,
-        width = 6,
+        width = 12,
         height = 10,
         bg = "white",
         dpi = 300
@@ -1160,7 +1190,7 @@ run_all_manuscript_figures <- function(save_map = TRUE) { # xxxxxxxxxxxxxxxxxxxx
 # --- Execution block ---
 if (sys.nframe() == 0) {
   # read parameters from file
-  params <- load_parameters("/media/dominic/Data/git/Biochar_AG/parameters.csv")
+  params <- BiocharAG::set_scenario()
   dir.create(out_dir, showWarnings = FALSE)
   .regions <- c("US", "China", "Europe", "India")
   .scenarios <- c("default", "CP100_MW250", "CP100_MW250_reg", "EA_CP100_MW250", "EA_CP100_MW250_reg")

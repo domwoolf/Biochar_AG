@@ -37,10 +37,12 @@ calculate_beccs <- function(params) {
   with(params, {
     # 1. Energy Output
     energy_output <- bm_lhv * beccs_efficiency
-    elec_prod <- energy_output * 0.277778
+    gj_to_mwh_conv <- if (!is.null(params$gj_to_mwh)) gj_to_mwh else 0.277778
+    energy_prod <- energy_output * gj_to_mwh_conv
 
     # 2. Carbon Capture
-    co2_produced <- bm_c * (44 / 12)
+    molar_ratio_c <- if (!is.null(params$molar_ratio_co2_c)) molar_ratio_co2_c else (44/12)
+    co2_produced <- bm_c * molar_ratio_c
     co2_captured <- co2_produced * capture_rate # Mg CO2e / Mg Biomass
 
     # 3. Scale & Total Mass Flow
@@ -52,8 +54,8 @@ calculate_beccs <- function(params) {
       plant_mw_th <- plant_mw / beccs_efficiency
     }
 
-    capacity_factor <- 0.85
-    annual_biomass <- (plant_mw_th * 8760 * capacity_factor) / (bm_lhv * 0.277778)
+    capacity_factor_val <- if (!is.null(params$capacity_factor)) capacity_factor else 0.85
+    annual_biomass <- (plant_mw_th * 8760 * capacity_factor_val) / (bm_lhv * gj_to_mwh_conv)
     annual_co2_total <- annual_biomass * co2_captured
 
     # --- CCS Transport & Storage Component ---
@@ -77,7 +79,7 @@ calculate_beccs <- function(params) {
     }
 
     base_cost_onshore_storage <- if (!is.null(params$ccs_storage_cost)) params$ccs_storage_cost else 12.0
-    base_cost_offshore_storage <- 40.0
+    base_cost_offshore_storage <- if (!is.null(params$cost_offshore_storage)) cost_offshore_storage else 40.0
 
     cost_onshore_trans <- calculate_ccs_transport(
       co2_mass = annual_co2_total,
@@ -104,10 +106,10 @@ calculate_beccs <- function(params) {
     ts_cost <- pmin_raster(ts_cost_onshore, ts_cost_offshore)
 
     # 4. Plant Costs (CAPEX/OPEX)
-    scaling_factor <- 0.7
-    base_cost_beccs <- beccs_capital_cost * 50 * 1000
+    scaling_factor_val <- if (!is.null(params$scaling_factor)) scaling_factor else 0.7
+    base_cost_beccs <- beccs_capital_cost * 50 * 1000 # 1000 converts MW to kW
 
-    total_capex <- base_cost_beccs * ((plant_mw / 50)^scaling_factor)
+    total_capex <- base_cost_beccs * ((plant_mw / 50)^scaling_factor_val)
     annuity_fac <- calculate_annuity_factor(discount_rate, bes_life)
     annual_capex_payment <- total_capex / annuity_fac
 
@@ -136,29 +138,29 @@ calculate_beccs <- function(params) {
     total_cost <- capex_per_mg + opex_per_mg + ts_cost + logistics_cost + feedstock_cost
 
     # 6. Revenue & Value
-    elec_revenue <- elec_prod * elec_price
+    energy_revenue <- energy_prod * elec_price
 
     # Carbon Abatement (CO2e conversion & transport penalty applied)
-    co2e_sequestered <- bm_c * capture_rate * (44 / 12)
+    co2e_sequestered <- bm_c * capture_rate * molar_ratio_c
     c_displaced <- energy_output * ff_c_intensity
     tot_c_abatement <- co2e_sequestered + c_displaced - transport_emissions_co2e
     abatement_value <- tot_c_abatement * c_price
 
-    total_revenue <- elec_revenue + abatement_value
+    total_revenue <- energy_revenue + abatement_value
     net_value <- total_revenue - total_cost
 
     # Added diagnostics for factorial
     biomass_cost <- feedstock_cost + logistics_cost
-    lcoe <- (capex_per_mg + opex_per_mg + ts_cost + biomass_cost) / elec_prod
+    lcoe <- (capex_per_mg + opex_per_mg + ts_cost + biomass_cost) / energy_prod
     cost_of_co2_avoided <- ifelse_raster(tot_c_abatement > 0, total_cost / tot_c_abatement, Inf)
     abatement_efficiency <- ifelse_raster(co2e_sequestered > 0, tot_c_abatement / co2e_sequestered, 0)
-    total_capex_m <- total_capex / 1e6
+    total_capex_m <- total_capex / 1e6 # Convert to millions
     co2_dist_chosen <- ifelse_raster(ts_cost_onshore < ts_cost_offshore, dist_onshore, dist_offshore)
 
     list(
       technology = "BECCS",
       energy_output = energy_output,
-      elec_prod = elec_prod,
+      energy_prod = energy_prod,
       c_sequestered = co2e_sequestered, # Now safely in CO2e
       tot_c_abatement = tot_c_abatement,
       total_cost = total_cost,
@@ -172,7 +174,7 @@ calculate_beccs <- function(params) {
       co2_transport_cost_mg = ts_cost,
       co2_transport_distance_km = co2_dist_chosen,
       biomass_transport_distance_km = effective_dist,
-      elec_revenue_mg = elec_revenue,
+      energy_revenue_mg = energy_revenue,
       abatement_revenue_mg = abatement_value,
       agronomic_revenue_mg = NA,
       lcoe = lcoe,

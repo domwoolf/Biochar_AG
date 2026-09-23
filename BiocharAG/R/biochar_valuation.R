@@ -43,7 +43,7 @@ calculate_biochar_value <- function(params, bc_yield) {
 
         # 1. Liming Value (Substitution)
         soil_ph <- if (!is.null(params$soil_ph)) params$soil_ph else 6.5
-        target_ph <- 6.5
+        target_ph <- if (!is.null(params$target_ph)) params$target_ph else 6.5
         price_lime <- if (!is.null(params$price_lime)) params$price_lime else 60
         bc_cce <- if (!is.null(params$bc_cce)) params$bc_cce else 0.15
 
@@ -59,13 +59,14 @@ calculate_biochar_value <- function(params, bc_yield) {
         c_k <- if (!is.null(params$bc_k_content)) params$bc_k_content else 0.005
 
         # Availability Factors
-        avail_n <- 0.1
-        avail_p <- 0.5
-        avail_k <- 0.8
+        avail_n <- if (!is.null(params$avail_n)) params$avail_n else 0.1
+        avail_p <- if (!is.null(params$avail_p)) params$avail_p else 0.5
+        avail_k <- if (!is.null(params$avail_k)) params$avail_k else 0.8
 
-        v_nut_per_mg_char <- (c_n * avail_n * p_n * 1000) +
-            (c_p * avail_p * p_p * 1000) +
-            (c_k * avail_k * p_k * 1000)
+        kg_to_mg_conv <- if (!is.null(params$kg_to_mg)) params$kg_to_mg else 1000 # 1000 converts kg to Mg
+        v_nut_per_mg_char <- (c_n * avail_n * p_n * kg_to_mg_conv) +
+            (c_p * avail_p * p_p * kg_to_mg_conv) +
+            (c_k * avail_k * p_k * kg_to_mg_conv)
 
         # 3. Physical/CEC Value (Yield Efficiency)
         soil_cec <- if (!is.null(params$soil_cec)) params$soil_cec else 20

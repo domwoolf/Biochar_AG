@@ -12,7 +12,7 @@ library(sf)
 #    fig 8 breakeven C price
 {
     source("scripts/manuscript_figures.R")
-    params <- load_parameters("/media/dominic/Data/git/Biochar_AG/parameters.csv")
+    params <- BiocharAG::set_scenario()
     dir.create(out_dir, showWarnings = FALSE)
     .regions <- c("US", "China", "Europe", "India")
     .scenarios <- c("default", "CP100_MW250", "CP100_MW250_reg", "EA_CP100_MW250", "EA_CP100_MW250_reg")

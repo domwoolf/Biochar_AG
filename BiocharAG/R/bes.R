@@ -21,7 +21,8 @@ calculate_bes <- function(params) {
   with(params, {
     # 1. Energy Output
     energy_output <- bm_lhv * bes_energy_efficiency
-    elec_prod <- energy_output * 0.277778 # MWh / Mg biomass
+    gj_to_mwh_conv <- if (!is.null(params$gj_to_mwh)) gj_to_mwh else 0.277778
+    energy_prod <- energy_output * gj_to_mwh_conv # MWh / Mg biomass
 
     # 2. Plant Costs (CAPEX/OPEX)
     if (!is.null(params$plant_mw_th)) {
@@ -32,13 +33,13 @@ calculate_bes <- function(params) {
       plant_mw_th <- plant_mw / bes_energy_efficiency
     }
 
-    capacity_factor <- 0.85
-    annual_biomass <- (plant_mw_th * 8760 * capacity_factor) / (bm_lhv * 0.277778)
+    capacity_factor_val <- if (!is.null(params$capacity_factor)) capacity_factor else 0.85
+    annual_biomass <- (plant_mw_th * 8760 * capacity_factor_val) / (bm_lhv * gj_to_mwh_conv)
 
     # Total Capex ($)
-    scaling_factor <- 0.7
-    base_cost <- bes_capital_cost * 50 * 1000 # Cost of 50 MW plant
-    total_capex <- base_cost * ((plant_mw / 50)^scaling_factor)
+    scaling_factor_val <- if (!is.null(params$scaling_factor)) scaling_factor else 0.7
+    base_cost <- bes_capital_cost * 50 * 1000 # 1000 converts MW to kW
+    total_capex <- base_cost * ((plant_mw / 50)^scaling_factor_val)
 
     # Annual Capex ($/yr)
     annuity_fac <- calculate_annuity_factor(discount_rate, bes_life)
@@ -72,19 +73,19 @@ calculate_bes <- function(params) {
     total_cost <- capex_per_mg + opex_per_mg + logistics_cost + feedstock_cost
 
     # 4. Revenue & Value
-    elec_revenue <- elec_prod * elec_price
+    energy_revenue <- energy_prod * elec_price
 
     # Carbon Abatement (No Sequestration, only displacement minus transport penalty)
     c_displaced <- energy_output * ff_c_intensity
     tot_c_abatement <- c_displaced - transport_emissions_co2e
     abatement_value <- tot_c_abatement * c_price
 
-    total_revenue <- elec_revenue + abatement_value
+    total_revenue <- energy_revenue + abatement_value
     net_value <- total_revenue - total_cost
 
     # Added diagnostics for factorial
     biomass_cost <- feedstock_cost + logistics_cost
-    lcoe <- (capex_per_mg + opex_per_mg + biomass_cost) / elec_prod
+    lcoe <- (capex_per_mg + opex_per_mg + biomass_cost) / energy_prod
     cost_of_co2_avoided <- ifelse_raster(tot_c_abatement > 0, total_cost / tot_c_abatement, Inf)
     abatement_efficiency <- 0 # No gross sequestration for BES
     total_capex_m <- total_capex / 1e6
@@ -92,7 +93,7 @@ calculate_bes <- function(params) {
     list(
       technology = "BES",
       energy_output = energy_output,
-      elec_prod = elec_prod,
+      energy_prod = energy_prod,
       c_sequestered = 0,
       tot_c_abatement = tot_c_abatement,
       total_cost = total_cost,
@@ -105,7 +106,7 @@ calculate_bes <- function(params) {
       co2_transport_cost_mg = 0,
       co2_transport_distance_km = NA,
       biomass_transport_distance_km = effective_dist,
-      elec_revenue_mg = elec_revenue,
+      energy_revenue_mg = energy_revenue,
       abatement_revenue_mg = abatement_value,
       agronomic_revenue_mg = NA,
       lcoe = lcoe,

@@ -13,11 +13,11 @@ calculate_bebcs <- function(params) {
       py_temp = py_temp,
       lignin = lignin,
       bm_lhv = bm_lhv,
-      moisture = if (exists("bm_h2o")) bm_h2o else 0.1,
-      ash = if (exists("bm_ash")) bm_ash else 0.05,
-      feed_c = if (exists("bm_c")) bm_c else 0.50,
-      feed_h = if (exists("bm_h")) bm_h else 0.06,
-      feed_o = if (exists("bm_o")) bm_o else 0.44
+      moisture = if (!is.null(params$bm_h2o)) params$bm_h2o else 0.1,
+      ash = if (!is.null(params$bm_ash)) params$bm_ash else 0.05,
+      feed_c = if (!is.null(params$bm_c)) params$bm_c else 0.50,
+      feed_h = if (!is.null(params$bm_h)) params$bm_h else 0.06,
+      feed_o = if (!is.null(params$bm_o)) params$bm_o else 0.44
     )
 
     bc_yield <- phys$yield_bc
@@ -25,41 +25,63 @@ calculate_bebcs <- function(params) {
 
     bc_stability <- calculate_fperm_approx(h_c_org, method = "HC", soil_temp = soil_temp)
 
-    # 1. Energy Output
-    energy_output <- phys$energy_net * bes_energy_efficiency
-    elec_prod <- energy_output * 0.277778
-    elec_revenue <- elec_prod * elec_price
+    # 1. Energy Mode & Output
+    bebcs_energy_mode <- if (!is.null(params$bebcs_energy_mode)) params$bebcs_energy_mode else "power"
+    gj_to_mwh_conv <- if (!is.null(params$gj_to_mwh)) gj_to_mwh else 0.277778
+    
+    if (bebcs_energy_mode == "power") {
+      eff <- if (!is.null(params$bebcs_power_efficiency)) params$bebcs_power_efficiency else 0.35
+      energy_output <- phys$energy_net * eff
+      energy_prod <- energy_output * gj_to_mwh_conv
+      energy_revenue <- energy_prod * (if (!is.null(params$elec_price)) params$elec_price else 100)
+      c_intensity <- if (!is.null(params$ff_c_intensity)) params$ff_c_intensity else (12/3600)
+      
+      base_cc <- if (!is.null(params$bebcs_power_capital_cost)) params$bebcs_power_capital_cost else 1500
+      life <- if (!is.null(params$bebcs_power_life)) params$bebcs_power_life else 25
+      om_fac <- if (!is.null(params$bebcs_power_om_factor)) params$bebcs_power_om_factor else 0.05
+    } else {
+      # Heat mode
+      eff <- if (!is.null(params$bebcs_heat_efficiency)) params$bebcs_heat_efficiency else 0.80
+      energy_output <- phys$energy_net * eff
+      energy_prod <- energy_output * gj_to_mwh_conv
+      energy_revenue <- energy_prod * (if (!is.null(params$heat_price)) params$heat_price else 30)
+      c_intensity <- if (!is.null(params$heat_c_intensity)) params$heat_c_intensity else 0.08
+      
+      base_cc <- if (!is.null(params$bebcs_heat_capital_cost)) params$bebcs_heat_capital_cost else 400
+      life <- if (!is.null(params$bebcs_heat_life)) params$bebcs_heat_life else 25
+      om_fac <- if (!is.null(params$bebcs_heat_om_factor)) params$bebcs_heat_om_factor else 0.03
+    }
 
     # 2. Costs (Scale & CAPEX)
     if (!is.null(params$plant_mw_th)) {
       plant_mw_th <- resolve_plant_mw_th(params$plant_mw_th, "BEBCS")
-      plant_mw <- plant_mw_th * bes_energy_efficiency
+      plant_mw <- plant_mw_th * eff
     } else {
       plant_mw <- if (!is.null(params$plant_mw)) params$plant_mw else 50
-      plant_mw_th <- plant_mw / bes_energy_efficiency
+      plant_mw_th <- plant_mw / eff
     }
 
-    capacity_factor <- 0.85
-    scaling_factor <- 0.7
+    capacity_factor_val <- if (!is.null(params$capacity_factor)) capacity_factor else 0.85
+    scaling_factor_val <- if (!is.null(params$scaling_factor)) scaling_factor else 0.7
 
-    bes_elec_prod_ref <- bm_lhv * bes_energy_efficiency * 0.277778
-    ref_50mw_biomass <- (50 * 8760 * capacity_factor) / bes_elec_prod_ref
-    actual_annual_biomass <- (plant_mw_th * 8760 * capacity_factor) / (bm_lhv * 0.277778)
+    bes_elec_prod_ref <- bm_lhv * eff * gj_to_mwh_conv
+    ref_50mw_biomass <- (50 * 8760 * capacity_factor_val) / bes_elec_prod_ref
+    actual_annual_biomass <- (plant_mw_th * 8760 * capacity_factor_val) / (bm_lhv * gj_to_mwh_conv)
 
     base_py_capex <- py_cc * ref_50mw_biomass
-    total_py_capex <- base_py_capex * ((plant_mw / 50)^scaling_factor)
+    total_py_capex <- base_py_capex * ((plant_mw / 50)^scaling_factor_val)
     annuity_fac_py <- calculate_annuity_factor(discount_rate, py_life)
     annual_py_payment <- total_py_capex / annuity_fac_py
     annual_capex_py <- annual_py_payment / actual_annual_biomass
 
-    base_cost_ref <- bes_capital_cost * 50 * 1000
-    total_bes_capex <- base_cost_ref * ((plant_mw / 50)^scaling_factor)
-    annuity_fac_bes <- calculate_annuity_factor(discount_rate, bes_life)
-    annual_bes_payment <- total_bes_capex / annuity_fac_bes
-    base_power_capex_per_mg <- annual_bes_payment / actual_annual_biomass
+    base_cost_ref <- base_cc * 50 * 1000 # 1000 converts MW to kW
+    total_energy_capex <- base_cost_ref * ((plant_mw / 50)^scaling_factor_val)
+    annuity_fac_energy <- calculate_annuity_factor(discount_rate, life)
+    annual_energy_payment <- total_energy_capex / annuity_fac_energy
+    base_power_capex_per_mg <- annual_energy_payment / actual_annual_biomass
     annual_capex_power <- base_power_capex_per_mg * (1 - bc_yield)
 
-    annual_om <- ((total_py_capex / actual_annual_biomass) * O_M_factor) + (base_power_capex_per_mg * (1 - bc_yield) * bes_om_factor)
+    annual_om <- ((total_py_capex / actual_annual_biomass) * O_M_factor) + (base_power_capex_per_mg * (1 - bc_yield) * om_fac)
 
     # --- 3. Logistics Cost & Transport Emissions ---
     if (!is.null(params$avg_dist)) {
@@ -84,8 +106,9 @@ calculate_bebcs <- function(params) {
 
     # 4. Abatement & Value
     # Explicit conversion to CO2e
-    co2e_sequestered <- bc_yield * bc_c_content * bc_stability * (44 / 12)
-    c_displaced <- energy_output * ff_c_intensity
+    molar_ratio_c <- if (!is.null(params$molar_ratio_co2_c)) molar_ratio_co2_c else (44/12)
+    co2e_sequestered <- bc_yield * bc_c_content * bc_stability * molar_ratio_c
+    c_displaced <- energy_output * c_intensity
     soil_ghg_abatement <- 0.1
 
     tot_c_abatement <- co2e_sequestered + c_displaced + soil_ghg_abatement - transport_emissions_co2e
@@ -94,23 +117,23 @@ calculate_bebcs <- function(params) {
     bc_val_res <- calculate_biochar_value(params, bc_yield)
     biochar_economic_value <- bc_val_res$value_usd_per_mg_feedstock
 
-    total_revenue <- elec_revenue + biochar_economic_value + abatement_value
+    total_revenue <- energy_revenue + biochar_economic_value + abatement_value
     net_value <- total_revenue - total_cost
 
     # Added diagnostics for factorial
     biomass_cost <- feedstock_cost + logistics_cost
     total_capex_per_mg <- annual_capex_py + annual_capex_power
-    lcoe <- (total_capex_per_mg + annual_om + biomass_cost - biochar_economic_value) / elec_prod
+    lcoe <- (total_capex_per_mg + annual_om + biomass_cost - biochar_economic_value) / energy_prod
     cost_of_co2_avoided <- ifelse_raster(tot_c_abatement > 0, total_cost / tot_c_abatement, Inf)
     abatement_efficiency <- ifelse_raster(co2e_sequestered > 0, tot_c_abatement / co2e_sequestered, 0)
-    total_capex_m <- (total_py_capex + total_bes_capex) / 1e6
+    total_capex_m <- (total_py_capex + total_energy_capex) / 1e6
 
     list(
       technology = "BEBCS",
       bc_yield = bc_yield,
       bc_c_content = bc_c_content,
       energy_output = energy_output,
-      elec_prod = elec_prod,
+      energy_prod = energy_prod,
       c_sequestered = co2e_sequestered, # Now safely in CO2e
       tot_c_abatement = tot_c_abatement,
       total_cost = total_cost,
@@ -125,7 +148,7 @@ calculate_bebcs <- function(params) {
       co2_transport_cost_mg = 0,
       co2_transport_distance_km = NA,
       biomass_transport_distance_km = effective_dist,
-      elec_revenue_mg = elec_revenue,
+      energy_revenue_mg = energy_revenue,
       abatement_revenue_mg = abatement_value,
       agronomic_revenue_mg = biochar_economic_value,
       lcoe = lcoe,
@@ -176,10 +199,12 @@ calculate_beccs <- function(params) {
   with(params, {
     # 1. Energy Output
     energy_output <- bm_lhv * beccs_efficiency
-    elec_prod <- energy_output * 0.277778
+    gj_to_mwh_conv <- if (!is.null(params$gj_to_mwh)) gj_to_mwh else 0.277778
+    energy_prod <- energy_output * gj_to_mwh_conv
 
     # 2. Carbon Capture
-    co2_produced <- bm_c * (44 / 12)
+    molar_ratio_c <- if (!is.null(params$molar_ratio_co2_c)) molar_ratio_co2_c else (44/12)
+    co2_produced <- bm_c * molar_ratio_c
     co2_captured <- co2_produced * capture_rate # Mg CO2e / Mg Biomass
 
     # 3. Scale & Total Mass Flow
@@ -191,8 +216,8 @@ calculate_beccs <- function(params) {
       plant_mw_th <- plant_mw / beccs_efficiency
     }
 
-    capacity_factor <- 0.85
-    annual_biomass <- (plant_mw_th * 8760 * capacity_factor) / (bm_lhv * 0.277778)
+    capacity_factor_val <- if (!is.null(params$capacity_factor)) capacity_factor else 0.85
+    annual_biomass <- (plant_mw_th * 8760 * capacity_factor_val) / (bm_lhv * gj_to_mwh_conv)
     annual_co2_total <- annual_biomass * co2_captured
 
     # --- CCS Transport & Storage Component ---
@@ -216,7 +241,7 @@ calculate_beccs <- function(params) {
     }
 
     base_cost_onshore_storage <- if (!is.null(params$ccs_storage_cost)) params$ccs_storage_cost else 12.0
-    base_cost_offshore_storage <- 40.0
+    base_cost_offshore_storage <- if (!is.null(params$cost_offshore_storage)) cost_offshore_storage else 40.0
 
     cost_onshore_trans <- calculate_ccs_transport(
       co2_mass = annual_co2_total,
@@ -243,10 +268,10 @@ calculate_beccs <- function(params) {
     ts_cost <- pmin_raster(ts_cost_onshore, ts_cost_offshore)
 
     # 4. Plant Costs (CAPEX/OPEX)
-    scaling_factor <- 0.7
-    base_cost_beccs <- beccs_capital_cost * 50 * 1000
+    scaling_factor_val <- if (!is.null(params$scaling_factor)) scaling_factor else 0.7
+    base_cost_beccs <- beccs_capital_cost * 50 * 1000 # 1000 converts MW to kW
 
-    total_capex <- base_cost_beccs * ((plant_mw / 50)^scaling_factor)
+    total_capex <- base_cost_beccs * ((plant_mw / 50)^scaling_factor_val)
     annuity_fac <- calculate_annuity_factor(discount_rate, bes_life)
     annual_capex_payment <- total_capex / annuity_fac
 
@@ -275,29 +300,29 @@ calculate_beccs <- function(params) {
     total_cost <- capex_per_mg + opex_per_mg + ts_cost + logistics_cost + feedstock_cost
 
     # 6. Revenue & Value
-    elec_revenue <- elec_prod * elec_price
+    energy_revenue <- energy_prod * elec_price
 
     # Carbon Abatement (CO2e conversion & transport penalty applied)
-    co2e_sequestered <- bm_c * capture_rate * (44 / 12)
+    co2e_sequestered <- bm_c * capture_rate * molar_ratio_c
     c_displaced <- energy_output * ff_c_intensity
     tot_c_abatement <- co2e_sequestered + c_displaced - transport_emissions_co2e
     abatement_value <- tot_c_abatement * c_price
 
-    total_revenue <- elec_revenue + abatement_value
+    total_revenue <- energy_revenue + abatement_value
     net_value <- total_revenue - total_cost
 
     # Added diagnostics for factorial
     biomass_cost <- feedstock_cost + logistics_cost
-    lcoe <- (capex_per_mg + opex_per_mg + ts_cost + biomass_cost) / elec_prod
+    lcoe <- (capex_per_mg + opex_per_mg + ts_cost + biomass_cost) / energy_prod
     cost_of_co2_avoided <- ifelse_raster(tot_c_abatement > 0, total_cost / tot_c_abatement, Inf)
     abatement_efficiency <- ifelse_raster(co2e_sequestered > 0, tot_c_abatement / co2e_sequestered, 0)
-    total_capex_m <- total_capex / 1e6
+    total_capex_m <- total_capex / 1e6 # Convert to millions
     co2_dist_chosen <- ifelse_raster(ts_cost_onshore < ts_cost_offshore, dist_onshore, dist_offshore)
 
     list(
       technology = "BECCS",
       energy_output = energy_output,
-      elec_prod = elec_prod,
+      energy_prod = energy_prod,
       c_sequestered = co2e_sequestered, # Now safely in CO2e
       tot_c_abatement = tot_c_abatement,
       total_cost = total_cost,
@@ -311,7 +336,7 @@ calculate_beccs <- function(params) {
       co2_transport_cost_mg = ts_cost,
       co2_transport_distance_km = co2_dist_chosen,
       biomass_transport_distance_km = effective_dist,
-      elec_revenue_mg = elec_revenue,
+      energy_revenue_mg = energy_revenue,
       abatement_revenue_mg = abatement_value,
       agronomic_revenue_mg = NA,
       lcoe = lcoe,
@@ -346,7 +371,8 @@ calculate_bes <- function(params) {
   with(params, {
     # 1. Energy Output
     energy_output <- bm_lhv * bes_energy_efficiency
-    elec_prod <- energy_output * 0.277778 # MWh / Mg biomass
+    gj_to_mwh_conv <- if (!is.null(params$gj_to_mwh)) gj_to_mwh else 0.277778
+    energy_prod <- energy_output * gj_to_mwh_conv # MWh / Mg biomass
 
     # 2. Plant Costs (CAPEX/OPEX)
     if (!is.null(params$plant_mw_th)) {
@@ -357,13 +383,13 @@ calculate_bes <- function(params) {
       plant_mw_th <- plant_mw / bes_energy_efficiency
     }
 
-    capacity_factor <- 0.85
-    annual_biomass <- (plant_mw_th * 8760 * capacity_factor) / (bm_lhv * 0.277778)
+    capacity_factor_val <- if (!is.null(params$capacity_factor)) capacity_factor else 0.85
+    annual_biomass <- (plant_mw_th * 8760 * capacity_factor_val) / (bm_lhv * gj_to_mwh_conv)
 
     # Total Capex ($)
-    scaling_factor <- 0.7
-    base_cost <- bes_capital_cost * 50 * 1000 # Cost of 50 MW plant
-    total_capex <- base_cost * ((plant_mw / 50)^scaling_factor)
+    scaling_factor_val <- if (!is.null(params$scaling_factor)) scaling_factor else 0.7
+    base_cost <- bes_capital_cost * 50 * 1000 # 1000 converts MW to kW
+    total_capex <- base_cost * ((plant_mw / 50)^scaling_factor_val)
 
     # Annual Capex ($/yr)
     annuity_fac <- calculate_annuity_factor(discount_rate, bes_life)
@@ -397,19 +423,19 @@ calculate_bes <- function(params) {
     total_cost <- capex_per_mg + opex_per_mg + logistics_cost + feedstock_cost
 
     # 4. Revenue & Value
-    elec_revenue <- elec_prod * elec_price
+    energy_revenue <- energy_prod * elec_price
 
     # Carbon Abatement (No Sequestration, only displacement minus transport penalty)
     c_displaced <- energy_output * ff_c_intensity
     tot_c_abatement <- c_displaced - transport_emissions_co2e
     abatement_value <- tot_c_abatement * c_price
 
-    total_revenue <- elec_revenue + abatement_value
+    total_revenue <- energy_revenue + abatement_value
     net_value <- total_revenue - total_cost
 
     # Added diagnostics for factorial
     biomass_cost <- feedstock_cost + logistics_cost
-    lcoe <- (capex_per_mg + opex_per_mg + biomass_cost) / elec_prod
+    lcoe <- (capex_per_mg + opex_per_mg + biomass_cost) / energy_prod
     cost_of_co2_avoided <- ifelse_raster(tot_c_abatement > 0, total_cost / tot_c_abatement, Inf)
     abatement_efficiency <- 0 # No gross sequestration for BES
     total_capex_m <- total_capex / 1e6
@@ -417,7 +443,7 @@ calculate_bes <- function(params) {
     list(
       technology = "BES",
       energy_output = energy_output,
-      elec_prod = elec_prod,
+      energy_prod = energy_prod,
       c_sequestered = 0,
       tot_c_abatement = tot_c_abatement,
       total_cost = total_cost,
@@ -430,7 +456,7 @@ calculate_bes <- function(params) {
       co2_transport_cost_mg = 0,
       co2_transport_distance_km = NA,
       biomass_transport_distance_km = effective_dist,
-      elec_revenue_mg = elec_revenue,
+      energy_revenue_mg = energy_revenue,
       abatement_revenue_mg = abatement_value,
       agronomic_revenue_mg = NA,
       lcoe = lcoe,
@@ -487,7 +513,7 @@ calculate_biochar_value <- function(params, bc_yield) {
 
         # 1. Liming Value (Substitution)
         soil_ph <- if (!is.null(params$soil_ph)) params$soil_ph else 6.5
-        target_ph <- 6.5
+        target_ph <- if (!is.null(params$target_ph)) params$target_ph else 6.5
         price_lime <- if (!is.null(params$price_lime)) params$price_lime else 60
         bc_cce <- if (!is.null(params$bc_cce)) params$bc_cce else 0.15
 
@@ -503,13 +529,14 @@ calculate_biochar_value <- function(params, bc_yield) {
         c_k <- if (!is.null(params$bc_k_content)) params$bc_k_content else 0.005
 
         # Availability Factors
-        avail_n <- 0.1
-        avail_p <- 0.5
-        avail_k <- 0.8
+        avail_n <- if (!is.null(params$avail_n)) params$avail_n else 0.1
+        avail_p <- if (!is.null(params$avail_p)) params$avail_p else 0.5
+        avail_k <- if (!is.null(params$avail_k)) params$avail_k else 0.8
 
-        v_nut_per_mg_char <- (c_n * avail_n * p_n * 1000) +
-            (c_p * avail_p * p_p * 1000) +
-            (c_k * avail_k * p_k * 1000)
+        kg_to_mg_conv <- if (!is.null(params$kg_to_mg)) params$kg_to_mg else 1000 # 1000 converts kg to Mg
+        v_nut_per_mg_char <- (c_n * avail_n * p_n * kg_to_mg_conv) +
+            (c_p * avail_p * p_p * kg_to_mg_conv) +
+            (c_k * avail_k * p_k * kg_to_mg_conv)
 
         # 3. Physical/CEC Value (Yield Efficiency)
         soil_cec <- if (!is.null(params$soil_cec)) params$soil_cec else 20
@@ -833,82 +860,84 @@ calculate_npv <- function(cash_flows, discount_rate) {
   sum(cash_flows / (1 + discount_rate)^t)
 }
 
-### Content of file BiocharAG/R/parameters_india.R ###
-#' Default Parameters for India (North-West)
-#'
-#' Deprecated: Returns a list of parameters customized for the Indian context
-#' by calling `set_scenario(region = "India")`.
-#'
-#' @return A named list of parameters.
-#' @export
-parameters_india <- function() {
-    .Deprecated("set_scenario(region = 'India')")
-    set_scenario(region = "India")
+### Content of file BiocharAG/R/parameters.R ###
+get_default_parameters <- function() {
+  csv_path <- system.file("extdata", "parameters.csv", package = "BiocharAG")
+  if (csv_path == "") {
+    # Fallback for development if not installed
+    csv_path <- file.path(getwd(), "inst", "extdata", "parameters.csv")
+    if (!file.exists(csv_path)) csv_path <- file.path(getwd(), "..", "inst", "extdata", "parameters.csv")
+  }
+  if (!file.exists(csv_path)) stop("parameters.csv not found")
+  
+  params_df <- utils::read.csv(csv_path, stringsAsFactors = FALSE)
+  
+  defaults <- list()
+  for (i in seq_len(nrow(params_df))) {
+     val_str <- params_df$default_value[i]
+     name <- params_df$name[i]
+     
+     if (is.na(val_str) || val_str == "NA" || val_str == "") next
+     
+     if (params_df$type[i] %in% c("control_flag", "logical")) {
+         defaults[[name]] <- as.logical(val_str)
+     } else if (grepl(",", val_str)) {
+         defaults[[name]] <- as.numeric(trimws(unlist(strsplit(val_str, ","))))
+     } else {
+         suppressWarnings({
+           num_val <- as.numeric(val_str)
+           if (!is.na(num_val)) defaults[[name]] <- num_val else defaults[[name]] <- val_str
+         })
+     }
+  }
+  return(defaults)
 }
 
-### Content of file BiocharAG/R/parameters.R ###
-#' Default Parameters Dataset
+#' Get Regional Overrides from CSV
 #'
-#' A list containing the default parameters for the BiocharAG model.
-#'
-#' @format A named list.
-"default_parameters"
-
-#' Regional Overrides List
-#'
-#' A predefined list of regional parameter overrides for non-spatial parameters
-#' (financial, capital cost modifiers, O&M labor factors, and fertilizer prices).
+#' @return A named list of regional overrides.
 #' @export
-regional_overrides <- list(
-  US = list(
-    discount_rate = 0.05,
-    bes_capital_cost = 3000 * 1.25,
-    beccs_capital_cost = 4000 * 1.25,
-    bes_om_factor = 0.045,
-    beccs_om_factor = 0.055,
-    price_n = 1.59,
-    price_p = 2.08,
-    price_k = 0.82,
-    price_lime = 45,
-    soil_ph_target = 6.5
-  ),
-  India = list(
-    discount_rate = 0.10,
-    bes_capital_cost = 3000 * 0.65,
-    beccs_capital_cost = 4000 * 0.65,
-    bes_om_factor = 0.025,
-    beccs_om_factor = 0.03,
-    price_n = 0.14,
-    price_p = 0.70,
-    price_k = 0.68,
-    price_lime = 35,
-    soil_ph_target = 6.5
-  ),
-  China = list(
-    discount_rate = 0.045,
-    bes_capital_cost = 3000 * 0.7,
-    beccs_capital_cost = 4000 * 0.7,
-    bes_om_factor = 0.03,
-    beccs_om_factor = 0.035,
-    price_n = 0.79,
-    price_p = 1.10,
-    price_k = 0.55,
-    price_lime = 35,
-    soil_ph_target = 6.5
-  ),
-  Europe = list(
-    discount_rate = 0.045,
-    bes_capital_cost = 3000 * 1.15,
-    beccs_capital_cost = 4000 * 1.15,
-    bes_om_factor = 0.045,
-    beccs_om_factor = 0.055,
-    price_n = 1.75,
-    price_p = 2.29,
-    price_k = 0.9,
-    price_lime = 50,
-    soil_ph_target = 6.5
-  )
-)
+get_regional_overrides <- function() {
+  csv_path <- system.file("extdata", "parameters.csv", package = "BiocharAG")
+  if (csv_path == "") {
+    csv_path <- file.path(getwd(), "inst", "extdata", "parameters.csv")
+    if (!file.exists(csv_path)) csv_path <- file.path(getwd(), "..", "inst", "extdata", "parameters.csv")
+  }
+  if (!file.exists(csv_path)) return(list())
+  
+  params_df <- utils::read.csv(csv_path, stringsAsFactors = FALSE)
+  
+  overrides <- list()
+  regions <- c("US", "Europe", "China", "India")
+  
+  for (r in regions) {
+    if (r %in% names(params_df)) {
+      reg_list <- list()
+      for (i in seq_len(nrow(params_df))) {
+        val_str <- params_df[[r]][i]
+        if (!is.na(val_str) && val_str != "" && val_str != "NA") {
+          name <- params_df$name[i]
+          
+          # Only override if different from default? 
+          # Actually, just parse it.
+          if (params_df$type[i] %in% c("control_flag", "logical")) {
+              parsed <- as.logical(val_str)
+          } else if (grepl(",", val_str)) {
+              parsed <- as.numeric(trimws(unlist(strsplit(val_str, ","))))
+          } else {
+              suppressWarnings({
+                num_val <- as.numeric(val_str)
+                if (!is.na(num_val)) parsed <- num_val else parsed <- val_str
+              })
+          }
+          reg_list[[name]] <- parsed
+        }
+      }
+      overrides[[r]] <- reg_list
+    }
+  }
+  return(overrides)
+}
 
 #' Scenarios List
 #'
@@ -939,7 +968,7 @@ scenarios_base <- list(
   )
 )
 
-scenarios_reg <- lapply(scenarios_base, \(s) c(s, list(regional = regional_overrides)))
+scenarios_reg <- lapply(scenarios_base, \(s) c(s, list(regional = get_regional_overrides())))
 names(scenarios_reg) <- paste0(names(scenarios_reg), "_reg")
 #' Regionalized Scenarios
 #'
@@ -986,8 +1015,9 @@ apply_regional_overrides <- function(params, region = NULL) {
     return(params)
   }
   r_key <- normalize_region_name(region)
-  if (r_key %in% names(BiocharAG::regional_overrides)) {
-    overrides <- BiocharAG::regional_overrides[[r_key]]
+  reg_overrides <- get_regional_overrides()
+  if (r_key %in% names(reg_overrides)) {
+    overrides <- reg_overrides[[r_key]]
     if (length(overrides) > 0) {
       params[names(overrides)] <- overrides
     }
@@ -1012,7 +1042,7 @@ apply_regional_overrides <- function(params, region = NULL) {
 #' @return A named list of parameters.
 #' @export
 set_scenario <- function(scenario = list(), region = NULL) {
-  params <- BiocharAG::default_parameters
+  params <- get_default_parameters()
 
   # 1. Determine region
   if (is.null(region) && !is.null(scenario[["region", exact = TRUE]])) {
@@ -1078,7 +1108,7 @@ load_parameters <- function(file, as_dataframe = FALSE) {
     return(df)
   }
 
-  params <- BiocharAG::default_parameters
+  params <- get_default_parameters()
   for (i in seq_len(nrow(df))) {
     name <- df$name[i]
     val_str <- df$default_value[i]
@@ -2173,19 +2203,19 @@ calculate_ccs_transport <- function(co2_mass, distance, is_offshore = FALSE, dis
 #'
 #' @keywords internal
 ifelse_raster <- function(test, yes, no) {
-    if (inherits(test, "SpatRaster")) {
-        terra::ifel(test, yes, no)
-    } else if (is.logical(test) && length(test) == 1) {
-        if (is.na(test)) {
-            NA
-        } else if (test) {
-            yes
-        } else {
-            no
-        }
+  if (inherits(test, "SpatRaster")) {
+    terra::ifel(test, yes, no)
+  } else if (is.logical(test) && length(test) == 1) {
+    if (is.na(test)) {
+      NA
+    } else if (test) {
+      yes
     } else {
-        ifelse(test, yes, no)
+      no
     }
+  } else {
+    ifelse(test, yes, no)
+  }
 }
 
 #' Raster-Aware Parallel Minimum (pmin)
@@ -2196,13 +2226,13 @@ ifelse_raster <- function(test, yes, no) {
 #'
 #' @keywords internal
 pmin_raster <- function(x, y) {
-    if (inherits(x, "SpatRaster")) {
-        min(x, y)
-    } else if (inherits(y, "SpatRaster")) {
-        min(y, x)
-    } else {
-        pmin(x, y)
-    }
+  if (inherits(x, "SpatRaster")) {
+    min(x, y)
+  } else if (inherits(y, "SpatRaster")) {
+    min(y, x)
+  } else {
+    pmin(x, y)
+  }
 }
 
 #' Raster-Aware Parallel Maximum (pmax)
@@ -2213,13 +2243,13 @@ pmin_raster <- function(x, y) {
 #'
 #' @keywords internal
 pmax_raster <- function(x, y) {
-    if (inherits(x, "SpatRaster")) {
-        max(x, y)
-    } else if (inherits(y, "SpatRaster")) {
-        max(y, x)
-    } else {
-        pmax(x, y)
-    }
+  if (inherits(x, "SpatRaster")) {
+    max(x, y)
+  } else if (inherits(y, "SpatRaster")) {
+    max(y, x)
+  } else {
+    pmax(x, y)
+  }
 }
 
 #' Load Region Spatial Data and Pre-Extract 1D Vectors
@@ -2232,106 +2262,110 @@ pmax_raster <- function(x, y) {
 #' @return A list containing `template`, `layers`, `admin0`, `admin1`, and `vec`.
 #' @export
 load_region_data <- function(region_name, gis_path = NULL) {
+  if (is.null(gis_path)) {
+    candidates <- c("../GIS/processed/", "GIS/processed/", "/media/dominic/Data/git/Biochar_AG/GIS/processed/")
+    for (cand in candidates) {
+      if (dir.exists(cand)) {
+        gis_path <- cand
+        break
+      }
+    }
     if (is.null(gis_path)) {
-        candidates <- c("../GIS/processed/", "GIS/processed/", "/media/dominic/Data/git/Biochar_AG/GIS/processed/")
-        for (cand in candidates) {
-            if (dir.exists(cand)) {
-                gis_path <- cand
-                break
-            }
-        }
-        if (is.null(gis_path)) {
-            stop("Could not locate GIS/processed/ directory.")
-        }
+      stop("Could not locate GIS/processed/ directory.")
     }
+  }
 
-    prefix_map <- list(
-        "US" = list(base = "us", dist = "us"),
-        "China" = list(base = "china", dist = "china"),
-        "Europe" = list(base = "europe", dist = "europe"),
-        "India" = list(base = "india", dist = "india")
-    )
+  prefix_map <- list(
+    "US" = list(base = "us", dist = "us"),
+    "China" = list(base = "china", dist = "china"),
+    "Europe" = list(base = "europe", dist = "europe"),
+    "India" = list(base = "india", dist = "india")
+  )
 
-    if (!(region_name %in% names(prefix_map))) {
-        stop("Unknown region: ", region_name)
+  if (!(region_name %in% names(prefix_map))) {
+    stop("Unknown region: ", region_name)
+  }
+
+  p_base <- prefix_map[[region_name]][["base"]]
+  p_dist <- prefix_map[[region_name]][["dist"]]
+
+  bm <- terra::rast(file.path(gis_path, paste0(p_base, "_biomass.tif"))) # Spatial density of available biomass (Mg/km2) [Source: Karan et al. (2023)]
+  st <- terra::rast(file.path(gis_path, paste0(p_base, "_soil_temp.tif"))) # Soil temperature (degrees C) [Source: WorldClim/SBIO1]
+  ep <- terra::rast(file.path(gis_path, paste0(p_base, "_elec_price.tif"))) # Wholesale electricity price ($/MWh) [Source: EIA/Eurostat/NDRC/CERC]
+  ds <- terra::rast(file.path(gis_path, paste0(p_dist, "_dist_sink.tif"))) # Distance to nearest CO2 sink (km)
+  dss <- terra::rast(file.path(gis_path, paste0(p_dist, "_dist_sink_saline.tif"))) # Distance to nearest saline CO2 sink (km)
+  stype <- terra::rast(file.path(gis_path, paste0(p_dist, "_sink_type.tif"))) # Type of nearest CO2 sink (e.g., offshore)
+  ph <- terra::rast(file.path(gis_path, paste0(p_base, "_soil_ph.tif"))) # Soil pH [Source: ISRIC SoilGrids]
+  cec <- terra::rast(file.path(gis_path, paste0(p_base, "_soil_cec.tif"))) # Soil cation exchange capacity (cmolc/kg) [Source: ISRIC SoilGrids]
+
+  ci_path <- file.path(gis_path, paste0(p_base, "_ff_c_intensity.tif"))
+  ci <- if (file.exists(ci_path)) terra::rast(ci_path) else NULL # Fossil fuel carbon intensity (tCO2eq/GJ) [Source: IPCC/Ember]
+
+  a0_path <- file.path(gis_path, paste0(p_dist, "_admin0.gpkg"))
+  a1_path <- file.path(gis_path, paste0(p_dist, "_admin1.gpkg"))
+
+  # Administrative boundaries level 0 (e.g., countries)
+  admin0 <- if (file.exists(a0_path)) {
+    sf::st_read(a0_path, quiet = TRUE)
+  } else {
+    NULL
+  }
+
+  # Administrative boundaries level 1 (e.g., states/provinces)
+  admin1 <- if (file.exists(a1_path)) {
+    sf::st_read(a1_path, quiet = TRUE)
+  } else {
+    NULL
+  }
+
+  layers <- list(
+    biomass_density = bm,
+    soil_temp = st,
+    elec_price = ep,
+    dist_sink_km = ds,
+    dist_sink_saline_km = dss,
+    sink_is_offshore = stype,
+    soil_ph = ph,
+    soil_cec = cec
+  )
+
+  if (!is.null(ci)) {
+    layers[["ff_c_intensity"]] <- ci
+  }
+
+  for (sz in c(5, 25, 50, 100, 250, 500, 1000)) {
+    dist_name <- paste0("dist_", sz, "MWth")
+    dist_file <- file.path(gis_path, paste0(p_dist, "_", dist_name, ".tif"))
+    if (file.exists(dist_file)) {
+      layers[[dist_name]] <- terra::rast(dist_file) # Biomass collection distance to satisfy sz MWth plant (km)
     }
+  }
 
-    p_base <- prefix_map[[region_name, exact = TRUE]][["base", exact = TRUE]]
-    p_dist <- prefix_map[[region_name, exact = TRUE]][["dist", exact = TRUE]]
+  # Pre-extract 1D vectors for active indices (biomass_density > 0 and not NA)
+  bm_vals <- terra::values(layers[["biomass_density", exact = TRUE]], mat = FALSE)
+  active_indices <- which(!is.na(bm_vals) & bm_vals > 0)
+  xy_active <- terra::xyFromCell(layers[["biomass_density", exact = TRUE]], active_indices)
+  cell_area_raster <- terra::cellSize(layers[["biomass_density", exact = TRUE]], unit = "km")
+  cell_area_vals <- terra::values(cell_area_raster, mat = FALSE)[active_indices]
 
-    bm <- terra::rast(file.path(gis_path, paste0(p_base, "_biomass.tif")))
-    st <- terra::rast(file.path(gis_path, paste0(p_base, "_soil_temp.tif")))
-    ep <- terra::rast(file.path(gis_path, paste0(p_base, "_elec_price.tif")))
-    ds <- terra::rast(file.path(gis_path, paste0(p_dist, "_dist_sink.tif")))
-    dss <- terra::rast(file.path(gis_path, paste0(p_dist, "_dist_sink_saline.tif")))
-    stype <- terra::rast(file.path(gis_path, paste0(p_dist, "_sink_type.tif")))
-    ph <- terra::rast(file.path(gis_path, paste0(p_base, "_soil_ph.tif")))
-    cec <- terra::rast(file.path(gis_path, paste0(p_base, "_soil_cec.tif")))
-
-    ci_path <- file.path(gis_path, paste0(p_base, "_ff_c_intensity.tif"))
-    ci <- if (file.exists(ci_path)) terra::rast(ci_path) else NULL
-
-    a0_path <- file.path(gis_path, paste0(p_dist, "_admin0.gpkg"))
-    a1_path <- file.path(gis_path, paste0(p_dist, "_admin1.gpkg"))
-    admin0 <- if (file.exists(a0_path)) {
-        sf::st_read(a0_path, quiet = TRUE)
+  vec_layers <- list()
+  for (layer_name in names(layers)) {
+    vals <- terra::values(layers[[layer_name, exact = TRUE]], mat = FALSE)
+    if (is.matrix(vals)) {
+      vec_layers[[layer_name]] <- vals[active_indices, 1]
     } else {
-        NULL
+      vec_layers[[layer_name]] <- vals[active_indices]
     }
-    admin1 <- if (file.exists(a1_path)) {
-        sf::st_read(a1_path, quiet = TRUE)
-    } else {
-        NULL
-    }
+  }
 
-    layers <- list(
-        biomass_density = bm,
-        soil_temp = st,
-        elec_price = ep,
-        dist_sink_km = ds,
-        dist_sink_saline_km = dss,
-        sink_is_offshore = stype,
-        soil_ph = ph,
-        soil_cec = cec
-    )
+  vec_data <- list(
+    active_indices = active_indices,
+    xy = xy_active,
+    cell_area = cell_area_vals,
+    layers = vec_layers
+  )
 
-    if (!is.null(ci)) {
-        layers[["ff_c_intensity"]] <- ci
-    }
-
-    for (sz in c(5, 25, 50, 100, 250, 500, 1000)) {
-        dist_name <- paste0("dist_", sz, "MWth")
-        dist_file <- file.path(gis_path, paste0(p_dist, "_", dist_name, ".tif"))
-        if (file.exists(dist_file)) {
-            layers[[dist_name]] <- terra::rast(dist_file)
-        }
-    }
-
-    # Pre-extract 1D vectors for active indices (biomass_density > 0 and not NA)
-    bm_vals <- terra::values(layers[["biomass_density", exact = TRUE]], mat = FALSE)
-    active_indices <- which(!is.na(bm_vals) & bm_vals > 0)
-    xy_active <- terra::xyFromCell(layers[["biomass_density", exact = TRUE]], active_indices)
-    cell_area_raster <- terra::cellSize(layers[["biomass_density", exact = TRUE]], unit = "km")
-    cell_area_vals <- terra::values(cell_area_raster, mat = FALSE)[active_indices]
-
-    vec_layers <- list()
-    for (layer_name in names(layers)) {
-        vals <- terra::values(layers[[layer_name, exact = TRUE]], mat = FALSE)
-        if (is.matrix(vals)) {
-            vec_layers[[layer_name]] <- vals[active_indices, 1]
-        } else {
-            vec_layers[[layer_name]] <- vals[active_indices]
-        }
-    }
-
-    vec_data <- list(
-        active_indices = active_indices,
-        xy = xy_active,
-        cell_area = cell_area_vals,
-        layers = vec_layers
-    )
-
-    list(template = bm, layers = layers, admin0 = admin0, admin1 = admin1, vec = vec_data)
+  list(template = bm, layers = layers, admin0 = admin0, admin1 = admin1, vec = vec_data)
 }
 
 #' Run Scenario Spatial TEA
@@ -2348,79 +2382,83 @@ load_region_data <- function(region_name, gis_path = NULL) {
 #' @return A list containing `net` (SpatRaster stack), `abate` (SpatRaster stack), `opt` (SpatRaster), and optionally `vec_res`.
 #' @export
 run_scenario <- function(template, layers, params, vec = NULL) {
-    if (!is.null(vec) && is.list(vec) && !is.null(vec[["active_indices", exact = TRUE]])) {
-        spatial_layers <- vec[["layers", exact = TRUE]]
-        p <- params
+  if (!is.null(vec) && is.list(vec) && !is.null(vec[["active_indices", exact = TRUE]])) {
+    spatial_layers <- vec[["layers", exact = TRUE]]
+    p <- params
 
-        if ("soil_temp" %in% names(spatial_layers)) p[["soil_temp"]] <- spatial_layers[["soil_temp", exact = TRUE]]
-        if ("elec_price" %in% names(spatial_layers)) {
-            factor <- if (!is.null(p[["wholesale_discount_factor", exact = TRUE]])) p[["wholesale_discount_factor", exact = TRUE]] else 0.4
-            p[["elec_price"]] <- spatial_layers[["elec_price", exact = TRUE]] * factor
-        }
-        if ("soil_ph" %in% names(spatial_layers)) p[["soil_ph"]] <- spatial_layers[["soil_ph", exact = TRUE]]
-        if ("soil_cec" %in% names(spatial_layers)) p[["soil_cec"]] <- spatial_layers[["soil_cec", exact = TRUE]]
-        if ("dist_sink_km" %in% names(spatial_layers)) p[["dist_sink_km"]] <- spatial_layers[["dist_sink_km", exact = TRUE]]
-        if ("dist_sink_saline_km" %in% names(spatial_layers)) p[["dist_sink_saline_km"]] <- spatial_layers[["dist_sink_saline_km", exact = TRUE]]
-        if ("sink_is_offshore" %in% names(spatial_layers)) p[["sink_is_offshore"]] <- spatial_layers[["sink_is_offshore", exact = TRUE]]
-        if ("ff_c_intensity" %in% names(spatial_layers)) p[["ff_c_intensity"]] <- spatial_layers[["ff_c_intensity", exact = TRUE]]
+    if ("soil_temp" %in% names(spatial_layers)) p[["soil_temp"]] <- spatial_layers[["soil_temp", exact = TRUE]]
+    if ("elec_price" %in% names(spatial_layers)) {
+      factor <- if (!is.null(p[["wholesale_discount_factor", exact = TRUE]])) p[["wholesale_discount_factor", exact = TRUE]] else 0.4
+      p[["elec_price"]] <- spatial_layers[["elec_price", exact = TRUE]] * factor
+    }
+    if ("soil_ph" %in% names(spatial_layers)) p[["soil_ph"]] <- spatial_layers[["soil_ph", exact = TRUE]]
+    if ("soil_cec" %in% names(spatial_layers)) p[["soil_cec"]] <- spatial_layers[["soil_cec", exact = TRUE]]
+    if ("dist_sink_km" %in% names(spatial_layers)) p[["dist_sink_km"]] <- spatial_layers[["dist_sink_km", exact = TRUE]]
+    if ("dist_sink_saline_km" %in% names(spatial_layers)) p[["dist_sink_saline_km"]] <- spatial_layers[["dist_sink_saline_km", exact = TRUE]]
+    if ("sink_is_offshore" %in% names(spatial_layers)) p[["sink_is_offshore"]] <- spatial_layers[["sink_is_offshore", exact = TRUE]]
+    if ("ff_c_intensity" %in% names(spatial_layers)) p[["ff_c_intensity"]] <- spatial_layers[["ff_c_intensity", exact = TRUE]]
 
-        for (layer_name in c("cn_weather_risk", "cn_expansion_risk", "eu_base_eur", "us_base_cost")) {
-            if (layer_name %in% names(spatial_layers)) p[[layer_name]] <- spatial_layers[[layer_name, exact = TRUE]]
-        }
-
-        sz <- if (!is.null(p[["plant_mw_th", exact = TRUE]])) resolve_plant_mw_th(p[["plant_mw_th", exact = TRUE]], "BES") else 50
-        dist_layer_name <- paste0("dist_", sz, "MWth")
-        if (dist_layer_name %in% names(spatial_layers)) {
-            p[["avg_dist"]] <- spatial_layers[[dist_layer_name, exact = TRUE]]
-        }
-
-        feedstock_region <- if (!is.null(p[["region", exact = TRUE]])) p[["region", exact = TRUE]] else "US"
-        p[["feedstock_cost"]] <- calculate_regional_feedstock_cost(feedstock_region, p)
-
-        res_bes <- calculate_bes(p)
-        res_beccs <- calculate_beccs(p)
-        res_bebcs <- calculate_bebcs(p)
-
-        net_matrix <- cbind(res_bes[["net_value", exact = TRUE]], res_beccs[["net_value", exact = TRUE]], res_bebcs[["net_value", exact = TRUE]])
-        abate_matrix <- cbind(res_bes[["tot_c_abatement", exact = TRUE]], res_beccs[["tot_c_abatement", exact = TRUE]], res_bebcs[["tot_c_abatement", exact = TRUE]])
-
-        opt_vec <- max.col(net_matrix, ties.method = "first")
-        opt_vec[rowSums(is.na(net_matrix)) == 3] <- NA
-
-        active_idx <- vec[["active_indices", exact = TRUE]]
-
-        opt_r <- terra::rast(template, nlyrs = 1, vals = NA)
-        opt_r[active_idx] <- opt_vec
-        names(opt_r) <- "Optimal_Tech"
-
-        net_stack <- terra::rast(template, nlyrs = 3, vals = NA)
-        net_stack[active_idx] <- net_matrix
-        names(net_stack) <- c("BES", "BECCS", "BEBCS")
-
-        abate_stack <- terra::rast(template, nlyrs = 3, vals = NA)
-        abate_stack[active_idx] <- abate_matrix
-        names(abate_stack) <- c("BES", "BECCS", "BEBCS")
-
-        return(list(
-            net = net_stack,
-            abate = abate_stack,
-            opt = opt_r,
-            vec_res = list(net = net_matrix, abate = abate_matrix, opt = opt_vec)
-        ))
+    for (layer_name in c("cn_weather_risk", "cn_expansion_risk", "eu_base_eur", "us_base_cost")) {
+      if (layer_name %in% names(spatial_layers)) p[[layer_name]] <- spatial_layers[[layer_name, exact = TRUE]]
     }
 
-    bes <- run_spatial_tea(template, params, layers, fun = calculate_bes)
-    beccs <- run_spatial_tea(template, params, layers, fun = calculate_beccs)
-    bebcs <- run_spatial_tea(template, params, layers, fun = calculate_bebcs)
+    sz <- if (!is.null(p[["plant_mw_th", exact = TRUE]])) resolve_plant_mw_th(p[["plant_mw_th", exact = TRUE]], "BES") else 50
+    dist_layer_name <- paste0("dist_", sz, "MWth")
+    if (dist_layer_name %in% names(spatial_layers)) {
+      p[["avg_dist"]] <- spatial_layers[[dist_layer_name, exact = TRUE]]
+    }
 
-    net_stack <- c(bes[["Net_Value_USD", exact = TRUE]], beccs[["Net_Value_USD", exact = TRUE]], bebcs[["Net_Value_USD", exact = TRUE]])
+    feedstock_region <- if (!is.null(p[["region", exact = TRUE]])) p[["region", exact = TRUE]] else "US"
+    p[["feedstock_cost"]] <- calculate_regional_feedstock_cost(feedstock_region, p)
+
+    res_bes <- calculate_bes(p)
+    res_beccs <- calculate_beccs(p)
+    res_bebcs <- calculate_bebcs(p)
+
+    net_matrix <- cbind(res_bes[["net_value", exact = TRUE]],
+      res_beccs[["net_value", exact = TRUE]], res_bebcs[["net_value", exact = TRUE]])
+
+    abate_matrix <- cbind(res_bes[["tot_c_abatement", exact = TRUE]],
+      res_beccs[["tot_c_abatement", exact = TRUE]],
+      res_bebcs[["tot_c_abatement", exact = TRUE]])
+
+    opt_vec <- max.col(net_matrix, ties.method = "first")
+    opt_vec[rowSums(is.na(net_matrix)) == 3] <- NA
+
+    active_idx <- vec[["active_indices", exact = TRUE]]
+
+    opt_r <- terra::rast(template, nlyrs = 1, vals = NA)
+    opt_r[active_idx] <- opt_vec
+    names(opt_r) <- "Optimal_Tech"
+
+    net_stack <- terra::rast(template, nlyrs = 3, vals = NA)
+    net_stack[active_idx] <- net_matrix
     names(net_stack) <- c("BES", "BECCS", "BEBCS")
 
-    abate_stack <- c(bes[["Abatement_tCO2", exact = TRUE]], beccs[["Abatement_tCO2", exact = TRUE]], bebcs[["Abatement_tCO2", exact = TRUE]])
+    abate_stack <- terra::rast(template, nlyrs = 3, vals = NA)
+    abate_stack[active_idx] <- abate_matrix
     names(abate_stack) <- c("BES", "BECCS", "BEBCS")
 
-    opt_idx <- terra::which.max(net_stack)
+    return(list(
+      net = net_stack,
+      abate = abate_stack,
+      opt = opt_r,
+      vec_res = list(net = net_matrix, abate = abate_matrix, opt = opt_vec)
+    ))
+  }
 
-    list(net = net_stack, abate = abate_stack, opt = opt_idx)
+  bes <- run_spatial_tea(template, params, layers, fun = calculate_bes)
+  beccs <- run_spatial_tea(template, params, layers, fun = calculate_beccs)
+  bebcs <- run_spatial_tea(template, params, layers, fun = calculate_bebcs)
+
+  net_stack <- c(bes[["Net_Value_USD", exact = TRUE]], beccs[["Net_Value_USD", exact = TRUE]], bebcs[["Net_Value_USD", exact = TRUE]])
+  names(net_stack) <- c("BES", "BECCS", "BEBCS")
+
+  abate_stack <- c(bes[["Abatement_tCO2", exact = TRUE]], beccs[["Abatement_tCO2", exact = TRUE]], bebcs[["Abatement_tCO2", exact = TRUE]])
+  names(abate_stack) <- c("BES", "BECCS", "BEBCS")
+
+  opt_idx <- terra::which.max(net_stack)
+
+  list(net = net_stack, abate = abate_stack, opt = opt_idx)
 }
 

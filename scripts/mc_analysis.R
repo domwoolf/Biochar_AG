@@ -13,7 +13,7 @@ source("scripts/manuscript_figures.R")
 
 # Configuration
 n_runs <- 500 # Number of MC iterations per scenario combination (default 20 for testing)
-test_mode <- FALSE # Set to FALSE for full production run across all 720 scenario combinations
+test_mode <- TRUE # Set to FALSE for full production run across all 720 scenario combinations
 n_cores <- 12 # Set to integer to override default cores detection (detectCores() - 1)
 append <- TRUE # Set to TRUE to append to existing results file
 
@@ -41,7 +41,7 @@ if (is.na(n_cores) || n_cores < 1) {
 message("Using ", n_cores, " core(s) for parallel processing.")
 
 # 1. Load Parameter Definitions & Set Up Classifications
-params_df <- read.csv("parameters_mc_ready.csv", stringsAsFactors = FALSE)
+params_df <- read.csv("BiocharAG/inst/extdata/parameters.csv", stringsAsFactors = FALSE)
 
 scenario_params <- c(
   "region", "c_price", "discount_rate", "allow_eor", "early_adoption", "plant_mw_th",
@@ -64,29 +64,60 @@ uncertain_params <- params_df %>%
     !name %in% spatial_scalar_params
   )
 
-# 2. Generate Randomized MC Parameter Tables per Region (Common Random Numbers across scenarios)
+# 2. Pre-load and vectorize region spatial data
+message("Pre-loading and vectorizing spatial data for all regions...")
+region_names <- unique(factorial_grid$region)
+vectorized_regions <- list()
+
+for (r in region_names) {
+  message("  Loading vectorized data for: ", r)
+  dat <- load_region_data(r)
+  vectorized_regions[[r]] <- dat[["vec", exact = TRUE]]
+}
+
+# 3. Generate Randomized MC Parameter Tables per Region (Common Random Numbers across scenarios)
 generate_param_draws <- function(row, n, local_mean = NULL) {
   dist <- tolower(gsub("[- ]", "", row$distribution))
   def_val <- suppressWarnings(as.numeric(row$default_value))
   target_val <- if (!is.null(local_mean) && !is.na(local_mean)) local_mean else def_val
-  scale_ratio <- if (def_val != 0) target_val / def_val else 1.0
-
-  disp <- as.numeric(row$dispersion) * scale_ratio
-  min_val <- as.numeric(row$minimum) * scale_ratio
-  max_val <- as.numeric(row$maximum) * scale_ratio
-
-  if (dist == "normal") {
-    draws <- rnorm(n, mean = target_val, sd = disp)
-  } else if (dist == "lognormal") {
-    meanlog <- log(target_val) - (disp^2) / 2
-    draws <- rlnorm(n, meanlog = meanlog, sdlog = disp)
-  } else if (dist == "uniform") {
-    draws <- runif(n, min = min_val, max = max_val)
+  
+  # Fetch target CV mapping
+  cv_map <- c("low" = 0.05, "medium" = 0.20, "high" = 0.40)
+  target_cv <- if (!is.null(row$uncertainty_level) && row$uncertainty_level != "" && !is.na(row$uncertainty_level)) {
+    cv_map[trimws(tolower(row$uncertainty_level))]
   } else {
-    draws <- rep(target_val, n)
+    NA_real_
   }
+  
+  if (is.na(target_cv) || dist == "none") {
+      return(rep(target_val, n))
+  }
+  
+  # Calculate dynamic dispersion and bounds based on target_val
+  if (dist == "normal") {
+      disp <- abs(target_val * target_cv)
+      min_val <- target_val - (3 * disp)
+      max_val <- target_val + (3 * disp)
+      draws <- rnorm(n, mean = target_val, sd = disp)
+  } else if (dist == "lognormal") {
+      disp <- sqrt(log(1 + target_cv^2))
+      meanlog <- log(target_val) - (disp^2) / 2
+      min_val <- 0
+      max_val <- exp(meanlog + 3*disp)
+      draws <- rlnorm(n, meanlog = meanlog, sdlog = disp)
+  } else if (dist == "uniform") {
+      disp <- NA
+      min_val <- target_val - (abs(target_val) * target_cv * sqrt(3))
+      max_val <- target_val + (abs(target_val) * target_cv * sqrt(3))
+      draws <- runif(n, min = min_val, max = max_val)
+  } else {
+      return(rep(target_val, n))
+  }
+  
+  # Physical clamping
+  if (!is.na(def_val) && def_val > 0 && min_val < 0) min_val <- 0
+  if (grepl("fraction|%|ratio", row$units, ignore.case = TRUE) && max_val > 1) max_val <- 1.0
 
-  # Clamp to physical/mathematical bounds
   if (!is.na(min_val)) draws <- pmax(draws, min_val)
   if (!is.na(max_val)) draws <- pmin(draws, max_val)
 
@@ -98,6 +129,7 @@ mc_tables_by_region <- list()
 
 for (r in unique(factorial_grid$region)) {
   p_local <- BiocharAG::set_scenario(region = r)
+  spatial_layers <- vectorized_regions[[r]]$layers
   mc_draws_list <- list()
 
   for (i in seq_len(nrow(uncertain_params))) {
@@ -108,13 +140,22 @@ for (r in unique(factorial_grid$region)) {
 
   # Generate scalar multiplier for ff_c_intensity (spatial raster parameter)
   ff_row <- params_df[params_df$name == "ff_c_intensity", ]
-  if (nrow(ff_row) > 0 && !is.na(ff_row$minimum) && !is.na(ff_row$maximum)) {
-    ff_def <- as.numeric(ff_row$default_value)
-    ff_min <- as.numeric(ff_row$minimum) / ff_def
-    ff_max <- as.numeric(ff_row$maximum) / ff_def
-    mc_draws_list[["ff_ci_multiplier"]] <- runif(n_runs, min = ff_min, max = ff_max)
+  if (nrow(ff_row) > 0) {
+    ff_local_mean <- if (!is.null(spatial_layers$ff_c_intensity)) mean(spatial_layers$ff_c_intensity, na.rm=TRUE) else as.numeric(ff_row$default_value)
+    ff_draws <- generate_param_draws(ff_row, n_runs, local_mean = ff_local_mean)
+    mc_draws_list[["ff_ci_multiplier"]] <- ff_draws / ff_local_mean
   } else {
     mc_draws_list[["ff_ci_multiplier"]] <- rep(1.0, n_runs)
+  }
+  
+  # Generate scalar multiplier for elec_price (spatial raster parameter)
+  ep_row <- params_df[params_df$name == "elec_price", ]
+  if (nrow(ep_row) > 0) {
+    ep_local_mean <- if (!is.null(spatial_layers$elec_price)) mean(spatial_layers$elec_price, na.rm=TRUE) else as.numeric(ep_row$default_value)
+    ep_draws <- generate_param_draws(ep_row, n_runs, local_mean = ep_local_mean)
+    mc_draws_list[["elec_price_multiplier"]] <- ep_draws / ep_local_mean
+  } else {
+    mc_draws_list[["elec_price_multiplier"]] <- rep(1.0, n_runs)
   }
 
   mc_table_r <- as.data.frame(mc_draws_list, stringsAsFactors = FALSE)
@@ -172,15 +213,7 @@ extract_masked_vector_max <- function(vec, is_best) {
 }
 
 # 3. Pre-load and vectorize region spatial data
-message("Pre-loading and vectorizing spatial data for all regions...")
-region_names <- unique(factorial_grid$region)
-vectorized_regions <- list()
-
-for (r in region_names) {
-  message("  Loading vectorized data for: ", r)
-  dat <- load_region_data(r)
-  vectorized_regions[[r]] <- dat[["vec", exact = TRUE]]
-}
+# (Moved to before generate_param_draws to allow spatial means for MC bounds)
 
 message("Starting parallel Monte Carlo Analysis: ", nrow(factorial_grid), " scenario combinations x ", n_runs, " MC runs each.")
 
@@ -207,17 +240,29 @@ results_list <- parallel::mclapply(seq_len(nrow(factorial_grid)), function(s) {
 
     # Inject all uncertain extrinsic scalar parameters from mc_row into p
     for (p_name in names(mc_row)) {
-      if (p_name != "mc_run_id" && p_name != "ff_ci_multiplier") {
+      if (!(p_name %in% c("mc_run_id", "ff_ci_multiplier", "elec_price_multiplier"))) {
         p[[p_name]] <- mc_row[[p_name]]
       }
     }
 
     # Inject spatial layers (overriding scalar defaults if layer exists)
+    # TODO (Future): If spatially explicit parameters with strict physical boundaries 
+    # (e.g. fractions strictly <= 1.0) are added and subjected to uncertainty multipliers, 
+    # explicit terra::clamp() logic must be added below to prevent the multiplier from 
+    # pushing pixel values out of bounds. Current spatial parameters (elec_price, ff_c_intensity) 
+    # are unbounded upper-limit quantities, so proportional scaling is safe.
+    
     if ("soil_temp" %in% names(spatial_layers)) p$soil_temp <- spatial_layers$soil_temp
+    
     if ("elec_price" %in% names(spatial_layers)) {
       factor <- if (!is.null(p$wholesale_discount_factor)) p$wholesale_discount_factor else 0.4
-      p$elec_price <- spatial_layers$elec_price * factor
+      ep_mult <- if (!is.null(mc_row$elec_price_multiplier)) mc_row$elec_price_multiplier else 1.0
+      p$elec_price <- spatial_layers$elec_price * ep_mult * factor
+    } else if (!is.null(p$elec_price)) {
+      ep_mult <- if (!is.null(mc_row$elec_price_multiplier)) mc_row$elec_price_multiplier else 1.0
+      p$elec_price <- p$elec_price * ep_mult
     }
+    
     if ("soil_ph" %in% names(spatial_layers)) p$soil_ph <- spatial_layers$soil_ph
     if ("soil_cec" %in% names(spatial_layers)) p$soil_cec <- spatial_layers$soil_cec
     if ("dist_sink_km" %in% names(spatial_layers)) p$dist_sink_km <- spatial_layers$dist_sink_km
@@ -225,10 +270,11 @@ results_list <- parallel::mclapply(seq_len(nrow(factorial_grid)), function(s) {
     if ("sink_is_offshore" %in% names(spatial_layers)) p$sink_is_offshore <- spatial_layers$sink_is_offshore
 
     # Apply ff_ci_multiplier to ff_c_intensity (whether raster or scalar)
+    ff_mult <- if (!is.null(mc_row$ff_ci_multiplier)) mc_row$ff_ci_multiplier else 1.0
     if ("ff_c_intensity" %in% names(spatial_layers)) {
-      p$ff_c_intensity <- spatial_layers$ff_c_intensity * mc_row$ff_ci_multiplier
+      p$ff_c_intensity <- spatial_layers$ff_c_intensity * ff_mult
     } else if (!is.null(p$ff_c_intensity)) {
-      p$ff_c_intensity <- p$ff_c_intensity * mc_row$ff_ci_multiplier
+      p$ff_c_intensity <- p$ff_c_intensity * ff_mult
     }
 
     for (layer_name in c("cn_weather_risk", "cn_expansion_risk", "eu_base_eur", "us_base_cost")) {
@@ -305,8 +351,8 @@ results_list <- parallel::mclapply(seq_len(nrow(factorial_grid)), function(s) {
         mean_co2_transport_cost_mg = extract_masked_vector_mean(tech_res$co2_transport_cost_mg, is_best),
         mean_net_cdr = extract_masked_vector_mean(tech_res$tot_c_abatement, is_best),
         mean_carbon_removal_revenue_mg = extract_masked_vector_mean(tech_res$abatement_revenue_mg, is_best),
-        mean_electricity_production_mwh = extract_masked_vector_mean(tech_res$elec_prod, is_best),
-        mean_electricity_revenue_mg = extract_masked_vector_mean(tech_res$elec_revenue_mg, is_best),
+        mean_energy_production_mwh = extract_masked_vector_mean(tech_res$energy_prod, is_best),
+        mean_energy_revenue_mg = extract_masked_vector_mean(tech_res$energy_revenue_mg, is_best),
         mean_agronomic_revenue_mg = extract_masked_vector_mean(tech_res$agronomic_revenue_mg, is_best),
         mean_lcoe_usd_mwh = extract_masked_vector_mean(tech_res$lcoe, is_best),
         mean_cost_of_co2_avoided = extract_masked_vector_mean(tech_res$cost_of_co2_avoided, is_best),
