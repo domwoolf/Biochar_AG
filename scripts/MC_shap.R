@@ -1,5 +1,4 @@
-# scripts/MC_analysis.R
-# R port of the Monte Carlo sensitivity analysis using xgboost and shapviz.
+# Monte Carlo sensitivity analysis using xgboost and shapviz.
 # Generates sensitivity evolution plot, beeswarm plot, and partial dependence plots.
 
 library(data.table)

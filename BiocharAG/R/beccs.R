@@ -11,7 +11,7 @@ calculate_beccs <- function(params) {
   if (is.null(params$beccs_efficiency)) params$beccs_efficiency <- 0.28
   if (is.null(params$capture_rate)) params$capture_rate <- 0.90
   if (is.null(params$early_adoption)) params$early_adoption <- FALSE
-
+  if (is.null(params$beccs_om_factor)) params$beccs_om_factor <- 0.05
   allow_eor <- if (!is.null(params$allow_eor)) as.logical(params$allow_eor) else TRUE
   dist_spatial <- NULL
   if (allow_eor) {
@@ -114,7 +114,7 @@ calculate_beccs <- function(params) {
     annual_capex_payment <- total_capex / annuity_fac
 
     capex_per_mg <- annual_capex_payment / annual_biomass
-    opex_per_mg <- capex_per_mg * 0.05
+    opex_per_mg <- capex_per_mg * beccs_om_factor
 
     # --- 5. Logistics Cost & Transport Emissions ---
     if (!is.null(params$avg_dist)) {

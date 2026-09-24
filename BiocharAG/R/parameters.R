@@ -6,28 +6,28 @@ get_default_parameters <- function() {
     if (!file.exists(csv_path)) csv_path <- file.path(getwd(), "..", "inst", "extdata", "parameters.csv")
   }
   if (!file.exists(csv_path)) stop("parameters.csv not found")
-  
+
   params_df <- utils::read.csv(csv_path, stringsAsFactors = FALSE)
-  
+
   defaults <- list()
   for (i in seq_len(nrow(params_df))) {
-     val_str <- params_df$default_value[i]
-     name <- params_df$name[i]
-     
-     if (is.na(val_str) || val_str == "NA" || val_str == "") next
-     
-     if (params_df$type[i] %in% c("control_flag", "logical")) {
-         defaults[[name]] <- as.logical(val_str)
-     } else if (grepl(",", val_str)) {
-         defaults[[name]] <- as.numeric(trimws(unlist(strsplit(val_str, ","))))
-     } else {
-         suppressWarnings({
-           num_val <- as.numeric(val_str)
-           if (!is.na(num_val)) defaults[[name]] <- num_val else defaults[[name]] <- val_str
-         })
-     }
+    val_str <- params_df$default_value[i]
+    name <- params_df$name[i]
+
+    if (is.na(val_str) || val_str == "NA" || val_str == "") next
+
+    if (params_df$type[i] %in% c("control_flag", "logical")) {
+      defaults[[name]] <- as.logical(val_str)
+    } else if (grepl(",", val_str)) {
+      defaults[[name]] <- as.numeric(trimws(unlist(strsplit(val_str, ","))))
+    } else {
+      suppressWarnings({
+        num_val <- as.numeric(val_str)
+        if (!is.na(num_val)) defaults[[name]] <- num_val else defaults[[name]] <- val_str
+      })
+    }
   }
-  return(defaults)
+  defaults
 }
 
 #' Get Regional Overrides from CSV
@@ -41,12 +41,12 @@ get_regional_overrides <- function() {
     if (!file.exists(csv_path)) csv_path <- file.path(getwd(), "..", "inst", "extdata", "parameters.csv")
   }
   if (!file.exists(csv_path)) return(list())
-  
+
   params_df <- utils::read.csv(csv_path, stringsAsFactors = FALSE)
-  
+
   overrides <- list()
   regions <- c("US", "Europe", "China", "India")
-  
+
   for (r in regions) {
     if (r %in% names(params_df)) {
       reg_list <- list()
@@ -54,18 +54,18 @@ get_regional_overrides <- function() {
         val_str <- params_df[[r]][i]
         if (!is.na(val_str) && val_str != "" && val_str != "NA") {
           name <- params_df$name[i]
-          
-          # Only override if different from default? 
+
+          # Only override if different from default?
           # Actually, just parse it.
           if (params_df$type[i] %in% c("control_flag", "logical")) {
-              parsed <- as.logical(val_str)
+            parsed <- as.logical(val_str)
           } else if (grepl(",", val_str)) {
-              parsed <- as.numeric(trimws(unlist(strsplit(val_str, ","))))
+            parsed <- as.numeric(trimws(unlist(strsplit(val_str, ","))))
           } else {
-              suppressWarnings({
-                num_val <- as.numeric(val_str)
-                if (!is.na(num_val)) parsed <- num_val else parsed <- val_str
-              })
+            suppressWarnings({
+              num_val <- as.numeric(val_str)
+              if (!is.na(num_val)) parsed <- num_val else parsed <- val_str
+            })
           }
           reg_list[[name]] <- parsed
         }
@@ -73,7 +73,7 @@ get_regional_overrides <- function() {
       overrides[[r]] <- reg_list
     }
   }
-  return(overrides)
+  overrides
 }
 
 #' Scenarios List
@@ -132,7 +132,7 @@ normalize_region_name <- function(region) {
   if (r %in% c("US", "USA", "North America")) {
     return("US")
   }
-  return(r)
+  r
 }
 
 
@@ -160,7 +160,7 @@ apply_regional_overrides <- function(params, region = NULL) {
     }
   }
   params$region <- r_key
-  return(params)
+  params
 }
 
 #' Set Scenario Parameters
@@ -229,7 +229,7 @@ set_scenario <- function(scenario = list(), region = NULL) {
   if (!is.null(r_key)) {
     params$region <- r_key
   }
-  return(params)
+  params
 }
 
 
@@ -267,7 +267,7 @@ load_parameters <- function(file, as_dataframe = FALSE) {
       params[[name]] <- utils::type.convert(val_str, as.is = TRUE)
     }
   }
-  return(params)
+  params
 }
 
 #' Resolve plant_mw_th for a specific technology
@@ -285,5 +285,5 @@ resolve_plant_mw_th <- function(plant_mw_th, tech) {
       return(plant_mw_th[1])
     }
   }
-  return(plant_mw_th)
+  plant_mw_th
 }

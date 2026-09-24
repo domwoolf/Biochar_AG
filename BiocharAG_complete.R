@@ -28,14 +28,14 @@ calculate_bebcs <- function(params) {
     # 1. Energy Mode & Output
     bebcs_energy_mode <- if (!is.null(params$bebcs_energy_mode)) params$bebcs_energy_mode else "power"
     gj_to_mwh_conv <- if (!is.null(params$gj_to_mwh)) gj_to_mwh else 0.277778
-    
+
     if (bebcs_energy_mode == "power") {
       eff <- if (!is.null(params$bebcs_power_efficiency)) params$bebcs_power_efficiency else 0.35
       energy_output <- phys$energy_net * eff
       energy_prod <- energy_output * gj_to_mwh_conv
       energy_revenue <- energy_prod * (if (!is.null(params$elec_price)) params$elec_price else 100)
-      c_intensity <- if (!is.null(params$ff_c_intensity)) params$ff_c_intensity else (12/3600)
-      
+      c_intensity <- if (!is.null(params$ff_c_intensity)) params$ff_c_intensity else (12 / 3600)
+
       base_cc <- if (!is.null(params$bebcs_power_capital_cost)) params$bebcs_power_capital_cost else 1500
       life <- if (!is.null(params$bebcs_power_life)) params$bebcs_power_life else 25
       om_fac <- if (!is.null(params$bebcs_power_om_factor)) params$bebcs_power_om_factor else 0.05
@@ -46,7 +46,7 @@ calculate_bebcs <- function(params) {
       energy_prod <- energy_output * gj_to_mwh_conv
       energy_revenue <- energy_prod * (if (!is.null(params$heat_price)) params$heat_price else 30)
       c_intensity <- if (!is.null(params$heat_c_intensity)) params$heat_c_intensity else 0.08
-      
+
       base_cc <- if (!is.null(params$bebcs_heat_capital_cost)) params$bebcs_heat_capital_cost else 400
       life <- if (!is.null(params$bebcs_heat_life)) params$bebcs_heat_life else 25
       om_fac <- if (!is.null(params$bebcs_heat_om_factor)) params$bebcs_heat_om_factor else 0.03
@@ -106,7 +106,7 @@ calculate_bebcs <- function(params) {
 
     # 4. Abatement & Value
     # Explicit conversion to CO2e
-    molar_ratio_c <- if (!is.null(params$molar_ratio_co2_c)) molar_ratio_co2_c else (44/12)
+    molar_ratio_c <- if (!is.null(params$molar_ratio_co2_c)) molar_ratio_co2_c else (44 / 12)
     co2e_sequestered <- bc_yield * bc_c_content * bc_stability * molar_ratio_c
     c_displaced <- energy_output * c_intensity
     soil_ghg_abatement <- 0.1
@@ -869,28 +869,28 @@ get_default_parameters <- function() {
     if (!file.exists(csv_path)) csv_path <- file.path(getwd(), "..", "inst", "extdata", "parameters.csv")
   }
   if (!file.exists(csv_path)) stop("parameters.csv not found")
-  
+
   params_df <- utils::read.csv(csv_path, stringsAsFactors = FALSE)
-  
+
   defaults <- list()
   for (i in seq_len(nrow(params_df))) {
-     val_str <- params_df$default_value[i]
-     name <- params_df$name[i]
-     
-     if (is.na(val_str) || val_str == "NA" || val_str == "") next
-     
-     if (params_df$type[i] %in% c("control_flag", "logical")) {
-         defaults[[name]] <- as.logical(val_str)
-     } else if (grepl(",", val_str)) {
-         defaults[[name]] <- as.numeric(trimws(unlist(strsplit(val_str, ","))))
-     } else {
-         suppressWarnings({
-           num_val <- as.numeric(val_str)
-           if (!is.na(num_val)) defaults[[name]] <- num_val else defaults[[name]] <- val_str
-         })
-     }
+    val_str <- params_df$default_value[i]
+    name <- params_df$name[i]
+
+    if (is.na(val_str) || val_str == "NA" || val_str == "") next
+
+    if (params_df$type[i] %in% c("control_flag", "logical")) {
+      defaults[[name]] <- as.logical(val_str)
+    } else if (grepl(",", val_str)) {
+      defaults[[name]] <- as.numeric(trimws(unlist(strsplit(val_str, ","))))
+    } else {
+      suppressWarnings({
+        num_val <- as.numeric(val_str)
+        if (!is.na(num_val)) defaults[[name]] <- num_val else defaults[[name]] <- val_str
+      })
+    }
   }
-  return(defaults)
+  defaults
 }
 
 #' Get Regional Overrides from CSV
@@ -904,12 +904,12 @@ get_regional_overrides <- function() {
     if (!file.exists(csv_path)) csv_path <- file.path(getwd(), "..", "inst", "extdata", "parameters.csv")
   }
   if (!file.exists(csv_path)) return(list())
-  
+
   params_df <- utils::read.csv(csv_path, stringsAsFactors = FALSE)
-  
+
   overrides <- list()
   regions <- c("US", "Europe", "China", "India")
-  
+
   for (r in regions) {
     if (r %in% names(params_df)) {
       reg_list <- list()
@@ -917,18 +917,18 @@ get_regional_overrides <- function() {
         val_str <- params_df[[r]][i]
         if (!is.na(val_str) && val_str != "" && val_str != "NA") {
           name <- params_df$name[i]
-          
-          # Only override if different from default? 
+
+          # Only override if different from default?
           # Actually, just parse it.
           if (params_df$type[i] %in% c("control_flag", "logical")) {
-              parsed <- as.logical(val_str)
+            parsed <- as.logical(val_str)
           } else if (grepl(",", val_str)) {
-              parsed <- as.numeric(trimws(unlist(strsplit(val_str, ","))))
+            parsed <- as.numeric(trimws(unlist(strsplit(val_str, ","))))
           } else {
-              suppressWarnings({
-                num_val <- as.numeric(val_str)
-                if (!is.na(num_val)) parsed <- num_val else parsed <- val_str
-              })
+            suppressWarnings({
+              num_val <- as.numeric(val_str)
+              if (!is.na(num_val)) parsed <- num_val else parsed <- val_str
+            })
           }
           reg_list[[name]] <- parsed
         }
@@ -936,7 +936,7 @@ get_regional_overrides <- function() {
       overrides[[r]] <- reg_list
     }
   }
-  return(overrides)
+  overrides
 }
 
 #' Scenarios List
@@ -995,7 +995,7 @@ normalize_region_name <- function(region) {
   if (r %in% c("US", "USA", "North America")) {
     return("US")
   }
-  return(r)
+  r
 }
 
 
@@ -1023,7 +1023,7 @@ apply_regional_overrides <- function(params, region = NULL) {
     }
   }
   params$region <- r_key
-  return(params)
+  params
 }
 
 #' Set Scenario Parameters
@@ -1092,7 +1092,7 @@ set_scenario <- function(scenario = list(), region = NULL) {
   if (!is.null(r_key)) {
     params$region <- r_key
   }
-  return(params)
+  params
 }
 
 
@@ -1130,7 +1130,7 @@ load_parameters <- function(file, as_dataframe = FALSE) {
       params[[name]] <- utils::type.convert(val_str, as.is = TRUE)
     }
   }
-  return(params)
+  params
 }
 
 #' Resolve plant_mw_th for a specific technology
@@ -1148,7 +1148,7 @@ resolve_plant_mw_th <- function(plant_mw_th, tech) {
       return(plant_mw_th[1])
     }
   }
-  return(plant_mw_th)
+  plant_mw_th
 }
 
 ### Content of file BiocharAG/R/permanence.R ###

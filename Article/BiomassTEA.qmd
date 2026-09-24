@@ -224,13 +224,40 @@ To ensure full reproducibility and transparency, the operational, financial, and
 #| warning: false
 
 library(gt)
+library(dplyr)
 
-params_df <- read.csv("parameters_table.csv", check.names = FALSE, na.strings = "")
+raw_params <- read.csv("../BiocharAG/inst/extdata/parameters.csv", check.names = FALSE, na.strings = "")
+
+# Filter out rows that shouldn't be displayed
+# Exclude Constants, Control Flags, and some spatial metrics
+display_df <- raw_params |>
+    filter(!(category %in% c("Constants", "Control Flags"))) |>
+    filter(!(name %in% c("avg_dist", "collection_radius", "dist_offshore", "dist_onshore", "dist_sink_km", "dist_sink_saline_km", "feedstock_cost", "tortuosity", "plant_sizes_mw_th", "flat_ci_tCO2_GJ", "rebound"))) |>
+    select(
+        Category = category,
+        Parameter = name,
+        Description = description,
+        USA = US,
+        Europe = Europe,
+        China = China,
+        India = India,
+        Units = units
+    ) |>
+    mutate(
+        # Convert NA to Spatially explicit for regional columns
+        USA = ifelse(is.na(USA), "Spatially explicit", USA),
+        Europe = ifelse(is.na(Europe), "Spatially explicit", Europe),
+        China = ifelse(is.na(China), "Spatially explicit", China),
+        India = ifelse(is.na(India), "Spatially explicit", India),
+        # Add backticks to Parameter names for markdown formatting
+        Parameter = paste0("`", Parameter, "`")
+    ) |>
+    # Arrange by Category
+    arrange(Category)
 
 # Identify rows where all regional values are identical
-is_uniform <- with(params_df, !is.na(USA) & USA == Europe & Europe == China & China == India)
+is_uniform <- with(display_df, !is.na(USA) & USA == Europe & Europe == China & China == India & USA != "Spatially explicit")
 
-display_df <- params_df
 display_df$Europe[is_uniform] <- ""
 display_df$China[is_uniform] <- ""
 display_df$India[is_uniform] <- ""

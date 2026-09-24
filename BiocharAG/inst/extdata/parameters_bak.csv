@@ -1,0 +1,87 @@
+name,description,units,default_value,distribution,uncertainty_level,dispersion,minimum,maximum,notes,category,type,US,Europe,China,India
+beccs_capital_cost,BECCS capital cost,$/kW th,4000,log-normal,medium,0.198042200435365,0,7105.08415425188,Medium Priority. Differ significantly due to local labor/material costs.,BECCS,parameter,5000,4600,2800,2600
+beccs_eff_penalty,BECCS efficiency penalty,fraction,0.08,uniform,medium,NA,0.052287187078898,0.107712812921102,,BECCS,parameter,0.08,0.08,0.08,0.08
+beccs_efficiency,BECCS efficiency,fraction,0.28,uniform,medium,NA,0.183005154776143,0.376994845223857,,BECCS,parameter,0.28,0.28,0.28,0.28
+beccs_om_factor,BECCS O&M factor,fraction,0.05,uniform,medium,NA,0.0326794919243112,0.0673205080756888,Medium Priority. Highly labor-dependent.,BECCS,parameter,0.055,0.055,0.035,0.03
+beccs_seq_fraction,BECCS sequestration fraction,fraction,0.9,uniform,medium,NA,0.588230854637602,1,,BECCS,parameter,0.9,0.9,0.9,0.9
+capture_rate,CO2 capture rate,fraction,0.9,uniform,medium,NA,0.588230854637602,1,Validation needed: Real-world data is sparse. Recommend sensitivity analysis (85-95%).,BECCS,parameter,0.9,0.9,0.9,0.9
+ccs_cc,CCS capital cost,$/kW,500,log-normal,medium,0.198042200435365,0,888.135519281484,,BECCS,parameter,500,500,500,500
+ccs_distance,CCS transport distance,km,100,log-normal,medium,0.198042200435365,0,177.627103856297,,BECCS,parameter,100,100,100,100
+ccs_storage_cost,CCS injection/monitoring cost,$/Mg CO2,15,log-normal,medium,0.198042200435365,0,26.6440655784445,High Priority. Geologic storage costs vary drastically. Consider spatial raster.,BECCS,parameter,12,12,12,12
+cost_offshore_storage,Offshore injection and monitoring,$/tCO2,40,none,medium,NA,NA,NA,,BECCS,parameter,40,40,40,40
+bes_capital_cost,BES capital cost,$/kW th,3000,log-normal,medium,0.198042200435365,0,5328.8131156889,Medium Priority. Differ significantly due to local labor/material costs.,BES,parameter,3750,3450,2100,1950
+bes_energy_efficiency,BES energy efficiency,fraction,0.3,uniform,medium,NA,0.196076951545867,0.403923048454133,,BES,parameter,0.3,0.3,0.3,0.3
+bes_om_factor,BES O&M factor,fraction,0.04,uniform,medium,NA,0.026143593539449,0.053856406460551,Medium Priority. Highly labor-dependent.,BES,parameter,0.045,0.045,0.03,0.025
+ag_impact_duration,Agronomic impact duration,years,10,uniform,medium,NA,6.53589838486225,13.4641016151378,Medium Priority. Duration depends heavily on local climate and soil. 10-year flat assumption poorly validated.,Biochar & Agronomic,parameter,5,5,5,5
+avail_k,First-year potassium availability,fraction,0.8,none,medium,NA,NA,NA,,Biochar & Agronomic,parameter,0.8,0.8,0.8,0.8
+avail_n,First-year nitrogen availability,fraction,0.1,none,medium,NA,NA,NA,,Biochar & Agronomic,parameter,0.1,0.1,0.1,0.1
+avail_p,First-year phosphorus availability,fraction,0.5,none,medium,NA,NA,NA,,Biochar & Agronomic,parameter,0.5,0.5,0.5,0.5
+bc_ag_value,Biochar agronomic value,$/Mg,0,normal,medium,0,0,0,,Biochar & Agronomic,parameter,0,0,0,0
+bc_cce,Calcium Carbonate Equivalent,fraction,0.15,uniform,medium,NA,0.0980384757729337,0.201961524227066,"Validation needed: Does 15% hold true globally, or should it scale with bm_ash?",Biochar & Agronomic,parameter,0.15,0.15,0.15,0.15
+bc_k_content,Biochar Potassium content,fraction,0.005,uniform,medium,NA,0.00326794919243112,0.00673205080756888,,Biochar & Agronomic,parameter,0.005,0.005,0.005,0.005
+bc_n_content,Biochar Nitrogen content,fraction,0.005,uniform,medium,NA,0.00326794919243112,0.00673205080756888,,Biochar & Agronomic,parameter,0.005,0.005,0.005,0.005
+bc_p_content,Biochar Phosphorus content,fraction,0.002,uniform,medium,NA,0.00130717967697245,0.00269282032302755,,Biochar & Agronomic,parameter,0.002,0.002,0.002,0.002
+bc_price,Biochar price,$/t Biochar,100,normal,medium,20,40,160,,Biochar & Agronomic,parameter,100,100,100,100
+bc_stab_factor,Biochar stability factor,factor,4.6,uniform,medium,NA,3.00651325703663,6.19348674296337,Validation needed: Ensure aligns with IPCC or verified carbon standard methodologies.,Biochar & Agronomic,parameter,4.6,4.6,4.6,4.6
+bo_c,Bio-oil carbon mass fraction,fraction,0.625,none,medium,NA,NA,NA,,Biochar & Agronomic,parameter,0.625,0.625,0.625,0.625
+bo_h,Bio-oil hydrogen mass fraction,fraction,0.0756,none,medium,NA,NA,NA,,Biochar & Agronomic,parameter,0.0756,0.0756,0.0756,0.0756
+bo_hhv,Bio-oil higher heating value,GJ / Mg,27.63,none,medium,NA,NA,NA,,Biochar & Agronomic,parameter,27.63,27.63,27.63,27.63
+bo_o,Bio-oil oxygen mass fraction,fraction,0.2994,none,medium,NA,NA,NA,,Biochar & Agronomic,parameter,0.2994,0.2994,0.2994,0.2994
+h_c_org,H:C organic molar ratio,ratio,0.35,uniform,medium,NA,0.228756443470179,0.471243556529821,,Biochar & Agronomic,parameter,0.35,0.35,0.35,0.35
+heat_loss,Pyrolysis process heat loss,GJ / Mg,2.35,none,medium,NA,NA,NA,,Biochar & Agronomic,parameter,2.35,2.35,2.35,2.35
+n_app_rate,Nitrogen application rate,kg/ha,100,normal,medium,20,40,160,,Biochar & Agronomic,parameter,100,100,100,100
+n2o_factor,N2O emission factor,fraction,0.01,uniform,medium,NA,0.00653589838486225,0.0134641016151378,Validation needed: Ensure model accounts for biochar-induced N2O suppression.,Biochar & Agronomic,parameter,0.01,0.01,0.01,0.01
+price_k,Potassium fertilizer price,$/kg K2O,0.62,normal,medium,0.124,0.248,0.992,High Priority. Massive regional variations due to subsidies and tariffs.,Biochar & Agronomic,parameter,0.82,0.9,0.55,0.68
+price_lime,Bulk Ag Lime price,$/Mg,60,normal,medium,12,24,96,Low Priority. Varies by local transport distance.,Biochar & Agronomic,parameter,45,50,35,35
+price_n,Nitrogen fertilizer price,$/kg N,0.92,normal,medium,0.184,0.368,1.472,High Priority. Massive regional variations due to subsidies and tariffs.,Biochar & Agronomic,parameter,1.59,1.75,0.79,0.14
+price_p,Phosphorus fertilizer price,$/kg P2O5,1.1,normal,medium,0.22,0.44,1.76,High Priority. Massive regional variations due to subsidies and tariffs.,Biochar & Agronomic,parameter,2.08,2.29,1.1,0.7
+py_cc,Pyrolysis capital cost,$/Mg f,500,log-normal,medium,0.198042200435365,0,888.135519281484,,Biochar & Agronomic,parameter,500,500,500,500
+py_life,Pyrolysis project lifetime,years,20,none,medium,NA,NA,NA,,Biochar & Agronomic,parameter,20,20,20,20
+bebcs_power_capital_cost,Syngas power generation capital cost,$/kW,1500,log-normal,medium,NA,NA,NA,,Biochar & Agronomic,parameter,1875,1725,1050,975
+bebcs_heat_capital_cost,Syngas heat generation capital cost,$/kW,400,log-normal,medium,NA,NA,NA,,Biochar & Agronomic,parameter,500,460,280,260
+py_temp,Pyrolysis temperature,°C,500,uniform,medium,NA,326.794919243112,673.205080756888,,Biochar & Agronomic,parameter,500,500,500,500
+target_ph,Target agricultural soil pH,pH,6.5,none,medium,NA,NA,NA,,Biochar & Agronomic,parameter,6.5,6.5,6.5,6.5
+time_frame,Time frame for stability,years,100,none,medium,NA,NA,NA,,Biochar & Agronomic,parameter,100,100,100,100
+gj_to_mwh,Conversion factor from GJ to MWh,ratio,0.277778,none,medium,NA,NA,NA,,Constants,constant,0.277778,0.277778,0.277778,0.277778
+kg_to_mg,Conversion factor from kg to Mg,ratio,1000,none,medium,NA,NA,NA,,Constants,constant,1000,1000,1000,1000
+molar_ratio_co2_c,Molar ratio of CO2 to C,ratio,3.66666666666667,none,medium,NA,NA,NA,,Constants,constant,3.66666666666667,3.66666666666667,3.66666666666667,3.66666666666667
+allow_eor,Allow Enhanced Oil Recovery,logical,FALSE,none,medium,NA,NA,NA,,Control Flags,control_flag,FALSE,FALSE,FALSE,FALSE
+bc_valuation_method,Biochar valuation method,character,advanced_mechanistic,none,medium,NA,NA,NA,,Control Flags,control_flag,advanced_mechanistic,advanced_mechanistic,advanced_mechanistic,advanced_mechanistic
+beccs_available,Is BECCS available,logical,TRUE,none,medium,NA,NA,NA,,Control Flags,control_flag,TRUE,TRUE,TRUE,TRUE
+early_adoption,BECCS early adoption scenario,logical,FALSE,none,medium,NA,NA,NA,,Control Flags,control_flag,FALSE,FALSE,FALSE,FALSE
+optimize_scale,Optimize plant scale,logical,FALSE,none,medium,NA,NA,NA,,Control Flags,control_flag,FALSE,FALSE,FALSE,FALSE
+sink_is_offshore,Is the CO2 sink offshore?,logical,FALSE,none,medium,NA,NA,NA,,Control Flags,control_flag,FALSE,FALSE,FALSE,FALSE
+use_flat_ci,Use flat carbon intensity,logical,FALSE,none,medium,NA,NA,NA,,Control Flags,control_flag,FALSE,FALSE,FALSE,FALSE
+bm_ash,Biomass ash content,fraction,0.05,normal,medium,0.01,0.02,0.08,Medium Priority. Varies by regional feedstock.,Feedstock & Logistics,parameter,0.05,0.05,0.15,0.15
+bm_c,Carbon fraction of biomass,fraction,0.48,normal,medium,0.096,0.192,0.768,,Feedstock & Logistics,parameter,0.48,0.48,0.48,0.48
+bm_feed_rate,Biomass feed rate,kg/hr,250,normal,medium,50,100,400,,Feedstock & Logistics,parameter,250,250,250,250
+bm_h2o,Biomass moisture content,fraction,0.1,normal,medium,0.02,0.04,0.16,,Feedstock & Logistics,parameter,0.1,0.1,0.1,0.1
+bm_lhv,Biomass lower heating value,GJ/Mg,18.6,normal,medium,3.72,7.44,29.76,"Medium Priority. Varies by regional feedstock (e.g., rice straw vs corn stover).",Feedstock & Logistics,parameter,18.6,18.6,18.6,18.6
+bm_transport_fixed,Fixed transport cost (Loading/Handling),$/Mg,5,normal,medium,1,2,8,,Feedstock & Logistics,parameter,5,5,5,5
+bm_transport_var,Variable transport cost (Trucking),$/Mg/km,0.15,normal,medium,0.03,0.06,0.24,,Feedstock & Logistics,parameter,0.15,0.15,0.15,0.15
+lignin,Lignin fraction,fraction,0.2,uniform,medium,NA,0.130717967697245,0.269282032302755,,Feedstock & Logistics,parameter,0.2,0.2,0.2,0.2
+transport_emissions_factor,Heavy-duty truck emissions,Mg CO2e / Mg.km,0.0001,none,medium,NA,NA,NA,,Feedstock & Logistics,parameter,0.0001,0.0001,0.0001,0.0001
+bes_life,BES project lifetime,years,30,none,medium,NA,NA,NA,,Financial & Market,parameter,30,30,30,30
+c_price,Carbon price,$/tCO2e,50,normal,medium,10,20,80,,Financial & Market,parameter,50,50,50,50
+capacity_factor,Annual plant capacity utilization,fraction,0.85,none,medium,NA,NA,NA,,Financial & Market,parameter,0.85,0.85,0.85,0.85
+discount_rate,Discount rate,fraction,0.08,uniform,medium,NA,0.052287187078898,0.107712812921102,High Priority. Cost of capital varies wildly by country risk profiles.,Financial & Market,parameter,0.05,0.045,0.045,0.1
+elec_price,Electricity price,$/MWh,100,normal,medium,20,40,160,,Financial & Market,parameter,NA,NA,NA,NA
+ff_c_intensity,Fossil fuel carbon intensity,tCO2eq/GJ,0.00333333333333333,uniform,medium,NA,0.00217863279495408,0.00448803387171258,,Financial & Market,parameter,NA,NA,NA,NA
+flat_ci_tCO2_GJ,Flat carbon intensity value,tCO2eq/GJ,0.00333333333333333,uniform,medium,NA,0.00217863279495408,0.00448803387171258,,Financial & Market,parameter,0.00333333333333333,0.00333333333333333,0.00333333333333333,0.00333333333333333
+O_M_factor,Operations & Maintenance,% of Capex,0.04,uniform,medium,NA,0.026143593539449,0.053856406460551,,Financial & Market,parameter,0.04,0.04,0.04,0.04
+plant_sizes_mw_th,Available plant sizes,MWth,"5,25,50,100,250,500",none,medium,NA,NA,NA,,Financial & Market,parameter,"5,25,50,100,250,500","5,25,50,100,250,500","5,25,50,100,250,500","5,25,50,100,250,500"
+rebound,Rebound effect,fraction,0,uniform,medium,NA,0,0,,Financial & Market,parameter,0,0,0,0
+scaling_factor,Capital cost scale exponent,dimensionless,0.7,none,medium,NA,NA,NA,,Financial & Market,parameter,0.7,0.7,0.7,0.7
+wholesale_discount_factor,Ratio of Wholesale to Retail,ratio,0.4,uniform,medium,NA,0.26143593539449,0.53856406460551,,Financial & Market,parameter,0.4,0.4,0.4,0.4
+avg_dist,Average collection distance,km,NA,none,medium,NA,NA,NA,,Spatial & Environmental,parameter,NA,NA,NA,NA
+collection_radius,Collection radius,km,50,none,medium,NA,NA,NA,,Spatial & Environmental,parameter,50,50,50,50
+dist_offshore,Distance to offshore sink,km,NA,none,medium,NA,NA,NA,,Spatial & Environmental,parameter,NA,NA,NA,NA
+dist_onshore,Distance to onshore sink,km,NA,none,medium,NA,NA,NA,,Spatial & Environmental,parameter,NA,NA,NA,NA
+dist_sink_km,Distance to EOR sink,km,NA,none,medium,NA,NA,NA,,Spatial & Environmental,parameter,NA,NA,NA,NA
+dist_sink_saline_km,Distance to saline sink,km,NA,none,medium,NA,NA,NA,,Spatial & Environmental,parameter,NA,NA,NA,NA
+feedstock_cost,Feedstock purchase cost,$/Mg,0,none,medium,NA,NA,NA,,Spatial & Environmental,parameter,0,0,0,0
+soil_cec,Cation Exchange Capacity,cmol / kg,20,none,medium,NA,NA,NA,,Spatial & Environmental,parameter,20,20,20,20
+soil_ph,Native topsoil pH,pH,NA,none,medium,NA,NA,NA,,Spatial & Environmental,parameter,NA,NA,NA,NA
+soil_temp,Mean annual soil temperature,C,14.9,none,medium,NA,NA,NA,,Spatial & Environmental,parameter,14.9,14.9,14.9,14.9
+tortuosity,Road tortuosity factor,ratio,1.3,none,medium,NA,NA,NA,,Spatial & Environmental,parameter,1.3,1.3,1.3,1.3
+plant_mw_th,Plant thermal capacity,MWth,50,none,medium,NA,NA,NA,,Technology & Thermodynamics,parameter,250,250,250,250

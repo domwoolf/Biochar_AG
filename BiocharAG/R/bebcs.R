@@ -27,15 +27,15 @@ calculate_bebcs <- function(params) {
     # 1. Energy Mode & Output
     bebcs_energy_mode <- if (!is.null(params$bebcs_energy_mode)) params$bebcs_energy_mode else "power"
     gj_to_mwh_conv <- if (!is.null(params$gj_to_mwh)) gj_to_mwh else 0.277778
-    
+
     if (bebcs_energy_mode == "power") {
       eff <- if (!is.null(params$bebcs_power_efficiency)) params$bebcs_power_efficiency else 0.35
       energy_output <- phys$energy_net * eff
       energy_prod <- energy_output * gj_to_mwh_conv
       energy_revenue <- energy_prod * (if (!is.null(params$elec_price)) params$elec_price else 100)
-      c_intensity <- if (!is.null(params$ff_c_intensity)) params$ff_c_intensity else (12/3600)
-      
-      base_cc <- if (!is.null(params$bebcs_power_capital_cost)) params$bebcs_power_capital_cost else 1500
+      c_intensity <- if (!is.null(params$ff_c_intensity)) params$ff_c_intensity else (12 / 3600)
+
+      base_energy_capex <- if (!is.null(params$bebcs_power_capital_cost)) params$bebcs_power_capital_cost else 1500
       life <- if (!is.null(params$bebcs_power_life)) params$bebcs_power_life else 25
       om_fac <- if (!is.null(params$bebcs_power_om_factor)) params$bebcs_power_om_factor else 0.05
     } else {
@@ -45,8 +45,8 @@ calculate_bebcs <- function(params) {
       energy_prod <- energy_output * gj_to_mwh_conv
       energy_revenue <- energy_prod * (if (!is.null(params$heat_price)) params$heat_price else 30)
       c_intensity <- if (!is.null(params$heat_c_intensity)) params$heat_c_intensity else 0.08
-      
-      base_cc <- if (!is.null(params$bebcs_heat_capital_cost)) params$bebcs_heat_capital_cost else 400
+
+      base_energy_capex <- if (!is.null(params$bebcs_heat_capital_cost)) params$bebcs_heat_capital_cost else 400
       life <- if (!is.null(params$bebcs_heat_life)) params$bebcs_heat_life else 25
       om_fac <- if (!is.null(params$bebcs_heat_om_factor)) params$bebcs_heat_om_factor else 0.03
     }
@@ -64,7 +64,7 @@ calculate_bebcs <- function(params) {
     scaling_factor_val <- if (!is.null(params$scaling_factor)) scaling_factor else 0.7
 
     bes_elec_prod_ref <- bm_lhv * eff * gj_to_mwh_conv
-    ref_50mw_biomass <- (50 * 8760 * capacity_factor_val) / bes_elec_prod_ref
+    ref_50mw_biomass <- (50 * 8760 * capacity_factor_val) / bes_elec_prod_ref # biomass (Mg/year) to run a 50 MW reference plant. 8760 is hours per year.
     actual_annual_biomass <- (plant_mw_th * 8760 * capacity_factor_val) / (bm_lhv * gj_to_mwh_conv)
 
     base_py_capex <- py_cc * ref_50mw_biomass
@@ -73,7 +73,7 @@ calculate_bebcs <- function(params) {
     annual_py_payment <- total_py_capex / annuity_fac_py
     annual_capex_py <- annual_py_payment / actual_annual_biomass
 
-    base_cost_ref <- base_cc * 50 * 1000 # 1000 converts MW to kW
+    base_cost_ref <- base_energy_capex * 50 * 1000 # 1000 converts MW to kW
     total_energy_capex <- base_cost_ref * ((plant_mw / 50)^scaling_factor_val)
     annuity_fac_energy <- calculate_annuity_factor(discount_rate, life)
     annual_energy_payment <- total_energy_capex / annuity_fac_energy
@@ -105,7 +105,7 @@ calculate_bebcs <- function(params) {
 
     # 4. Abatement & Value
     # Explicit conversion to CO2e
-    molar_ratio_c <- if (!is.null(params$molar_ratio_co2_c)) molar_ratio_co2_c else (44/12)
+    molar_ratio_c <- if (!is.null(params$molar_ratio_co2_c)) molar_ratio_co2_c else (44 / 12)
     co2e_sequestered <- bc_yield * bc_c_content * bc_stability * molar_ratio_c
     c_displaced <- energy_output * c_intensity
     soil_ghg_abatement <- 0.1
