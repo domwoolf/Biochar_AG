@@ -12,23 +12,17 @@ library(tidyr)
 source("scripts/manuscript_figures.R")
 
 # Configuration
-n_runs <- 500 # Number of MC iterations per scenario combination (default 20 for testing)
-test_mode <- TRUE # Set to FALSE for full production run across all 720 scenario combinations
+n_runs <- 5000 # Number of MC iterations per region
+test_mode <- FALSE # Set to FALSE for full production run
 n_cores <- 12 # Set to integer to override default cores detection (detectCores() - 1)
-append <- TRUE # Set to TRUE to append to existing results file
+append <- FALSE # Set to TRUE to append to existing results file
 
-factorial_grid <- expand.grid(
-  region = c("US", "China", "Europe", "India"),
-  c_price = c(0, 50, 100, 150, 200),
-  discount_rate = c(0.02, 0.08, 0.15),
-  allow_eor = c(TRUE, FALSE),
-  early_adoption = c(TRUE, FALSE),
-  plant_mw_th = c(50, 100, 150, 250)
-)
+regions <- c("US", "China", "Europe", "India")
 
 if (test_mode) {
-  message("Running in TEST MODE: truncating factorial grid to 2 scenarios for speed.")
-  factorial_grid <- head(factorial_grid, 2)
+  message("Running in TEST MODE: truncating runs to 50 for speed.")
+  n_runs <- 50
+  regions <- head(regions, 2)
 }
 
 # Determine number of cores to use
@@ -66,7 +60,7 @@ uncertain_params <- params_df %>%
 
 # 2. Pre-load and vectorize region spatial data
 message("Pre-loading and vectorizing spatial data for all regions...")
-region_names <- unique(factorial_grid$region)
+region_names <- regions
 vectorized_regions <- list()
 
 for (r in region_names) {
@@ -80,7 +74,7 @@ generate_param_draws <- function(row, n, local_mean = NULL) {
   dist <- tolower(gsub("[- ]", "", row$distribution))
   def_val <- suppressWarnings(as.numeric(row$default_value))
   target_val <- if (!is.null(local_mean) && !is.na(local_mean)) local_mean else def_val
-  
+
   # Fetch target CV mapping
   cv_map <- c("low" = 0.05, "medium" = 0.20, "high" = 0.40)
   target_cv <- if (!is.null(row$uncertainty_level) && row$uncertainty_level != "" && !is.na(row$uncertainty_level)) {
@@ -88,32 +82,32 @@ generate_param_draws <- function(row, n, local_mean = NULL) {
   } else {
     NA_real_
   }
-  
+
   if (is.na(target_cv) || dist == "none") {
-      return(rep(target_val, n))
+    return(rep(target_val, n))
   }
-  
+
   # Calculate dynamic dispersion and bounds based on target_val
   if (dist == "normal") {
-      disp <- abs(target_val * target_cv)
-      min_val <- target_val - (3 * disp)
-      max_val <- target_val + (3 * disp)
-      draws <- rnorm(n, mean = target_val, sd = disp)
+    disp <- abs(target_val * target_cv)
+    min_val <- target_val - (3 * disp)
+    max_val <- target_val + (3 * disp)
+    draws <- rnorm(n, mean = target_val, sd = disp)
   } else if (dist == "lognormal") {
-      disp <- sqrt(log(1 + target_cv^2))
-      meanlog <- log(target_val) - (disp^2) / 2
-      min_val <- 0
-      max_val <- exp(meanlog + 3*disp)
-      draws <- rlnorm(n, meanlog = meanlog, sdlog = disp)
+    disp <- sqrt(log(1 + target_cv^2))
+    meanlog <- log(target_val) - (disp^2) / 2
+    min_val <- 0
+    max_val <- exp(meanlog + 3 * disp)
+    draws <- rlnorm(n, meanlog = meanlog, sdlog = disp)
   } else if (dist == "uniform") {
-      disp <- NA
-      min_val <- target_val - (abs(target_val) * target_cv * sqrt(3))
-      max_val <- target_val + (abs(target_val) * target_cv * sqrt(3))
-      draws <- runif(n, min = min_val, max = max_val)
+    disp <- NA
+    min_val <- target_val - (abs(target_val) * target_cv * sqrt(3))
+    max_val <- target_val + (abs(target_val) * target_cv * sqrt(3))
+    draws <- runif(n, min = min_val, max = max_val)
   } else {
-      return(rep(target_val, n))
+    return(rep(target_val, n))
   }
-  
+
   # Physical clamping
   if (!is.na(def_val) && def_val > 0 && min_val < 0) min_val <- 0
   if (grepl("fraction|%|ratio", row$units, ignore.case = TRUE) && max_val > 1) max_val <- 1.0
@@ -127,7 +121,7 @@ generate_param_draws <- function(row, n, local_mean = NULL) {
 set.seed(42) # For reproducible random draws
 mc_tables_by_region <- list()
 
-for (r in unique(factorial_grid$region)) {
+for (r in regions) {
   p_local <- BiocharAG::set_scenario(region = r)
   spatial_layers <- vectorized_regions[[r]]$layers
   mc_draws_list <- list()
@@ -141,22 +135,30 @@ for (r in unique(factorial_grid$region)) {
   # Generate scalar multiplier for ff_c_intensity (spatial raster parameter)
   ff_row <- params_df[params_df$name == "ff_c_intensity", ]
   if (nrow(ff_row) > 0) {
-    ff_local_mean <- if (!is.null(spatial_layers$ff_c_intensity)) mean(spatial_layers$ff_c_intensity, na.rm=TRUE) else as.numeric(ff_row$default_value)
+    ff_local_mean <- if (!is.null(spatial_layers$ff_c_intensity)) mean(spatial_layers$ff_c_intensity, na.rm = TRUE) else as.numeric(ff_row$default_value)
     ff_draws <- generate_param_draws(ff_row, n_runs, local_mean = ff_local_mean)
     mc_draws_list[["ff_ci_multiplier"]] <- ff_draws / ff_local_mean
   } else {
     mc_draws_list[["ff_ci_multiplier"]] <- rep(1.0, n_runs)
   }
-  
+
   # Generate scalar multiplier for elec_price (spatial raster parameter)
   ep_row <- params_df[params_df$name == "elec_price", ]
   if (nrow(ep_row) > 0) {
-    ep_local_mean <- if (!is.null(spatial_layers$elec_price)) mean(spatial_layers$elec_price, na.rm=TRUE) else as.numeric(ep_row$default_value)
+    ep_local_mean <- if (!is.null(spatial_layers$elec_price)) mean(spatial_layers$elec_price, na.rm = TRUE) else as.numeric(ep_row$default_value)
     ep_draws <- generate_param_draws(ep_row, n_runs, local_mean = ep_local_mean)
     mc_draws_list[["elec_price_multiplier"]] <- ep_draws / ep_local_mean
   } else {
     mc_draws_list[["elec_price_multiplier"]] <- rep(1.0, n_runs)
   }
+
+  # Discrete scenario sampling
+  mc_draws_list[["c_price"]] <- sample(c(0, 50, 100, 150, 200), n_runs, replace = TRUE)
+  regional_dr <- if (!is.null(p_local$discount_rate)) p_local$discount_rate else 0.08
+  mc_draws_list[["discount_rate"]] <- sample(c(0.02, regional_dr), n_runs, replace = TRUE)
+  mc_draws_list[["allow_eor"]] <- sample(c(TRUE, FALSE), n_runs, replace = TRUE)
+  mc_draws_list[["early_adoption"]] <- sample(c(TRUE, FALSE), n_runs, replace = TRUE)
+  mc_draws_list[["plant_mw_th"]] <- sample(c(50, 150, 250), n_runs, replace = TRUE)
 
   mc_table_r <- as.data.frame(mc_draws_list, stringsAsFactors = FALSE)
   mc_table_r$mc_run_id <- seq_len(n_runs)
@@ -215,12 +217,12 @@ extract_masked_vector_max <- function(vec, is_best) {
 # 3. Pre-load and vectorize region spatial data
 # (Moved to before generate_param_draws to allow spatial means for MC bounds)
 
-message("Starting parallel Monte Carlo Analysis: ", nrow(factorial_grid), " scenario combinations x ", n_runs, " MC runs each.")
+message("Starting parallel Monte Carlo Analysis: ", length(regions), " regions x ", n_runs, " MC runs each.")
 
 # Run scenario combinations in parallel
-results_list <- parallel::mclapply(seq_len(nrow(factorial_grid)), function(s) {
-  s_row <- factorial_grid[s, ]
-  r_data <- vectorized_regions[[s_row$region]]
+results_list <- parallel::mclapply(seq_along(regions), function(s) {
+  r_name <- regions[s]
+  r_data <- vectorized_regions[[r_name]]
   spatial_layers <- r_data$layers
   cell_area <- r_data$cell_area
 
@@ -228,15 +230,10 @@ results_list <- parallel::mclapply(seq_len(nrow(factorial_grid)), function(s) {
   scenario_results <- data.frame()
 
   for (m in seq_len(n_runs)) {
-    mc_row <- mc_tables_by_region[[s_row$region]][m, ]
+    mc_row <- mc_tables_by_region[[r_name]][m, ]
 
     # Base Setup from Scenario
-    p <- BiocharAG::set_scenario(region = s_row$region)
-    p$c_price <- s_row$c_price
-    p$discount_rate <- s_row$discount_rate
-    p$allow_eor <- s_row$allow_eor
-    p$early_adoption <- s_row$early_adoption
-    p$plant_mw_th <- s_row$plant_mw_th
+    p <- BiocharAG::set_scenario(region = r_name)
 
     # Inject all uncertain extrinsic scalar parameters from mc_row into p
     for (p_name in names(mc_row)) {
@@ -246,14 +243,14 @@ results_list <- parallel::mclapply(seq_len(nrow(factorial_grid)), function(s) {
     }
 
     # Inject spatial layers (overriding scalar defaults if layer exists)
-    # TODO (Future): If spatially explicit parameters with strict physical boundaries 
-    # (e.g. fractions strictly <= 1.0) are added and subjected to uncertainty multipliers, 
-    # explicit terra::clamp() logic must be added below to prevent the multiplier from 
-    # pushing pixel values out of bounds. Current spatial parameters (elec_price, ff_c_intensity) 
+    # TODO (Future): If spatially explicit parameters with strict physical boundaries
+    # (e.g. fractions strictly <= 1.0) are added and subjected to uncertainty multipliers,
+    # explicit terra::clamp() logic must be added below to prevent the multiplier from
+    # pushing pixel values out of bounds. Current spatial parameters (elec_price, ff_c_intensity)
     # are unbounded upper-limit quantities, so proportional scaling is safe.
-    
+
     if ("soil_temp" %in% names(spatial_layers)) p$soil_temp <- spatial_layers$soil_temp
-    
+
     if ("elec_price" %in% names(spatial_layers)) {
       factor <- if (!is.null(p$wholesale_discount_factor)) p$wholesale_discount_factor else 0.4
       ep_mult <- if (!is.null(mc_row$elec_price_multiplier)) mc_row$elec_price_multiplier else 1.0
@@ -262,7 +259,7 @@ results_list <- parallel::mclapply(seq_len(nrow(factorial_grid)), function(s) {
       ep_mult <- if (!is.null(mc_row$elec_price_multiplier)) mc_row$elec_price_multiplier else 1.0
       p$elec_price <- p$elec_price * ep_mult
     }
-    
+
     if ("soil_ph" %in% names(spatial_layers)) p$soil_ph <- spatial_layers$soil_ph
     if ("soil_cec" %in% names(spatial_layers)) p$soil_cec <- spatial_layers$soil_cec
     if ("dist_sink_km" %in% names(spatial_layers)) p$dist_sink_km <- spatial_layers$dist_sink_km
@@ -281,12 +278,16 @@ results_list <- parallel::mclapply(seq_len(nrow(factorial_grid)), function(s) {
       if (layer_name %in% names(spatial_layers)) p[[layer_name]] <- spatial_layers[[layer_name]]
     }
 
-    dist_layer_name <- paste0("dist_", s_row$plant_mw_th, "MWth")
+    if ("biomass_density" %in% names(spatial_layers)) {
+      p$biomass_density <- spatial_layers$biomass_density
+    }
+
+    dist_layer_name <- paste0("dist_", mc_row$plant_mw_th, "MWth")
     if (dist_layer_name %in% names(spatial_layers)) {
       p$avg_dist <- spatial_layers[[dist_layer_name]]
     }
 
-    p$feedstock_cost <- BiocharAG::calculate_regional_feedstock_cost(s_row$region, p)
+    p$feedstock_cost <- BiocharAG::calculate_regional_feedstock_cost(r_name, p)
 
     # Execute All 3 Technologies Competitively
     res_bes <- BiocharAG::calculate_bes(p)
@@ -319,14 +320,8 @@ results_list <- parallel::mclapply(seq_len(nrow(factorial_grid)), function(s) {
 
       # Create result row combining scenario columns, MC parameter draws, and TEA results
       new_row <- data.frame(
-        scenario_id = s,
         mc_run_id = m,
-        region = s_row$region,
-        c_price = s_row$c_price,
-        discount_rate = s_row$discount_rate,
-        allow_eor = s_row$allow_eor,
-        early_adoption = s_row$early_adoption,
-        plant_mw_th = s_row$plant_mw_th,
+        region = r_name,
         technology = t_name,
         stringsAsFactors = FALSE
       )
@@ -365,7 +360,7 @@ results_list <- parallel::mclapply(seq_len(nrow(factorial_grid)), function(s) {
     }
   }
 
-  message(sprintf("Finished scenario %d of %d (Region: %s, C price: %d)", s, nrow(factorial_grid), s_row$region, s_row$c_price))
+  message(sprintf("Finished Region: %s (%d runs)", r_name, n_runs))
   return(scenario_results)
 }, mc.cores = n_cores)
 
@@ -392,3 +387,24 @@ write.table(
   append = append && file_exists
 )
 message("Monte Carlo Analysis Complete. Results saved to results/mc_analysis_results.csv")
+
+# --- AI Summary Export ---
+ai_dir <- "figures/ai_summaries/"
+dir.create(ai_dir, showWarnings = FALSE, recursive = TRUE)
+
+if (nrow(results_df) > 0) {
+  ai_summary <- results_df %>%
+    dplyr::group_by(region, technology, c_price) %>%
+    dplyr::summarize(
+      net_value_p05 = quantile(npv_mean, 0.05, na.rm = TRUE),
+      net_value_p50 = median(npv_mean, na.rm = TRUE),
+      net_value_p95 = quantile(npv_mean, 0.95, na.rm = TRUE),
+      lcoe_p05 = quantile(mean_lcoe_usd_mwh, 0.05, na.rm = TRUE),
+      lcoe_p50 = median(mean_lcoe_usd_mwh, na.rm = TRUE),
+      lcoe_p95 = quantile(mean_lcoe_usd_mwh, 0.95, na.rm = TRUE),
+      .groups = "drop"
+    )
+  ai_csv <- paste0(ai_dir, "mc_quantiles_summary.csv")
+  write.table(ai_summary, file = ai_csv, row.names = FALSE, sep = ",", append = append && file_exists, col.names = !file_exists || !append)
+  message("Saved AI summary quantiles to: ", ai_csv)
+}

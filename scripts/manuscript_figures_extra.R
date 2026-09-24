@@ -63,8 +63,9 @@ get_linear_baseline <- function(template, layers, base_params, vec = NULL) {
 # Figure 1: Scale vs. Sink Bivariate Map
 generate_fig1_phys_boundary <- function(dat, region_name, save_map = FALSE,
                                         scenario = "default") {
-  params <- set_scenario(scenarios[[scenario]])
+  params <- set_scenario(scenarios[[scenario]], region = region_name)
   message("Generating Figure 1: Physical Boundary for ", region_name, "...")
+    params <- set_scenario(scenarios[[scenario]], region = r)
   params$region <- region_name
   res <- run_scenario(dat[["template", exact = TRUE]], dat[["layers", exact = TRUE]], params, vec = dat[["vec", exact = TRUE]])
 
@@ -121,8 +122,9 @@ generate_fig1_phys_boundary <- function(dat, region_name, save_map = FALSE,
 # Figure 2: Booster Penalty CDF
 generate_fig2_booster_penalty <- function(dat, region_name, save_map = FALSE,
                                           scenario = "default") {
-  params <- set_scenario(scenarios[[scenario]])
+  params <- set_scenario(scenarios[[scenario]], region = region_name)
   message("Generating Figure 2: Booster Penalty CDF for ", region_name, "...")
+    params <- set_scenario(scenarios[[scenario]], region = r)
   params$region <- region_name
 
   res <- run_scenario(dat[["template", exact = TRUE]], dat[["layers", exact = TRUE]], params, vec = dat[["vec", exact = TRUE]])
@@ -195,8 +197,9 @@ generate_fig3_evaporation <- function(
   metric = c("optimal_tech", "max_npv", "both")
 ) {
   metric <- match.arg(metric)
-  params <- set_scenario(scenarios[[scenario]])
+  params <- set_scenario(scenarios[[scenario]], region = region_name)
   message("Generating Figure 3: Evaporation Maps for ", region_name, " (Metric: ", metric, ")...")
+    params <- set_scenario(scenarios[[scenario]], region = r)
   params$region <- region_name
   all_df <- data.frame()
   for (cp in c_prices) {
@@ -340,13 +343,14 @@ generate_fig3_evaporation <- function(
 # Figure 4: Capital Lock-Out Wedge
 generate_fig4_capital_wedge <- function(dat, region_name, save_map = FALSE,
                                         scenario = "default") {
-  params <- set_scenario(scenarios[[scenario]])
+  params <- set_scenario(scenarios[[scenario]], region = region_name)
   message("Generating Figure 4: Capital Lock-Out Wedge for ", region_name, "...")
   cell_area <- terra::cellSize(dat$template, unit = "km")
 
   # We loop over discount rates. C price fixed.
   dr_seq <- seq(0, 0.20, by = 0.02)
   results <- list()
+    params <- set_scenario(scenarios[[scenario]], region = r)
   params$region <- region_name
   for (dr in dr_seq) {
     message("  Calculating DR: ", dr * 100, "%")
@@ -412,13 +416,14 @@ generate_fig4_capital_wedge <- function(dat, region_name, save_map = FALSE,
 # Figure 5: Carbon Price Threshold Map
 generate_fig5_cprice_threshold <- function(dat, region_name, save_map = FALSE,
                                            scenario = "default") {
-  params <- set_scenario(scenarios[[scenario]])
+  params <- set_scenario(scenarios[[scenario]], region = region_name)
   message(
     "Generating Figure 5: Carbon Price Threshold Map for ",
     region_name, "..."
   )
 
   # Get base NPV (at C=0) and Abatement using linear baseline
+    params <- set_scenario(scenarios[[scenario]], region = r)
   params$region <- region_name
   base_res <- get_linear_baseline(dat[["template", exact = TRUE]], dat[["layers", exact = TRUE]], params, vec = dat[["vec", exact = TRUE]])
 
@@ -510,7 +515,7 @@ generate_fig5_cprice_threshold <- function(dat, region_name, save_map = FALSE,
 
 # Figure 6: Fractured Regional MACC
 generate_fig6_macc <- function(save_map = FALSE, scenario = "default") {
-  params <- set_scenario(scenarios[[scenario]])
+
   message("Generating Figure 6: Fractured Regional MACC (12-panel)...")
 
   regions_ordered <- c("US", "China", "Europe", "India")
@@ -520,6 +525,7 @@ generate_fig6_macc <- function(save_map = FALSE, scenario = "default") {
     dat <- load_region_data(r)
     cell_area <- terra::cellSize(dat$template, unit = "km")
 
+    params <- set_scenario(scenarios[[scenario]], region = r)
     params$region <- r
     base_res <- get_linear_baseline(dat[["template", exact = TRUE]], dat[["layers", exact = TRUE]], params, vec = dat[["vec", exact = TRUE]])
 
@@ -602,11 +608,11 @@ generate_fig6_macc <- function(save_map = FALSE, scenario = "default") {
       names_sep = "_",
       values_to = "Value"
     )
-    
+
     macc_long$Value[macc_long$Metric == "Abatement"] <- macc_long$Value[macc_long$Metric == "Abatement"] / 1e6
     macc_long$Value[macc_long$Metric == "Area"] <- macc_long$Value[macc_long$Metric == "Area"] / 1e4 # km2 to Mha
     macc_long$Value[macc_long$Metric == "Biomass"] <- macc_long$Value[macc_long$Metric == "Biomass"] / 1e6
-    
+
     macc_long$Region <- r
     all_macc[[r]] <- macc_long
   }
@@ -615,7 +621,7 @@ generate_fig6_macc <- function(save_map = FALSE, scenario = "default") {
   combined_macc$Technology <- factor(combined_macc$Technology, levels = c("BECCS", "BEBCS", "BES"))
 
   combined_macc$Region <- factor(combined_macc$Region, levels = c("US", "China", "Europe", "India"))
-  
+
   metric_labels <- c(
     "Abatement" = "Abatement Potential\n(MtCO2e/yr)",
     "Area" = "Land Area Used\n(Mha)",
@@ -664,11 +670,12 @@ generate_fig6_macc <- function(save_map = FALSE, scenario = "default") {
 generate_fig7_agronomic_bridge <- function(dat, region_name, save_map = FALSE,
                                            scenario = "default",
                                            c_price = 30) {
-  params <- set_scenario(scenarios[[scenario]])
+  params <- set_scenario(scenarios[[scenario]], region = region_name)
   message("Generating Figure 7: Agronomic Bridge for ", region_name, "...")
 
   # 1. With Ag Value
   params$c_price <- c_price
+    params <- set_scenario(scenarios[[scenario]], region = r)
   params$region <- region_name
   res_ag <- run_scenario(dat[["template", exact = TRUE]], dat[["layers", exact = TRUE]], params, vec = dat[["vec", exact = TRUE]])
 
@@ -763,7 +770,7 @@ generate_fig7_agronomic_bridge <- function(dat, region_name, save_map = FALSE,
 # Figure 8: Global Break-Even Carbon Price Grid
 generate_fig8_breakeven_cprice <- function(save_map = FALSE,
                                            scenario = "default") {
-  params <- set_scenario(scenarios[[scenario]])
+
   message("Generating Figure 8: Break-Even Carbon Price Grid...")
 
   # Ordered regions for columns
@@ -784,6 +791,7 @@ generate_fig8_breakeven_cprice <- function(save_map = FALSE,
     dat <- load_region_data(r)
 
     # Prepare parameters
+    params <- set_scenario(scenarios[[scenario]], region = r)
     params$region <- r
 
     # Get baseline NPV(0) and Abatement
@@ -1007,8 +1015,9 @@ generate_fig8_breakeven_cprice <- function(save_map = FALSE,
 # Figure 9: Optimal Scale per Tech Map
 generate_fig9_optimal_scale_map <- function(dat, region_name, save_map = FALSE,
                                             scenario = "default") {
-  params <- set_scenario(scenarios[[scenario]])
+  params <- set_scenario(scenarios[[scenario]], region = region_name)
   message("Generating Figure 9: Optimal Scale Map for ", region_name, "...")
+    params <- set_scenario(scenarios[[scenario]], region = r)
   params$region <- region_name
 
   # Run for each tech with optimize_scale = TRUE
@@ -1172,19 +1181,19 @@ run_all_manuscript_figures <- function(save_map = TRUE) { # xxxxxxxxxxxxxxxxxxxx
   for (scenario_name in .scenarios) {
     for (r in .regions) {
       dat <- load_region_data(r)
-      # generate_fig1_phys_boundary(dat, r, save_map, scenario = scenario_name)
-      # generate_fig2_booster_penalty(dat, r, save_map, scenario = scenario_name)
-      generate_fig3_evaporation(dat, r, save_map, scenario = scenario_name)
-      # generate_fig4_capital_wedge(dat, r, save_map, scenario = scenario_name)
-      # generate_fig5_cprice_threshold(dat, r, save_map, scenario = scenario_name)
-      # generate_fig7_agronomic_bridge(dat, r, save_map, scenario = scenario_name)
-      # generate_fig9_optimal_scale_map(dat, r, save_map, scenario = scenario_name)
+      generate_fig1_phys_boundary(dat, r, save_map, scenario = scenario_name)
+      generate_fig2_booster_penalty(dat, r, save_map, scenario = scenario_name)
+      # generate_fig3_evaporation(dat, r, save_map, scenario = scenario_name)
+      generate_fig4_capital_wedge(dat, r, save_map, scenario = scenario_name)
+      generate_fig5_cprice_threshold(dat, r, save_map, scenario = scenario_name)
+      generate_fig7_agronomic_bridge(dat, r, save_map, scenario = scenario_name)
+      generate_fig9_optimal_scale_map(dat, r, save_map, scenario = scenario_name)
     }
-    generate_fig6_macc(save_map, scenario = scenario_name)
-    generate_fig8_breakeven_cprice(save_map, scenario = scenario_name)
+    # generate_fig6_macc(save_map, scenario = scenario_name)
+    # generate_fig8_breakeven_cprice(save_map, scenario = scenario_name)
     message(paste0("All figures generated successfully for scenario: ", scenario_name, "\n"))
   }
-  # generate_fig10_biomass_density(save_map = TRUE)
+  generate_fig10_biomass_density(save_map = TRUE)
 }
 
 # --- Execution block ---
@@ -1194,6 +1203,6 @@ if (sys.nframe() == 0) {
   dir.create(out_dir, showWarnings = FALSE)
   .regions <- c("US", "China", "Europe", "India")
   .scenarios <- c("default", "CP100_MW250", "CP100_MW250_reg", "EA_CP100_MW250", "EA_CP100_MW250_reg")
-  run_all_manuscript_figures(save_map = TRUE)
+  run_all_manuscript_figures(save_map = FALSE)
 }
 # nolint end

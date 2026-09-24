@@ -165,3 +165,10 @@ for (i in 1:nrow(factorial_grid)) {
 dir.create("results", showWarnings = FALSE)
 write.csv(results_df, "results/factorial_analysis_results.csv", row.names = FALSE)
 message("Factorial Analysis Complete. Results saved to results/factorial_analysis_results.csv")
+
+# --- AI Summary Export ---
+ai_dir <- "figures/ai_summaries/"
+dir.create(ai_dir, showWarnings = FALSE, recursive = TRUE)
+ai_csv <- paste0(ai_dir, "factorial_summary.csv")
+write.csv(results_df, ai_csv, row.names = FALSE)
+message("Saved AI summary to: ", ai_csv)

@@ -6,6 +6,8 @@ library(terra)
 library(dplyr)
 library(tidyr)
 
+sf::sf_use_s2(FALSE)
+
 # Sourcing script for helper load function and package loading
 source("scripts/manuscript_figures.R")
 
@@ -19,18 +21,19 @@ message("Selected Scenario: ", SCENARIO_NAME)
 # 1. Load Parameter Definitions & Scenario
 if (SCENARIO_NAME %in% names(BiocharAG::scenarios)) {
   overrides <- BiocharAG::scenarios[[SCENARIO_NAME]]
-  params <- BiocharAG::set_scenario(scenario = overrides)
+  # Global params loaded for general scalar properties only (c_price, etc.)
+  params_global <- BiocharAG::set_scenario(scenario = overrides)
   message("Successfully loaded scenario overrides.")
 } else {
   stop("Scenario '", SCENARIO_NAME, "' not found in BiocharAG::scenarios.")
 }
 
 # Resolve general scenario parameters
-c_price <- if (!is.null(params$c_price)) params$c_price else 150
-tort <- if (!is.null(params$tortuosity)) params$tortuosity else 1.3
-tf <- if (!is.null(params$bm_transport_fixed)) params$bm_transport_fixed else 5.0
-tv <- if (!is.null(params$bm_transport_var)) params$bm_transport_var else 0.15
-trans_em_factor <- if (!is.null(params$transport_emissions_factor)) params$transport_emissions_factor else 0.0001
+c_price <- if (!is.null(params_global$c_price)) params_global$c_price else 150
+tort <- if (!is.null(params_global$tortuosity)) params_global$tortuosity else 1.3
+tf <- if (!is.null(params_global$bm_transport_fixed)) params_global$bm_transport_fixed else 5.0
+tv <- if (!is.null(params_global$bm_transport_var)) params_global$bm_transport_var else 0.15
+trans_em_factor <- if (!is.null(params_global$transport_emissions_factor)) params_global$transport_emissions_factor else 0.0001
 
 # Function to run technology evaluation cell-by-cell using vectorization
 evaluate_tech_vectorized <- function(tech_fun, tech_name, base_params, spatial_layers, cell_area, region_name) {
@@ -173,10 +176,14 @@ for (r in regions) {
     }
   }
 
+  # Dynamically pull regional parameters
+  params_regional <- BiocharAG::set_scenario(scenario = overrides, region = r)
+  params_regional$region <- r
+
   message("  Running competitive vectorized spatial TEA...")
-  res_bes <- evaluate_tech_vectorized(BiocharAG::calculate_bes, "BES", params, spatial_layers, cell_area_vals, r)
-  res_beccs <- evaluate_tech_vectorized(BiocharAG::calculate_beccs, "BECCS", params, spatial_layers, cell_area_vals, r)
-  res_bebcs <- evaluate_tech_vectorized(BiocharAG::calculate_bebcs, "BEBCS", params, spatial_layers, cell_area_vals, r)
+  res_bes <- evaluate_tech_vectorized(BiocharAG::calculate_bes, "BES", params_regional, spatial_layers, cell_area_vals, r)
+  res_beccs <- evaluate_tech_vectorized(BiocharAG::calculate_beccs, "BECCS", params_regional, spatial_layers, cell_area_vals, r)
+  res_bebcs <- evaluate_tech_vectorized(BiocharAG::calculate_bebcs, "BEBCS", params_regional, spatial_layers, cell_area_vals, r)
 
   message("  Calculating economic metrics and breakdowns...")
   # Logistics transport and feedstock calculations
@@ -306,3 +313,38 @@ results_df <- do.call(rbind, all_regions_results)
 dir.create("results", showWarnings = FALSE)
 write.csv(results_df, OUTPUT_FILE, row.names = FALSE)
 message("Spatial Sensitivity Analysis Complete. Results saved to: ", OUTPUT_FILE)
+
+# --- AI Summary Export: Zonal Stats ---
+ai_dir <- "figures/ai_summaries/"
+dir.create(ai_dir, showWarnings = FALSE, recursive = TRUE)
+
+df_admin_all <- data.frame()
+for (r in regions) {
+  dat <- BiocharAG:::load_region_data(r)
+  if (!is.null(dat$admin1)) {
+    pts <- sf::st_as_sf(results_df[results_df$region == r, ], coords = c("x", "y"), crs = 4326)
+    admin_sf <- sf::st_as_sf(dat$admin1)
+    if (nrow(pts) > 0) {
+      sf::sf_use_s2(FALSE)
+      joined <- sf::st_join(pts, admin_sf)
+      sf::sf_use_s2(TRUE)
+      admin_sum <- joined %>%
+        sf::st_drop_geometry() %>%
+        group_by(NAM_0, NAM_1) %>%
+        summarize(
+          region = first(region),
+          mean_npv_BES = mean(npv_BES, na.rm = TRUE),
+          mean_npv_BECCS = mean(npv_BECCS, na.rm = TRUE),
+          mean_npv_BEBCS = mean(npv_BEBCS, na.rm = TRUE),
+          mean_breakeven_cprice_BES = mean(breakeven_cprice_BES, na.rm = TRUE),
+          mean_breakeven_cprice_BECCS = mean(breakeven_cprice_BECCS, na.rm = TRUE),
+          mean_breakeven_cprice_BEBCS = mean(breakeven_cprice_BEBCS, na.rm = TRUE)
+        )
+      df_admin_all <- bind_rows(df_admin_all, admin_sum)
+    }
+  }
+}
+
+ai_csv <- paste0(ai_dir, "spatial_sensitivity_admin1_summary.csv")
+write.csv(df_admin_all, ai_csv, row.names = FALSE)
+message("Saved AI spatial sensitivity summary to: ", ai_csv)

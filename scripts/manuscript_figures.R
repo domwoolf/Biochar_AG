@@ -9,6 +9,8 @@ library(dplyr)
 library(tidyr)
 library(sf)
 
+sf::sf_use_s2(FALSE)
+
 # Silence linter warnings for NSE (Non-Standard Evaluation) variables
 .data <- rlang::.data
 
@@ -62,13 +64,13 @@ get_linear_baseline <- function(template, layers, base_params, vec = NULL) {
 
 ################ Figure: Evaporation Maps ################
 generate_fig_evaporation <- function(
-  dat, region_name, save_map = FALSE,
+  dat, region_name, save_map = FALSE, save_ai_data = FALSE,
   d_rates = c(0.02, 0.08, 0.15), c_prices = c(30, 100, 150),
   scenario = "default",
   metric = c("optimal_tech", "max_npv", "both")
 ) {
   metric <- match.arg(metric)
-  params <- set_scenario(scenarios[[scenario]])
+  params <- set_scenario(scenarios[[scenario]], region = region_name)
   message("Generating Figure 3: Evaporation Maps for ", region_name, " (Metric: ", metric, ")...")
   params$region <- region_name
   all_df <- data.frame()
@@ -107,6 +109,24 @@ generate_fig_evaporation <- function(
       df$dr_label <- paste0("Discount Rate: ", dr * 100, "%")
       df$cp_label <- paste0("Carbon Price: $", cp, "/t")
       all_df <- bind_rows(all_df, df)
+
+      if (save_ai_data && !is.null(dat$admin1) && requireNamespace("exactextractr", quietly = TRUE)) {
+        admin1_polys <- sf::st_as_sf(dat$admin1)
+        # Extract mean NPV
+        admin1_polys$mean_max_npv <- exactextractr::exact_extract(max_npv_raster, admin1_polys, "mean")
+        # Extract mode tech
+        admin1_polys$majority_tech <- exactextractr::exact_extract(opt_raster, admin1_polys, "mode")
+        admin1_polys$majority_tech_name <- tech_levels[as.character(admin1_polys$majority_tech)]
+
+        # Save to CSV (dropping geometry)
+        df_ai <- sf::st_drop_geometry(admin1_polys)
+        df_ai$Discount_Rate <- dr
+        df_ai$Carbon_Price <- cp
+
+        ai_dir <- paste0(out_dir, "ai_summaries/")
+        dir.create(ai_dir, showWarnings = FALSE)
+        write.csv(df_ai, paste0(ai_dir, "evaporation_spatial_", region_name, "_DR", dr * 100, "_CP", cp, "_", scenario, ".csv"), row.names = FALSE)
+      }
     }
   }
 
@@ -211,8 +231,7 @@ generate_fig_evaporation <- function(
 }
 
 ################ Figure: Regional MACC ################
-generate_fig_macc <- function(save_map = FALSE, scenario = "default") {
-  params <- set_scenario(scenarios[[scenario]])
+generate_fig_macc <- function(save_map = FALSE, save_ai_data = FALSE, scenario = "default") {
   message("Generating Figure: Regional MACC (12-panel)...")
 
   regions_ordered <- c("US", "China", "Europe", "India")
@@ -222,6 +241,7 @@ generate_fig_macc <- function(save_map = FALSE, scenario = "default") {
     dat <- load_region_data(r)
     cell_area <- terra::cellSize(dat$template, unit = "km")
 
+    params <- set_scenario(scenarios[[scenario]], region = r)
     params$region <- r
     base_res <- get_linear_baseline(dat[["template", exact = TRUE]], dat[["layers", exact = TRUE]], params, vec = dat[["vec", exact = TRUE]])
 
@@ -342,6 +362,12 @@ generate_fig_macc <- function(save_map = FALSE, scenario = "default") {
         plot.title = element_blank()
       )
 
+    if (save_ai_data) {
+      ai_dir <- paste0(out_dir, "ai_summaries/")
+      dir.create(ai_dir, showWarnings = FALSE)
+      write.csv(combined_macc, paste0(ai_dir, "macc_data_", scenario, ".csv"), row.names = FALSE)
+    }
+
     if (save_map) {
       ggsave_with_scenario(
         paste0(out_dir, "MACC.png"),
@@ -364,8 +390,8 @@ generate_fig_macc <- function(save_map = FALSE, scenario = "default") {
 
 ################ Figure: Break-Even Carbon Price ################
 generate_fig_breakeven_cprice <- function(save_map = FALSE,
+                                          save_ai_data = FALSE,
                                           scenario = "default") {
-  params <- set_scenario(scenarios[[scenario]])
   message("Generating Figure: Break-Even Carbon Price Grid...")
 
   # Ordered regions for columns
@@ -380,12 +406,14 @@ generate_fig_breakeven_cprice <- function(save_map = FALSE,
 
   df_list <- list()
   admin_list <- list()
+  df_ai_list <- list()
 
   for (r in regions_ordered) {
     message("  Processing Region for Fig 8: ", r)
     dat <- load_region_data(r)
 
     # Prepare parameters
+    params <- set_scenario(scenarios[[scenario]], region = r)
     params$region <- r
 
     # Get baseline NPV(0) and Abatement
@@ -466,6 +494,21 @@ generate_fig_breakeven_cprice <- function(save_map = FALSE,
 
     df_long$Region <- r
     df_list[[r]] <- df_long
+
+    if (save_ai_data && !is.null(dat$admin1)) {
+      admin1_polys <- sf::st_as_sf(dat$admin1)
+      admin1_polys$mean_breakeven_c_bes <- exactextractr::exact_extract(full_stack$BES, admin1_polys, "mean")
+      admin1_polys$mean_breakeven_c_beccs <- exactextractr::exact_extract(full_stack$BECCS, admin1_polys, "mean")
+      admin1_polys$mean_breakeven_c_bebcs <- exactextractr::exact_extract(full_stack$BEBCS, admin1_polys, "mean")
+      admin1_polys$mean_best_c <- exactextractr::exact_extract(full_stack$Best_C, admin1_polys, "mean")
+
+      majority_idx <- exactextractr::exact_extract(full_stack$Best_Tech, admin1_polys, "mode")
+      admin1_polys$majority_best_tech <- c("BES", "BECCS", "BEBCS")[majority_idx]
+
+      df_ai_r <- sf::st_drop_geometry(admin1_polys)
+      df_ai_r$Region <- r
+      df_ai_list[[r]] <- df_ai_r
+    }
   }
 
   message("  Combining data and rendering plot...")
@@ -600,20 +643,29 @@ generate_fig_breakeven_cprice <- function(save_map = FALSE,
       dpi = 300
     )
     message("Saved: Breakeven_CPrice.png")
-  } else {
+  }
+
+  if (save_ai_data && length(df_ai_list) > 0) {
+    ai_dir <- paste0(out_dir, "ai_summaries/")
+    dir.create(ai_dir, showWarnings = FALSE)
+    df_ai_all <- dplyr::bind_rows(df_ai_list)
+    write.csv(df_ai_all, paste0(ai_dir, "breakeven_data_", scenario, ".csv"), row.names = FALSE)
+  }
+
+  if (!save_map) {
     print(combined_plot)
   }
   return(combined_plot)
 }
 
-run_all_manuscript_figures <- function(save_map = TRUE) { # xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+run_all_manuscript_figures <- function(save_map = TRUE, save_ai_data = TRUE) { # xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
   for (scenario_name in .scenarios) {
     for (r in .regions) {
       dat <- load_region_data(r)
-      generate_fig_evaporation(dat, r, save_map, scenario = scenario_name)
+      generate_fig_evaporation(dat, r, save_map, save_ai_data = save_ai_data, scenario = scenario_name)
     }
-    generate_fig_macc(save_map, scenario = scenario_name)
-    generate_fig_breakeven_cprice(save_map, scenario = scenario_name)
+    generate_fig_macc(save_map, save_ai_data = save_ai_data, scenario = scenario_name)
+    generate_fig_breakeven_cprice(save_map, save_ai_data = save_ai_data, scenario = scenario_name)
     message(paste0("All figures generated successfully for scenario: ", scenario_name, "\n"))
   }
 }
@@ -625,6 +677,6 @@ if (sys.nframe() == 0) {
   dir.create(out_dir, showWarnings = FALSE)
   .regions <- c("US", "China", "Europe", "India")
   .scenarios <- c("default", "CP100_MW250", "CP100_MW250_reg", "EA_CP100_MW250", "EA_CP100_MW250_reg")
-  run_all_manuscript_figures(save_map = TRUE)
+  run_all_manuscript_figures(save_map = TRUE, save_ai_data = TRUE)
 }
 # nolint end

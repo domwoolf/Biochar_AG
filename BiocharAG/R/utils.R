@@ -65,7 +65,7 @@ pmax_raster <- function(x, y) {
 #' @export
 load_region_data <- function(region_name, gis_path = NULL) {
   if (is.null(gis_path)) {
-    candidates <- c("../GIS/processed/", "GIS/processed/", "/media/dominic/Data/git/Biochar_AG/GIS/processed/")
+    candidates <- c("GIS/processed/", "../GIS/processed/", "/media/dominic/Data/git/Biochar_AG/GIS/processed/")
     for (cand in candidates) {
       if (dir.exists(cand)) {
         gis_path <- cand

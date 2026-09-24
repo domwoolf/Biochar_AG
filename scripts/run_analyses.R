@@ -11,12 +11,13 @@ library(sf)
 #    fig 6 MACC
 #    fig 8 breakeven C price
 {
-    source("scripts/manuscript_figures.R")
-    params <- BiocharAG::set_scenario()
-    dir.create(out_dir, showWarnings = FALSE)
-    .regions <- c("US", "China", "Europe", "India")
-    .scenarios <- c("default", "CP100_MW250", "CP100_MW250_reg", "EA_CP100_MW250", "EA_CP100_MW250_reg")
-    run_all_manuscript_figures(save_map = TRUE)
+  source("scripts/manuscript_figures.R")
+  params <- BiocharAG::set_scenario()
+  dir.create(out_dir, showWarnings = FALSE)
+  .regions <- c("US", "China", "Europe", "India")
+  # .scenarios <- c("default", "CP100_MW250", "CP100_MW250_reg", "EA_CP100_MW250", "EA_CP100_MW250_reg")
+  .scenarios <- c("default")
+  run_all_manuscript_figures(save_map = TRUE)
 }
 
 # 2) Factorial Analysis
@@ -25,7 +26,7 @@ library(sf)
 #    Generates:
 #      "results/factorial_analysis_results.csv"
 {
-    source("scripts/factorial_analysis.R")
+  source("scripts/factorial_analysis.R")
 }
 
 # 3) Monte Carlo Simulations
@@ -33,7 +34,7 @@ library(sf)
 #    "results/mc_analysis_results.csv"
 #    (very slow, comment out if not needed)
 {
-    source("scripts/mc_analysis.R")
+  source("scripts/mc_analysis.R")
 }
 
 # 4) Monte Carlo Shap Analysis
@@ -42,9 +43,9 @@ library(sf)
 #    Beeswarm of SHAP values
 #    Dependence plots
 {
-    source("scripts/MC_shap.R")
-    generate_evolution_plots()
-    generate_global_beeswarm_plots()
+  source("scripts/MC_shap.R")
+  generate_evolution_plots()
+  generate_global_beeswarm_plots()
 }
 
 # 5) Spatial sensitivity Analysis
@@ -52,12 +53,12 @@ library(sf)
 #    spatial_sensitivity_results.csv (economic and CO2 metrics for each grid cell)
 #    spatial_shap_values_by_location.csv (shap values for each grid cell)
 {
-    source("scripts/spatial_sensitivity.R")
+  source("scripts/spatial_sensitivity.R")
 }
 
 # 6) Spatial SHAP
 #    Generates:
 #    maps of dominant SHAP feature by location
 {
-    source("scripts/spatial_shap.R")
+  source("scripts/spatial_shap.R")
 }

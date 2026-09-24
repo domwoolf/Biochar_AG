@@ -19,15 +19,15 @@ plot_sensitivity_evolution <- function(
   df <- fread(data_path, data.table = FALSE)
 
   # Define the discrete scenario steps to track (carbon prices)
-  c_prices <- sort(unique(df$c_price))
-  message("Detected carbon prices: ", paste(c_prices, collapse = ", "))
+  c_prices <- c(0, 50, 100, 150, 200)
+  message("Filtering data across carbon prices: ", paste(c_prices, collapse = ", "))
 
   # Data structure to store the SHAP importance
   importance_list <- list()
 
   # Define columns to drop to isolate the purely uncertain input parameters and toggles
   cols_to_drop <- c(
-    "scenario_id", "mc_run_id", "region", "technology", "c_price", "discount_rate",
+    "mc_run_id", "region", "technology", "c_price",
     "area_best_km2", "area_viable_km2", "biomass_processed_yr_mg",
     "npv_min", "npv_max", "npv_mean"
   )
@@ -49,7 +49,6 @@ plot_sensitivity_evolution <- function(
       filter(
         technology == technology_name,
         region == region_name,
-        discount_rate == !!discount_rate,
         c_price == !!cp,
         !is.na(npv_mean)
       )
@@ -168,6 +167,13 @@ plot_sensitivity_evolution <- function(
   ev_png <- sprintf("results/sensitivity_evolution_R_%s_%s_toggles.png", technology_name, region_name)
   ggsave(ev_png, plot = p_ev, width = 10, height = 6, dpi = 300)
   message("Saved evolution plot to ", ev_png)
+
+  # --- AI Summary Export ---
+  ai_dir <- "figures/ai_summaries/"
+  dir.create(ai_dir, showWarnings = FALSE, recursive = TRUE)
+  ai_csv <- sprintf("%smc_shap_importance_%s_%s.csv", ai_dir, technology_name, region_name)
+  write.csv(importance_all, ai_csv, row.names = FALSE)
+  message("Saved AI summary of SHAP importance to ", ai_csv)
 
   # 4. Generate Beeswarm and Dependence Plots if target SHAP is available
   if (!is.null(target_shp)) {

@@ -79,15 +79,16 @@ get_regional_overrides <- function() {
 #' Scenarios List
 #'
 #' A predefined list of scenarios used to override default parameters.
+#' Default plant size is based on https://www.pfpi.net/biomass-basics which gives an average biomass facility currently being built as 38 MWe. With an assumed electrical efficiency of 30%, this gives a thermal capacity of 127 MWth, which we round to 125 MWth for simplicity.
 scenarios_base <- list(
   default = list(),
+  CP100_MW125 = list(
+    c_price = 100,
+    plant_mw_th = c(BES = 125, BECCS = 125, BEBCS = 125)
+  ),
   CP100_MW250 = list(
     c_price = 100,
     plant_mw_th = c(BES = 250, BECCS = 250, BEBCS = 250)
-  ),
-  CP100_MW150 = list(
-    c_price = 100,
-    plant_mw_th = c(BES = 150, BECCS = 150, BEBCS = 150)
   ),
   EA = list(
     early_adoption = TRUE

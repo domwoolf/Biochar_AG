@@ -7,6 +7,8 @@ library(dplyr)
 library(xgboost)
 library(shapviz)
 library(ggplot2)
+
+sf::sf_use_s2(FALSE)
 library(patchwork)
 library(terra)
 library(sf)
@@ -142,6 +144,39 @@ df_shap_loc <- df_valid %>%
 write.csv(df_shap_loc, OUTPUT_CSV, row.names = FALSE)
 message("Saved location-level SHAP table to: ", OUTPUT_CSV)
 
+# --- AI Summary Export: Zonal Stats ---
+ai_dir <- "figures/ai_summaries/"
+dir.create(ai_dir, showWarnings = FALSE, recursive = TRUE)
+
+df_admin_all <- data.frame()
+regions_list <- c("US", "Europe", "China", "India")
+for (r in regions_list) {
+  dat <- BiocharAG:::load_region_data(r)
+  if (!is.null(dat$admin1)) {
+    pts <- sf::st_as_sf(df_shap_loc[df_shap_loc$region == r, ], coords = c("x", "y"), crs = 4326)
+    admin_sf <- sf::st_as_sf(dat$admin1)
+    if (nrow(pts) > 0) {
+      sf::sf_use_s2(FALSE)
+      joined <- sf::st_join(pts, admin_sf)
+      sf::sf_use_s2(TRUE)
+      # Summarize by admin1
+      admin_sum <- joined %>%
+        sf::st_drop_geometry() %>%
+        group_by(NAM_0, NAM_1) %>%
+        summarize(
+          region = first(region),
+          dominant_feature = names(which.max(table(dominant_feature_winning_class))),
+          avg_shap_magnitude = mean(max_shap_value_winning_class, na.rm = TRUE)
+        )
+      df_admin_all <- bind_rows(df_admin_all, admin_sum)
+    }
+  }
+}
+
+ai_csv <- paste0(ai_dir, "spatial_shap_admin1_summary.csv")
+write.csv(df_admin_all, ai_csv, row.names = FALSE)
+message("Saved AI spatial SHAP summary to: ", ai_csv)
+
 # 3. Plot Multi-Region Spatial Maps of Largest SHAP Value by Location
 message("Generating multi-region spatial maps...")
 
@@ -264,3 +299,5 @@ plot_shap_magnitude_map(
 )
 
 message("XGBoost + SHAP spatial analysis and mapping complete!")
+
+
