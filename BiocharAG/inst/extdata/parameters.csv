@@ -1,13 +1,13 @@
 name,description,units,default_value,distribution,dist_min,dist_max,dist_bounds,notes,category,type,US,Europe,China,India
-beccs_capital_cost,Base CAPEX for BECCS,$/kW th,4000,pert,0.75,1.6,relative,Medium Priority. Differ significantly due to local labor/material costs.,Technology - BECCS,parameter,5000,4600,2800,2600
+beccs_capex_premium,Increase in total CAPEX for post-combustion capture and compression relative to BES at equal thermal input,fraction,0.4,pert,0.25,0.8,absolute,"IEAGHG (2009) dedicated biomass CFB/BFB: +38-40% total investment (+114-126% per kWe net); range spans co-fired cases (+25-30%) to the upper end of Bhave et al. (2017).",Technology - BECCS,parameter,0.4,0.4,0.4,0.4
 beccs_eff_penalty,BECCS efficiency penalty (percentage points below BES),fraction,0.08,pert,0.04,0.11,absolute,,Technology - BECCS,parameter,0.08,0.08,0.08,0.08
 beccs_om_factor,O&M cost as fraction of CAPEX for BECCS,fraction,0.05,pert,0.75,1.35,relative,Medium Priority. Highly labor-dependent.,Technology - BECCS,parameter,0.055,0.055,0.035,0.03
 capture_rate,BECCS CO2 capture efficiency,fraction,0.9,pert,0.85,0.95,absolute,Validation needed: Real-world data is sparse. Recommend sensitivity analysis (85-95%).,Technology - BECCS,parameter,0.9,0.9,0.9,0.9
-ccs_cc,CCS capital cost,$/kW,500,none,,,,Not currently used by the model.,CO~2~ Transport & Storage,parameter,500,500,500,500
 ccs_distance,CCS transport distance,km,100,none,,,,,CO~2~ Transport & Storage,parameter,100,100,100,100
 ccs_storage_cost,Onshore injection and monitoring,$/Mg CO2,15,pert,0.5,2,relative,High Priority. Geologic storage costs vary drastically. Consider spatial raster.,CO~2~ Transport & Storage,parameter,12,12,12,12
-cost_offshore_storage,Offshore injection and monitoring,$/tCO2,40,none,,,,,CO~2~ Transport & Storage,parameter,40,40,40,40
-bes_capital_cost,Base CAPEX for BES,$/kW th,3000,pert,0.75,1.5,relative,Medium Priority. Differ significantly due to local labor/material costs.,Technology - BES,parameter,3750,3450,2100,1950
+cost_offshore_storage,Offshore injection and monitoring,$/Mg CO2,40,pert,0.5,2,relative,,CO~2~ Transport & Storage,parameter,40,40,40,40
+bes_capital_cost,Base CAPEX for BES at a 50 MWe reference plant (quoted at bes_capex_ref_eff),$/kWe (net),3000,pert,0.75,1.5,relative,Medium Priority. Differ significantly due to local labor/material costs.,Technology - BES,parameter,3750,3450,2100,1950
+bes_capex_ref_eff,Net electrical efficiency at which bes_capital_cost is quoted; sizes combustion CAPEX from thermal input,fraction,0.3,none,,,,"Fixed design point, so sampled efficiency, ash and CCS penalties change output but not equipment cost.",Technology - BES,parameter,0.3,0.3,0.3,0.3
 bes_energy_efficiency,Electrical efficiency for BES,fraction,0.3,pert,0.85,1.15,relative,,Technology - BES,parameter,0.3,0.3,0.3,0.3
 bes_om_factor,O&M cost as fraction of CAPEX for BES,fraction,0.04,pert,0.75,1.35,relative,Medium Priority. Highly labor-dependent.,Technology - BES,parameter,0.045,0.045,0.03,0.025
 ag_impact_duration,Duration of nutrient/liming benefit,years,10,pert,0.6,2,relative,Medium Priority. Duration depends heavily on local climate and soil. 10-year flat assumption poorly validated.,Biochar & Agronomic,parameter,5,5,5,5
@@ -21,28 +21,32 @@ bc_n_content,Biochar Nitrogen content,fraction,0.005,pert,0.5,2,relative,,Biocha
 bc_p_content,Biochar Phosphorus content,fraction,0.002,pert,0.5,2,relative,,Biochar & Agronomic,parameter,0.002,0.002,0.002,0.002
 bc_price,Biochar price,$/t Biochar,100,none,,,,,Biochar & Agronomic,parameter,100,100,100,100
 bc_stab_factor,Biochar stability factor,factor,4.6,none,,,,Validation needed: Ensure aligns with IPCC or verified carbon standard methodologies.,Biochar & Agronomic,parameter,4.6,4.6,4.6,4.6
-bo_c,Bio-oil carbon mass fraction,fraction,0.625,none,,,,,Technology - Pyrolysis (BEBCS),parameter,0.625,0.625,0.625,0.625
-bo_h,Bio-oil hydrogen mass fraction,fraction,0.0756,none,,,,,Technology - Pyrolysis (BEBCS),parameter,0.0756,0.0756,0.0756,0.0756
-bo_hhv,Bio-oil higher heating value,GJ / Mg,27.63,none,,,,,Technology - Pyrolysis (BEBCS),parameter,27.63,27.63,27.63,27.63
-bo_o,Bio-oil oxygen mass fraction,fraction,0.2994,none,,,,,Technology - Pyrolysis (BEBCS),parameter,0.2994,0.2994,0.2994,0.2994
-heat_loss,Pyrolysis process heat loss,GJ / Mg,2.35,none,,,,,Technology - Pyrolysis (BEBCS),parameter,2.35,2.35,2.35,2.35
-n_app_rate,Nitrogen application rate,kg/ha,100,none,,,,,Biochar & Agronomic,parameter,100,100,100,100
-n2o_factor,N2O emission factor,fraction,0.01,none,,,,Not currently used by the model. Validation needed: Ensure model accounts for biochar-induced N2O suppression.,Biochar & Agronomic,parameter,0.01,0.01,0.01,0.01
+n_app_rate,Mineral N fertiliser application rate on cropland,kg N/ha/yr,68,pert,0.75,1.25,relative,"FAOSTAT N use per ha of cropland (via Our World in Data), 2019-2023 mean; default = world mean.",Biochar & Agronomic,parameter,60,74,198,118
+n2o_ef,Direct N2O emission factor for fertiliser N,kg N2O-N / kg N,0.01,pert,0.001,0.018,absolute,IPCC (2019) Refinement EF1 aggregated default and uncertainty range.,Biochar & Agronomic,parameter,0.01,0.01,0.01,0.01
+n2o_reduction,Fractional reduction in soil N2O emissions after biochar application,fraction,0.23,pert,0.05,0.41,absolute,Woolf et al. (2021): 23% reduction (95% CI 5-41%) in field trials with >10 Mg C/ha biochar.,Biochar & Agronomic,parameter,0.23,0.23,0.23,0.23
+n2o_years,Duration of biochar N2O reduction,years,2,pert,1,15,absolute,Significant effects demonstrated only in the first year (Woolf et al. 2021); long tail reflects uncertainty.,Biochar & Agronomic,parameter,2,2,2,2
+bc_app_rate_c,Biochar application rate for N2O effect,Mg C/ha,10,none,,,,Minimum application for which Woolf et al. (2021) credit N2O reduction.,Biochar & Agronomic,parameter,10,10,10,10
 price_k,Market price for Potassium,$/kg K2O,0.62,pert,0.6,1.8,relative,High Priority. Massive regional variations due to subsidies and tariffs.,Biochar & Agronomic,parameter,0.82,0.9,0.55,0.68
 price_lime,Market price for agricultural lime,$/Mg,60,pert,0.7,1.5,relative,Low Priority. Varies by local transport distance.,Biochar & Agronomic,parameter,45,50,35,35
 price_n,Market price for Nitrogen,$/kg N,0.92,pert,0.6,1.8,relative,High Priority. Massive regional variations due to subsidies and tariffs.,Biochar & Agronomic,parameter,1.59,1.75,0.79,0.14
 price_p,Market price for Phosphorus,$/kg P2O5,1.1,pert,0.6,1.8,relative,High Priority. Massive regional variations due to subsidies and tariffs.,Biochar & Agronomic,parameter,2.08,2.29,1.1,0.7
 py_cc,Pyrolysis capital cost,$/Mg f,500,pert,0.7,1.8,relative,,Technology - Pyrolysis (BEBCS),parameter,500,500,500,500
 py_life,Pyrolysis project lifetime,years,20,none,,,,,Technology - Pyrolysis (BEBCS),parameter,20,20,20,20
-bebcs_power_capital_cost,Syngas power generation capital cost,$/kW,1500,pert,0.75,1.5,relative,,Technology - Pyrolysis (BEBCS),parameter,1875,1725,1050,975
-bebcs_heat_capital_cost,Syngas heat generation capital cost,$/kW,400,pert,0.75,1.5,relative,,Technology - Pyrolysis (BEBCS),parameter,500,460,280,260
+bebcs_power_capital_cost,Syngas power generation capital cost,$/kWe,1500,pert,0.75,1.5,relative,,Technology - Pyrolysis (BEBCS),parameter,1875,1725,1050,975
+bebcs_heat_capital_cost,Syngas heat generation capital cost,$/kWth (heat output),400,pert,0.75,1.5,relative,,Technology - Pyrolysis (BEBCS),parameter,500,460,280,260
 py_temp,Peak pyrolysis temperature,°C,500,pert,0.9,1.1,relative,Sampled to represent imperfect temperature control and gradients within the reactor and particles; drives biochar yield and H:C (permanence) jointly.,Technology - Pyrolysis (BEBCS),parameter,500,500,500,500
+py_heater_eff,Pyrolysis process heater efficiency (HHV basis),fraction,0.8,pert,0.7,0.9,absolute,,Technology - Pyrolysis (BEBCS),parameter,0.8,0.8,0.8,0.8
+py_parasitic_power,Pyrolysis plant parasitic electricity demand,GJe / Mg feed,0.07,pert,0.5,2,relative,,Technology - Pyrolysis (BEBCS),parameter,0.07,0.07,0.07,0.07
+py_exhaust_temp,Temperature of vapours and gases leaving heat recovery,°C,170,none,,,,,Technology - Pyrolysis (BEBCS),parameter,170,170,170,170
+bebcs_power_efficiency,Electrical efficiency of pyrolysis fuel power block (LHV basis),fraction,0.35,none,,,,,Technology - Pyrolysis (BEBCS),parameter,0.35,0.35,0.35,0.35
 target_ph,Target agricultural soil pH,pH,6.5,none,,,,,Biochar & Agronomic,parameter,6.5,6.5,6.5,6.5
 time_frame,Time horizon of pyC permanence,years,100,none,,,,,Biochar & Agronomic,parameter,100,100,100,100
 gj_to_mwh,Conversion factor from GJ to MWh,ratio,0.277778,none,,,,,Constants,constant,0.277778,0.277778,0.277778,0.277778
+gwp_n2o,Global warming potential of N2O (100-yr),CO2e / N2O,273,none,,,,IPCC AR6.,Constants,constant,273,273,273,273
 kg_to_mg,Conversion factor from kg to Mg,ratio,1000,none,,,,,Constants,constant,1000,1000,1000,1000
 molar_ratio_co2_c,Molar ratio of CO2 to C,ratio,3.66666666666667,none,,,,,Constants,constant,3.66666666666667,3.66666666666667,3.66666666666667,3.66666666666667
 allow_eor,Allow Enhanced Oil Recovery,logical,FALSE,none,,,,,Control Flags,control_flag,FALSE,FALSE,FALSE,FALSE
+py_e_source,Pyrolysis process energy source (fuel / biomass / biochar),character,fuel,none,,,,,Control Flags,character,fuel,fuel,fuel,fuel
 bc_valuation_method,Biochar valuation method,character,advanced_mechanistic,none,,,,,Control Flags,character,advanced_mechanistic,advanced_mechanistic,advanced_mechanistic,advanced_mechanistic
 beccs_available,Is BECCS available,logical,TRUE,none,,,,,Control Flags,control_flag,TRUE,TRUE,TRUE,TRUE
 early_adoption,BECCS early adoption scenario,logical,FALSE,none,,,,,Control Flags,control_flag,FALSE,FALSE,FALSE,FALSE
@@ -51,9 +55,9 @@ sink_is_offshore,Is the CO2 sink offshore?,logical,FALSE,none,,,,,Control Flags,
 use_flat_ci,Use flat carbon intensity,logical,FALSE,none,,,,,Control Flags,control_flag,FALSE,FALSE,FALSE,FALSE
 bm_ash,Biomass ash mass fraction,fraction,0.05,pert,0.6,1.6,relative,Medium Priority. Varies by regional feedstock.,Feedstock & Logistics,parameter,0.05,0.05,0.15,0.15
 bm_c,Biomass carbon mass fraction,fraction,0.48,pert,0.92,1.04,relative,,Feedstock & Logistics,parameter,0.48,0.48,0.48,0.48
-bm_feed_rate,Biomass feed rate,kg/hr,250,none,,,,,Feedstock & Logistics,parameter,250,250,250,250
+bm_h,Biomass hydrogen mass fraction (daf),fraction,0.06,none,,,,,Feedstock & Logistics,parameter,0.06,0.06,0.06,0.06
 bm_h2o,Biomass moisture content,fraction,0.1,pert,0.08,0.2,absolute,,Feedstock & Logistics,parameter,0.1,0.1,0.1,0.1
-bm_lhv,Biomass lower heating value,GJ/Mg,18.6,pert,0.95,1.05,relative,"Medium Priority. Varies by regional feedstock (e.g., rice straw vs corn stover).",Feedstock & Logistics,parameter,18.6,18.6,18.6,18.6
+bm_lhv,Biomass lower heating value (dry ash-free),GJ/Mg daf,18.6,pert,0.95,1.05,relative,"Medium Priority. Varies by regional feedstock (e.g., rice straw vs corn stover).",Feedstock & Logistics,parameter,18.6,18.6,18.6,18.6
 bm_transport_fixed,Fixed loading/handling cost,$/Mg,5,pert,0.7,1.5,relative,,Feedstock & Logistics,parameter,5,5,5,5
 bm_transport_var,Variable trucking cost,$/Mg/km,0.15,pert,0.7,1.5,relative,,Feedstock & Logistics,parameter,0.15,0.15,0.15,0.15
 lignin,Lignin fraction,fraction,0.2,pert,0.75,1.25,relative,,Feedstock & Logistics,parameter,0.2,0.2,0.2,0.2

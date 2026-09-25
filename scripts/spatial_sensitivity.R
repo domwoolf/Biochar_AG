@@ -54,6 +54,7 @@ evaluate_tech_vectorized <- function(tech_fun, tech_name, base_params, spatial_l
   if ("dist_sink_km" %in% names(spatial_layers)) p$dist_sink_km <- spatial_layers$dist_sink_km
   if ("dist_sink_saline_km" %in% names(spatial_layers)) p$dist_sink_saline_km <- spatial_layers$dist_sink_saline_km
   if ("sink_is_offshore" %in% names(spatial_layers)) p$sink_is_offshore <- spatial_layers$sink_is_offshore
+  if ("sink_is_offshore_saline" %in% names(spatial_layers)) p$sink_is_offshore_saline <- spatial_layers$sink_is_offshore_saline
   if ("ff_c_intensity" %in% names(spatial_layers)) p$ff_c_intensity <- spatial_layers$ff_c_intensity
 
   for (layer_name in c("cn_weather_risk", "cn_expansion_risk", "eu_base_eur", "us_base_cost")) {

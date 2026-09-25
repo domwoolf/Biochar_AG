@@ -1,7 +1,5 @@
 param_a,param_b,rho,rationale
-bes_capital_cost,beccs_capital_cost,0.8,BECCS shares the BES boiler and steam cycle; capture unit adds on top
 bes_capital_cost,bebcs_power_capital_cost,0.7,Shared power-island equipment and construction cost drivers
-beccs_capital_cost,bebcs_power_capital_cost,0.6,Shared power-island equipment and construction cost drivers
 bes_om_factor,beccs_om_factor,0.8,Same plant staffing and maintenance cost base
 price_n,price_p,0.7,Fertiliser prices co-move with natural gas and global commodity cycles
 price_n,price_k,0.6,Fertiliser prices co-move with natural gas and global commodity cycles

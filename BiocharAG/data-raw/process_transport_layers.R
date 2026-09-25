@@ -271,15 +271,24 @@ process_transport_layers <- function(region_name, template_path, file_prefix,
     # 9. Handle Saline routing for regions where EOR won
     # --------------------------------------------------------------------------
     saline_indices <- which(sinks_sub$Is_EOR == FALSE)
+    r_offshore_saline <- terra::rast(r_template)
+    terra::values(r_offshore_saline) <- NA
     if (length(saline_indices) > 0) {
         saline_stack <- dist_stack[[saline_indices]]
         r_min_saline <- terra::app(saline_stack, min, na.rm = TRUE)
+
+        # Offshore flag of the nearest saline sink (used when EOR is not allowed)
+        r_saline_winner <- terra::app(saline_stack, which.min)
+        for (j in seq_along(saline_indices)) {
+            r_offshore_saline[r_saline_winner == j] <- is_offshore_vec[saline_indices[j]]
+        }
 
         # Fill in the NA gaps in r_saline_dist where EOR won the primary routing
         mask_needs_saline <- is.na(r_saline_dist)
         r_saline_dist[mask_needs_saline] <- r_min_saline[mask_needs_saline]
     }
     names(r_saline_dist) <- "dist_sink_saline_km"
+    names(r_offshore_saline) <- "sink_is_offshore_saline"
 
     # ==============================================================================
     # Final Output
@@ -287,13 +296,15 @@ process_transport_layers <- function(region_name, template_path, file_prefix,
     out_dist <- file.path(proc_dir, paste0(file_prefix, "_dist_sink.tif"))
     out_dist_saline <- file.path(proc_dir, paste0(file_prefix, "_dist_sink_saline.tif"))
     out_type <- file.path(proc_dir, paste0(file_prefix, "_sink_type.tif"))
+    out_type_saline <- file.path(proc_dir, paste0(file_prefix, "_sink_type_saline.tif"))
 
     terra::writeRaster(r_min_dist, out_dist, overwrite = TRUE)
     terra::writeRaster(r_saline_dist, out_dist_saline, overwrite = TRUE)
     terra::writeRaster(r_offshore_flag, out_type, overwrite = TRUE)
+    terra::writeRaster(r_offshore_saline, out_type_saline, overwrite = TRUE)
 
     message(paste("Saved:", out_dist))
-    list(dist = r_min_dist, dist_saline = r_saline_dist, type = r_offshore_flag)
+    list(dist = r_min_dist, dist_saline = r_saline_dist, type = r_offshore_flag, type_saline = r_offshore_saline)
 }
 
 # ==============================================================================

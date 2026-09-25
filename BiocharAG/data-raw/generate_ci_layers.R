@@ -47,7 +47,10 @@ message("Processing Europe carbon intensity layer...")
 eu_admin <- st_read(paste0(gis_path, "europe_admin0.gpkg"), quiet = TRUE)
 
 # Join by country name. The CSV has names like "Germany", "France", etc.
-eu_admin <- merge(eu_admin, df, by.x = "NAM_0", by.y = "Name", all.x = TRUE)
+# Harmonise World Bank admin names that differ from the CSV (otherwise these countries get NA CI)
+name_alias <- c("Czech Republic" = "Czechia", "Slovak Republic" = "Slovakia")
+eu_admin$ci_name <- ifelse(eu_admin$NAM_0 %in% names(name_alias), name_alias[eu_admin$NAM_0], eu_admin$NAM_0)
+eu_admin <- merge(eu_admin, df, by.x = "ci_name", by.y = "Name", all.x = TRUE)
 
 eu_bm <- rast(paste0(gis_path, "europe_biomass.tif"))
 eu_ci <- rasterize(eu_admin, eu_bm, field = "Merged_CI_tCO2_GJ")

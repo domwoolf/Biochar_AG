@@ -14,6 +14,7 @@ calculate_bes <- function(params) {
   if (is.null(params$bes_energy_efficiency)) params$bes_energy_efficiency <- 0.30
   if (is.null(params$bes_om_factor)) params$bes_om_factor <- 0.04
   if (is.null(params$bes_life)) params$bes_life <- 30
+  if (is.null(params$bes_capex_ref_eff)) params$bes_capex_ref_eff <- 0.30
 
   # Apply Fuel Quality Penalties (High Ash -> Higher Cost)
   params <- adjust_costs_for_fuel(params)
@@ -36,10 +37,9 @@ calculate_bes <- function(params) {
     capacity_factor_val <- if (!is.null(params$capacity_factor)) capacity_factor else 0.85
     annual_biomass <- (plant_mw_th * 8760 * capacity_factor_val) / (bm_lhv * gj_to_mwh_conv)
 
-    # Total Capex ($)
+    # Total Capex ($), sized on thermal input at the reference efficiency
     scaling_factor_val <- if (!is.null(params$scaling_factor)) scaling_factor else 0.7
-    base_cost <- bes_capital_cost * 50 * 1000 # 1000 converts MW to kW
-    total_capex <- base_cost * ((plant_mw / 50)^scaling_factor_val)
+    total_capex <- combustion_plant_capex(bes_capital_cost, plant_mw_th, bes_capex_ref_eff, scaling_factor_val)
 
     # Annual Capex ($/yr)
     annuity_fac <- calculate_annuity_factor(discount_rate, bes_life)
@@ -47,7 +47,9 @@ calculate_bes <- function(params) {
 
     # Capex and OPEX per Mg Biomass
     capex_per_mg <- annual_capex_payment / annual_biomass
-    opex_per_mg <- capex_per_mg * bes_om_factor
+    # Annual O&M is a fraction of total CAPEX. Costs are levelised per year: discounting this constant
+    # annual cost over the plant life and re-annualising at the same rate returns the annual value.
+    opex_per_mg <- (total_capex * bes_om_factor) / annual_biomass
 
     # --- 3. Logistics Cost & Transport Emissions ---
     if (!is.null(params$avg_dist)) {
@@ -115,4 +117,21 @@ calculate_bes <- function(params) {
       total_capex_m = total_capex_m
     )
   })
+}
+
+#' Total CAPEX of a Combustion Power Plant
+#'
+#' Sizes the plant for costing on its thermal input at a fixed reference net efficiency, so that
+#' efficiency changes (sampled efficiency, ash penalty, CCS energy penalty) alter output but not
+#' equipment cost. Costs scale from a 50 MWe reference plant.
+#'
+#' @param capital_cost Specific CAPEX ($/kWe net) quoted at `ref_eff`.
+#' @param plant_mw_th Thermal input capacity (MWth).
+#' @param ref_eff Net electrical efficiency at which `capital_cost` is quoted.
+#' @param scaling_factor Capital cost scale exponent.
+#' @return Total CAPEX ($).
+#' @keywords internal
+combustion_plant_capex <- function(capital_cost, plant_mw_th, ref_eff, scaling_factor = 0.7) {
+  ref_mw <- plant_mw_th * ref_eff
+  capital_cost * 50 * 1000 * (ref_mw / 50)^scaling_factor # 1000 converts MW to kW
 }

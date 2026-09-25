@@ -4,7 +4,7 @@
 #' more expensive boilers (CFB vs Stoker) and have higher O&M/Lower Efficiency.
 #'
 #' @param params A list of TEA parameters including `bm_ash` (fraction).
-#' @return The modified parameter list with updated `bes_capital_cost`, `beccs_capital_cost`,
+#' @return The modified parameter list with updated `bes_capital_cost` (also the BECCS CAPEX base),
 #' `bes_om_factor`, `beccs_om_factor`, `bes_energy_efficiency`, and `beccs_efficiency`.
 #' @export
 adjust_costs_for_fuel <- function(params) {
@@ -42,9 +42,6 @@ adjust_costs_for_fuel <- function(params) {
     }
 
     # Apply Multipliers to BECCS
-    if (!is.null(params$beccs_capital_cost)) {
-        params$beccs_capital_cost <- params$beccs_capital_cost * capex_mult
-    }
     if (!is.null(params$beccs_om_factor)) {
         params$beccs_om_factor <- params$beccs_om_factor * om_mult
     }

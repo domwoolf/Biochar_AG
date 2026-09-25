@@ -10,7 +10,7 @@ adjust_costs_for_fuel(params)
 \item{params}{A list of TEA parameters including \code{bm_ash} (fraction).}
 }
 \value{
-The modified parameter list with updated \code{bes_capital_cost}, \code{beccs_capital_cost},
+The modified parameter list with updated \code{bes_capital_cost} (also the BECCS CAPEX base),
 \code{bes_om_factor}, \code{beccs_om_factor}, \code{bes_energy_efficiency}, and \code{beccs_efficiency}.
 }
 \description{

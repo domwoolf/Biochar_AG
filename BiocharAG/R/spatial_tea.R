@@ -60,6 +60,7 @@ run_spatial_tea <- function(template_raster, params, spatial_layers = list(),
         if ("dist_sink_km" %in% names(spatial_layers)) p$dist_sink_km <- spatial_layers$dist_sink_km
         if ("dist_sink_saline_km" %in% names(spatial_layers)) p$dist_sink_saline_km <- spatial_layers$dist_sink_saline_km
         if ("sink_is_offshore" %in% names(spatial_layers)) p$sink_is_offshore <- spatial_layers$sink_is_offshore
+        if ("sink_is_offshore_saline" %in% names(spatial_layers)) p$sink_is_offshore_saline <- spatial_layers$sink_is_offshore_saline
 
         if (use_flat_ci) {
             p$ff_c_intensity <- flat_ci_tCO2_GJ
@@ -200,6 +201,7 @@ run_spatial_tea <- function(template_raster, params, spatial_layers = list(),
     if ("dist_sink_km" %in% names(spatial_layers)) p$dist_sink_km <- spatial_layers$dist_sink_km
     if ("dist_sink_saline_km" %in% names(spatial_layers)) p$dist_sink_saline_km <- spatial_layers$dist_sink_saline_km
     if ("sink_is_offshore" %in% names(spatial_layers)) p$sink_is_offshore <- spatial_layers$sink_is_offshore
+    if ("sink_is_offshore_saline" %in% names(spatial_layers)) p$sink_is_offshore_saline <- spatial_layers$sink_is_offshore_saline
     if ("avg_dist" %in% names(spatial_layers)) p$avg_dist <- spatial_layers$avg_dist
 
     if (use_flat_ci) {

@@ -96,7 +96,9 @@ load_region_data <- function(region_name, gis_path = NULL) {
   ep <- terra::rast(file.path(gis_path, paste0(p_base, "_elec_price.tif"))) # Wholesale electricity price ($/MWh) [Source: EIA/Eurostat/NDRC/CERC]
   ds <- terra::rast(file.path(gis_path, paste0(p_dist, "_dist_sink.tif"))) # Distance to nearest CO2 sink (km)
   dss <- terra::rast(file.path(gis_path, paste0(p_dist, "_dist_sink_saline.tif"))) # Distance to nearest saline CO2 sink (km)
-  stype <- terra::rast(file.path(gis_path, paste0(p_dist, "_sink_type.tif"))) # Type of nearest CO2 sink (e.g., offshore)
+  stype <- terra::rast(file.path(gis_path, paste0(p_dist, "_sink_type.tif"))) # Nearest CO2 sink (incl. EOR) is offshore (1/0)
+  stype_saline_path <- file.path(gis_path, paste0(p_dist, "_sink_type_saline.tif"))
+  stype_saline <- if (file.exists(stype_saline_path)) terra::rast(stype_saline_path) else NULL # Nearest saline sink is offshore (1/0)
   ph <- terra::rast(file.path(gis_path, paste0(p_base, "_soil_ph.tif"))) # Soil pH [Source: ISRIC SoilGrids]
   cec <- terra::rast(file.path(gis_path, paste0(p_base, "_soil_cec.tif"))) # Soil cation exchange capacity (cmolc/kg) [Source: ISRIC SoilGrids]
 
@@ -133,6 +135,9 @@ load_region_data <- function(region_name, gis_path = NULL) {
 
   if (!is.null(ci)) {
     layers[["ff_c_intensity"]] <- ci
+  }
+  if (!is.null(stype_saline)) {
+    layers[["sink_is_offshore_saline"]] <- stype_saline
   }
 
   # Biomass collection distance to satisfy each plant size (km); built by data-raw/generate_distance_rasters.R
@@ -197,6 +202,7 @@ run_scenario <- function(template, layers, params, vec = NULL) {
     if ("dist_sink_km" %in% names(spatial_layers)) p[["dist_sink_km"]] <- spatial_layers[["dist_sink_km", exact = TRUE]]
     if ("dist_sink_saline_km" %in% names(spatial_layers)) p[["dist_sink_saline_km"]] <- spatial_layers[["dist_sink_saline_km", exact = TRUE]]
     if ("sink_is_offshore" %in% names(spatial_layers)) p[["sink_is_offshore"]] <- spatial_layers[["sink_is_offshore", exact = TRUE]]
+    if ("sink_is_offshore_saline" %in% names(spatial_layers)) p[["sink_is_offshore_saline"]] <- spatial_layers[["sink_is_offshore_saline", exact = TRUE]]
     if ("ff_c_intensity" %in% names(spatial_layers)) p[["ff_c_intensity"]] <- spatial_layers[["ff_c_intensity", exact = TRUE]]
 
     for (layer_name in c("cn_weather_risk", "cn_expansion_risk", "eu_base_eur", "us_base_cost")) {

@@ -12,7 +12,13 @@ calculate_pyrolysis_physics(
   ash = 0.05,
   feed_c = 0.5,
   feed_h = 0.06,
-  feed_o = 0.44
+  feed_o = 1 - feed_c - feed_h,
+  feed_rate_kg_hr = 250,
+  heater_eff = 0.8,
+  parasitic_power = 0.07,
+  power_eff = 0.35,
+  exhaust_temp = 170,
+  e_source = "fuel"
 )
 }
 \arguments{
@@ -20,23 +26,49 @@ calculate_pyrolysis_physics(
 
 \item{lignin}{Lignin fraction of biomass.}
 
-\item{bm_lhv}{Biomass LHV (GJ/Mg).}
+\item{bm_lhv}{Feed LHV (GJ/Mg daf).}
 
-\item{moisture}{Biomass moisture fraction.}
+\item{moisture}{Feed moisture content (wet basis fraction).}
 
-\item{ash}{Biomass ash fraction.}
+\item{ash}{Feed ash content (dry basis fraction).}
 
-\item{feed_c}{Feedstock Carbon fraction (DAF). Default 0.50.}
+\item{feed_c, feed_h}{Feed C and H mass fractions (daf).}
 
-\item{feed_h}{Feedstock Hydrogen fraction (DAF). Default 0.06.}
+\item{feed_o}{Feed O mass fraction (daf). Defaults to the balance \code{1 - feed_c - feed_h}.}
 
-\item{feed_o}{Feedstock Oxygen fraction (DAF). Default 0.44.}
+\item{feed_rate_kg_hr}{Plant feed rate (kg daf / hr); sizes the reactor for wall heat loss.}
+
+\item{heater_eff}{Efficiency of the process heater (HHV basis).}
+
+\item{parasitic_power}{Parasitic electricity demand (GJe / Mg daf feed).}
+
+\item{power_eff}{Electrical efficiency (LHV basis) used to supply parasitic power from fuel.}
+
+\item{exhaust_temp}{Temperature at which vapours and gases leave heat recovery (Celsius).}
+
+\item{e_source}{Process energy source: "fuel" (pyrolysis gas and vapours; any shortfall is met
+by burning biochar), "biomass" (additional feed burned; results are per Mg of total feed) or
+"biochar" (biochar burned; all fuel exported).}
 }
 \value{
-A list containing yields, HHVs, and net energy flux.
+A list with yields, char properties, heat losses and net energy flows (GJ / Mg daf feed).
 }
 \description{
-Implements the sophisticated mass and energy balance from op_space_2.41.xlsm.
-Mass balance is constrained by elemental conservation (C, H, O).
-Bio-oil, CO2, and H2O yields are solved to close the balance.
+Mass and energy balance following the BEBCS sheet of nets1.xlsm. Char and gas yields and
+char composition are empirical functions of temperature; bio-oil, CO2 and H2O yields close
+the elemental (C, H, O) balance.
+}
+\details{
+All quantities are per Mg of dry, ash-free (daf) feed, the same basis on which \code{bm_lhv} is
+defined and on which BES/BECCS convert feed to energy. Moisture and ash accompany each Mg daf
+in proportion to \code{moisture} (wet basis) and \code{ash} (dry basis).
+
+The energy balance is on a consistent HHV basis: process heat demand = explicit heat losses
+\itemize{
+\item HHV of products - HHV of feed. The loss term for water vapour includes the latent heat of
+both feed moisture and reaction water, which is what the LHV/HHV difference would otherwise
+represent. Process heat (at \code{heater_eff}) and parasitic electricity are supplied from the
+pyrolysis fuel, extra biomass, or biochar according to \code{e_source}. The net fuel available
+for energy export is returned on an LHV basis for use with LHV conversion efficiencies.
+}
 }

@@ -26,6 +26,11 @@ calculate_beccs <- function(params) {
     if (!is.null(params$dist_sink_saline_km)) dist_spatial <- params$dist_sink_saline_km
   }
 
+  # Without EOR the sink is the nearest saline store, so use that sink's onshore/offshore flag
+  if (!allow_eor && !is.null(params$sink_is_offshore_saline)) {
+    params$sink_is_offshore <- params$sink_is_offshore_saline
+  }
+
   if (!is.null(dist_spatial)) {
     params$ccs_distance <- dist_spatial
   } else if (is.null(params$ccs_distance)) {
@@ -37,7 +42,9 @@ calculate_beccs <- function(params) {
     }
   }
 
-  if (is.null(params$beccs_capital_cost)) params$beccs_capital_cost <- 4000
+  if (is.null(params$bes_capital_cost)) params$bes_capital_cost <- 3000
+  if (is.null(params$bes_capex_ref_eff)) params$bes_capex_ref_eff <- 0.30
+  if (is.null(params$beccs_capex_premium)) params$beccs_capex_premium <- 0.40
   params <- adjust_costs_for_fuel(params)
 
   with(params, {
@@ -113,14 +120,16 @@ calculate_beccs <- function(params) {
 
     # 4. Plant Costs (CAPEX/OPEX)
     scaling_factor_val <- if (!is.null(params$scaling_factor)) scaling_factor else 0.7
-    base_cost_beccs <- beccs_capital_cost * 50 * 1000 # 1000 converts MW to kW
-
-    total_capex <- base_cost_beccs * ((plant_mw / 50)^scaling_factor_val)
+    # Equivalent BES plant for the same thermal input, plus the capture/compression premium
+    total_capex <- combustion_plant_capex(bes_capital_cost, plant_mw_th, bes_capex_ref_eff, scaling_factor_val) *
+      (1 + beccs_capex_premium)
     annuity_fac <- calculate_annuity_factor(discount_rate, bes_life)
     annual_capex_payment <- total_capex / annuity_fac
 
     capex_per_mg <- annual_capex_payment / annual_biomass
-    opex_per_mg <- capex_per_mg * beccs_om_factor
+    # Annual O&M is a fraction of total CAPEX. Costs are levelised per year: discounting this constant
+    # annual cost over the plant life and re-annualising at the same rate returns the annual value.
+    opex_per_mg <- (total_capex * beccs_om_factor) / annual_biomass
 
     # --- 5. Logistics Cost & Transport Emissions ---
     if (!is.null(params$avg_dist)) {
