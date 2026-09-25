@@ -8,7 +8,13 @@
 #' @return A list of calculated metrics for BECCS.
 #' @export
 calculate_beccs <- function(params) {
-  if (is.null(params$beccs_efficiency)) params$beccs_efficiency <- 0.28
+  # BECCS efficiency = BES baseline minus the parasitic capture/compression penalty
+  # (derived before fuel adjustment so the ash multiplier scales it like BES).
+  if (is.null(params$bes_energy_efficiency)) params$bes_energy_efficiency <- 0.30
+  if (is.null(params$beccs_eff_penalty)) params$beccs_eff_penalty <- 0.08
+  if (is.null(params$beccs_efficiency)) {
+    params$beccs_efficiency <- params$bes_energy_efficiency - params$beccs_eff_penalty
+  }
   if (is.null(params$capture_rate)) params$capture_rate <- 0.90
   if (is.null(params$early_adoption)) params$early_adoption <- FALSE
   if (is.null(params$beccs_om_factor)) params$beccs_om_factor <- 0.05

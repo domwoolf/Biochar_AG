@@ -36,27 +36,14 @@ message("Using ", n_cores, " core(s) for parallel processing.")
 
 # 1. Load Parameter Definitions & Set Up Classifications
 params_df <- read.csv("BiocharAG/inst/extdata/parameters.csv", stringsAsFactors = FALSE)
+correlations_df <- read.csv("BiocharAG/inst/extdata/parameter_correlations.csv", stringsAsFactors = FALSE)
 
-scenario_params <- c(
-  "region", "c_price", "discount_rate", "allow_eor", "early_adoption", "plant_mw_th",
-  "plant_sizes_mw_th", "optimize_scale", "use_flat_ci", "flat_ci_tCO2_GJ",
-  "beccs_available", "bc_valuation_method", "time_frame", "n_app_rate", "rebound",
-  "py_temp", "bm_feed_rate"
-)
+# Scenario dimensions are sampled discretely below; control flags (allow_eor, early_adoption, ...)
+# stay at their scenario values and are never sampled.
+scenario_params <- c("c_price", "discount_rate", "plant_mw_th")
 
-excluded_params <- c("bc_price", "bc_ag_value", "ccs_distance", "bc_stab_factor")
-spatial_scalar_params <- c("ff_c_intensity")
-
-# Filter uncertain extrinsic parameters to sample continuously
-uncertain_params <- params_df %>%
-  dplyr::filter(
-    tolower(distribution) != "none",
-    !is.na(distribution),
-    distribution != "",
-    !name %in% scenario_params,
-    !name %in% excluded_params,
-    !name %in% spatial_scalar_params
-  )
+# Spatial layers perturbed by a scalar multiplier (their bounds must be relative)
+spatial_multiplier_params <- c(elec_price = "elec_price_multiplier", ff_c_intensity = "ff_ci_multiplier")
 
 # 2. Pre-load and vectorize region spatial data
 message("Pre-loading and vectorizing spatial data for all regions...")
@@ -69,98 +56,33 @@ for (r in region_names) {
   vectorized_regions[[r]] <- dat[["vec", exact = TRUE]]
 }
 
-# 3. Generate Randomized MC Parameter Tables per Region (Common Random Numbers across scenarios)
-generate_param_draws <- function(row, n, local_mean = NULL) {
-  dist <- tolower(gsub("[- ]", "", row$distribution))
-  def_val <- suppressWarnings(as.numeric(row$default_value))
-  target_val <- if (!is.null(local_mean) && !is.na(local_mean)) local_mean else def_val
-
-  # Fetch target CV mapping
-  cv_map <- c("low" = 0.05, "medium" = 0.20, "high" = 0.40)
-  target_cv <- if (!is.null(row$uncertainty_level) && row$uncertainty_level != "" && !is.na(row$uncertainty_level)) {
-    cv_map[trimws(tolower(row$uncertainty_level))]
-  } else {
-    NA_real_
-  }
-
-  if (is.na(target_cv) || dist == "none") {
-    return(rep(target_val, n))
-  }
-
-  # Calculate dynamic dispersion and bounds based on target_val
-  if (dist == "normal") {
-    disp <- abs(target_val * target_cv)
-    min_val <- target_val - (3 * disp)
-    max_val <- target_val + (3 * disp)
-    draws <- rnorm(n, mean = target_val, sd = disp)
-  } else if (dist == "lognormal") {
-    disp <- sqrt(log(1 + target_cv^2))
-    meanlog <- log(target_val) - (disp^2) / 2
-    min_val <- 0
-    max_val <- exp(meanlog + 3 * disp)
-    draws <- rlnorm(n, meanlog = meanlog, sdlog = disp)
-  } else if (dist == "uniform") {
-    disp <- NA
-    min_val <- target_val - (abs(target_val) * target_cv * sqrt(3))
-    max_val <- target_val + (abs(target_val) * target_cv * sqrt(3))
-    draws <- runif(n, min = min_val, max = max_val)
-  } else {
-    return(rep(target_val, n))
-  }
-
-  # Physical clamping
-  if (!is.na(def_val) && def_val > 0 && min_val < 0) min_val <- 0
-  if (grepl("fraction|%|ratio", row$units, ignore.case = TRUE) && max_val > 1) max_val <- 1.0
-
-  if (!is.na(min_val)) draws <- pmax(draws, min_val)
-  if (!is.na(max_val)) draws <- pmin(draws, max_val)
-
-  return(draws)
-}
-
+# 3. Generate Randomized MC Parameter Tables per Region
+# Marginals are bounded PERT/uniform distributions centred on each region's values (see
+# dist_min/dist_max/dist_bounds in parameters.csv); correlated parameters are drawn jointly
+# via a Gaussian copula (parameter_correlations.csv).
 set.seed(42) # For reproducible random draws
 mc_tables_by_region <- list()
 
 for (r in regions) {
   p_local <- BiocharAG::set_scenario(region = r)
-  spatial_layers <- vectorized_regions[[r]]$layers
-  mc_draws_list <- list()
-
-  for (i in seq_len(nrow(uncertain_params))) {
-    p_name <- uncertain_params$name[i]
-    local_val <- if (!is.null(p_local[[p_name]])) p_local[[p_name]] else NULL
-    mc_draws_list[[p_name]] <- generate_param_draws(uncertain_params[i, ], n_runs, local_mean = local_val)
+  for (sp in names(spatial_multiplier_params)) {
+    if (tolower(params_df$dist_bounds[params_df$name == sp]) != "relative") stop(sp, " must use relative bounds.")
+    p_local[[sp]] <- 1 # Sampled as a multiplier on the spatial layer
   }
 
-  # Generate scalar multiplier for ff_c_intensity (spatial raster parameter)
-  ff_row <- params_df[params_df$name == "ff_c_intensity", ]
-  if (nrow(ff_row) > 0) {
-    ff_local_mean <- if (!is.null(spatial_layers$ff_c_intensity)) mean(spatial_layers$ff_c_intensity, na.rm = TRUE) else as.numeric(ff_row$default_value)
-    ff_draws <- generate_param_draws(ff_row, n_runs, local_mean = ff_local_mean)
-    mc_draws_list[["ff_ci_multiplier"]] <- ff_draws / ff_local_mean
-  } else {
-    mc_draws_list[["ff_ci_multiplier"]] <- rep(1.0, n_runs)
-  }
-
-  # Generate scalar multiplier for elec_price (spatial raster parameter)
-  ep_row <- params_df[params_df$name == "elec_price", ]
-  if (nrow(ep_row) > 0) {
-    ep_local_mean <- if (!is.null(spatial_layers$elec_price)) mean(spatial_layers$elec_price, na.rm = TRUE) else as.numeric(ep_row$default_value)
-    ep_draws <- generate_param_draws(ep_row, n_runs, local_mean = ep_local_mean)
-    mc_draws_list[["elec_price_multiplier"]] <- ep_draws / ep_local_mean
-  } else {
-    mc_draws_list[["elec_price_multiplier"]] <- rep(1.0, n_runs)
+  dist_table <- BiocharAG::mc_distribution_table(params_df, central = p_local)
+  dist_table <- dist_table[!dist_table$name %in% scenario_params, ]
+  mc_table_r <- BiocharAG::sample_mc_parameters(dist_table, n_runs, correlations = correlations_df)
+  for (sp in names(spatial_multiplier_params)) {
+    names(mc_table_r)[names(mc_table_r) == sp] <- spatial_multiplier_params[[sp]]
   }
 
   # Discrete scenario sampling
-  mc_draws_list[["c_price"]] <- sample(c(0, 50, 100, 150, 200), n_runs, replace = TRUE)
+  mc_table_r$c_price <- sample(c(0, 50, 100, 150, 200), n_runs, replace = TRUE)
   regional_dr <- if (!is.null(p_local$discount_rate)) p_local$discount_rate else 0.08
-  mc_draws_list[["discount_rate"]] <- sample(c(0.02, regional_dr), n_runs, replace = TRUE)
-  mc_draws_list[["allow_eor"]] <- sample(c(TRUE, FALSE), n_runs, replace = TRUE)
-  mc_draws_list[["early_adoption"]] <- sample(c(TRUE, FALSE), n_runs, replace = TRUE)
-  mc_draws_list[["plant_mw_th"]] <- sample(c(50, 150, 250), n_runs, replace = TRUE)
+  mc_table_r$discount_rate <- sample(c(0.02, regional_dr), n_runs, replace = TRUE)
+  mc_table_r$plant_mw_th <- sample(c(50, 150, 250), n_runs, replace = TRUE)
 
-  mc_table_r <- as.data.frame(mc_draws_list, stringsAsFactors = FALSE)
   mc_table_r$mc_run_id <- seq_len(n_runs)
   mc_tables_by_region[[r]] <- mc_table_r
 }
@@ -283,9 +205,8 @@ results_list <- parallel::mclapply(seq_along(regions), function(s) {
     }
 
     dist_layer_name <- paste0("dist_", mc_row$plant_mw_th, "MWth")
-    if (dist_layer_name %in% names(spatial_layers)) {
-      p$avg_dist <- spatial_layers[[dist_layer_name]]
-    }
+    if (!dist_layer_name %in% names(spatial_layers)) stop("Missing spatial distance layer: ", dist_layer_name)
+    p$avg_dist <- spatial_layers[[dist_layer_name]]
 
     p$feedstock_cost <- BiocharAG::calculate_regional_feedstock_cost(r_name, p)
 

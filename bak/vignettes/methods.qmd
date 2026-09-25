@@ -46,9 +46,9 @@ The technoeconomic parameters for this modern combustion archetype assume an ele
 
 #### 2.3.2. Bioenergy with Carbon Capture and Storage (BECCS)
 
-The BECCS pathway augments the standard combustion baseline with a post-combustion carbon capture unit. The addition of this unit imposes a significant parasitic energy penalty, primarily driven by solvent regeneration and $\text{CO}_2$ compression requirements. Consequently, the net electrical conversion efficiency drops from the 30% BES baseline to 28%.[^5]
+The BECCS pathway augments the standard combustion baseline with a post-combustion carbon capture unit. The addition of this unit imposes a significant parasitic energy penalty, primarily driven by solvent regeneration and $\text{CO}_2$ compression requirements. Consequently, the net electrical conversion efficiency is modelled as the BES baseline minus a fixed penalty (`beccs_eff_penalty` = 8 percentage points), i.e. a drop from 30% to 22%, consistent with the 4--11 percentage point range reported by Woolf et al. (2016).[^5]
 
-[^5]: **Critique - Carbon Capture Efficiency:** The current implementation sets 2 percentage point lower efficiency for BECCS than baseline. This may be low. See e.g. Woolf et al. (2016) who suggest a penalty in the range 4--11 percentage points.
+[^5]: **Carbon Capture Efficiency:** BECCS efficiency is derived as `bes_energy_efficiency - beccs_eff_penalty` rather than sampled independently, so Monte Carlo draws keep BECCS below BES. The high-ash fuel multiplier is applied afterwards, scaling both technologies proportionally.
 
 The capture process is parameterized with a 90% capture efficiency rate. The total volume of captured $\text{CO}_2$ routed to geological storage is calculated stoichiometrically based on the carbon fraction of the incoming biomass feed (default 48% C), converted to $\text{CO}_2$ mass equivalents using the 44/12 molar ratio. The increased infrastructure complexity elevates the base CAPEX to $\$4,000/\text{kW}_e$, with annual O&M scaling concurrently to 5% of CAPEX.
 
@@ -151,8 +151,8 @@ To robustly account for the climate mitigation benefit of bioenergy generation, 
 The net carbon abatement for each grid cell is defined as the sum of physical carbon sequestered and emissions displaced, minus the transportation emissions penalty:
 
 -   **BES:** Abatement relies entirely on the displacement of grid emissions, minus the Scope 3 emissions associated with diesel trucking of the biomass feedstock.
--   **BECCS:** Abatement includes the physical $\text{CO}_2$ captured and injected into the geological sink (assuming a 90% capture rate) plus the grid displacement credit. However, because the parasitic energy load of the capture process reduces the net electrical efficiency (from 30% to 28%), the total energy exported—and thus the resulting grid displacement credit—is proportionally lower for BECCS than for pure BES\[\^5\].
--   **BEBCS:** Abatement combines the grid displacement credit with the permanent $\text{CO}_2$ equivalent of the biochar carbon retained in the soil ($F_{perm}$), alongside a minor fixed soil greenhouse gas abatement credit (e.g., suppressed $N_2O$ emissions).
+-   **BECCS:** Abatement includes the physical $\text{CO}_2$ captured and injected into the geological sink (assuming a 90% capture rate) plus the grid displacement credit. However, because the parasitic energy load of the capture process reduces the net electrical efficiency (from 30% to 22%), the total energy exported—and thus the resulting grid displacement credit—is proportionally lower for BECCS than for pure BES\[\^5\].
+-   **BEBCS:** Abatement combines the grid displacement credit with the permanent $\text{CO}_2$ equivalent of the biochar carbon retained in the soil ($F_{perm}$).
 
 For all pathways, Scope 3 feedstock transport emissions are modeled dynamically by applying a heavy-duty diesel transport emissions factor ($0.0001\text{ Mg CO}_2\text{e}$ per $\text{Mg}\cdot\text{km}$) to the effective biomass collection distance.
 
@@ -197,7 +197,7 @@ To ensure full reproducibility and transparency, the operational, financial, and
 | `bes_om_factor` | O&M cost as fraction of CAPEX | Regional | 0.04 | Fraction | NREL ATB (2024) |
 | `beccs_om_factor` | O&M cost for BECCS | Regional | 0.05 | Fraction | \- |
 | `bes_energy_efficiency` | Electrical efficiency for BES | Scalar | 0.30 | Fraction | IEA / NREL ATB (2024) |
-| `beccs_efficiency` | Electrical efficiency for BECCS | Scalar | 0.28 | Fraction | Drax / Literature |
+| `beccs_eff_penalty` | BECCS efficiency penalty relative to BES | Scalar | 0.08 | Fraction | Woolf et al. (2016) |
 | `capture_rate` | CO₂ capture efficiency for BECCS | Scalar | 0.90 | Fraction | Zero Emissions Platform |
 | `py_temp` | Peak pyrolysis temperature | Scalar | 500 | °C | Operational Choice |
 | `heat_loss` | Pyrolysis process heat loss | Scalar | 2.35 | GJ / Mg | \- |
@@ -222,7 +222,7 @@ To ensure full reproducibility and transparency, the operational, financial, and
 | `voyage_rate` | Variable voyage cost (shipping) | Scalar | 0.035 | USD / tCO₂ / km | \- |
 | `transport_elec_price` | Electricity price for compression | Scalar | 0.10 | USD / kWh | \- |
 | **Biochar & Agronomic** |  |  |  |  |  |
-| `h_c_org` | Molar H:C ratio for permanence | Scalar | 0.35 | Molar Ratio | Woolf et al. (2021) |
+| `h_c_org` | Molar H:C ratio for permanence (derived from `py_temp` via pyrolysis char composition; 0.35 at 500 °C) | Derived | 0.35 | Molar Ratio | Woolf et al. (2021) |
 | `time_frame` | Time horizon for permanence assessment | Scalar | 100 | Years | Standard LCA timeframe |
 | `target_ph` | Target agricultural soil pH | Scalar | 6.5 | pH | Agronomic Assumptions |
 | `bc_cce` | Calcium Carbonate Equivalent | Scalar | 0.15 | Fraction | Agronomic Literature |

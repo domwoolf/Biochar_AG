@@ -4,7 +4,6 @@
 #' @return A list of calculated metrics for BEBCS.
 #' @export
 calculate_bebcs <- function(params) {
-  h_c_org <- if (!is.null(params$h_c_org)) params$h_c_org else 0.35
   soil_temp <- if (!is.null(params$soil_temp)) params$soil_temp else 14.9
 
   with(params, {
@@ -22,6 +21,8 @@ calculate_bebcs <- function(params) {
     bc_yield <- phys$yield_bc
     bc_c_content <- phys$bc_c_content_final
 
+    # H:C follows from pyrolysis temperature unless supplied explicitly
+    h_c_org <- if (!is.null(params$h_c_org)) params$h_c_org else phys$bc_h_c_molar
     bc_stability <- calculate_fperm_approx(h_c_org, method = "HC", soil_temp = soil_temp)
 
     # 1. Energy Mode & Output

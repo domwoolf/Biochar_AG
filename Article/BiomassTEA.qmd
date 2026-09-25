@@ -86,7 +86,7 @@ The technoeconomic parameters for this modern combustion archetype assume an ele
 
 #### Bioenergy with Carbon Capture and Storage (BECCS)
 
-The BECCS pathway augments the standard combustion baseline with a post-combustion carbon capture unit. The addition of this unit imposes a significant parasitic energy penalty, primarily driven by solvent regeneration and CO~2~ compression requirements. Consequently, the net electrical conversion efficiency drops from the 30% BES baseline to 28%.
+The BECCS pathway augments the standard combustion baseline with a post-combustion carbon capture unit. The addition of this unit imposes a significant parasitic energy penalty, primarily driven by solvent regeneration and CO~2~ compression requirements. Consequently, the net electrical conversion efficiency drops below the BES baseline by an efficiency penalty (default = 8 percentage points).
 
 The capture process is parameterized with a 90% capture efficiency rate. The total volume of captured CO~2~ routed to geological storage is calculated stoichiometrically based on the carbon fraction of the incoming biomass feed (default 48% C), converted to CO~2~ mass equivalents using the 44/12 molar ratio. The increased infrastructure complexity elevates the base CAPEX to $\$4,000/\text{kW}_e$, with annual O&M scaling concurrently to 5% of CAPEX.
 
@@ -187,8 +187,8 @@ To robustly account for the climate mitigation benefit of bioenergy generation, 
 The net carbon abatement for each grid cell is defined as the sum of physical carbon sequestered and emissions displaced, minus the transportation emissions penalty:
 
 -   **BES:** Abatement relies entirely on the displacement of grid emissions, minus the Scope 3 emissions associated with diesel trucking of the biomass feedstock.
--   **BECCS:** Abatement includes the physical CO~2~ captured and injected into the geological sink (assuming a 90% capture rate) plus the grid displacement credit. However, because the parasitic energy load of the capture process reduces the net electrical efficiency (from 30% to 28%), the total energy exported and thus the resulting grid displacement credit is proportionally lower for BECCS than for pure BES.
--   **BEBCS:** Abatement combines the grid displacement credit with the permanent CO~2~ equivalent of the biochar carbon retained in the soil ($F_{perm}$), alongside a soil greenhouse gas abatement credit for suppressed $N_2O$ emissions.
+-   **BECCS:** Abatement includes the physical CO~2~ captured and injected into the geological sink (assuming a 90% capture rate) plus the grid displacement credit. However, because the parasitic energy load of the capture process reduces the net electrical efficiency, the total energy exported and thus the resulting grid displacement credit is proportionally lower for BECCS than for pure BES.
+-   **BEBCS:** Abatement combines the grid displacement credit with the permanent CO~2~ equivalent of the biochar carbon retained in the soil ($F_{perm}$).
 
 For all pathways, Scope 3 feedstock transport emissions are modeled dynamically by applying a heavy-duty diesel transport emissions factor ($0.0001\text{ Mg CO}_2\text{e}$ per $\text{Mg}\cdot\text{km}$) to the effective biomass collection distance.
 

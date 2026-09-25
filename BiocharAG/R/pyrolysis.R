@@ -149,6 +149,7 @@ calculate_pyrolysis_physics <- function(py_temp, lignin, bm_lhv, moisture = 0.1,
         # Mass Char = mass_bc
         # Final C% = (yield_bc * bc_c * feed_daf) / mass_bc
         bc_c_content_final = (yield_bc * bc_c * feed_daf) / mass_bc,
+        bc_h_c_molar = (bc_h / 1.008) / (bc_c / 12.011), # Organic H:C molar ratio (permanence proxy)
         energy_net = e_net_fuel,
         energy_char = e_net_bc
     )

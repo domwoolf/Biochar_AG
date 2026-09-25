@@ -135,12 +135,11 @@ load_region_data <- function(region_name, gis_path = NULL) {
     layers[["ff_c_intensity"]] <- ci
   }
 
-  for (sz in c(5, 25, 50, 100, 250, 500, 1000)) {
-    dist_name <- paste0("dist_", sz, "MWth")
-    dist_file <- file.path(gis_path, paste0(p_dist, "_", dist_name, ".tif"))
-    if (file.exists(dist_file)) {
-      layers[[dist_name]] <- terra::rast(dist_file) # Biomass collection distance to satisfy sz MWth plant (km)
-    }
+  # Biomass collection distance to satisfy each plant size (km); built by data-raw/generate_distance_rasters.R
+  dist_files <- list.files(gis_path, pattern = paste0("^", p_dist, "_dist_[0-9]+MWth\\.tif$"), full.names = TRUE)
+  for (dist_file in dist_files) {
+    dist_name <- sub(paste0("^", p_dist, "_(dist_[0-9]+MWth)\\.tif$"), "\\1", basename(dist_file))
+    layers[[dist_name]] <- terra::rast(dist_file)
   }
 
   # Pre-extract 1D vectors for active indices (biomass_density > 0 and not NA)
@@ -206,9 +205,10 @@ run_scenario <- function(template, layers, params, vec = NULL) {
 
     sz <- if (!is.null(p[["plant_mw_th", exact = TRUE]])) resolve_plant_mw_th(p[["plant_mw_th", exact = TRUE]], "BES") else 50
     dist_layer_name <- paste0("dist_", sz, "MWth")
-    if (dist_layer_name %in% names(spatial_layers)) {
-      p[["avg_dist"]] <- spatial_layers[[dist_layer_name, exact = TRUE]]
+    if (!dist_layer_name %in% names(spatial_layers)) {
+      stop("Missing spatial distance layer: ", dist_layer_name, " (run data-raw/generate_distance_rasters.R)")
     }
+    p[["avg_dist"]] <- spatial_layers[[dist_layer_name, exact = TRUE]]
 
     feedstock_region <- if (!is.null(p[["region", exact = TRUE]])) p[["region", exact = TRUE]] else "US"
     p[["feedstock_cost"]] <- calculate_regional_feedstock_cost(feedstock_region, p)

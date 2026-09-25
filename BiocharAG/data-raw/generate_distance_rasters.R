@@ -5,7 +5,7 @@ library(terra)
 gis_dir <- "../GIS/processed/"
 
 regions <- c("us", "china", "europe", "india")
-sizes_mw_th <- c(5, 25, 50, 100, 250, 500)
+sizes_mw_th <- c(5, 25, 50, 100, 125, 150, 250, 500)
 radii_km <- c(5, 10, 25, 50, 100, 150, 250, 500)
 
 bm_lhv <- 18.6 # Default LHV

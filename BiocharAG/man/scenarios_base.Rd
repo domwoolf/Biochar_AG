@@ -12,5 +12,6 @@ scenarios_base
 }
 \description{
 A predefined list of scenarios used to override default parameters.
+Default plant size is based on https://www.pfpi.net/biomass-basics which gives an average biomass facility currently being built as 38 MWe. With an assumed electrical efficiency of 30\%, this gives a thermal capacity of 127 MWth, which we round to 125 MWth for simplicity.
 }
 \keyword{datasets}

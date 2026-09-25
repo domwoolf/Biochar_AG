@@ -89,9 +89,9 @@ for (i in 1:nrow(factorial_grid)) {
   }
 
   dist_layer_name <- paste0("dist_", row$plant_mw_th, "MWth")
-  if (dist_layer_name %in% names(spatial_layers)) {
-    p$avg_dist <- spatial_layers[[dist_layer_name]]
-  }
+  if (!dist_layer_name %in% names(spatial_layers)) stop("Missing spatial distance layer: ", dist_layer_name)
+
+  p$avg_dist <- spatial_layers[[dist_layer_name]]
 
   p$feedstock_cost <- BiocharAG::calculate_regional_feedstock_cost(row$region, p)
 
