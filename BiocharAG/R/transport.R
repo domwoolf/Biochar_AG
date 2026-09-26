@@ -104,93 +104,82 @@ calc_transport_cost <- function(mass_flow_mtpa, distance_km, region, is_offshore
 }
 
 
-#' Calculate CCS Pipeline Transport Cost
+#' Calculate CCS Transport Cost
 #'
-#' Estimates the cost of transporting CO2 via pipeline based on mass flow and distance.
-#' Uses a power-law scaling model for economies of scale.
-#'
-#' Reference: Generally derived from Zero Emissions Platform (ZEP) and similar engineering cost models.
-#' CAPEX propto Distance * Capacity^0.5 (Diameter scaling).
-#' But typically Cost/t propto Capacity^-0.4 to -0.6.
+#' Onshore sinks are reached by pipeline. Offshore sinks are reached by ship: a pipeline leg from
+#' the source to the coast, liquefaction and port terminal, and a sea voyage to the sink.
+#' Pipelines use a hub-and-spoke power-law cost model (ZEP-style): CAPEX scales with distance and
+#' with capacity^0.6. Distances are terrain-routed least-cost distances, so no further tortuosity
+#' factor is applied.
 #'
 #' @param co2_mass Annual CO2 mass to transport (Mg/year).
-#' @param distance Transport distance (km).
+#' @param distance Distance to the sink (km); used for onshore sinks, and as the voyage distance for
+#'   offshore sinks when `dist_sea` is not supplied.
+#' @param is_offshore Logical (scalar, vector or raster); TRUE for offshore sinks.
 #' @param discount_rate Discount rate (decimal). Default 0.10.
 #' @param lifetime Project lifetime (years). Default 20.
-#' @param early_adoption Logical. If TRUE, forces pipeline to scale strictly to the output of the single facility over the entire distance, simulating early adoption. Default FALSE.
+#' @param early_adoption Logical. If TRUE, pipelines are sized to the single facility over the entire
+#'   distance (no shared trunkline). Default FALSE.
+#' @param dist_coast Pipeline distance from the source to the coast (km) for ship transport. Default 0.
+#' @param dist_sea Sea voyage distance from the port to the offshore sink (km). Defaults to `distance`.
+#' @param capex_factor Regional CAPEX location factor (pipelines, liquefaction and terminals).
+#' @param om_factor Regional O&M location factor (pipeline O&M fraction).
 #' @return Transport cost ($/Mg CO2).
 #' @export
-calculate_ccs_transport <- function(co2_mass, distance, is_offshore = FALSE, discount_rate = 0.10, lifetime = 20, early_adoption = FALSE) {
-  # Prevent division by zero and handle co2_mass <= 0 at the end
+calculate_ccs_transport <- function(co2_mass, distance, is_offshore = FALSE, discount_rate = 0.10, lifetime = 20,
+                                    early_adoption = FALSE, dist_coast = NULL, dist_sea = NULL,
+                                    capex_factor = 1, om_factor = 1) {
   safe_co2_mass <- pmax(co2_mass, 1e-6)
-
-  # --- 1. Apply Tortuosity Factor ---
-  effective_dist <- distance * 1.25
-
-  # --- 2. Calculate Shipping Cost (The Floor) ---
-  cost_liq <- 20.0
-  cost_term <- 15.0
-  cost_voyage <- 0.035 * effective_dist
-  shipping_cost <- cost_liq + cost_term + cost_voyage
-
-  # --- 3. Calculate Hub-and-Spoke Pipeline Cost (Piecewise) ---
-  ref_mass <- 1000000
-  ref_dist <- 100
-  base_capex_ref <- 50000000
-  scale_factor <- 0.6
-  opex_factor <- 0.04
-
-  feeder_threshold_km <- 50
-  trunk_mass_flow <- pmax(safe_co2_mass, 3000000)
   annuity_fac <- (1 - (1 + discount_rate)^(-lifetime)) / discount_rate
 
-  # Path A: Dist > feeder_threshold_km (Hub & Spoke)
-  dist_feeder <- feeder_threshold_km
-  scaler_f <- (safe_co2_mass / ref_mass)^scale_factor
-  capex_f <- base_capex_ref * (dist_feeder / ref_dist) * scaler_f
+  pipeline_cost <- function(dist) {
+    ref_mass <- 1000000
+    ref_dist <- 100
+    base_capex_ref <- 50000000 * capex_factor
+    scale_factor <- 0.6
+    opex_factor <- 0.04 * om_factor
+    feeder_threshold_km <- 50
+    booster_threshold_km <- 700
+    booster_penalty <- 2.0
+    trunk_mass_flow <- pmax(safe_co2_mass, 3000000)
 
-  scaler_t <- (trunk_mass_flow / ref_mass)^scale_factor
-  booster_threshold_km <- 700
-  booster_penalty <- 2.0
+    # Path A: hub-and-spoke (dedicated feeder, then a share of a regional trunkline)
+    capex_f <- base_capex_ref * (feeder_threshold_km / ref_dist) * (safe_co2_mass / ref_mass)^scale_factor
+    scaler_t <- (trunk_mass_flow / ref_mass)^scale_factor
+    capex_t_std <- base_capex_ref * ((dist - feeder_threshold_km) / ref_dist) * scaler_t
+    capex_t_base <- base_capex_ref * ((booster_threshold_km - feeder_threshold_km) / ref_dist) * scaler_t
+    capex_t_booster <- (base_capex_ref * booster_penalty) * ((dist - booster_threshold_km) / ref_dist) * scaler_t
+    capex_t_total <- ifelse_raster(dist <= booster_threshold_km, capex_t_std, capex_t_base + capex_t_booster)
+    total_capex_share_far <- capex_f + capex_t_total * (safe_co2_mass / trunk_mass_flow)
 
-  # Trunk (Standard vs Dogleg)
-  dist_trunk_std <- effective_dist - feeder_threshold_km
-  capex_t_std <- base_capex_ref * (dist_trunk_std / ref_dist) * scaler_t
+    # Path B: dedicated direct pipeline
+    total_capex_share_close <- base_capex_ref * (dist / ref_dist) * (safe_co2_mass / ref_mass)^scale_factor
 
-  dist_base_trunk <- booster_threshold_km - feeder_threshold_km
-  dist_booster_trunk <- effective_dist - booster_threshold_km
-  capex_t_base <- base_capex_ref * (dist_base_trunk / ref_dist) * scaler_t
-  capex_t_booster <- (base_capex_ref * booster_penalty) * (dist_booster_trunk / ref_dist) * scaler_t
-  capex_t_dogleg <- capex_t_base + capex_t_booster
+    total_capex_share <- ifelse_raster(
+      early_adoption,
+      total_capex_share_close,
+      ifelse_raster(dist > feeder_threshold_km, total_capex_share_far, total_capex_share_close)
+    )
+    (total_capex_share / annuity_fac + total_capex_share * opex_factor) / safe_co2_mass
+  }
 
-  capex_t_total <- ifelse_raster(effective_dist <= booster_threshold_km, capex_t_std, capex_t_dogleg)
-  capex_t_share <- capex_t_total * (safe_co2_mass / trunk_mass_flow)
-  total_capex_share_far <- capex_f + capex_t_share
+  # Ship transport: pipeline to the coast, liquefaction and terminal, then voyage.
+  # TODO (see Article/TODO.md): no dist_coast/dist_sea layers exist yet, so the inland pipeline leg is
+  # zero and the voyage is priced over the full (friction-weighted) distance to the sink. Port choice
+  # should minimise total pipeline + ship cost rather than use the nearest coast.
+  ship_cost <- function() {
+    coast <- if (is.null(dist_coast)) 0 else dist_coast
+    sea <- if (is.null(dist_sea)) distance else dist_sea
+    cost_liq_term <- (20.0 + 15.0) * capex_factor
+    pipeline_cost(coast) + cost_liq_term + 0.035 * sea
+  }
 
-  # Path B: Direct pipeline < 50km
-  scaler_direct <- (safe_co2_mass / ref_mass)^scale_factor
-  total_capex_share_close <- base_capex_ref * (effective_dist / ref_dist) * scaler_direct
-
-  # Combine Paths
-  total_capex_share <- ifelse_raster(
-    early_adoption,
-    total_capex_share_close,
-    ifelse_raster(effective_dist > feeder_threshold_km, total_capex_share_far, total_capex_share_close)
-  )
-
-  annual_capex <- total_capex_share / annuity_fac
-  annual_opex <- total_capex_share * opex_factor
-  pipeline_cost <- (annual_capex + annual_opex) / safe_co2_mass
-
-  # --- 4. Economic Optimizer ---
-  # If is_offshore is a scalar TRUE or all TRUE, return shipping
-  if (all(is_offshore)) {
-    final_cost <- shipping_cost
-  } else if (any(is_offshore)) {
-    # If vector of mixed TRUE/FALSE
-    final_cost <- ifelse_raster(is_offshore, shipping_cost, pmin_raster(pipeline_cost, shipping_cost))
+  if (isTRUE(all(is_offshore))) {
+    final_cost <- ship_cost()
+  } else if (isTRUE(any(is_offshore))) {
+    final_cost <- ifelse_raster(is_offshore, ship_cost(), pipeline_cost(distance))
   } else {
-    final_cost <- pmin_raster(pipeline_cost, shipping_cost)
+    final_cost <- pipeline_cost(distance)
   }
 
   return(ifelse_raster(co2_mass <= 0, 0, final_cost))

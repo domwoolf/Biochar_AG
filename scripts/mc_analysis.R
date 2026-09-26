@@ -188,6 +188,9 @@ results_list <- parallel::mclapply(seq_along(regions), function(s) {
     if ("dist_sink_saline_km" %in% names(spatial_layers)) p$dist_sink_saline_km <- spatial_layers$dist_sink_saline_km
     if ("sink_is_offshore" %in% names(spatial_layers)) p$sink_is_offshore <- spatial_layers$sink_is_offshore
     if ("sink_is_offshore_saline" %in% names(spatial_layers)) p$sink_is_offshore_saline <- spatial_layers$sink_is_offshore_saline
+    if ("dist_coast_km" %in% names(spatial_layers)) p$dist_coast_km <- spatial_layers$dist_coast_km
+    if ("dist_sea_km" %in% names(spatial_layers)) p$dist_sea_km <- spatial_layers$dist_sea_km
+    if ("dist_sea_saline_km" %in% names(spatial_layers)) p$dist_sea_saline_km <- spatial_layers$dist_sea_saline_km
 
     # Apply ff_ci_multiplier to ff_c_intensity (whether raster or scalar)
     ff_mult <- if (!is.null(mc_row$ff_ci_multiplier)) mc_row$ff_ci_multiplier else 1.0

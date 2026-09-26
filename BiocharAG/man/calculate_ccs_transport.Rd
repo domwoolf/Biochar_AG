@@ -2,7 +2,7 @@
 % Please edit documentation in R/transport.R
 \name{calculate_ccs_transport}
 \alias{calculate_ccs_transport}
-\title{Calculate CCS Pipeline Transport Cost}
+\title{Calculate CCS Transport Cost}
 \usage{
 calculate_ccs_transport(
   co2_mass,
@@ -10,29 +10,43 @@ calculate_ccs_transport(
   is_offshore = FALSE,
   discount_rate = 0.1,
   lifetime = 20,
-  early_adoption = FALSE
+  early_adoption = FALSE,
+  dist_coast = NULL,
+  dist_sea = NULL,
+  capex_factor = 1,
+  om_factor = 1
 )
 }
 \arguments{
 \item{co2_mass}{Annual CO2 mass to transport (Mg/year).}
 
-\item{distance}{Transport distance (km).}
+\item{distance}{Distance to the sink (km); used for onshore sinks, and as the voyage distance for
+offshore sinks when \code{dist_sea} is not supplied.}
+
+\item{is_offshore}{Logical (scalar, vector or raster); TRUE for offshore sinks.}
 
 \item{discount_rate}{Discount rate (decimal). Default 0.10.}
 
 \item{lifetime}{Project lifetime (years). Default 20.}
 
-\item{early_adoption}{Logical. If TRUE, forces pipeline to scale strictly to the output of the single facility over the entire distance, simulating early adoption. Default FALSE.}
+\item{early_adoption}{Logical. If TRUE, pipelines are sized to the single facility over the entire
+distance (no shared trunkline). Default FALSE.}
+
+\item{dist_coast}{Pipeline distance from the source to the coast (km) for ship transport. Default 0.}
+
+\item{dist_sea}{Sea voyage distance from the port to the offshore sink (km). Defaults to \code{distance}.}
+
+\item{capex_factor}{Regional CAPEX location factor (pipelines, liquefaction and terminals).}
+
+\item{om_factor}{Regional O&M location factor (pipeline O&M fraction).}
 }
 \value{
 Transport cost ($/Mg CO2).
 }
 \description{
-Estimates the cost of transporting CO2 via pipeline based on mass flow and distance.
-Uses a power-law scaling model for economies of scale.
-}
-\details{
-Reference: Generally derived from Zero Emissions Platform (ZEP) and similar engineering cost models.
-CAPEX propto Distance * Capacity^0.5 (Diameter scaling).
-But typically Cost/t propto Capacity^-0.4 to -0.6.
+Onshore sinks are reached by pipeline. Offshore sinks are reached by ship: a pipeline leg from
+the source to the coast, liquefaction and port terminal, and a sea voyage to the sink.
+Pipelines use a hub-and-spoke power-law cost model (ZEP-style): CAPEX scales with distance and
+with capacity^0.6. Distances are terrain-routed least-cost distances, so no further tortuosity
+factor is applied.
 }

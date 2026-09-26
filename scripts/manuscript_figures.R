@@ -340,10 +340,10 @@ generate_fig_macc <- function(save_map = FALSE, save_ai_data = FALSE, scenario =
 
   metric_labels <- c(
     "Abatement" = "Abatement Potential\n(MtCO2e/yr)",
-    "Area" = "Land Area Used\n(Mha)",
+    "Area" = "Grid-Cell Area Assigned\n(Mha)",
     "Biomass" = "Biomass Converted\n(Mt dry)"
   )
-  combined_macc$Metric <- factor(combined_macc$Metric, levels = c("Abatement", "Area", "Biomass"), labels = metric_labels)
+  combined_macc$Metric <- factor(combined_macc$Metric, levels = c("Biomass", "Area", "Abatement"), labels = metric_labels[c("Biomass", "Area", "Abatement")])
 
   if (sum(combined_macc$Value, na.rm = TRUE) > 0) {
     p <- ggplot(combined_macc, aes(x = Price, y = Value, fill = Technology)) +
@@ -401,7 +401,7 @@ generate_fig_breakeven_cprice <- function(save_map = FALSE,
   techs <- c("BES", "BECCS", "BEBCS", "Best_Tech", "Best_C")
   row_labels <- c(
     "BES" = "Bioenergy", "BECCS" = "BECCS", "BEBCS" = "Biochar",
-    "Best_Tech" = "Best Tech.", "Best_C" = "Best C Price"
+    "Best_Tech" = "Lowest\nBreak-even\nTech.", "Best_C" = "Lowest\nBreak-even\nPrice"
   )
 
   df_list <- list()
@@ -441,7 +441,8 @@ generate_fig_breakeven_cprice <- function(save_map = FALSE,
     c_stack <- c(bes_c, beccs_c, bebcs_c)
     names(c_stack) <- c("BES", "BECCS", "BEBCS")
 
-    # Find minimum break-even price across the 3 techs
+    # Minimum break-even price across the 3 techs. Note: the technology with the lowest break-even price is
+    # not necessarily the one with the highest NPV at a given carbon price (see generate_fig_evaporation).
     best_c <- min(c_stack, na.rm = TRUE)
     names(best_c) <- "Best_C"
 
@@ -500,10 +501,10 @@ generate_fig_breakeven_cprice <- function(save_map = FALSE,
       admin1_polys$mean_breakeven_c_bes <- exactextractr::exact_extract(full_stack$BES, admin1_polys, "mean")
       admin1_polys$mean_breakeven_c_beccs <- exactextractr::exact_extract(full_stack$BECCS, admin1_polys, "mean")
       admin1_polys$mean_breakeven_c_bebcs <- exactextractr::exact_extract(full_stack$BEBCS, admin1_polys, "mean")
-      admin1_polys$mean_best_c <- exactextractr::exact_extract(full_stack$Best_C, admin1_polys, "mean")
+      admin1_polys$mean_lowest_breakeven_c <- exactextractr::exact_extract(full_stack$Best_C, admin1_polys, "mean")
 
       majority_idx <- exactextractr::exact_extract(full_stack$Best_Tech, admin1_polys, "mode")
-      admin1_polys$majority_best_tech <- c("BES", "BECCS", "BEBCS")[majority_idx]
+      admin1_polys$majority_lowest_breakeven_tech <- c("BES", "BECCS", "BEBCS")[majority_idx]
 
       df_ai_r <- sf::st_drop_geometry(admin1_polys)
       df_ai_r$Region <- r

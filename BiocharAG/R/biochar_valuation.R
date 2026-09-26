@@ -100,3 +100,34 @@ calculate_biochar_value <- function(params, bc_yield) {
         detail = detail
     )
 }
+
+#' Agronomic Value of Recycled Combustion Ash
+#'
+#' Value of returning BES/BECCS bottom and fly ash to cropland (when `ash_recycling` is TRUE), by
+#' substitution for agricultural lime (only where soil pH is below `target_ph`) and phosphorus
+#' fertiliser. P is largely retained in the ash; N and most K are volatilised in combustion, so they
+#' are not credited.
+#'
+#' @param params Parameter list (`ash_recycling`, `bm_ash`, `ash_cce`, `ash_p_content`, `avail_p`,
+#'   `price_lime`, `price_p`, `soil_ph`, `target_ph`).
+#' @return Value in $/Mg feedstock (0 when ash is not recycled).
+#' @export
+calculate_ash_value <- function(params) {
+    recycle <- if (!is.null(params$ash_recycling)) as.logical(params$ash_recycling) else TRUE
+    if (!isTRUE(recycle)) {
+        return(0)
+    }
+    ash <- if (!is.null(params$bm_ash)) params$bm_ash else 0.05
+    ash_mass <- ash / (1 - ash) # Mg ash / Mg daf feed
+    soil_ph <- if (!is.null(params$soil_ph)) params$soil_ph else 6.5
+    target_ph <- if (!is.null(params$target_ph)) params$target_ph else 6.5
+    price_lime <- if (!is.null(params$price_lime)) params$price_lime else 60
+    ash_cce <- if (!is.null(params$ash_cce)) params$ash_cce else 0.85
+    ash_p <- if (!is.null(params$ash_p_content)) params$ash_p_content else 0.012
+    avail_p <- if (!is.null(params$avail_p)) params$avail_p else 0.5
+    price_p <- if (!is.null(params$price_p)) params$price_p else 1.10
+
+    v_lime <- ifelse_raster(soil_ph < target_ph, ash_cce * price_lime, 0)
+    v_p <- ash_p * avail_p * price_p * 1000
+    ash_mass * (v_lime + v_p)
+}

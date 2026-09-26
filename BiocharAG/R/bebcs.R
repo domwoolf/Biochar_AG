@@ -74,37 +74,26 @@ calculate_bebcs <- function(params) {
     # 4. Costs (CAPEX/OPEX)
     # Pyrolysis unit: py_cc per Mg/yr of feed, referenced to the feed of a 50 MWe plant at bebcs_power_efficiency
     ref_50mw_biomass <- (50 / power_eff) * 3.6 / bm_lhv * 8760 * capacity_factor_val
-    total_py_capex <- py_cc * ref_50mw_biomass * (actual_annual_biomass / ref_50mw_biomass)^scaling_factor_val
+    capex_loc <- location_factor(params, "capex")
+    total_py_capex <- py_cc * ref_50mw_biomass * (actual_annual_biomass / ref_50mw_biomass)^scaling_factor_val * capex_loc
     annuity_fac_py <- calculate_annuity_factor(discount_rate, py_life)
     annual_capex_py <- (total_py_capex / annuity_fac_py) / actual_annual_biomass
 
     # Energy block sized on the net fuel it actually receives (MWth of fuel x efficiency)
     fuel_mw_th <- feed_mg_hr * phys$energy_net / 3.6
-    total_energy_capex <- combustion_plant_capex(base_energy_capex, fuel_mw_th, eff, scaling_factor_val)
+    total_energy_capex <- combustion_plant_capex(base_energy_capex, fuel_mw_th, eff, scaling_factor_val) * capex_loc
     annuity_fac_energy <- calculate_annuity_factor(discount_rate, life)
     annual_capex_power <- (total_energy_capex / annuity_fac_energy) / actual_annual_biomass
 
     # Annual O&M is a fraction of total CAPEX. Costs are levelised per year: discounting this constant
     # annual cost over the plant life and re-annualising at the same rate returns the annual value.
-    annual_om <- (total_py_capex * O_M_factor + total_energy_capex * om_fac) / actual_annual_biomass
+    annual_om <- (total_py_capex * py_om_factor + total_energy_capex * om_fac) * location_factor(params, "om") / actual_annual_biomass
 
     # --- 3. Logistics Cost & Transport Emissions ---
-    if (!is.null(params$avg_dist)) {
-      avg_dist <- params$avg_dist
-    } else {
-      radius <- if (!is.null(params$collection_radius)) params$collection_radius else 50
-      avg_dist <- (2 / 3) * radius
-    }
-
-    tort <- if (!is.null(params$tortuosity)) params$tortuosity else 1.3
-    effective_dist <- avg_dist * tort
-
-    tf <- if (!is.null(params$bm_transport_fixed)) params$bm_transport_fixed else 5.0
-    tv <- if (!is.null(params$bm_transport_var)) params$bm_transport_var else 0.15
-    logistics_cost <- tf + (tv * effective_dist)
-
-    trans_em_factor <- if (!is.null(params$transport_emissions_factor)) params$transport_emissions_factor else 0.0001
-    transport_emissions_co2e <- effective_dist * trans_em_factor
+    logistics <- biomass_logistics(params)
+    effective_dist <- logistics$effective_dist
+    logistics_cost <- logistics$cost
+    transport_emissions_co2e <- logistics$emissions
 
     feedstock_cost <- if (!is.null(params$feedstock_cost)) params$feedstock_cost else 0
     total_cost <- annual_capex_py + annual_capex_power + annual_om + logistics_cost + feedstock_cost
@@ -125,7 +114,8 @@ calculate_bebcs <- function(params) {
     n2o_n_avoided_kg <- n_app * n2o_ef * n2o_reduction * n2o_years * phys$bc_c_yield / bc_app_rate_c
     soil_ghg_abatement <- n2o_n_avoided_kg * (44 / 28) * gwp_n2o / 1000 # Mg CO2e / Mg feed
 
-    tot_c_abatement <- co2e_sequestered + c_displaced + soil_ghg_abatement - transport_emissions_co2e
+    tot_c_abatement <- co2e_sequestered + c_displaced + soil_ghg_abatement - transport_emissions_co2e +
+      residue_counterfactual_ghg(params)
     abatement_value <- tot_c_abatement * c_price
 
     bc_val_res <- calculate_biochar_value(params, bc_yield)

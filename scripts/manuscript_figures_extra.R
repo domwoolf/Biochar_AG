@@ -624,10 +624,10 @@ generate_fig6_macc <- function(save_map = FALSE, scenario = "default") {
 
   metric_labels <- c(
     "Abatement" = "Abatement Potential\n(MtCO2e/yr)",
-    "Area" = "Land Area Used\n(Mha)",
+    "Area" = "Grid-Cell Area Assigned\n(Mha)",
     "Biomass" = "Biomass Converted\n(Mt dry)"
   )
-  combined_macc$Metric <- factor(combined_macc$Metric, levels = c("Abatement", "Area", "Biomass"), labels = metric_labels)
+  combined_macc$Metric <- factor(combined_macc$Metric, levels = c("Biomass", "Area", "Abatement"), labels = metric_labels[c("Biomass", "Area", "Abatement")])
 
   if (sum(combined_macc$Value, na.rm = TRUE) > 0) {
     p <- ggplot(combined_macc, aes(x = Price, y = Value, fill = Technology)) +
@@ -780,7 +780,7 @@ generate_fig8_breakeven_cprice <- function(save_map = FALSE,
   techs <- c("BES", "BECCS", "BEBCS", "Best_Tech", "Best_C")
   row_labels <- c(
     "BES" = "Bioenergy", "BECCS" = "BECCS", "BEBCS" = "Biochar",
-    "Best_Tech" = "Best Tech.", "Best_C" = "Best C Price"
+    "Best_Tech" = "Lowest\nBreak-even\nTech.", "Best_C" = "Lowest\nBreak-even\nPrice"
   )
 
   df_list <- list()

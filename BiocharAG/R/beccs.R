@@ -91,6 +91,14 @@ calculate_beccs <- function(params) {
       }
     }
 
+    # Ship route legs for offshore sinks: pipeline to the coast, then sea voyage to the assigned sink.
+    # TODO (see Article/TODO.md): these layers are not generated yet; when absent the ship cost falls back to
+    # a voyage over the full sink distance with no inland pipeline leg.
+    dist_coast <- params$dist_coast_km
+    dist_sea <- if (!allow_eor && !is.null(params$dist_sea_saline_km)) params$dist_sea_saline_km else params$dist_sea_km
+    capex_loc <- location_factor(params, "capex")
+    om_loc <- location_factor(params, "om")
+
     base_cost_onshore_storage <- if (!is.null(params$ccs_storage_cost)) params$ccs_storage_cost else 12.0
     base_cost_offshore_storage <- if (!is.null(params$cost_offshore_storage)) cost_offshore_storage else 40.0
 
@@ -100,7 +108,9 @@ calculate_beccs <- function(params) {
       is_offshore = FALSE,
       discount_rate = discount_rate,
       lifetime = bes_life,
-      early_adoption = early_adoption
+      early_adoption = early_adoption,
+      capex_factor = capex_loc,
+      om_factor = om_loc
     )
     ts_cost_onshore_calc <- (cost_onshore_trans + base_cost_onshore_storage) * co2_captured
     ts_cost_onshore <- ifelse_raster(is.infinite(dist_onshore), Inf, ts_cost_onshore_calc)
@@ -111,7 +121,11 @@ calculate_beccs <- function(params) {
       is_offshore = TRUE,
       discount_rate = discount_rate,
       lifetime = bes_life,
-      early_adoption = early_adoption
+      early_adoption = early_adoption,
+      dist_coast = dist_coast,
+      dist_sea = dist_sea,
+      capex_factor = capex_loc,
+      om_factor = om_loc
     )
     ts_cost_offshore_calc <- (cost_offshore_trans + base_cost_offshore_storage) * co2_captured
     ts_cost_offshore <- ifelse_raster(is.infinite(dist_offshore), Inf, ts_cost_offshore_calc)
@@ -122,32 +136,20 @@ calculate_beccs <- function(params) {
     scaling_factor_val <- if (!is.null(params$scaling_factor)) scaling_factor else 0.7
     # Equivalent BES plant for the same thermal input, plus the capture/compression premium
     total_capex <- combustion_plant_capex(bes_capital_cost, plant_mw_th, bes_capex_ref_eff, scaling_factor_val) *
-      (1 + beccs_capex_premium)
+      (1 + beccs_capex_premium) * location_factor(params, "capex")
     annuity_fac <- calculate_annuity_factor(discount_rate, bes_life)
     annual_capex_payment <- total_capex / annuity_fac
 
     capex_per_mg <- annual_capex_payment / annual_biomass
     # Annual O&M is a fraction of total CAPEX. Costs are levelised per year: discounting this constant
     # annual cost over the plant life and re-annualising at the same rate returns the annual value.
-    opex_per_mg <- (total_capex * beccs_om_factor) / annual_biomass
+    opex_per_mg <- (total_capex * beccs_om_factor * location_factor(params, "om")) / annual_biomass
 
     # --- 5. Logistics Cost & Transport Emissions ---
-    if (!is.null(params$avg_dist)) {
-      avg_dist <- params$avg_dist
-    } else {
-      radius <- if (!is.null(params$collection_radius)) params$collection_radius else 50
-      avg_dist <- (2 / 3) * radius
-    }
-
-    tort <- if (!is.null(params$tortuosity)) params$tortuosity else 1.3
-    effective_dist <- avg_dist * tort
-
-    tf <- if (!is.null(params$bm_transport_fixed)) params$bm_transport_fixed else 5.0
-    tv <- if (!is.null(params$bm_transport_var)) params$bm_transport_var else 0.15
-    logistics_cost <- tf + (tv * effective_dist)
-
-    trans_em_factor <- if (!is.null(params$transport_emissions_factor)) params$transport_emissions_factor else 0.0001
-    transport_emissions_co2e <- effective_dist * trans_em_factor
+    logistics <- biomass_logistics(params)
+    effective_dist <- logistics$effective_dist
+    logistics_cost <- logistics$cost
+    transport_emissions_co2e <- logistics$emissions
 
     feedstock_cost <- if (!is.null(params$feedstock_cost)) params$feedstock_cost else 0
     total_cost <- capex_per_mg + opex_per_mg + ts_cost + logistics_cost + feedstock_cost
@@ -158,15 +160,16 @@ calculate_beccs <- function(params) {
     # Carbon Abatement (CO2e conversion & transport penalty applied)
     co2e_sequestered <- bm_c * capture_rate * molar_ratio_c
     c_displaced <- energy_output * ff_c_intensity
-    tot_c_abatement <- co2e_sequestered + c_displaced - transport_emissions_co2e
+    tot_c_abatement <- co2e_sequestered + c_displaced - transport_emissions_co2e + residue_counterfactual_ghg(params)
     abatement_value <- tot_c_abatement * c_price
 
-    total_revenue <- energy_revenue + abatement_value
+    ash_value <- calculate_ash_value(params) # Recycled combustion ash (lime + P)
+    total_revenue <- energy_revenue + ash_value + abatement_value
     net_value <- total_revenue - total_cost
 
     # Added diagnostics for factorial
     biomass_cost <- feedstock_cost + logistics_cost
-    lcoe <- (capex_per_mg + opex_per_mg + ts_cost + biomass_cost) / energy_prod
+    lcoe <- (capex_per_mg + opex_per_mg + ts_cost + biomass_cost - ash_value) / energy_prod
     cost_of_co2_avoided <- ifelse_raster(tot_c_abatement > 0, total_cost / tot_c_abatement, Inf)
     abatement_efficiency <- ifelse_raster(co2e_sequestered > 0, tot_c_abatement / co2e_sequestered, 0)
     total_capex_m <- total_capex / 1e6 # Convert to millions
@@ -191,7 +194,7 @@ calculate_beccs <- function(params) {
       biomass_transport_distance_km = effective_dist,
       energy_revenue_mg = energy_revenue,
       abatement_revenue_mg = abatement_value,
-      agronomic_revenue_mg = NA,
+      agronomic_revenue_mg = ash_value,
       lcoe = lcoe,
       cost_of_co2_avoided = cost_of_co2_avoided,
       abatement_efficiency = abatement_efficiency,

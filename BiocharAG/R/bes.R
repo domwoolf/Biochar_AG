@@ -39,7 +39,8 @@ calculate_bes <- function(params) {
 
     # Total Capex ($), sized on thermal input at the reference efficiency
     scaling_factor_val <- if (!is.null(params$scaling_factor)) scaling_factor else 0.7
-    total_capex <- combustion_plant_capex(bes_capital_cost, plant_mw_th, bes_capex_ref_eff, scaling_factor_val)
+    total_capex <- combustion_plant_capex(bes_capital_cost, plant_mw_th, bes_capex_ref_eff, scaling_factor_val) *
+      location_factor(params, "capex")
 
     # Annual Capex ($/yr)
     annuity_fac <- calculate_annuity_factor(discount_rate, bes_life)
@@ -49,27 +50,13 @@ calculate_bes <- function(params) {
     capex_per_mg <- annual_capex_payment / annual_biomass
     # Annual O&M is a fraction of total CAPEX. Costs are levelised per year: discounting this constant
     # annual cost over the plant life and re-annualising at the same rate returns the annual value.
-    opex_per_mg <- (total_capex * bes_om_factor) / annual_biomass
+    opex_per_mg <- (total_capex * bes_om_factor * location_factor(params, "om")) / annual_biomass
 
     # --- 3. Logistics Cost & Transport Emissions ---
-    if (!is.null(params$avg_dist)) {
-      avg_dist <- params$avg_dist
-    } else {
-      radius <- if (!is.null(params$collection_radius)) params$collection_radius else 50
-      avg_dist <- (2 / 3) * radius
-    }
-
-    # Apply tortuosity to get actual road distance
-    tort <- if (!is.null(params$tortuosity)) params$tortuosity else 1.3
-    effective_dist <- avg_dist * tort
-
-    tf <- if (!is.null(params$bm_transport_fixed)) params$bm_transport_fixed else 5.0
-    tv <- if (!is.null(params$bm_transport_var)) params$bm_transport_var else 0.15
-    logistics_cost <- tf + (tv * effective_dist)
-
-    # Calculate Scope 3 Transport Emissions (Default: 0.0001 Mg CO2e / Mg-km for heavy diesel truck)
-    trans_em_factor <- if (!is.null(params$transport_emissions_factor)) params$transport_emissions_factor else 0.0001
-    transport_emissions_co2e <- effective_dist * trans_em_factor
+    logistics <- biomass_logistics(params)
+    effective_dist <- logistics$effective_dist
+    logistics_cost <- logistics$cost
+    transport_emissions_co2e <- logistics$emissions
 
     feedstock_cost <- if (!is.null(params$feedstock_cost)) params$feedstock_cost else 0
     total_cost <- capex_per_mg + opex_per_mg + logistics_cost + feedstock_cost
@@ -79,15 +66,16 @@ calculate_bes <- function(params) {
 
     # Carbon Abatement (No Sequestration, only displacement minus transport penalty)
     c_displaced <- energy_output * ff_c_intensity
-    tot_c_abatement <- c_displaced - transport_emissions_co2e
+    tot_c_abatement <- c_displaced - transport_emissions_co2e + residue_counterfactual_ghg(params)
     abatement_value <- tot_c_abatement * c_price
 
-    total_revenue <- energy_revenue + abatement_value
+    ash_value <- calculate_ash_value(params) # Recycled combustion ash (lime + P)
+    total_revenue <- energy_revenue + ash_value + abatement_value
     net_value <- total_revenue - total_cost
 
     # Added diagnostics for factorial
     biomass_cost <- feedstock_cost + logistics_cost
-    lcoe <- (capex_per_mg + opex_per_mg + biomass_cost) / energy_prod
+    lcoe <- (capex_per_mg + opex_per_mg + biomass_cost - ash_value) / energy_prod
     cost_of_co2_avoided <- ifelse_raster(tot_c_abatement > 0, total_cost / tot_c_abatement, Inf)
     abatement_efficiency <- 0 # No gross sequestration for BES
     total_capex_m <- total_capex / 1e6
@@ -110,7 +98,7 @@ calculate_bes <- function(params) {
       biomass_transport_distance_km = effective_dist,
       energy_revenue_mg = energy_revenue,
       abatement_revenue_mg = abatement_value,
-      agronomic_revenue_mg = NA,
+      agronomic_revenue_mg = ash_value,
       lcoe = lcoe,
       cost_of_co2_avoided = cost_of_co2_avoided,
       abatement_efficiency = abatement_efficiency,

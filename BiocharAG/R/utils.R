@@ -139,6 +139,12 @@ load_region_data <- function(region_name, gis_path = NULL) {
   if (!is.null(stype_saline)) {
     layers[["sink_is_offshore_saline"]] <- stype_saline
   }
+  # Ship route legs for offshore sinks (pipeline to coast; sea voyage to the nearest / nearest saline sink)
+  ship_layers <- c(dist_coast_km = "_dist_coast.tif", dist_sea_km = "_dist_sea.tif", dist_sea_saline_km = "_dist_sea_saline.tif")
+  for (nm in names(ship_layers)) {
+    f <- file.path(gis_path, paste0(p_dist, ship_layers[[nm]]))
+    if (file.exists(f)) layers[[nm]] <- terra::rast(f)
+  }
 
   # Biomass collection distance to satisfy each plant size (km); built by data-raw/generate_distance_rasters.R
   dist_files <- list.files(gis_path, pattern = paste0("^", p_dist, "_dist_[0-9]+MWth\\.tif$"), full.names = TRUE)
@@ -203,6 +209,9 @@ run_scenario <- function(template, layers, params, vec = NULL) {
     if ("dist_sink_saline_km" %in% names(spatial_layers)) p[["dist_sink_saline_km"]] <- spatial_layers[["dist_sink_saline_km", exact = TRUE]]
     if ("sink_is_offshore" %in% names(spatial_layers)) p[["sink_is_offshore"]] <- spatial_layers[["sink_is_offshore", exact = TRUE]]
     if ("sink_is_offshore_saline" %in% names(spatial_layers)) p[["sink_is_offshore_saline"]] <- spatial_layers[["sink_is_offshore_saline", exact = TRUE]]
+    if ("dist_coast_km" %in% names(spatial_layers)) p[["dist_coast_km"]] <- spatial_layers[["dist_coast_km", exact = TRUE]]
+    if ("dist_sea_km" %in% names(spatial_layers)) p[["dist_sea_km"]] <- spatial_layers[["dist_sea_km", exact = TRUE]]
+    if ("dist_sea_saline_km" %in% names(spatial_layers)) p[["dist_sea_saline_km"]] <- spatial_layers[["dist_sea_saline_km", exact = TRUE]]
     if ("ff_c_intensity" %in% names(spatial_layers)) p[["ff_c_intensity"]] <- spatial_layers[["ff_c_intensity", exact = TRUE]]
 
     for (layer_name in c("cn_weather_risk", "cn_expansion_risk", "eu_base_eur", "us_base_cost")) {
@@ -268,4 +277,59 @@ run_scenario <- function(template, layers, params, vec = NULL) {
   opt_idx <- terra::which.max(net_stack)
 
   list(net = net_stack, abate = abate_stack, opt = opt_idx)
+}
+
+#' Regional Cost Location Factor
+#'
+#' @param params Parameter list.
+#' @param type One of "capex", "om" or "haulage" (reads `<type>_location_factor`).
+#' @return The regional multiplier (1 if not set).
+#' @keywords internal
+location_factor <- function(params, type) {
+  v <- params[[paste0(type, "_location_factor"), exact = TRUE]]
+  if (is.null(v)) 1 else v
+}
+
+#' Biomass Collection Logistics
+#'
+#' Road haulage cost and emissions for delivering feedstock to the plant. The average collection
+#' distance (`avg_dist`, straight-line) is converted to road distance with `tortuosity`; costs are
+#' scaled by the regional haulage location factor.
+#'
+#' @param params Parameter list.
+#' @return A list with `effective_dist` (km), `cost` ($/Mg feed) and `emissions` (Mg CO2e/Mg feed).
+#' @keywords internal
+biomass_logistics <- function(params) {
+  avg_dist <- if (!is.null(params$avg_dist)) {
+    params$avg_dist
+  } else {
+    (2 / 3) * (if (!is.null(params$collection_radius)) params$collection_radius else 50)
+  }
+  effective_dist <- avg_dist * (if (!is.null(params$tortuosity)) params$tortuosity else 1.3)
+  tf <- if (!is.null(params$bm_transport_fixed)) params$bm_transport_fixed else 5.0
+  tv <- if (!is.null(params$bm_transport_var)) params$bm_transport_var else 0.15
+  em <- if (!is.null(params$transport_emissions_factor)) params$transport_emissions_factor else 0.0001
+  list(
+    effective_dist = effective_dist,
+    cost = (tf + tv * effective_dist) * location_factor(params, "haulage"),
+    emissions = effective_dist * em
+  )
+}
+
+#' Counterfactual Residue GHG Effects of Removal
+#'
+#' GHG effects common to all pathways when crop residue is removed for energy: the soil organic carbon
+#' the residue would otherwise have added (a loss) and the CH4 and N2O from open field burning that is
+#' avoided for the regional share of residues otherwise burned (a gain). CO2 from burning is biogenic
+#' and not counted.
+#'
+#' @param params Parameter list.
+#' @return Net abatement in Mg CO2e / Mg feed (positive = avoided emissions exceed SOC loss).
+#' @keywords internal
+residue_counterfactual_ghg <- function(params) {
+  pv <- function(n, d) if (!is.null(params[[n, exact = TRUE]])) params[[n, exact = TRUE]] else d
+  soc_loss <- pv("bm_c", 0.48) * pv("residue_c_retention", 0.11) * 44 / 12
+  burn_ghg <- pv("residue_burn_fraction", 0) * pv("residue_burn_cf", 0.8) *
+    (pv("residue_burn_ch4_ef", 2.7) * pv("gwp_ch4", 27) + pv("residue_burn_n2o_ef", 0.07) * pv("gwp_n2o", 273)) / 1000
+  burn_ghg - soc_loss
 }

@@ -155,7 +155,16 @@ process_transport_layers <- function(region_name, template_path, file_prefix,
 
     # Apply Exponential Cost Function
     # M(theta) = exp(0.25 * theta)
+    # OPEN QUESTION (see Article/TODO.md): this empirical function was chosen so that routes avoid
+    # crossing major mountain ranges (e.g. Rockies, Himalayas) in favour of lowland sinks on the same
+    # side. It is steep (x12 at 10 deg, x148 at 20 deg, x1800 at 30 deg of 95th-percentile slope), and
+    # the resulting friction-weighted "effective km" are used directly as pipeline km in
+    # calculate_ccs_transport(), which inflates pipeline costs in hilly terrain (median effective
+    # distance to the nearest saline sink: ~4,400 km in China). Needs a decision on separating the
+    # routing friction (path choice) from the cost multiplier applied to the chosen path.
     friction_surface <- exp(0.25 * r_slope_proj)
+    # TODO (see Article/TODO.md): water cells (sea and inland lakes) are routed at friction 5, so distances
+    # to offshore sinks are inflated over water and offshore sinks lose out in the nearest-sink assignment.
     friction_surface <- terra::subst(friction_surface, NA, 5) # Handle water/NAs safely
 
     # --- DEBUG SAVES ---
@@ -238,6 +247,8 @@ process_transport_layers <- function(region_name, template_path, file_prefix,
     r_min_dist <- terra::app(dist_stack, min, na.rm = TRUE)
     names(r_min_dist) <- "dist_sink_km"
 
+    # TODO (see Article/TODO.md): sinks are assigned by minimum friction-weighted distance, not by total
+    # transport + injection cost (onshore pipeline vs offshore ship routes are not compared on cost).
     # Index of the winning sink
     r_winner_idx <- terra::app(dist_stack, which.min)
 

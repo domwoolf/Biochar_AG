@@ -8,3 +8,12 @@ bm_c,bm_lhv,0.7,Heating value rises with carbon content
 bm_ash,bm_lhv,-0.6,Ash is non-combustible and dilutes heating value
 bm_ash,bm_c,-0.6,Ash dilutes organic carbon
 bm_transport_fixed,bm_transport_var,0.5,Common labour and fuel cost drivers
+bes_om_factor,bebcs_power_om_factor,0.8,Same power-plant staffing and maintenance cost base
+bes_om_factor,py_om_factor,0.6,Shared plant labour and maintenance cost drivers
+bes_capital_cost,py_cc,0.5,Shared construction and equipment cost drivers
+beccs_om_factor,bebcs_power_om_factor,0.7,Same power-plant staffing and maintenance cost base
+beccs_om_factor,py_om_factor,0.5,Shared plant labour and maintenance cost drivers
+bebcs_power_om_factor,py_om_factor,0.5,Shared plant labour and maintenance cost drivers
+py_cc,bebcs_power_capital_cost,0.4,Shared construction and equipment cost drivers
+bc_cce,ash_cce,0.8,Liming value of ash and biochar derives from the same feedstock inorganic fraction
+bc_p_content,ash_p_content,0.8,Phosphorus in ash and biochar derives from the same feedstock
