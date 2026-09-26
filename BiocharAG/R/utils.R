@@ -61,9 +61,12 @@ pmax_raster <- function(x, y) {
 #'
 #' @param region_name Character string ("US", "China", "Europe", "India").
 #' @param gis_path Optional path to GIS/processed/ directory.
+#' @param transport_version CO2 transport layers to use: "auto" (v2 `<prefix>_transport_layers.tif` if
+#'   present, else v1), "v2" or "v1".
 #' @return A list containing `template`, `layers`, `admin0`, `admin1`, and `vec`.
 #' @export
-load_region_data <- function(region_name, gis_path = NULL) {
+load_region_data <- function(region_name, gis_path = NULL, transport_version = c("auto", "v2", "v1")) {
+  transport_version <- match.arg(transport_version)
   if (is.null(gis_path)) {
     candidates <- c("GIS/processed/", "../GIS/processed/", "/media/dominic/Data/git/Biochar_AG/GIS/processed/")
     for (cand in candidates) {
@@ -94,11 +97,22 @@ load_region_data <- function(region_name, gis_path = NULL) {
   bm <- terra::rast(file.path(gis_path, paste0(p_base, "_biomass.tif"))) # Spatial density of available biomass (Mg/km2) [Source: Karan et al. (2023)]
   st <- terra::rast(file.path(gis_path, paste0(p_base, "_soil_temp.tif"))) # Soil temperature (degrees C) [Source: WorldClim/SBIO1]
   ep <- terra::rast(file.path(gis_path, paste0(p_base, "_elec_price.tif"))) # Wholesale electricity price ($/MWh) [Source: EIA/Eurostat/NDRC/CERC]
-  ds <- terra::rast(file.path(gis_path, paste0(p_dist, "_dist_sink.tif"))) # Distance to nearest CO2 sink (km)
-  dss <- terra::rast(file.path(gis_path, paste0(p_dist, "_dist_sink_saline.tif"))) # Distance to nearest saline CO2 sink (km)
-  stype <- terra::rast(file.path(gis_path, paste0(p_dist, "_sink_type.tif"))) # Nearest CO2 sink (incl. EOR) is offshore (1/0)
-  stype_saline_path <- file.path(gis_path, paste0(p_dist, "_sink_type_saline.tif"))
-  stype_saline <- if (file.exists(stype_saline_path)) terra::rast(stype_saline_path) else NULL # Nearest saline sink is offshore (1/0)
+  # CO2 transport: v2 route layers (physical length, terrain multiplier, lift, per sink class) take
+  # precedence over the v1 least-cost distance layers when both exist
+  tl_path <- file.path(gis_path, paste0(p_dist, "_transport_layers.tif"))
+  use_v2 <- transport_version != "v1" && file.exists(tl_path)
+  if (transport_version == "v2" && !use_v2) stop("v2 transport layers not found: ", tl_path)
+  opt_rast <- function(suffix) {
+    f <- file.path(gis_path, paste0(p_dist, suffix))
+    if (file.exists(f)) terra::rast(f) else NULL
+  }
+  ds <- opt_rast("_dist_sink.tif") # Distance to nearest CO2 sink (km, v1)
+  dss <- opt_rast("_dist_sink_saline.tif") # Distance to nearest saline CO2 sink (km, v1)
+  stype <- opt_rast("_sink_type.tif") # Nearest CO2 sink (incl. EOR) is offshore (1/0, v1)
+  stype_saline <- opt_rast("_sink_type_saline.tif") # Nearest saline sink is offshore (1/0, v1)
+  if (!use_v2 && (is.null(ds) || is.null(dss) || is.null(stype))) {
+    stop("No CO2 transport layers for ", region_name, " (need ", basename(tl_path), " or the v1 *_dist_sink*.tif layers)")
+  }
   ph <- terra::rast(file.path(gis_path, paste0(p_base, "_soil_ph.tif"))) # Soil pH [Source: ISRIC SoilGrids]
   cec <- terra::rast(file.path(gis_path, paste0(p_base, "_soil_cec.tif"))) # Soil cation exchange capacity (cmolc/kg) [Source: ISRIC SoilGrids]
 
@@ -132,6 +146,7 @@ load_region_data <- function(region_name, gis_path = NULL) {
     soil_ph = ph,
     soil_cec = cec
   )
+  layers <- layers[!vapply(layers, is.null, logical(1))]
 
   if (!is.null(ci)) {
     layers[["ff_c_intensity"]] <- ci
@@ -144,6 +159,10 @@ load_region_data <- function(region_name, gis_path = NULL) {
   for (nm in names(ship_layers)) {
     f <- file.path(gis_path, paste0(p_dist, ship_layers[[nm]]))
     if (file.exists(f)) layers[[nm]] <- terra::rast(f)
+  }
+  if (use_v2) {
+    tl <- terra::rast(tl_path)
+    for (nm in intersect(transport_v2_layer_names(), names(tl))) layers[[nm]] <- tl[[nm]]
   }
 
   # Biomass collection distance to satisfy each plant size (km); built by data-raw/generate_distance_rasters.R
@@ -205,13 +224,7 @@ run_scenario <- function(template, layers, params, vec = NULL) {
     }
     if ("soil_ph" %in% names(spatial_layers)) p[["soil_ph"]] <- spatial_layers[["soil_ph", exact = TRUE]]
     if ("soil_cec" %in% names(spatial_layers)) p[["soil_cec"]] <- spatial_layers[["soil_cec", exact = TRUE]]
-    if ("dist_sink_km" %in% names(spatial_layers)) p[["dist_sink_km"]] <- spatial_layers[["dist_sink_km", exact = TRUE]]
-    if ("dist_sink_saline_km" %in% names(spatial_layers)) p[["dist_sink_saline_km"]] <- spatial_layers[["dist_sink_saline_km", exact = TRUE]]
-    if ("sink_is_offshore" %in% names(spatial_layers)) p[["sink_is_offshore"]] <- spatial_layers[["sink_is_offshore", exact = TRUE]]
-    if ("sink_is_offshore_saline" %in% names(spatial_layers)) p[["sink_is_offshore_saline"]] <- spatial_layers[["sink_is_offshore_saline", exact = TRUE]]
-    if ("dist_coast_km" %in% names(spatial_layers)) p[["dist_coast_km"]] <- spatial_layers[["dist_coast_km", exact = TRUE]]
-    if ("dist_sea_km" %in% names(spatial_layers)) p[["dist_sea_km"]] <- spatial_layers[["dist_sea_km", exact = TRUE]]
-    if ("dist_sea_saline_km" %in% names(spatial_layers)) p[["dist_sea_saline_km"]] <- spatial_layers[["dist_sea_saline_km", exact = TRUE]]
+    for (nm in intersect(transport_layer_names(), names(spatial_layers))) p[[nm]] <- spatial_layers[[nm, exact = TRUE]]
     if ("ff_c_intensity" %in% names(spatial_layers)) p[["ff_c_intensity"]] <- spatial_layers[["ff_c_intensity", exact = TRUE]]
 
     for (layer_name in c("cn_weather_risk", "cn_expansion_risk", "eu_base_eur", "us_base_cost")) {
@@ -277,6 +290,33 @@ run_scenario <- function(template, layers, params, vec = NULL) {
   opt_idx <- terra::which.max(net_stack)
 
   list(net = net_stack, abate = abate_stack, opt = opt_idx)
+}
+
+#' CO2 Transport Layer Names
+#'
+#' Names of the spatial layers that carry CO2 transport information into the TEA functions.
+#' v1: least-cost distances to the nearest sink and ship-route legs. v2
+#' (`<prefix>_transport_layers.tif` from `data-raw/process_transport_layers.R`): per route class,
+#' the physical land-route length, route-average terrain cost multiplier and highest point above
+#' the source. Classes: onshore saline (`onsal`) and EOR (`oneor`) pipelines; offshore by ship via a
+#' port (`offship`) or by subsea pipeline via a landfall (`offpipe`), each to the nearest saline
+#' offshore sink and, where offshore EOR sinks exist, to any offshore sink (`*_any`). Offshore
+#' classes also carry the sea distance from the port / landfall to the sink (`*_sea_km`).
+#'
+#' @param version "all", "v1" or "v2".
+#' @return Character vector of layer names.
+#' @export
+transport_layer_names <- function(version = c("all", "v1", "v2")) {
+  version <- match.arg(version)
+  v1 <- c("dist_sink_km", "dist_sink_saline_km", "sink_is_offshore", "sink_is_offshore_saline",
+          "dist_coast_km", "dist_sea_km", "dist_sea_saline_km")
+  switch(version, v1 = v1, v2 = transport_v2_layer_names(), all = c(v1, transport_v2_layer_names()))
+}
+
+transport_v2_layer_names <- function() {
+  off <- c("offship", "offpipe", "offship_any", "offpipe_any")
+  c(as.vector(outer(c("onsal", "oneor", off), c("len_km", "terrain_mult", "hrel_max_m"), paste, sep = "_")),
+    paste0(off, "_sea_km"))
 }
 
 #' Regional Cost Location Factor

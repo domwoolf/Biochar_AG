@@ -72,65 +72,134 @@ calculate_beccs <- function(params) {
     annual_co2_total <- annual_biomass * co2_captured
 
     # --- CCS Transport & Storage Component ---
-    dist_onshore <- if (!is.null(params$dist_onshore)) params$dist_onshore else Inf
-    dist_offshore <- if (!is.null(params$dist_offshore)) params$dist_offshore else Inf
-
-    is_inf_onshore <- !inherits(dist_onshore, "SpatRaster") && is.infinite(dist_onshore)
-    is_inf_offshore <- !inherits(dist_offshore, "SpatRaster") && is.infinite(dist_offshore)
-    if (is_inf_onshore && is_inf_offshore && !is.null(params$ccs_distance)) {
-      if (!is.null(params$sink_is_offshore)) {
-        if (inherits(params$sink_is_offshore, "SpatRaster")) {
-          dist_offshore <- terra::ifel(params$sink_is_offshore == 1, params$ccs_distance, Inf)
-          dist_onshore <- terra::ifel(params$sink_is_offshore == 0, params$ccs_distance, Inf)
-        } else {
-          dist_offshore <- ifelse_raster(params$sink_is_offshore == 1, params$ccs_distance, Inf)
-          dist_onshore <- ifelse_raster(params$sink_is_offshore == 0, params$ccs_distance, Inf)
-        }
-      } else {
-        dist_onshore <- params$ccs_distance
-      }
-    }
-
-    # Ship route legs for offshore sinks: pipeline to the coast, then sea voyage to the assigned sink.
-    # TODO (see Article/TODO.md): these layers are not generated yet; when absent the ship cost falls back to
-    # a voyage over the full sink distance with no inland pipeline leg.
-    dist_coast <- params$dist_coast_km
-    dist_sea <- if (!allow_eor && !is.null(params$dist_sea_saline_km)) params$dist_sea_saline_km else params$dist_sea_km
     capex_loc <- location_factor(params, "capex")
     om_loc <- location_factor(params, "om")
-
     base_cost_onshore_storage <- if (!is.null(params$ccs_storage_cost)) params$ccs_storage_cost else 12.0
     base_cost_offshore_storage <- if (!is.null(params$cost_offshore_storage)) cost_offshore_storage else 40.0
 
-    cost_onshore_trans <- calculate_ccs_transport(
-      co2_mass = annual_co2_total,
-      distance = dist_onshore,
-      is_offshore = FALSE,
-      discount_rate = discount_rate,
-      lifetime = bes_life,
-      early_adoption = early_adoption,
-      capex_factor = capex_loc,
-      om_factor = om_loc
-    )
-    ts_cost_onshore_calc <- (cost_onshore_trans + base_cost_onshore_storage) * co2_captured
-    ts_cost_onshore <- ifelse_raster(is.infinite(dist_onshore), Inf, ts_cost_onshore_calc)
+    if (!is.null(params$onsal_len_km)) {
+      # v2 route layers: physical route length, route-average terrain cost multiplier and lift for each
+      # sink class. The sink is chosen here, on transport + storage cost for this plant's CO2 flow.
+      trans_args <- list(
+        co2_mass = annual_co2_total, discount_rate = discount_rate, lifetime = bes_life,
+        early_adoption = early_adoption, capex_factor = capex_loc, om_factor = om_loc,
+        terrain_share = if (!is.null(params$co2_pipeline_terrain_share)) params$co2_pipeline_terrain_share else 1,
+        elec_price = if (!is.null(params$elec_price)) params$elec_price else 0
+      )
+      zero_na <- function(x) ifelse_raster(is.na(x), 0, x)
+      pipe_class <- function(cls) {
+        len <- params[[paste0(cls, "_len_km"), exact = TRUE]]
+        if (is.null(len)) return(list(cost = Inf, len = NA_real_))
+        tc <- do.call(calculate_ccs_transport, c(trans_args, list(
+          distance = zero_na(len),
+          terrain_mult = params[[paste0(cls, "_terrain_mult"), exact = TRUE]],
+          hrel_max_m = params[[paste0(cls, "_hrel_max_m"), exact = TRUE]]
+        )))
+        list(cost = ifelse_raster(is.na(len), Inf, tc + base_cost_onshore_storage), len = len)
+      }
+      r_onsal <- pipe_class("onsal")
+      r_oneor <- if (allow_eor) pipe_class("oneor") else list(cost = Inf, len = NA_real_)
 
-    cost_offshore_trans <- calculate_ccs_transport(
-      co2_mass = annual_co2_total,
-      distance = dist_offshore,
-      is_offshore = TRUE,
-      discount_rate = discount_rate,
-      lifetime = bes_life,
-      early_adoption = early_adoption,
-      dist_coast = dist_coast,
-      dist_sea = dist_sea,
-      capex_factor = capex_loc,
-      om_factor = om_loc
-    )
-    ts_cost_offshore_calc <- (cost_offshore_trans + base_cost_offshore_storage) * co2_captured
-    ts_cost_offshore <- ifelse_raster(is.infinite(dist_offshore), Inf, ts_cost_offshore_calc)
+      # Offshore sinks: by ship (pipeline to a port, liquefaction and terminal, voyage) or by pipeline
+      # (onshore to a landfall, then subsea at co2_subsea_capex_factor x onshore CAPEX per km). Port and
+      # landfall were chosen in the GIS step on land + sea cost. With EOR allowed, use the routes to any
+      # offshore sink where they exist.
+      off_layer <- function(cls, var) {
+        if (allow_eor && !is.null(params[[paste0(cls, "_any_len_km"), exact = TRUE]])) cls <- paste0(cls, "_any")
+        params[[paste0(cls, "_", var), exact = TRUE]]
+      }
+      no_route <- list(cost = Inf, len = NA_real_)
+      r_ship <- no_route
+      if (!is.null(off_layer("offship", "len_km"))) {
+        land <- off_layer("offship", "len_km")
+        sea <- off_layer("offship", "sea_km")
+        tc <- do.call(calculate_ccs_transport, c(trans_args, list(
+          distance = 0, is_offshore = TRUE, dist_coast = zero_na(land), dist_sea = zero_na(sea),
+          terrain_mult = off_layer("offship", "terrain_mult"), hrel_max_m = off_layer("offship", "hrel_max_m")
+        )))
+        r_ship <- list(cost = ifelse_raster(is.na(land) | is.na(sea), Inf, tc + base_cost_offshore_storage), len = land + sea)
+      }
+      r_pipe <- no_route
+      if (!is.null(off_layer("offpipe", "len_km"))) {
+        land <- zero_na(off_layer("offpipe", "len_km"))
+        sea <- zero_na(off_layer("offpipe", "sea_km"))
+        subsea_fac <- if (!is.null(params$co2_subsea_capex_factor)) params$co2_subsea_capex_factor else 1.5
+        tm_land <- off_layer("offpipe", "terrain_mult")
+        tm_land <- 1 + trans_args$terrain_share * (pmax_raster(ifelse_raster(is.na(tm_land), 1, tm_land), 1) - 1)
+        # One pipeline over land + subsea length; subsea km carry the offshore CAPEX factor
+        tm_all <- (land * tm_land + sea * subsea_fac) / pmax_raster(land + sea, 1e-9)
+        tc <- do.call(calculate_ccs_transport, c(utils::modifyList(trans_args, list(terrain_share = 1)), list(
+          distance = land + sea, terrain_mult = tm_all, hrel_max_m = off_layer("offpipe", "hrel_max_m")
+        )))
+        missing <- is.na(off_layer("offpipe", "len_km")) | is.na(off_layer("offpipe", "sea_km"))
+        r_pipe <- list(cost = ifelse_raster(missing, Inf, tc + base_cost_offshore_storage), len = land + sea)
+      }
 
-    ts_cost <- pmin_raster(ts_cost_onshore, ts_cost_offshore)
+      ts_per_t <- pmin_raster(pmin_raster(r_onsal$cost, r_oneor$cost), pmin_raster(r_ship$cost, r_pipe$cost))
+      co2_sink_class <- ifelse_raster(ts_per_t == r_onsal$cost, 1, ifelse_raster(ts_per_t == r_oneor$cost, 2,
+        ifelse_raster(ts_per_t == r_ship$cost, 3, 4)))
+      co2_sink_class <- ifelse_raster(is.infinite(ts_per_t), NA, co2_sink_class)
+      co2_dist_chosen <- ifelse_raster(co2_sink_class == 1, r_onsal$len, ifelse_raster(co2_sink_class == 2, r_oneor$len,
+        ifelse_raster(co2_sink_class == 3, r_ship$len, r_pipe$len)))
+      ts_cost <- ts_per_t * co2_captured
+    } else {
+      # v1 layers: least-cost distance to the nearest (saline) sink, with its onshore/offshore flag
+      dist_onshore <- if (!is.null(params$dist_onshore)) params$dist_onshore else Inf
+      dist_offshore <- if (!is.null(params$dist_offshore)) params$dist_offshore else Inf
+
+      is_inf_onshore <- !inherits(dist_onshore, "SpatRaster") && is.infinite(dist_onshore)
+      is_inf_offshore <- !inherits(dist_offshore, "SpatRaster") && is.infinite(dist_offshore)
+      if (is_inf_onshore && is_inf_offshore && !is.null(params$ccs_distance)) {
+        if (!is.null(params$sink_is_offshore)) {
+          if (inherits(params$sink_is_offshore, "SpatRaster")) {
+            dist_offshore <- terra::ifel(params$sink_is_offshore == 1, params$ccs_distance, Inf)
+            dist_onshore <- terra::ifel(params$sink_is_offshore == 0, params$ccs_distance, Inf)
+          } else {
+            dist_offshore <- ifelse_raster(params$sink_is_offshore == 1, params$ccs_distance, Inf)
+            dist_onshore <- ifelse_raster(params$sink_is_offshore == 0, params$ccs_distance, Inf)
+          }
+        } else {
+          dist_onshore <- params$ccs_distance
+        }
+      }
+
+      # Ship route legs for offshore sinks: pipeline to the coast, then sea voyage to the assigned sink.
+      # When absent the ship cost falls back to a voyage over the full sink distance with no inland leg.
+      dist_coast <- params$dist_coast_km
+      dist_sea <- if (!allow_eor && !is.null(params$dist_sea_saline_km)) params$dist_sea_saline_km else params$dist_sea_km
+
+      cost_onshore_trans <- calculate_ccs_transport(
+        co2_mass = annual_co2_total,
+        distance = dist_onshore,
+        is_offshore = FALSE,
+        discount_rate = discount_rate,
+        lifetime = bes_life,
+        early_adoption = early_adoption,
+        capex_factor = capex_loc,
+        om_factor = om_loc
+      )
+      ts_cost_onshore_calc <- (cost_onshore_trans + base_cost_onshore_storage) * co2_captured
+      ts_cost_onshore <- ifelse_raster(is.infinite(dist_onshore), Inf, ts_cost_onshore_calc)
+
+      cost_offshore_trans <- calculate_ccs_transport(
+        co2_mass = annual_co2_total,
+        distance = dist_offshore,
+        is_offshore = TRUE,
+        discount_rate = discount_rate,
+        lifetime = bes_life,
+        early_adoption = early_adoption,
+        dist_coast = dist_coast,
+        dist_sea = dist_sea,
+        capex_factor = capex_loc,
+        om_factor = om_loc
+      )
+      ts_cost_offshore_calc <- (cost_offshore_trans + base_cost_offshore_storage) * co2_captured
+      ts_cost_offshore <- ifelse_raster(is.infinite(dist_offshore), Inf, ts_cost_offshore_calc)
+
+      ts_cost <- pmin_raster(ts_cost_onshore, ts_cost_offshore)
+      co2_sink_class <- ifelse_raster(ts_cost_onshore < ts_cost_offshore, 1, 3)
+      co2_dist_chosen <- ifelse_raster(ts_cost_onshore < ts_cost_offshore, dist_onshore, dist_offshore)
+    }
 
     # 4. Plant Costs (CAPEX/OPEX)
     scaling_factor_val <- if (!is.null(params$scaling_factor)) scaling_factor else 0.7
@@ -173,7 +242,6 @@ calculate_beccs <- function(params) {
     cost_of_co2_avoided <- ifelse_raster(tot_c_abatement > 0, total_cost / tot_c_abatement, Inf)
     abatement_efficiency <- ifelse_raster(co2e_sequestered > 0, tot_c_abatement / co2e_sequestered, 0)
     total_capex_m <- total_capex / 1e6 # Convert to millions
-    co2_dist_chosen <- ifelse_raster(ts_cost_onshore < ts_cost_offshore, dist_onshore, dist_offshore)
 
     list(
       technology = "BECCS",
@@ -191,6 +259,7 @@ calculate_beccs <- function(params) {
       biomass_cost_mg = biomass_cost,
       co2_transport_cost_mg = ts_cost,
       co2_transport_distance_km = co2_dist_chosen,
+      co2_sink_class = co2_sink_class, # 1 onshore saline, 2 onshore EOR, 3 offshore by ship, 4 offshore by pipeline
       biomass_transport_distance_km = effective_dist,
       energy_revenue_mg = energy_revenue,
       abatement_revenue_mg = abatement_value,

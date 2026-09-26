@@ -6,7 +6,7 @@ Open modelling issues to resolve before the final re-run of results.
 
 ### Current algorithm
 
-Distance layers are built by `BiocharAG/data-raw/process_transport_layers.R` for each region:
+Distance layers were built by the v1 script (now `bak/process_transport_layers_v1.R`) for each region:
 
 1. Slope is derived from the global 30 arc-second DEM (`geodata::elevation_global`), aggregated to a grid 10× finer than the model grid using the 95th-percentile slope in each block.
 2. Friction is set to $M(\theta) = \exp(0.25\,\theta)$ (θ in degrees). Water cells (NA in the DEM, which includes inland lakes) get friction 5, and WDPA protected areas are absolute barriers.
@@ -39,7 +39,29 @@ In the model (`calculate_ccs_transport()`):
    - In India, west-coast sources then sail about 3,000 km (median 2,961 km) around the peninsula to Krishna-Godavari instead of piping east.
    - In China, about 28,000 cells were routed to inland lakes (DEM-NA water not connected to the ocean) and got no sea route.
 
-5. **Other issues.**
+5. **Protected areas were never applied.** In every v1 run, loading WDPA failed inside the tryCatch, so routes ignored protected areas entirely: `wdpar::wdpa_clean()` needs a projected CRS but was given lon/lat (China, India, US), and Europe hit a GEOS topology error. No `*_debug_pa.tif` files exist. The manuscript's statement that WDPA areas are "treated as absolute barriers" doesn't describe the current results. The v2 script (`BiocharAG/data-raw/process_transport_layers.R`; v1 moved to `bak/process_transport_layers_v1.R`) now uses status and UNESCO-MAB filters plus `st_make_valid` by default, with `wdpa_clean()` optional in a projected CRS.
+
+6. **v2 routing status (September 2026).** `BiocharAG/data-raw/process_transport_layers.R` (v2) implements A, C and E. It has been tested on a Rockies box (onshore only), a coastal India box (Krishna-Godavari) and a North Sea box. `calculate_ccs_transport()` and `calculate_beccs()` now read `<prefix>_transport_layers.tif` when it exists (D: sink class chosen by transport + storage cost at run time). The v1 layers are used otherwise. Still open:
+   - **Done: port choice.** Each coastal cell seeds a multi-source Dijkstra (C++, `dijkstra_offsets()`) with its sea leg priced at `sea_route_weight_ship` = 0.7 flat-pipeline km per sea km. Port and land route are therefore chosen jointly on land + sea cost; terminal and liquefaction are fixed per tonne and don't affect the choice.
+   - **Done: near-shore pipeline option.** Offshore sinks can also be reached by an onshore pipeline to a landfall plus a subsea leg (`offpipe_*` layers; landfall chosen with `sea_route_weight_pipe` = 1.5; costed in the TEA with `co2_subsea_capex_factor` = 1.5). In a North Sea test, 25% of cells chose the subsea pipeline, 1.3% ship and 73% onshore saline.
+   - **Sea-leg weights are fixed in the GIS step.** Port and landfall choice uses fixed weights, whereas the TEA's actual costs depend on the plant's CO2 flow and on the sampled `co2_subsea_capex_factor`. `sea_route_weight_pipe` should be kept equal to the default of that parameter.
+   - **Sink point locations:** Krishna-Godavari is a point essentially on the coast, so its subsea leg is about 0 km. Basin polygons, or points at the actual storage sites, would give more realistic offshore distances.
+   - **Done: `r_max` ensemble test (handoff item 5).** Layers were regenerated with `route_risk_max` = 0, 0.5 and 1 and compared with production (2), using default parameters with BECCS transport and storage costed per candidate route. The ensemble keeps the cheapest candidate per cell (λ = 0).
+
+     | Region | BECCS-preferred cells (default, $150/t) | Of those, optimal tech changes at r_max = 0 | All cells: optimal tech changes, ensemble vs default | Ensemble T&S saving, p95 / max ($/t CO2) |
+     |---|---|---|---|---|
+     | US | 6,635 | 0.015% | 0.09% | 1.9 / 6.5 |
+     | Europe | 16,830 | 0.018% | 0.17% | 1.5 / 20 |
+     | China | 15,608 | 0 | 0.35% | 2.6 / 24 |
+     | India | 17,411 | 0 | 0.05% | 0.4 / 8 |
+
+     - At $50/t, BECCS is almost never preferred (0–1 cells per region), so no flips occur.
+     - The median T&S change between r_max = 0 and the default is under $0.25 per Mg feed in every region.
+     - The ensemble picks r_max = 0 in 26–38% of cells and the default (or an identical route) in 42–59%. The r_max = 0 route isn't always cheapest because the TEA cost (hub-and-spoke breakpoints, plant CO2 flow, lift, sink class) differs from the GIS cost surface.
+     - **Decision:** keep the single default route in production. Report this as a robustness result in the manuscript: the routing premium does not drive the conclusions. This is a single deterministic run, not across MC draws.
+   - The plant-side site factor, calibration against existing pipelines and the manuscript Methods (handoff items 6–8).
+
+7. **Other issues.**
    - The US sink database has no offshore sinks (e.g. Gulf of Mexico offshore saline storage).
    - The whole global DEM is slope-aggregated before cropping, so each region takes 15–19 min single-threaded.
    - `hires_factor = 1` fails in the aggregation step.
@@ -75,4 +97,5 @@ In the model (`calculate_ccs_transport()`):
 - **Residue burning shares:** `residue_burn_fraction` for the US (0.02) and China (0.10) are estimates; India (0.16) is from Jain et al. (2014), and the EU (0.01) reflects the burning ban. Black carbon from burning is not counted.
 - **Biochar logistics costs:** BEBCS costs don't include biochar haulage and field application (the nets1.xlsm model included `bc_haul_cost` and `bc_field_cost`), and ash spreading is likewise not costed for BES/BECCS.
 - **Avoided liming emissions:** substituting biochar or ash for agricultural lime avoids the CO2 released when lime dissolves (IPCC Tier 1: 0.12 t C per t limestone), which is not credited.
+-**crs** co2_sinks in data has crs=4326.  Check that this is reprojected to regional crs for analysis when being used with equal area projections.
 

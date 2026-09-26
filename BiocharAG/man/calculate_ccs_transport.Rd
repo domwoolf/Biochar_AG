@@ -14,14 +14,18 @@ calculate_ccs_transport(
   dist_coast = NULL,
   dist_sea = NULL,
   capex_factor = 1,
-  om_factor = 1
+  om_factor = 1,
+  terrain_mult = 1,
+  terrain_share = 1,
+  hrel_max_m = NULL,
+  elec_price = 0
 )
 }
 \arguments{
 \item{co2_mass}{Annual CO2 mass to transport (Mg/year).}
 
-\item{distance}{Distance to the sink (km); used for onshore sinks, and as the voyage distance for
-offshore sinks when \code{dist_sea} is not supplied.}
+\item{distance}{Pipeline length to the sink (km); used for onshore sinks, and as the voyage distance
+for offshore sinks when \code{dist_sea} is not supplied.}
 
 \item{is_offshore}{Logical (scalar, vector or raster); TRUE for offshore sinks.}
 
@@ -32,21 +36,35 @@ offshore sinks when \code{dist_sea} is not supplied.}
 \item{early_adoption}{Logical. If TRUE, pipelines are sized to the single facility over the entire
 distance (no shared trunkline). Default FALSE.}
 
-\item{dist_coast}{Pipeline distance from the source to the coast (km) for ship transport. Default 0.}
+\item{dist_coast}{Pipeline length from the source to the export port (km) for ship transport. Default 0.}
 
 \item{dist_sea}{Sea voyage distance from the port to the offshore sink (km). Defaults to \code{distance}.}
 
-\item{capex_factor}{Regional CAPEX location factor (pipelines, liquefaction and terminals).}
+\item{capex_factor}{Regional CAPEX location factor (pipelines, pumps, liquefaction and terminals).}
 
-\item{om_factor}{Regional O&M location factor (pipeline O&M fraction).}
+\item{om_factor}{Regional O&M location factor (pipeline and pump O&M fraction).}
+
+\item{terrain_mult}{Route-average pipeline construction-cost multiplier (>= 1; NA treated as 1).}
+
+\item{terrain_share}{Fraction of pipeline CAPEX that scales with terrain. Default 1.}
+
+\item{hrel_max_m}{Highest point of the pipeline route above the source (m). NULL = no lift cost.}
+
+\item{elec_price}{Electricity price for booster pumping ($/MWh). Default 0.}
 }
 \value{
 Transport cost ($/Mg CO2).
 }
 \description{
 Onshore sinks are reached by pipeline. Offshore sinks are reached by ship: a pipeline leg from
-the source to the coast, liquefaction and port terminal, and a sea voyage to the sink.
+the source to the port, liquefaction and port terminal, and a sea voyage to the sink.
 Pipelines use a hub-and-spoke power-law cost model (ZEP-style): CAPEX scales with distance and
-with capacity^0.6. Distances are terrain-routed least-cost distances, so no further tortuosity
-factor is applied.
+with capacity^0.6.
+}
+\details{
+With route layers from \code{data-raw/process_transport_layers.R} (v2), \code{distance} and \code{dist_coast} are
+physical route lengths, terrain enters as a CAPEX multiplier (\code{terrain_mult}, the construction-cost
+factor averaged along the chosen route), and elevation enters through the booster pumping needed to
+lift dense-phase CO2 over the highest point of the route (\code{hrel_max_m}). With the older least-cost
+distance layers (v1), leave \code{terrain_mult = 1} and \code{hrel_max_m = NULL}.
 }

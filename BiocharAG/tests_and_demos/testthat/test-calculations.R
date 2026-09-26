@@ -16,7 +16,7 @@ test_that("BES returns valid metrics", {
     expect_true(res$total_revenue > 0)
     expect_true(res$total_cost > 0)
     expect_equal(res$net_value, res$total_revenue - res$total_cost)
-    expect_true(res$elec_prod > 0)
+    expect_true(res$energy_prod > 0)
 })
 
 test_that("BEBCS returns valid metrics and soil benefits", {

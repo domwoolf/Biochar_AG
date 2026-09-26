@@ -57,13 +57,7 @@ run_spatial_tea <- function(template_raster, params, spatial_layers = list(),
         }
         if ("soil_ph" %in% names(spatial_layers)) p$soil_ph <- spatial_layers$soil_ph
         if ("soil_cec" %in% names(spatial_layers)) p$soil_cec <- spatial_layers$soil_cec
-        if ("dist_sink_km" %in% names(spatial_layers)) p$dist_sink_km <- spatial_layers$dist_sink_km
-        if ("dist_sink_saline_km" %in% names(spatial_layers)) p$dist_sink_saline_km <- spatial_layers$dist_sink_saline_km
-        if ("sink_is_offshore" %in% names(spatial_layers)) p$sink_is_offshore <- spatial_layers$sink_is_offshore
-        if ("sink_is_offshore_saline" %in% names(spatial_layers)) p$sink_is_offshore_saline <- spatial_layers$sink_is_offshore_saline
-        if ("dist_coast_km" %in% names(spatial_layers)) p$dist_coast_km <- spatial_layers$dist_coast_km
-        if ("dist_sea_km" %in% names(spatial_layers)) p$dist_sea_km <- spatial_layers$dist_sea_km
-        if ("dist_sea_saline_km" %in% names(spatial_layers)) p$dist_sea_saline_km <- spatial_layers$dist_sea_saline_km
+        for (nm in intersect(transport_layer_names(), names(spatial_layers))) p[[nm]] <- spatial_layers[[nm]]
 
         if (use_flat_ci) {
             p$ff_c_intensity <- flat_ci_tCO2_GJ
@@ -201,13 +195,7 @@ run_spatial_tea <- function(template_raster, params, spatial_layers = list(),
     }
     if ("soil_ph" %in% names(spatial_layers)) p$soil_ph <- spatial_layers$soil_ph
     if ("soil_cec" %in% names(spatial_layers)) p$soil_cec <- spatial_layers$soil_cec
-    if ("dist_sink_km" %in% names(spatial_layers)) p$dist_sink_km <- spatial_layers$dist_sink_km
-    if ("dist_sink_saline_km" %in% names(spatial_layers)) p$dist_sink_saline_km <- spatial_layers$dist_sink_saline_km
-    if ("sink_is_offshore" %in% names(spatial_layers)) p$sink_is_offshore <- spatial_layers$sink_is_offshore
-    if ("sink_is_offshore_saline" %in% names(spatial_layers)) p$sink_is_offshore_saline <- spatial_layers$sink_is_offshore_saline
-    if ("dist_coast_km" %in% names(spatial_layers)) p$dist_coast_km <- spatial_layers$dist_coast_km
-    if ("dist_sea_km" %in% names(spatial_layers)) p$dist_sea_km <- spatial_layers$dist_sea_km
-    if ("dist_sea_saline_km" %in% names(spatial_layers)) p$dist_sea_saline_km <- spatial_layers$dist_sea_saline_km
+    for (nm in intersect(transport_layer_names(), names(spatial_layers))) p[[nm]] <- spatial_layers[[nm]]
     if ("avg_dist" %in% names(spatial_layers)) p$avg_dist <- spatial_layers$avg_dist
 
     if (use_flat_ci) {

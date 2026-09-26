@@ -4,12 +4,19 @@
 \alias{load_region_data}
 \title{Load Region Spatial Data and Pre-Extract 1D Vectors}
 \usage{
-load_region_data(region_name, gis_path = NULL)
+load_region_data(
+  region_name,
+  gis_path = NULL,
+  transport_version = c("auto", "v2", "v1")
+)
 }
 \arguments{
 \item{region_name}{Character string ("US", "China", "Europe", "India").}
 
 \item{gis_path}{Optional path to GIS/processed/ directory.}
+
+\item{transport_version}{CO2 transport layers to use: "auto" (v2 \verb{<prefix>_transport_layers.tif} if
+present, else v1), "v2" or "v1".}
 }
 \value{
 A list containing \code{template}, \code{layers}, \code{admin0}, \code{admin1}, and \code{vec}.

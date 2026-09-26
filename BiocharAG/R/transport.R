@@ -107,37 +107,49 @@ calc_transport_cost <- function(mass_flow_mtpa, distance_km, region, is_offshore
 #' Calculate CCS Transport Cost
 #'
 #' Onshore sinks are reached by pipeline. Offshore sinks are reached by ship: a pipeline leg from
-#' the source to the coast, liquefaction and port terminal, and a sea voyage to the sink.
+#' the source to the port, liquefaction and port terminal, and a sea voyage to the sink.
 #' Pipelines use a hub-and-spoke power-law cost model (ZEP-style): CAPEX scales with distance and
-#' with capacity^0.6. Distances are terrain-routed least-cost distances, so no further tortuosity
-#' factor is applied.
+#' with capacity^0.6.
+#'
+#' With route layers from `data-raw/process_transport_layers.R` (v2), `distance` and `dist_coast` are
+#' physical route lengths, terrain enters as a CAPEX multiplier (`terrain_mult`, the construction-cost
+#' factor averaged along the chosen route), and elevation enters through the booster pumping needed to
+#' lift dense-phase CO2 over the highest point of the route (`hrel_max_m`). With the older least-cost
+#' distance layers (v1), leave `terrain_mult = 1` and `hrel_max_m = NULL`.
 #'
 #' @param co2_mass Annual CO2 mass to transport (Mg/year).
-#' @param distance Distance to the sink (km); used for onshore sinks, and as the voyage distance for
-#'   offshore sinks when `dist_sea` is not supplied.
+#' @param distance Pipeline length to the sink (km); used for onshore sinks, and as the voyage distance
+#'   for offshore sinks when `dist_sea` is not supplied.
 #' @param is_offshore Logical (scalar, vector or raster); TRUE for offshore sinks.
 #' @param discount_rate Discount rate (decimal). Default 0.10.
 #' @param lifetime Project lifetime (years). Default 20.
 #' @param early_adoption Logical. If TRUE, pipelines are sized to the single facility over the entire
 #'   distance (no shared trunkline). Default FALSE.
-#' @param dist_coast Pipeline distance from the source to the coast (km) for ship transport. Default 0.
+#' @param dist_coast Pipeline length from the source to the export port (km) for ship transport. Default 0.
 #' @param dist_sea Sea voyage distance from the port to the offshore sink (km). Defaults to `distance`.
-#' @param capex_factor Regional CAPEX location factor (pipelines, liquefaction and terminals).
-#' @param om_factor Regional O&M location factor (pipeline O&M fraction).
+#' @param capex_factor Regional CAPEX location factor (pipelines, pumps, liquefaction and terminals).
+#' @param om_factor Regional O&M location factor (pipeline and pump O&M fraction).
+#' @param terrain_mult Route-average pipeline construction-cost multiplier (>= 1; NA treated as 1).
+#' @param terrain_share Fraction of pipeline CAPEX that scales with terrain. Default 1.
+#' @param hrel_max_m Highest point of the pipeline route above the source (m). NULL = no lift cost.
+#' @param elec_price Electricity price for booster pumping ($/MWh). Default 0.
 #' @return Transport cost ($/Mg CO2).
 #' @export
 calculate_ccs_transport <- function(co2_mass, distance, is_offshore = FALSE, discount_rate = 0.10, lifetime = 20,
                                     early_adoption = FALSE, dist_coast = NULL, dist_sea = NULL,
-                                    capex_factor = 1, om_factor = 1) {
+                                    capex_factor = 1, om_factor = 1, terrain_mult = 1, terrain_share = 1,
+                                    hrel_max_m = NULL, elec_price = 0) {
   safe_co2_mass <- pmax(co2_mass, 1e-6)
   annuity_fac <- (1 - (1 + discount_rate)^(-lifetime)) / discount_rate
+  opex_factor <- 0.04 * om_factor
+  tm <- ifelse_raster(is.na(terrain_mult), 1, terrain_mult)
+  tm <- 1 + terrain_share * (pmax_raster(tm, 1) - 1)
 
   pipeline_cost <- function(dist) {
     ref_mass <- 1000000
     ref_dist <- 100
     base_capex_ref <- 50000000 * capex_factor
     scale_factor <- 0.6
-    opex_factor <- 0.04 * om_factor
     feeder_threshold_km <- 50
     booster_threshold_km <- 700
     booster_penalty <- 2.0
@@ -159,14 +171,15 @@ calculate_ccs_transport <- function(co2_mass, distance, is_offshore = FALSE, dis
       early_adoption,
       total_capex_share_close,
       ifelse_raster(dist > feeder_threshold_km, total_capex_share_far, total_capex_share_close)
-    )
-    (total_capex_share / annuity_fac + total_capex_share * opex_factor) / safe_co2_mass
+    ) * tm
+    lift <- if (is.null(hrel_max_m)) 0 else co2_lift_cost(safe_co2_mass, hrel_max_m, annuity_fac, opex_factor, capex_factor, elec_price)
+    (total_capex_share / annuity_fac + total_capex_share * opex_factor) / safe_co2_mass + lift
   }
 
-  # Ship transport: pipeline to the coast, liquefaction and terminal, then voyage.
-  # TODO (see Article/TODO.md): no dist_coast/dist_sea layers exist yet, so the inland pipeline leg is
-  # zero and the voyage is priced over the full (friction-weighted) distance to the sink. Port choice
-  # should minimise total pipeline + ship cost rather than use the nearest coast.
+  # Ship transport: pipeline to the port, liquefaction and terminal, then voyage.
+  # TODO (see Article/TODO.md): the port is the one nearest the source by routing cost, not the one
+  # minimising pipeline + ship cost. Without dist_coast/dist_sea (v1 layers) the inland leg is zero and
+  # the voyage is priced over the full (friction-weighted) distance to the sink.
   ship_cost <- function() {
     coast <- if (is.null(dist_coast)) 0 else dist_coast
     sea <- if (is.null(dist_sea)) distance else dist_sea
@@ -183,4 +196,37 @@ calculate_ccs_transport <- function(co2_mass, distance, is_offshore = FALSE, dis
   }
 
   return(ifelse_raster(co2_mass <= 0, 0, final_cost))
+}
+
+#' Booster Pumping Cost of Lifting CO2 Over a Pipeline Route
+#'
+#' Dense-phase CO2 loses about 0.9 MPa per 100 m of lift, so a pipeline must arrive at the highest
+#' point of its route above the minimum operating pressure. The pressure needed beyond the design
+#' inlet margin is restored by booster pump stations (fractional count, for smooth cost surfaces).
+#' Pump CAPEX follows McCollum & Ogden (2006): $1.11M per MW of pump power plus $0.07M per station
+#' (2005 USD, escalated to 2024 USD by `cpi_2005`).
+#'
+#' @param co2_mass Annual CO2 mass (Mg/year).
+#' @param hrel_max_m Highest route elevation above the source (m); negative or NA = no lift.
+#' @param annuity_fac Annuity factor for CAPEX.
+#' @param opex_factor Annual O&M as a fraction of CAPEX.
+#' @param capex_factor Regional CAPEX location factor.
+#' @param elec_price Electricity price ($/MWh).
+#' @param rho Dense-phase CO2 density (kg/m3).
+#' @param dp_margin_mpa Head covered by the design inlet-pressure margin (MPa).
+#' @param dp_station_mpa Pressure restored by one booster station (MPa).
+#' @param pump_eff Pump efficiency.
+#' @param cpi_2005 Escalation from 2005 to 2024 USD (US CPI-U).
+#' @return Lift cost ($/Mg CO2).
+#' @keywords internal
+co2_lift_cost <- function(co2_mass, hrel_max_m, annuity_fac, opex_factor, capex_factor = 1, elec_price = 0,
+                          rho = 900, dp_margin_mpa = 1, dp_station_mpa = 5, pump_eff = 0.75, cpi_2005 = 1.6) {
+  h <- ifelse_raster(is.na(hrel_max_m), 0, pmax_raster(hrel_max_m, 0))
+  dp_pa <- pmax_raster(rho * 9.81 * h - dp_margin_mpa * 1e6, 0)
+  n_stations <- dp_pa / (dp_station_mpa * 1e6)
+  mass_kg_s <- co2_mass * 1000 / (8760 * 3600)
+  pump_mw <- mass_kg_s * dp_pa / (rho * pump_eff) / 1e6
+  capex <- (1.11e6 * pump_mw + 0.07e6 * n_stations) * cpi_2005 * capex_factor
+  elec_mwh_per_t <- 1000 * dp_pa / (rho * pump_eff) / 3.6e9
+  (capex / annuity_fac + capex * opex_factor) / co2_mass + elec_mwh_per_t * elec_price
 }
