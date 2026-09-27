@@ -202,9 +202,7 @@ results_list <- parallel::mclapply(seq_along(regions), function(s) {
       p$biomass_density <- spatial_layers$biomass_density
     }
 
-    dist_layer_name <- paste0("dist_", mc_row$plant_mw_th, "MWth")
-    if (!dist_layer_name %in% names(spatial_layers)) stop("Missing spatial distance layer: ", dist_layer_name)
-    p$avg_dist <- spatial_layers[[dist_layer_name]]
+    p <- attach_size_layers(p, spatial_layers, mc_row$plant_mw_th)
 
     p$feedstock_cost <- BiocharAG::calculate_regional_feedstock_cost(r_name, p)
 

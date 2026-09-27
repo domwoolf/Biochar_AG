@@ -4,17 +4,25 @@
 \alias{biomass_logistics}
 \title{Biomass Collection Logistics}
 \usage{
-biomass_logistics(params)
+biomass_logistics(params, mass = 1)
 }
 \arguments{
 \item{params}{Parameter list.}
+
+\item{mass}{Mg hauled per Mg feed (1 for feedstock; biochar yield for biochar return).}
 }
 \value{
 A list with \code{effective_dist} (km), \code{cost} ($/Mg feed) and \code{emissions} (Mg CO2e/Mg feed).
 }
 \description{
-Road haulage cost and emissions for delivering feedstock to the plant. The average collection
-distance (\code{avg_dist}, straight-line) is converted to road distance with \code{tortuosity}; costs are
-scaled by the regional haulage location factor.
+Road haulage cost and emissions for delivering feedstock to the plant (or returning biochar to
+fields). The average collection distance (\code{avg_dist}, straight-line) is converted to road distance
+with \code{tortuosity}. The variable (per km) trucking cost is split into time-based costs (driver, truck
+capital, insurance: \code{haul_time_share}), fuel (\code{haul_fuel_share}) and other distance-based costs
+(repairs, tyres, tolls). Where terrain / road-network factors from \code{data-raw/generate_logistics_layers.R}
+are supplied (\code{haul_kt} travel time, \code{haul_kd} road distance, \code{haul_g} climb fuel; each normalised to
+a regional mean of 1), the time share scales with \code{haul_kt}, fuel with \code{haul_kd * haul_g} and other
+distance costs with \code{haul_kd}. Emissions scale with fuel. Costs are scaled by the regional haulage
+location factor. Per-km costs include the empty return trip.
 }
 \keyword{internal}

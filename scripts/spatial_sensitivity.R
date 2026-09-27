@@ -67,12 +67,7 @@ evaluate_tech_vectorized <- function(tech_fun, tech_name, base_params, spatial_l
       p_sz <- p
       p_sz$plant_mw_th <- sz
 
-      dist_layer_name <- paste0("dist_", sz, "MWth")
-      if (dist_layer_name %in% names(spatial_layers)) {
-        p_sz$avg_dist <- spatial_layers[[dist_layer_name]]
-      } else {
-        stop("Missing spatial distance layer: ", dist_layer_name)
-      }
+      p_sz <- attach_size_layers(p_sz, spatial_layers, sz)
 
       p_sz$feedstock_cost <- BiocharAG::calculate_regional_feedstock_cost(
         region_name,
@@ -125,12 +120,7 @@ evaluate_tech_vectorized <- function(tech_fun, tech_name, base_params, spatial_l
     sz <- max(5, round(BiocharAG:::resolve_plant_mw_th(p$plant_mw_th, tech_name) / 5) * 5)
     p$plant_mw_th <- sz
 
-    dist_layer_name <- paste0("dist_", sz, "MWth")
-    if (dist_layer_name %in% names(spatial_layers)) {
-      p$avg_dist <- spatial_layers[[dist_layer_name]]
-    } else {
-      stop("Missing spatial distance layer: ", dist_layer_name)
-    }
+    p <- attach_size_layers(p, spatial_layers, sz)
 
     p$feedstock_cost <- BiocharAG::calculate_regional_feedstock_cost(
       region_name,

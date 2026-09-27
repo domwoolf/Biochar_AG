@@ -86,11 +86,7 @@ run_spatial_tea <- function(template_raster, params, spatial_layers = list(),
             p_sz$plant_mw_th <- sz
 
             # Use precalculated spatial transport distance
-            dist_layer_name <- paste0("dist_", sz, "MWth")
-            if (!dist_layer_name %in% names(spatial_layers)) {
-                stop("Missing precalculated distance raster in spatial_layers: ", dist_layer_name)
-            }
-            p_sz$avg_dist <- spatial_layers[[dist_layer_name]]
+            p_sz <- attach_size_layers(p_sz, spatial_layers, sz)
 
             if (!is.null(region)) {
                 p_sz$feedstock_cost <- calculate_regional_feedstock_cost(region, p_sz)
@@ -197,6 +193,12 @@ run_spatial_tea <- function(template_raster, params, spatial_layers = list(),
     if ("soil_cec" %in% names(spatial_layers)) p$soil_cec <- spatial_layers$soil_cec
     for (nm in intersect(transport_layer_names(), names(spatial_layers))) p[[nm]] <- spatial_layers[[nm]]
     if ("avg_dist" %in% names(spatial_layers)) p$avg_dist <- spatial_layers$avg_dist
+    if (!optimize_scale) {
+        for (nm in c("kt", "kd", "g")) {
+            ln <- paste0("haul_", nm, "_", params$plant_mw_th)
+            if (ln %in% names(spatial_layers)) p[[paste0("haul_", nm)]] <- spatial_layers[[ln]]
+        }
+    }
 
     if (use_flat_ci) {
         p$ff_c_intensity <- flat_ci_tCO2_GJ

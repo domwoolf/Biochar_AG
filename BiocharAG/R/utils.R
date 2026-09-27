@@ -165,6 +165,13 @@ load_region_data <- function(region_name, gis_path = NULL, transport_version = c
     for (nm in intersect(transport_v2_layer_names(), names(tl))) layers[[nm]] <- tl[[nm]]
   }
 
+  # Haulage terrain / road-network factors per plant size; built by data-raw/generate_logistics_layers.R
+  hf_path <- file.path(gis_path, paste0(p_dist, "_haul_factors.tif"))
+  if (file.exists(hf_path)) {
+    hf <- terra::rast(hf_path)
+    for (nm in names(hf)) layers[[paste0("haul_", nm)]] <- hf[[nm]]
+  }
+
   # Biomass collection distance to satisfy each plant size (km); built by data-raw/generate_distance_rasters.R
   dist_files <- list.files(gis_path, pattern = paste0("^", p_dist, "_dist_[0-9]+MWth\\.tif$"), full.names = TRUE)
   for (dist_file in dist_files) {
@@ -232,11 +239,7 @@ run_scenario <- function(template, layers, params, vec = NULL) {
     }
 
     sz <- if (!is.null(p[["plant_mw_th", exact = TRUE]])) resolve_plant_mw_th(p[["plant_mw_th", exact = TRUE]], "BES") else 50
-    dist_layer_name <- paste0("dist_", sz, "MWth")
-    if (!dist_layer_name %in% names(spatial_layers)) {
-      stop("Missing spatial distance layer: ", dist_layer_name, " (run data-raw/generate_distance_rasters.R)")
-    }
-    p[["avg_dist"]] <- spatial_layers[[dist_layer_name, exact = TRUE]]
+    p <- attach_size_layers(p, spatial_layers, sz)
 
     feedstock_region <- if (!is.null(p[["region", exact = TRUE]])) p[["region", exact = TRUE]] else "US"
     p[["feedstock_cost"]] <- calculate_regional_feedstock_cost(feedstock_region, p)
@@ -332,28 +335,63 @@ location_factor <- function(params, type) {
 
 #' Biomass Collection Logistics
 #'
-#' Road haulage cost and emissions for delivering feedstock to the plant. The average collection
-#' distance (`avg_dist`, straight-line) is converted to road distance with `tortuosity`; costs are
-#' scaled by the regional haulage location factor.
+#' Road haulage cost and emissions for delivering feedstock to the plant (or returning biochar to
+#' fields). The average collection distance (`avg_dist`, straight-line) is converted to road distance
+#' with `tortuosity`. The variable (per km) trucking cost is split into time-based costs (driver, truck
+#' capital, insurance: `haul_time_share`), fuel (`haul_fuel_share`) and other distance-based costs
+#' (repairs, tyres, tolls). Where terrain / road-network factors from `data-raw/generate_logistics_layers.R`
+#' are supplied (`haul_kt` travel time, `haul_kd` road distance, `haul_g` climb fuel; each normalised to
+#' a regional mean of 1), the time share scales with `haul_kt`, fuel with `haul_kd * haul_g` and other
+#' distance costs with `haul_kd`. Emissions scale with fuel. Costs are scaled by the regional haulage
+#' location factor. Per-km costs include the empty return trip.
 #'
 #' @param params Parameter list.
+#' @param mass Mg hauled per Mg feed (1 for feedstock; biochar yield for biochar return).
 #' @return A list with `effective_dist` (km), `cost` ($/Mg feed) and `emissions` (Mg CO2e/Mg feed).
 #' @keywords internal
-biomass_logistics <- function(params) {
-  avg_dist <- if (!is.null(params$avg_dist)) {
-    params$avg_dist
-  } else {
-    (2 / 3) * (if (!is.null(params$collection_radius)) params$collection_radius else 50)
+biomass_logistics <- function(params, mass = 1) {
+  pv <- function(n, d) if (!is.null(params[[n, exact = TRUE]])) params[[n, exact = TRUE]] else d
+  avg_dist <- if (!is.null(params$avg_dist)) params$avg_dist else (2 / 3) * pv("collection_radius", 50)
+  effective_dist <- avg_dist * pv("tortuosity", 1.3)
+  fac <- function(n) {
+    v <- params[[n, exact = TRUE]]
+    if (is.null(v)) 1 else ifelse_raster(is.na(v), 1, v)
   }
-  effective_dist <- avg_dist * (if (!is.null(params$tortuosity)) params$tortuosity else 1.3)
-  tf <- if (!is.null(params$bm_transport_fixed)) params$bm_transport_fixed else 5.0
-  tv <- if (!is.null(params$bm_transport_var)) params$bm_transport_var else 0.15
-  em <- if (!is.null(params$transport_emissions_factor)) params$transport_emissions_factor else 0.0001
+  kt <- fac("haul_kt")
+  kd <- fac("haul_kd")
+  g <- fac("haul_g")
+  s_t <- pv("haul_time_share", 0.64)
+  s_f <- pv("haul_fuel_share", 0.24)
+  var_mult <- s_t * kt + s_f * kd * g + max(0, 1 - s_t - s_f) * kd
   list(
     effective_dist = effective_dist,
-    cost = (tf + tv * effective_dist) * location_factor(params, "haulage"),
-    emissions = effective_dist * em
+    cost = mass * (pv("bm_transport_fixed", 5.0) + pv("bm_transport_var", 0.15) * effective_dist * var_mult) *
+      location_factor(params, "haulage"),
+    emissions = mass * effective_dist * kd * g * pv("transport_emissions_factor", 0.0001)
   )
+}
+
+#' Attach Size-Specific Collection Distance and Haulage Factors
+#'
+#' Sets `avg_dist` from the `dist_<sz>MWth` layer and, where present, `haul_kt`, `haul_kd` and
+#' `haul_g` from the `haul_<kt|kd|g>_<sz>` layers (see `data-raw/generate_logistics_layers.R`).
+#'
+#' @param p Parameter list.
+#' @param spatial_layers Named list of layers (rasters or vectors).
+#' @param sz Plant size (MWth).
+#' @return The updated parameter list.
+#' @export
+attach_size_layers <- function(p, spatial_layers, sz) {
+  dist_layer_name <- paste0("dist_", sz, "MWth")
+  if (!dist_layer_name %in% names(spatial_layers)) {
+    stop("Missing spatial distance layer: ", dist_layer_name, " (run data-raw/generate_distance_rasters.R)")
+  }
+  p[["avg_dist"]] <- spatial_layers[[dist_layer_name, exact = TRUE]]
+  for (nm in c("kt", "kd", "g")) {
+    ln <- paste0("haul_", nm, "_", sz)
+    p[[paste0("haul_", nm)]] <- if (ln %in% names(spatial_layers)) spatial_layers[[ln, exact = TRUE]] else NULL
+  }
+  p
 }
 
 #' Counterfactual Residue GHG Effects of Removal

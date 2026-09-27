@@ -92,7 +92,12 @@ calculate_bebcs <- function(params) {
     # --- 3. Logistics Cost & Transport Emissions ---
     logistics <- biomass_logistics(params)
     effective_dist <- logistics$effective_dist
-    logistics_cost <- logistics$cost
+    # Biochar returns to the fields as a backhaul in the feedstock trucks, which run year-round from
+    # field-edge storage and whose empty return leg is already in the per-km cost: only loading and
+    # handling are charged.
+    bc_haul_cost <- if (isFALSE(as.logical(params$bc_return_haul))) 0 else
+      bc_yield * (if (!is.null(params$bm_transport_fixed)) params$bm_transport_fixed else 5) * location_factor(params, "haulage")
+    logistics_cost <- logistics$cost + bc_haul_cost
     transport_emissions_co2e <- logistics$emissions
 
     feedstock_cost <- if (!is.null(params$feedstock_cost)) params$feedstock_cost else 0
@@ -149,6 +154,7 @@ calculate_bebcs <- function(params) {
       capital_cost_mg = total_capex_per_mg,
       om_cost_mg = annual_om,
       biomass_cost_mg = biomass_cost,
+      biochar_haul_cost_mg = bc_haul_cost, # included in biomass_cost_mg
       co2_transport_cost_mg = 0,
       co2_transport_distance_km = NA,
       biomass_transport_distance_km = effective_dist,
