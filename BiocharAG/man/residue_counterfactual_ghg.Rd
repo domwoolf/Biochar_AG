@@ -10,12 +10,14 @@ residue_counterfactual_ghg(params)
 \item{params}{Parameter list.}
 }
 \value{
-Net abatement in Mg CO2e / Mg feed (positive = avoided emissions exceed SOC loss).
+Net abatement in Mg CO2e / Mg feed (positive = avoided emissions exceed the soil penalty).
 }
 \description{
-GHG effects common to all pathways when crop residue is removed for energy: the soil organic carbon
-the residue would otherwise have added (a loss) and the CH4 and N2O from open field burning that is
-avoided for the regional share of residues otherwise burned (a gain). CO2 from burning is biogenic
-and not counted.
+GHG effects common to all pathways when crop residue is removed for energy: a net soil GHG penalty
+(forgone soil organic carbon minus the soil N2O that retained residues would have caused) and the
+CH4 and N2O from open field burning that is avoided for the regional share of residues otherwise
+burned (a gain). CO2 from burning is biogenic and not counted. The soil GHG penalty defaults to zero:
+McClelland et al. (2025) found that the SOC gain and the N2O increase from retaining residues
+approximately cancel through 2100 in all regions studied except the Brazilian Cerrado.
 }
 \keyword{internal}

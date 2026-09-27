@@ -12,7 +12,6 @@ calculate_bes <- function(params) {
   # Default to modern params if not present
   if (is.null(params$bes_capital_cost)) params$bes_capital_cost <- 3000
   if (is.null(params$bes_energy_efficiency)) params$bes_energy_efficiency <- 0.30
-  if (is.null(params$bes_om_factor)) params$bes_om_factor <- 0.04
   if (is.null(params$bes_life)) params$bes_life <- 30
   if (is.null(params$bes_capex_ref_eff)) params$bes_capex_ref_eff <- 0.30
 
@@ -50,7 +49,7 @@ calculate_bes <- function(params) {
     capex_per_mg <- annual_capex_payment / annual_biomass
     # Annual O&M is a fraction of total CAPEX. Costs are levelised per year: discounting this constant
     # annual cost over the plant life and re-annualising at the same rate returns the annual value.
-    opex_per_mg <- (total_capex * bes_om_factor * location_factor(params, "om")) / annual_biomass
+    opex_per_mg <- (total_capex * plant_om_fraction(params, "bes_om_factor") * location_factor(params, "om")) / annual_biomass
 
     # --- 3. Logistics Cost & Transport Emissions ---
     logistics <- biomass_logistics(params)

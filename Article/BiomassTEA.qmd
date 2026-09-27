@@ -62,7 +62,7 @@ Haulage costs vary with terrain and road access, which the flat per-kilometre ra
 
 #### Fuel Quality
 
-Agricultural crop residues typically have a higher ash content than the wood chips more commonly used in bioenergy combustion. High-ash feedstocks carry significant fouling and slagging risks, requiring additional capital expenditures (CAPEX) and operating expenditure (OPEX), for example through deployment of Circulating Fluidized Bed (CFB) boilers. This fuel quality penalty is modelled as a proportional (25%) increase in base CAPEX for combustion technologies (BE and BECCS), a 50% increase in operations and maintenance (O&M) costs, and a 10% reduction in overall electrical conversion efficiency, relative to a wood-chip fired bioenergy plant.[@luan2025a; @baxter1998; @garcía2017]
+Agricultural crop residues typically have a higher ash content than the wood chips more commonly used in bioenergy combustion. High-ash feedstocks carry significant fouling and slagging risks, requiring additional capital expenditures (CAPEX) and operating expenditure (OPEX), for example through deployment of Circulating Fluidized Bed (CFB) boilers. This fuel quality penalty is modelled, relative to a wood-chip fired bioenergy plant, as an increase in base CAPEX for the combustion technologies (BES and BECCS) of 25% for high-ash feedstocks (ash above 5%) or 10% for medium-ash feedstocks (2–5%), and a reduction in electrical conversion efficiency of 10% or 5% respectively. O&M costs are not penalised separately: they are charged as a fraction of CAPEX, which already carries the penalty, and straw-fired plants have the same ratio of O&M to investment cost as wood-fired plants [@dea2020].[@luan2025a; @baxter1998; @garcía2017]
 
 #### Regional Pricing Structures
 
@@ -84,7 +84,7 @@ The core thermodynamic engine evaluates three distinct biomass utilization pathw
 
 The BES pathway represents a traditional, dedicated biomass combustion facility. In this baseline scenario, the feedstock is fully oxidized to maximize electricity exported to the regional grid. Because there is no active carbon capture, the physical carbon embedded in the biomass is returned to the atmosphere.
 
-The technoeconomic parameters for this modern combustion archetype assume an electrical conversion efficiency of 30%. Capital expenditures (CAPEX) are specified regionally per kW of net electrical capacity for a 50 MW~e~ reference plant (@tbl-parameters), and scale non-linearly with plant capacity via a standard 0.7 scaling factor. For costing, plant capacity is defined as the thermal input multiplied by a fixed reference net efficiency (`bes_capex_ref_eff`), rather than by the realised efficiency. Equipment cost is therefore set by the size of the boiler and steam cycle, so factors that reduce net output for a given thermal input (the high-ash fuel penalty, efficiency uncertainty, or the parasitic load of carbon capture) reduce revenue without spuriously reducing capital cost. Operations and maintenance (O&M) costs are assessed as a regional fixed annual fraction of total CAPEX (@tbl-parameters). Capital costs are annualized over the plant lifetime at the regional discount rate using the capital recovery factor, so that all costs and revenues are expressed as levelized annual values per megagram of feedstock; because O&M is a constant annual cost, discounting it over the plant lifetime and re-annualizing at the same rate returns the annual value. Total electrical output is derived directly from the biomass lower heating value (LHV, assumed as $18.6\text{ GJ/Mg}$ for dry, ash-free feedstock) and the plant's operational capacity factor (85%).
+The technoeconomic parameters for this modern combustion archetype assume an electrical conversion efficiency of 30%. Capital expenditures (CAPEX) are specified regionally per kW of net electrical capacity for a 50 MW~e~ reference plant (@tbl-parameters), and scale non-linearly with plant capacity via a standard 0.7 scaling factor. For costing, plant capacity is defined as the thermal input multiplied by a fixed reference net efficiency (`bes_capex_ref_eff`), rather than by the realised efficiency. Equipment cost is therefore set by the size of the boiler and steam cycle, so factors that reduce net output for a given thermal input (the high-ash fuel penalty, efficiency uncertainty, or the parasitic load of carbon capture) reduce revenue without spuriously reducing capital cost. Operations and maintenance (O&M) costs, fixed and variable together, are charged as an annual fraction of total CAPEX (`plant_om_factor`, 4% per year), which is shared by all conversion technologies (BES, BECCS, and the pyrolysis unit and energy block of BEBCS) and scaled by a regional O&M factor (@tbl-parameters). The 4% value is consistent with the EIA reference 50 MW biomass plant (fixed O&M of \$141.5/kW-yr plus variable O&M of \$5.44/MWh, about 3.6% of CAPEX per year at an 85% capacity factor) [@eia2023], with IRENA's range for stoker and fluidized-bed biomass boilers (fixed O&M of 3.2–4.2% of CAPEX per year plus \$3.8–4.7/MWh) [@irena2012], and with Danish technology data for 80 MW~th~ biomass CHP plants (4.4% per year for straw and 4.6% for wood pellets, fixed and variable combined) [@dea2020]. Capital costs are annualized over the plant lifetime at the regional discount rate using the capital recovery factor, so that all costs and revenues are expressed as levelized annual values per megagram of feedstock; because O&M is a constant annual cost, discounting it over the plant lifetime and re-annualizing at the same rate returns the annual value. Total electrical output is derived directly from the biomass lower heating value (LHV, assumed as $18.6\text{ GJ/Mg}$ for dry, ash-free feedstock) and the plant's operational capacity factor (85%).
 
 When ash recycling is enabled (the default; `ash_recycling`, @tbl-parameters), the bottom and fly ash from BES and BECCS combustion is returned to cropland and credited with its liming value, where soil pH is below the target pH, and its phosphorus fertilizer value, using the same substitution prices and availability factor as biochar (see Biochar Agronomic Valuation). Phosphorus is largely retained in the ash, whereas nitrogen and most of the potassium are volatilized during combustion and are not credited. The default ash liming (calcium carbonate equivalent) and phosphorus contents are set so that, at the default feedstock ash content, the ash and the biochar derived from the same feedstock return equal liming and phosphorus value per megagram of feedstock, so that the pathways differ only in the nitrogen, potassium and soil physical benefits retained by biochar.
 
@@ -92,7 +92,7 @@ When ash recycling is enabled (the default; `ash_recycling`, @tbl-parameters), t
 
 The BECCS pathway augments the standard combustion baseline with a post-combustion carbon capture unit. The addition of this unit imposes a significant parasitic energy penalty, primarily driven by solvent regeneration and CO~2~ compression requirements. Consequently, the net electrical conversion efficiency drops below the BES baseline by an efficiency penalty (default = 8 percentage points).
 
-The capture process is parameterized with a 90% capture efficiency rate. The total volume of captured CO~2~ routed to geological storage is calculated stoichiometrically based on the carbon fraction of the incoming biomass feed (default 48% C), converted to CO~2~ mass equivalents using the 44/12 molar ratio. The additional infrastructure (capture unit, CO~2~ compression and flue-gas cleaning) is represented as a premium on total CAPEX relative to a BES plant of the same thermal input (`beccs_capex_premium`, @tbl-parameters). The default premium is based on the IEAGHG techno-economic evaluation of dedicated biomass-fired power plants with post-combustion amine capture, in which capture raised total investment by 38--40% for 75 MW~e~ bubbling and 250 MW~e~ circulating fluidized bed plants [@ieaghg2009]. Because net output fell simultaneously, the corresponding increase in specific capital cost was 114--126% per net kW~e~, consistent with the 45--130% range reported across biomass CCS technologies by @bhave2017. Expressing the premium on a thermal-input basis keeps it independent of the efficiency penalty. Annual O&M is a regional fraction of CAPEX (@tbl-parameters).
+The capture process is parameterized with a 90% capture efficiency rate. The total volume of captured CO~2~ routed to geological storage is calculated stoichiometrically based on the carbon fraction of the incoming biomass feed (default 48% C), converted to CO~2~ mass equivalents using the 44/12 molar ratio. The additional infrastructure (capture unit, CO~2~ compression and flue-gas cleaning) is represented as a premium on total CAPEX relative to a BES plant of the same thermal input (`beccs_capex_premium`, @tbl-parameters). The default premium is based on the IEAGHG techno-economic evaluation of dedicated biomass-fired power plants with post-combustion amine capture, in which capture raised total investment by 38--40% for 75 MW~e~ bubbling and 250 MW~e~ circulating fluidized bed plants [@ieaghg2009]. Because net output fell simultaneously, the corresponding increase in specific capital cost was 114--126% per net kW~e~, consistent with the 45--130% range reported across biomass CCS technologies by @bhave2017. Expressing the premium on a thermal-input basis keeps it independent of the efficiency penalty. Annual O&M is the same fraction of CAPEX as for the other technologies (@tbl-parameters).
 
 ### Carbon Transport and Geological Storage
 
@@ -200,11 +200,11 @@ For all pathways, Scope 3 feedstock transport emissions are modeled dynamically 
 
 #### Residue Removal Counterfactual
 
-Removing crop residues for energy has two further effects on greenhouse gas balances that are common to all pathways, relative to a counterfactual in which residues remain in the field. First, residues left in the field would contribute to soil organic carbon (SOC); residue retention increases SOC stocks by around 10% relative to removal [@bolinder2020]. The SOC loss from removal is estimated as the feedstock carbon content multiplied by the long-term retention efficiency of residue carbon in soil ($\eta_{SOC}$). Second, in regions where residues are commonly burned in the field, removal avoids the non-CO~2~ emissions from open burning (CO~2~ from burning is biogenic and is not counted). These are estimated with the IPCC Tier 1 emission factors for methane and nitrous oxide from burning agricultural residues and the associated combustion factor [@ipcc2006], applied to the regional share of residues that would otherwise be burned ($f_{burn}$) [@jain2014]:
+Removing crop residues for energy has two further effects on greenhouse gas balances that are common to all pathways, relative to a counterfactual in which residues remain in the field. First, retained residues add to soil organic carbon (SOC); residue retention increases SOC stocks by around 10% relative to removal [@bolinder2020]. Retained residues also add nitrogen to the soil and increase soil N~2~O emissions. Process-based simulations across more than 400 million hectares of cropland found that, through to 2100, the SOC gain and the N~2~O increase from retaining more residue approximately cancel almost everywhere, the Brazilian Cerrado being the main exception [@mcclelland2025]. The net soil GHG penalty of removal ($P_{soil}$, Mg CO~2~e per Mg feed) is therefore set to zero by default, and retained as a parameter for sensitivity analysis (@tbl-parameters). A penalty that counted the forgone SOC alone, without the offsetting N~2~O, would be about 0.19 Mg CO~2~e per Mg feed. Second, in regions where residues are commonly burned in the field, removal avoids the non-CO~2~ emissions from open burning (CO~2~ from burning is biogenic and is not counted). These are estimated with the IPCC Tier 1 emission factors for methane and nitrous oxide from burning agricultural residues and the associated combustion factor [@ipcc2006], applied to the regional share of residues that would otherwise be burned ($f_{burn}$) [@jain2014]:
 
-$$A_{residue} = f_{burn} \cdot CF \cdot \left(EF_{CH_4} \cdot GWP_{CH_4} + EF_{N_2O} \cdot GWP_{N_2O}\right) \cdot 10^{-3} - C_{bm} \cdot \eta_{SOC} \cdot \frac{44}{12}$$
+$$A_{residue} = f_{burn} \cdot CF \cdot \left(EF_{CH_4} \cdot GWP_{CH_4} + EF_{N_2O} \cdot GWP_{N_2O}\right) \cdot 10^{-3} - P_{soil}$$
 
-where $C_{bm}$ is the feedstock carbon fraction, $CF$ the combustion factor, $EF$ the emission factors (g kg^-1^ dry matter), and $GWP$ the 100-year global warming potentials [@forster2021]; parameter values are given in @tbl-parameters. Because the same term applies to every pathway, it does not change which technology is preferred in a grid cell, but it reduces the absolute net abatement and therefore shifts the marginal abatement cost curves. In most regions the SOC loss outweighs the avoided burning emissions.
+where $CF$ is the combustion factor, $EF$ the emission factors (g kg^-1^ dry matter), and $GWP$ the 100-year global warming potentials [@forster2021]; parameter values are given in @tbl-parameters. Because the same term applies to every pathway, it does not change which technology is preferred in a grid cell, but it changes the absolute net abatement and therefore shifts the marginal abatement cost curves.
 
 #### Grid Displacement
 
@@ -228,7 +228,7 @@ Under this sensitivity mode, the model assumes the displaced marginal generation
 
 ### Regional Cost Adjustment
 
-Capital costs for all plant and CO~2~ transport infrastructure (combustion and pyrolysis plants, power blocks, pipelines, liquefaction and port terminals) are specified for a base location and scaled by a regional capital cost location factor, so that the relative cost of technologies is consistent within each region. Annual O&M fractions of CAPEX are scaled by a separate regional factor that reflects the lower cost of labour relative to equipment in China and India, and biomass haulage costs are scaled by a regional road-freight cost factor (@tbl-parameters).
+Capital costs for all plant and CO~2~ transport infrastructure (combustion and pyrolysis plants, power blocks, pipelines, liquefaction and port terminals) are specified for a base location and scaled by a regional capital cost location factor, so that the relative cost of technologies is consistent within each region. The O&M fraction of CAPEX is quoted for US and European plants and is scaled by a separate regional factor (1 for the US and Europe, 0.67 for China and 0.56 for India) that reflects the lower cost of labour relative to equipment in China and India, and biomass haulage costs are scaled by a regional road-freight cost factor (@tbl-parameters).
 
 ### Model Parameters and Data Sources
 
@@ -249,29 +249,29 @@ raw_params <- read.csv("../BiocharAG/inst/extdata/parameters.csv", check.names =
 # Filter out rows that shouldn't be displayed
 # Exclude Constants, Control Flags, and some spatial metrics
 display_df <- raw_params |>
-    filter(!(category %in% c("Constants", "Control Flags"))) |>
-    filter(!(name %in% c("avg_dist", "collection_radius", "dist_offshore", "dist_onshore", "dist_sink_km", "dist_sink_saline_km", "feedstock_cost", "tortuosity", "plant_sizes_mw_th", "flat_ci_tCO2_GJ", "rebound"))) |>
-    select(
-        Category = category,
-        Parameter = name,
-        Description = description,
-        USA = US,
-        Europe = Europe,
-        China = China,
-        India = India,
-        Units = units
-    ) |>
-    mutate(
-        # Convert NA to Spatially explicit for regional columns
-        USA = ifelse(is.na(USA), "Spatially explicit", USA),
-        Europe = ifelse(is.na(Europe), "Spatially explicit", Europe),
-        China = ifelse(is.na(China), "Spatially explicit", China),
-        India = ifelse(is.na(India), "Spatially explicit", India),
-        # Add backticks to Parameter names for markdown formatting
-        Parameter = paste0("`", Parameter, "`")
-    ) |>
-    # Arrange by Category
-    arrange(Category)
+  filter(!(category %in% c("Constants", "Control Flags"))) |>
+  filter(!(name %in% c("avg_dist", "collection_radius", "dist_offshore", "dist_onshore", "dist_sink_km", "dist_sink_saline_km", "feedstock_cost", "tortuosity", "plant_sizes_mw_th", "flat_ci_tCO2_GJ", "rebound"))) |>
+  select(
+    Category = category,
+    Parameter = name,
+    Description = description,
+    USA = US,
+    Europe = Europe,
+    China = China,
+    India = India,
+    Units = units
+  ) |>
+  mutate(
+    # Convert NA to Spatially explicit for regional columns
+    USA = ifelse(is.na(USA), "Spatially explicit", USA),
+    Europe = ifelse(is.na(Europe), "Spatially explicit", Europe),
+    China = ifelse(is.na(China), "Spatially explicit", China),
+    India = ifelse(is.na(India), "Spatially explicit", India),
+    # Add backticks to Parameter names for markdown formatting
+    Parameter = paste0("`", Parameter, "`")
+  ) |>
+  # Arrange by Category
+  arrange(Category)
 
 # Identify rows where all regional values are identical
 is_uniform <- with(display_df, !is.na(USA) & USA == Europe & Europe == China & China == India & USA != "Spatially explicit")
@@ -281,36 +281,36 @@ display_df$China[is_uniform] <- ""
 display_df$India[is_uniform] <- ""
 
 gt(display_df, groupname_col = "Category") |>
-    tab_spanner(
-        label = "Value",
-        columns = c(USA, Europe, China, India)
-    ) |>
-    cols_label(
-        Parameter = "Parameter",
-        Description = "Description",
-        USA = "USA/Default",
-        Europe = "Europe",
-        China = "China",
-        India = "India",
-        Units = "Units"
-    ) |>
-    cols_width(
-        Parameter ~ pct(18),
-        Description ~ pct(24),
-        USA ~ pct(12),
-        Europe ~ pct(10),
-        China ~ pct(10),
-        India ~ pct(10),
-        Units ~ pct(16)
-    ) |>
-    fmt_markdown(columns = c(Category, Parameter, Description, USA, Europe, China, India, Units)) |>
-    tab_options(
-        table.font.size = px(9),
-        data_row.padding = px(2),
-        row_group.font.weight = "bold",
-        latex.use_longtable = TRUE,
-        latex.header_repeat = TRUE
-    )
+  tab_spanner(
+    label = "Value",
+    columns = c(USA, Europe, China, India)
+  ) |>
+  cols_label(
+    Parameter = "Parameter",
+    Description = "Description",
+    USA = "USA/Default",
+    Europe = "Europe",
+    China = "China",
+    India = "India",
+    Units = "Units"
+  ) |>
+  cols_width(
+    Parameter ~ pct(18),
+    Description ~ pct(24),
+    USA ~ pct(12),
+    Europe ~ pct(10),
+    China ~ pct(10),
+    India ~ pct(10),
+    Units ~ pct(16)
+  ) |>
+  fmt_markdown(columns = c(Category, Parameter, Description, USA, Europe, China, India, Units)) |>
+  tab_options(
+    table.font.size = px(9),
+    data_row.padding = px(2),
+    row_group.font.weight = "bold",
+    latex.use_longtable = TRUE,
+    latex.header_repeat = TRUE
+  )
 ```
 
 # Results
@@ -330,6 +330,10 @@ In India, on the other hand, the mid carbon price advantage of BEBCS is almost e
 ## Regional Energy prices and Carbon Intensity provide a critical constraint on the optimal CDR pathways
 
 At lower carbon prices The optimal technology in Europe is almost universally BES, driven by high energy prices as the dominant driver across Europe. At \$30 / t CO~2~, the revenue from maximized power generation in BES outweighs the incentive to capture and sequester carbon, rendering the capital expenditure for BECCS and BEBCS unviable across all discount rates. As carbon prices increase, BECCS begins to dominate across central and northern Europe. BEBCS gains a strong advantage in Southern Europe, and Eastern Scandinavia where various combinations of large distances to CO~2~ sinks, already-low carbon intensity of the energy systems, and infertile soils make it more competitive. As in China, we see BEBCS maintain its advantage in these regions, even at very high carbon prices.
+
+## Competing Uses of Crop Residues
+
+The analysis values crop residues against two counterfactuals: retention in the field, whose net soil GHG effect is close to zero [@mcclelland2025], and open burning, whose avoided CH~4~ and N~2~O emissions are credited. A third use, livestock feed, is not quantified. It matters most in India, where cereal straws are a major source of fodder, whereas rice straw in the north-western rice–wheat belt is largely burned. Diverting residues that would otherwise be fed to livestock displaces feed that must be replaced from other sources, with associated emissions, land use and costs, and may reduce the residue supply that is realistically available. The net abatement estimated here is therefore most robust where residues would otherwise be burned or left in the field, and should be read as an upper bound where they are used as feed. <!-- TODO: confirm whether the Karan et al. (2023) availability estimates already exclude residues used as fodder, and cite a source for fodder use in India. -->
 
 # Conclusion
 

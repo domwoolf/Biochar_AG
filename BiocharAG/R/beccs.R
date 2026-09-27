@@ -17,7 +17,6 @@ calculate_beccs <- function(params) {
   }
   if (is.null(params$capture_rate)) params$capture_rate <- 0.90
   if (is.null(params$early_adoption)) params$early_adoption <- FALSE
-  if (is.null(params$beccs_om_factor)) params$beccs_om_factor <- 0.05
   allow_eor <- if (!is.null(params$allow_eor)) as.logical(params$allow_eor) else TRUE
   dist_spatial <- NULL
   if (allow_eor) {
@@ -212,7 +211,7 @@ calculate_beccs <- function(params) {
     capex_per_mg <- annual_capex_payment / annual_biomass
     # Annual O&M is a fraction of total CAPEX. Costs are levelised per year: discounting this constant
     # annual cost over the plant life and re-annualising at the same rate returns the annual value.
-    opex_per_mg <- (total_capex * beccs_om_factor * location_factor(params, "om")) / annual_biomass
+    opex_per_mg <- (total_capex * plant_om_fraction(params, "beccs_om_factor") * location_factor(params, "om")) / annual_biomass
 
     # --- 5. Logistics Cost & Transport Emissions ---
     logistics <- biomass_logistics(params)

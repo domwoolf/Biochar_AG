@@ -17,7 +17,7 @@ calculate_bebcs <- function(params) {
       c_intensity <- if (!is.null(params$ff_c_intensity)) params$ff_c_intensity else (12 / 3600)
       base_energy_capex <- if (!is.null(params$bebcs_power_capital_cost)) params$bebcs_power_capital_cost else 1500
       life <- if (!is.null(params$bebcs_power_life)) params$bebcs_power_life else 25
-      om_fac <- if (!is.null(params$bebcs_power_om_factor)) params$bebcs_power_om_factor else 0.05
+      om_fac <- plant_om_fraction(params, "bebcs_power_om_factor")
     } else {
       # Heat mode
       eff <- if (!is.null(params$bebcs_heat_efficiency)) params$bebcs_heat_efficiency else 0.80
@@ -25,7 +25,7 @@ calculate_bebcs <- function(params) {
       c_intensity <- if (!is.null(params$heat_c_intensity)) params$heat_c_intensity else 0.08
       base_energy_capex <- if (!is.null(params$bebcs_heat_capital_cost)) params$bebcs_heat_capital_cost else 400
       life <- if (!is.null(params$bebcs_heat_life)) params$bebcs_heat_life else 25
-      om_fac <- if (!is.null(params$bebcs_heat_om_factor)) params$bebcs_heat_om_factor else 0.03
+      om_fac <- plant_om_fraction(params, "bebcs_heat_om_factor")
     }
 
     # 1. Plant scale (thermal input of the biomass feed)
@@ -87,7 +87,7 @@ calculate_bebcs <- function(params) {
 
     # Annual O&M is a fraction of total CAPEX. Costs are levelised per year: discounting this constant
     # annual cost over the plant life and re-annualising at the same rate returns the annual value.
-    annual_om <- (total_py_capex * py_om_factor + total_energy_capex * om_fac) * location_factor(params, "om") / actual_annual_biomass
+    annual_om <- (total_py_capex * plant_om_fraction(params, "py_om_factor") + total_energy_capex * om_fac) * location_factor(params, "om") / actual_annual_biomass
 
     # --- 3. Logistics Cost & Transport Emissions ---
     logistics <- biomass_logistics(params)

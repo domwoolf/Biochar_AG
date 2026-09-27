@@ -11,7 +11,9 @@ adjust_costs_for_fuel(params)
 }
 \value{
 The modified parameter list with updated \code{bes_capital_cost} (also the BECCS CAPEX base),
-\code{bes_om_factor}, \code{beccs_om_factor}, \code{bes_energy_efficiency}, and \code{beccs_efficiency}.
+\code{bes_energy_efficiency} and \code{beccs_efficiency}. O&M is not adjusted: it is a fraction of CAPEX, which
+already carries the ash penalty, and straw-fired plants have the same O&M/CAPEX ratio as wood-fired
+ones (Danish Energy Agency technology data).
 }
 \description{
 Applies cost penalties for high-ash biomass (e.g., crop residues) which require

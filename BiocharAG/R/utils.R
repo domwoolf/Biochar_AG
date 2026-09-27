@@ -322,6 +322,23 @@ transport_v2_layer_names <- function() {
     paste0(off, "_sea_km"))
 }
 
+#' Plant O&M Fraction
+#'
+#' Annual all-in (fixed + variable) O&M as a fraction of total CAPEX, shared by every conversion
+#' technology (`plant_om_factor`) so that O&M is treated consistently across BES, BECCS and BEBCS, and
+#' sampled as one parameter in the Monte Carlo. A technology-specific override (e.g. `bes_om_factor`)
+#' is used only if supplied explicitly.
+#'
+#' @param params Parameter list.
+#' @param specific Optional name of a technology-specific override.
+#' @return O&M fraction of CAPEX per year (before the regional O&M location factor).
+#' @keywords internal
+plant_om_fraction <- function(params, specific = NULL) {
+  v <- if (!is.null(specific)) params[[specific, exact = TRUE]] else NULL
+  if (is.null(v)) v <- params[["plant_om_factor", exact = TRUE]]
+  if (is.null(v)) 0.04 else v
+}
+
 #' Regional Cost Location Factor
 #'
 #' @param params Parameter list.
@@ -396,18 +413,20 @@ attach_size_layers <- function(p, spatial_layers, sz) {
 
 #' Counterfactual Residue GHG Effects of Removal
 #'
-#' GHG effects common to all pathways when crop residue is removed for energy: the soil organic carbon
-#' the residue would otherwise have added (a loss) and the CH4 and N2O from open field burning that is
-#' avoided for the regional share of residues otherwise burned (a gain). CO2 from burning is biogenic
-#' and not counted.
+#' GHG effects common to all pathways when crop residue is removed for energy: a net soil GHG penalty
+#' (forgone soil organic carbon minus the soil N2O that retained residues would have caused) and the
+#' CH4 and N2O from open field burning that is avoided for the regional share of residues otherwise
+#' burned (a gain). CO2 from burning is biogenic and not counted. The soil GHG penalty defaults to zero:
+#' McClelland et al. (2025) found that the SOC gain and the N2O increase from retaining residues
+#' approximately cancel through 2100 in all regions studied except the Brazilian Cerrado.
 #'
 #' @param params Parameter list.
-#' @return Net abatement in Mg CO2e / Mg feed (positive = avoided emissions exceed SOC loss).
+#' @return Net abatement in Mg CO2e / Mg feed (positive = avoided emissions exceed the soil penalty).
 #' @keywords internal
 residue_counterfactual_ghg <- function(params) {
   pv <- function(n, d) if (!is.null(params[[n, exact = TRUE]])) params[[n, exact = TRUE]] else d
-  soc_loss <- pv("bm_c", 0.48) * pv("residue_c_retention", 0.11) * 44 / 12
+  soil_ghg_penalty <- pv("residue_soil_ghg_penalty", 0) # Mg CO2e / Mg feed removed
   burn_ghg <- pv("residue_burn_fraction", 0) * pv("residue_burn_cf", 0.8) *
     (pv("residue_burn_ch4_ef", 2.7) * pv("gwp_ch4", 27) + pv("residue_burn_n2o_ef", 0.07) * pv("gwp_n2o", 273)) / 1000
-  burn_ghg - soc_loss
+  burn_ghg - soil_ghg_penalty
 }
