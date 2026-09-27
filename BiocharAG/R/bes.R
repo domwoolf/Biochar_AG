@@ -17,6 +17,7 @@ calculate_bes <- function(params) {
 
   # Apply Fuel Quality Penalties (High Ash -> Higher Cost)
   params <- adjust_costs_for_fuel(params)
+  params$ff_c_intensity <- displaced_grid_ci(params) # MEF(P): displaced grid intensity at this carbon price
 
   with(params, {
     # 1. Energy Output

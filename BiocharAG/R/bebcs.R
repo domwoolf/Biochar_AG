@@ -5,6 +5,7 @@
 #' @export
 calculate_bebcs <- function(params) {
   soil_temp <- if (!is.null(params$soil_temp)) params$soil_temp else 14.9
+  params$ff_c_intensity <- displaced_grid_ci(params) # MEF(P): displaced grid intensity at this carbon price
 
   with(params, {
     bebcs_energy_mode <- if (!is.null(params$bebcs_energy_mode)) params$bebcs_energy_mode else "power"
@@ -22,7 +23,9 @@ calculate_bebcs <- function(params) {
       # Heat mode
       eff <- if (!is.null(params$bebcs_heat_efficiency)) params$bebcs_heat_efficiency else 0.80
       price <- if (!is.null(params$heat_price)) params$heat_price else 30
-      c_intensity <- if (!is.null(params$heat_c_intensity)) params$heat_c_intensity else 0.08
+      # Heat displaces the same price-dependent intensity as electricity: over time, fossil heating is
+      # replaced by decarbonised electric heating (tCO2/GJ heat)
+      c_intensity <- if (!is.null(params$ff_c_intensity)) params$ff_c_intensity else (12 / 3600)
       base_energy_capex <- if (!is.null(params$bebcs_heat_capital_cost)) params$bebcs_heat_capital_cost else 400
       life <- if (!is.null(params$bebcs_heat_life)) params$bebcs_heat_life else 25
       om_fac <- plant_om_fraction(params, "bebcs_heat_om_factor")

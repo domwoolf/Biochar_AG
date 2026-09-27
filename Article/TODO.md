@@ -18,10 +18,27 @@ Open, with owner:
    - **Result with default parameters** (O&M and soil GHG penalty changes combined). Biomass in profitable cells: $50/t: US 0%, Europe 0.1%, China 48.9%, India 49.3%; $150/t: US 82.4%, Europe 79.9%, China 57.2%, India 70.1%. Europe's best BES cell is −$13.5/Mg at $0/t and +$6.3/Mg at $50/t. BES is still rarely profitable at low carbon prices; CHP heat revenue is not modelled.
    - `Article/parameters_table.csv` still listed old O&M values but is not used by the manuscript (the parameter table is built from `inst/extdata/parameters.csv`). `parameters_table.csv` deleted as no longer needed.
 2. **Residue soil GHG penalty (done, 27 September 2026).** The SOC-only penalty (0.19 Mg CO2e/Mg feed) is replaced by a net soil GHG penalty, `residue_soil_ghg_penalty`, which defaults to 0 and is not sampled in the Monte Carlo. The basis is McClelland et al. (2025): the SOC gain and N2O increase from residue retention approximately cancel through 2100 almost everywhere except the Brazilian Cerrado. The former `residue_c_retention` formulation is recorded in the parameter note for sensitivity runs. The per-cell SOC/NPP equation is no longer needed. Avoided burning emissions are still credited. Diversion of residues from livestock feed (especially India) is handled qualitatively in a new manuscript subsection (Competing Uses of Crop Residues), which carries a TODO to confirm whether the Karan et al. (2023) supply already excludes fodder use.
-3. **Grid displacement intensity (user).** Find the records and reference for the `ff_c_intensity` layers (see item in section 2).
+3. **Grid displacement intensity: price-dependent MEF(P) (implemented, 27 September 2026).** `displaced_grid_ci()` (R/grid_intensity.R) scales each cell's empirical build margin with a regional Hill curve fitted to NGFS Phase 5 V5.1 (`data-raw/ngfs_mef_fit.py`). MEF_cell(P) = floor + (MCI_cell − floor) · H(P)/H(P_now); floor 0.02 t/MWh; capped at coal. It is the default for electricity and BEBCS heat. `use_flat_ci` is kept as a control option (not in sensitivity or MC). The MC samples `mef_draw_u` over 1,000 precomputed bootstrap draws. Full calibration record: `data-raw/MEF(P) calibration note.md`.
+   - **Fit:**
+     - Fleet-average shape (option C), GCAM + MESSAGE.
+     - Single-stage for USA (P50 95, k 1.8), China (53, 1.2) and India (41, 1.2); two-stage for the EU (64 and 138).
+     - All acceptance checks pass. MESSAGE region substitutes signed off.
+   - **Effect (default parameters, static → MEF):**
+     - US biomass in profitable cells at $150/t falls from 82% to 50%.
+     - India at $50/t: 49% → 34%, with BES → BEBCS.
+     - Europe barely changes (anchor already ≈ 0.04 t/MWh).
+     - BEBCS gains share at $100–200/t in every region.
+   - **Anchors:** recomputed with biomass = 0 (99 of 278 values fell slightly). The Methods text was corrected (the window is 2019–2024, not 2018–2023; values updated).
+   - **Open, to check:**
+     - (a) **P_now values** (explicit prices EU 80, China 12, US 0, India 0 $/t); consider an implicit-price sensitivity (REMIND implicit US ≈ 46, EU ≈ 58).
+     - (b) REMIND exclusion: **signed off 27 Sep 2026** (fails RMSE and model agreement; all-model draws kept, `mef_include_remind`).
+     - (c) **Low Demand scenario kept:** to reconfirm.
+     - (d) **Currency audit to 2024 USD** of all cost parameters (e.g. `bm_transport_var` 0.19 is 2026 USD, EIA costs 2022 USD).
+     - (e) **The source and records for the empirical build-margin method** (user).
+     - (f) **NGFS citation year** (`ngfs2026`) to verify.
 4. **Regional haulage level.** Implied collection speeds (US 56, Europe 45, India 30, China 26 km/h at 125 MWth) versus `haulage_location_factor` from long-haul freight rates (see section 2).
 5. **Remaining handoff items:** 7 (calibrate modelled corridors against existing pipelines) and 8 (update the manuscript Methods for v2 routing, the hub-and-spoke model, lift cost and sink/port/landfall choice).
-6. **Full re-run** of MC, SHAP and figures once item 3 is settled.
+6. **Full re-run** of MC, SHAP and figures: MEF(P) is now implemented; pending the checks in item 3 and the currency audit.
 
 ## 1. CO2 transport routing
 
@@ -118,7 +135,7 @@ In the model (`calculate_ccs_transport()`):
 - **Residue burning shares:** `residue_burn_fraction` for the US (0.02) and China (0.10) are estimates; India (0.16) is from Jain et al. (2014), and the EU (0.01) reflects the burning ban. Black carbon from burning is not counted.
 - **Biochar logistics costs:** biochar is returned to fields as a backhaul in the feedstock trucks, charged loading and handling only (`bc_return_haul`; about $1.5–2/Mg feed). Field application of biochar (`bc_field_cost` in nets1.xlsm) is still not costed.
 - **Ash return haulage: not included.** Back-of-envelope with default parameters: as a backhaul in the returning feedstock trucks (handling only), ash costs 0.2–0.8% of BES total cost per Mg feed (US 0.25, Europe 0.25, China 0.56, India 0.49 $/Mg). As a dedicated haul it would be 0.5–1.4%, exceeding 1% only in China (15% ash). Below the 1% threshold as a backhaul, so omitted. Ash spreading is also not costed.
-- **Grid displacement intensity (`ff_c_intensity`): confirm the source (user to check).** Europe's layer has a median of 0.0113 t CO2/GJ (about 40 g CO2/kWh; p5–p95 about 14–280 g/kWh). BES displaced emissions are therefore only about 0.06 t CO2e/Mg feed. With the former SOC penalty (0.19) this made BES net abatement in Europe negative; with the soil GHG penalty now zero it is small but positive. The manuscript (Grid Displacement, Scenario A) describes a growth-weighted mix of sources expanding over 2018–2023 (Ember, EIA, Eurostat) with IPCC lifecycle intensities, built by `data-raw/generate_marginal_ci.R`. The user recalls the estimates coming from IAM ensemble runs. Reconcile the method and data source, and add the reference.
+- **Grid displacement intensity:** superseded by MEF(P); see Status item 3.
 - **Haulage terrain factors (done, September 2026).** `data-raw/generate_logistics_layers.R` routes every field-to-plant trip on the Weiss et al. (2020) motorised friction surface and gives per-size time (`kt`), road-distance (`kd`) and climb-fuel (`g`) factors, each normalised to a regional biomass-weighted mean of 1. Variable trucking cost is split into time (64%), fuel (24%) and other distance costs (12%) after ATRI (2024); the Methods (Biomass Transport Costs and Emissions) describe this.
   - Effect with default parameters (flat 0.15 rate and no biochar charge → Searcy rate, terrain factors and biochar backhaul): feedstock haulage costs the same per Mg for all technologies, so the rate and terrain factors change no rankings. They change viability: BES net value moves −$4 to −$10/Mg (p5) with a median of −$0.3 to −$1.4/Mg. The biochar handling charge moves 0–3% of cells from BEBCS to BES or BECCS. The share of biomass in profitable cells falls by up to 4.6 points (Europe at $150/t: 39.7% → 35.1%; China at $50/t: 43.8% → 41.7%; India at $50/t: 37.0% → 35.5%).
   - **Open: regional level of haulage cost.** Implied average collection speeds at 125 MWth are 56 km/h (US), 45 (Europe), 30 (India) and 26 (China). `haulage_location_factor` (China 0.75, India 0.65) comes from long-haul truckload rates, which may understate rural collection costs where speeds are half the US level. Consider deriving the regional level from the friction-surface speeds combined with regional wage and fuel costs.

@@ -45,6 +45,7 @@ calculate_beccs <- function(params) {
   if (is.null(params$bes_capex_ref_eff)) params$bes_capex_ref_eff <- 0.30
   if (is.null(params$beccs_capex_premium)) params$beccs_capex_premium <- 0.40
   params <- adjust_costs_for_fuel(params)
+  params$ff_c_intensity <- displaced_grid_ci(params) # MEF(P): displaced grid intensity at this carbon price
 
   with(params, {
     # 1. Energy Output

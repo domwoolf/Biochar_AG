@@ -232,7 +232,11 @@ run_scenario <- function(template, layers, params, vec = NULL) {
     if ("soil_ph" %in% names(spatial_layers)) p[["soil_ph"]] <- spatial_layers[["soil_ph", exact = TRUE]]
     if ("soil_cec" %in% names(spatial_layers)) p[["soil_cec"]] <- spatial_layers[["soil_cec", exact = TRUE]]
     for (nm in intersect(transport_layer_names(), names(spatial_layers))) p[[nm]] <- spatial_layers[[nm, exact = TRUE]]
-    if ("ff_c_intensity" %in% names(spatial_layers)) p[["ff_c_intensity"]] <- spatial_layers[["ff_c_intensity", exact = TRUE]]
+    if (isTRUE(as.logical(p[["use_flat_ci", exact = TRUE]]))) {
+      p[["ff_c_intensity"]] <- if (!is.null(p[["flat_ci_tCO2_GJ", exact = TRUE]])) p[["flat_ci_tCO2_GJ", exact = TRUE]] else 12 / 3600
+    } else if ("ff_c_intensity" %in% names(spatial_layers)) {
+      p[["ff_c_intensity"]] <- spatial_layers[["ff_c_intensity", exact = TRUE]]
+    }
 
     for (layer_name in c("cn_weather_risk", "cn_expansion_risk", "eu_base_eur", "us_base_cost")) {
       if (layer_name %in% names(spatial_layers)) p[[layer_name]] <- spatial_layers[[layer_name, exact = TRUE]]

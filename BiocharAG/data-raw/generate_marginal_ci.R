@@ -88,11 +88,14 @@ df_melt <- df_melt %>%
 # ------------------------------------------------------------------------------
 # 4. Filter and Aggregate by Year
 # ------------------------------------------------------------------------------
-# IPCC default values of lifecycle carbon intensity by generation type (gCO2eq / kWh)
+# IPCC default values of lifecycle carbon intensity by generation type (gCO2eq / kWh).
+# Biomass is set to 0 (IPCC: 230): bioenergy emissions are accounted for explicitly in the TEA, and the
+# NGFS-calibrated MEF(P) curve (ngfs_mef_fit.py) uses the same convention, so the anchor and the curve
+# shape share one basis. Growing biomass generation still counts in the build-margin denominator.
 ipcc_ci <- c(
   coal = 820,
   gas = 490,
-  biofuels = 230,
+  biofuels = 0,
   geothermal = 38,
   hydro = 24,
   nuclear = 12,

@@ -15,3 +15,7 @@ results/
 .Rhistory
 .RData
 .Ruserdata
+
+# Large downloaded source archives (checksums in GIS/raw/ngfs/checksums.sha256)
+Resources/*.zip
+__pycache__/

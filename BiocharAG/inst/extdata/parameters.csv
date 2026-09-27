@@ -59,7 +59,9 @@ beccs_available,Is BECCS available,logical,TRUE,none,,,,,Control Flags,control_f
 early_adoption,BECCS early adoption scenario,logical,FALSE,none,,,,,Control Flags,control_flag,FALSE,FALSE,FALSE,FALSE
 optimize_scale,Optimize plant scale,logical,FALSE,none,,,,,Control Flags,control_flag,FALSE,FALSE,FALSE,FALSE
 sink_is_offshore,Is the CO2 sink offshore?,logical,FALSE,none,,,,,Control Flags,control_flag,FALSE,FALSE,FALSE,FALSE
-use_flat_ci,Use flat carbon intensity,logical,FALSE,none,,,,,Control Flags,control_flag,FALSE,FALSE,FALSE,FALSE
+use_flat_ci,"Use a flat displaced carbon intensity (flat_ci_tCO2_GJ; e.g. nuclear, 12 g/kWh) instead of the price-dependent MEF(P)",logical,FALSE,none,,,,Control option only; not used in sensitivity or MC.,Control Flags,control_flag,FALSE,FALSE,FALSE,FALSE
+mef_price_dependent,Scale each cell's empirical build margin with the NGFS-fitted MEF(P) curve at the scenario carbon price,logical,TRUE,none,,,,FALSE = static empirical build margin (pre-MEF behaviour).,Control Flags,control_flag,TRUE,TRUE,TRUE,TRUE
+mef_include_remind,Use the MEF(P) fit that includes REMIND-MAgPIE,logical,FALSE,none,,,,"Default excludes REMIND: its decline is driven by time rather than price, failing the fit-quality and model-agreement checks.",Control Flags,control_flag,FALSE,FALSE,FALSE,FALSE
 bm_ash,Biomass ash mass fraction,fraction,0.05,pert,0.6,1.6,relative,Medium Priority. Varies by regional feedstock.,Feedstock & Logistics,parameter,0.05,0.05,0.15,0.15
 bm_c,Biomass carbon mass fraction,fraction,0.48,pert,0.92,1.04,relative,,Feedstock & Logistics,parameter,0.48,0.48,0.48,0.48
 residue_soil_ghg_penalty,Net soil GHG penalty of removing residues (forgone SOC minus avoided soil N2O),Mg CO2e / Mg feed,0,none,,,,"Default 0: McClelland et al. (2025) find the SOC gain and N2O increase from residue retention approximately cancel through 2100 in all regions studied except the Brazilian Cerrado. For sensitivity, a SOC-only penalty (no N2O offset) is bm_c x 0.11 x 44/12 = 0.19 (formerly residue_c_retention = 0.11).",Feedstock & Logistics,parameter,0,0,0,0
@@ -85,7 +87,10 @@ plant_om_factor,"Annual O&M (fixed + variable) as a fraction of total CAPEX, for
 om_location_factor,Regional multiplier on the O&M-to-CAPEX fraction (labour cost relative to equipment),ratio,1,none,,,,"plant_om_factor is quoted for US/EU plants, so US and Europe = 1. China and India reflect lower labour cost relative to equipment.",Financial & Market,parameter,1,1,0.67,0.56
 haulage_location_factor,Regional multiplier on biomass haulage costs,ratio,1,none,,,,Relative road-freight costs; India ~0.047 USD/t-km vs ~0.07 USD/t-km for US/EU truckload.,Financial & Market,parameter,1,1,0.75,0.65
 elec_price,Wholesale electricity price,$/MWh,100,pert,0.7,1.5,relative,,Financial & Market,parameter,,,,
-ff_c_intensity,Displaced grid carbon intensity,tCO2eq/GJ,0.00333333333333333,pert,0.8,1.2,relative,,Spatial & Environmental,parameter,,,,
+ff_c_intensity,"Displaced grid carbon intensity at today's effective carbon price (empirical build margin, IPCC life-cycle, biomass = 0)",tCO2eq/GJ,0.00333333333333333,pert,0.8,1.2,relative,Spatial layer (generate_marginal_ci.R); scaled by MEF(P) at the scenario carbon price.,Spatial & Environmental,parameter,,,,
+grid_p_now,Current effective carbon price at which the empirical build margin applies (MEF(P) anchor),$/tCO2 (2024 USD),0,none,,,,"Explicit prices only, TO CHECK (see Article/TODO.md): EU ETS ~80; China national ETS ~12; no national price in the US or India.",Spatial & Environmental,parameter,0,80,12,0
+mef_floor,Residual life-cycle intensity of a decarbonised grid (MEF(P) floor),tCO2/MWh,0.02,none,,,,"Pehl et al. (2017): 2050 life-cycle emissions of nuclear, wind and solar 3.5-12 g/kWh; fossil CCS 78-110 g/kWh.",Spatial & Environmental,parameter,0.02,0.02,0.02,0.02
+mef_draw_u,Selects a bootstrap draw of the MEF(P) curve (0 = central fit),fraction,0,uniform,0,1,absolute,"Monte Carlo: uniform on (0, 1] picks one of 1,000 precomputed bootstrap draws (inst/extdata/mef_shape_draws.csv).",Spatial & Environmental,parameter,0,0,0,0
 flat_ci_tCO2_GJ,Flat carbon intensity value,tCO2eq/GJ,0.00333333333333333,none,,,,,Spatial & Environmental,parameter,0.00333333333333333,0.00333333333333333,0.00333333333333333,0.00333333333333333
 plant_sizes_mw_th,Available plant sizes,MWth,"5,25,50,100,250,500",none,,,,,Financial & Market,parameter,"5,25,50,100,250,500","5,25,50,100,250,500","5,25,50,100,250,500","5,25,50,100,250,500"
 rebound,Rebound effect,fraction,0,none,,,,,Financial & Market,parameter,0,0,0,0
