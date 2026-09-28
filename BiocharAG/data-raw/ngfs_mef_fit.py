@@ -133,7 +133,9 @@ CONFIG = {
     "deflators": {2010: 1.44, 2015: 1.32, 2017: 1.28, 2020: 1.21, 2024: 1.00},
 
     # ---- filters ----
-    "model_exclude": r"(?i)damage",   # NGFS variants with physical-damage feedbacks
+    # Physical-damage variants duplicate scenarios; REMIND excluded from the central fit (time and price
+    # confounded; study lead sign-off 27 Sep 2026). Use --model-exclude "(?i)damage" to include REMIND.
+    "model_exclude": r"(?i)damage|REMIND",
     "scenario_exclude": None,         # e.g. r"(?i)low demand"
 
     # ---- regions: regex on the LAST '|'-segment of the region name ----
@@ -147,13 +149,10 @@ CONFIG = {
     "region_exclude": r"(?i)excl|rest of|other|world",
     # Explicit mapping where regex fails: {region_key: {model_regex: [region names]}}
     "region_overrides": {
-        # MESSAGEix-GLOBIOM R12 has no USA, India or EU region: substitutes (recorded in the run log,
-        # sign-off pending). Only the normalised curve shape is transferred, and these regions are
-        # dominated by the target (India ~3/4 of South Asian generation; USA ~85% of North America).
-        "USA":   {r"MESSAGE": ["MESSAGEix-GLOBIOM 2.0-R12|North America"]},
-        "India": {r"MESSAGE": ["MESSAGEix-GLOBIOM 2.0-R12|South Asia"]},
-        "EU":    {r"MESSAGE": ["MESSAGEix-GLOBIOM 2.0-R12|Western Europe",
-                               "MESSAGEix-GLOBIOM 2.0-R12|Eastern Europe"]},
+        # Revision 2 (28 Sep 2026): MESSAGE uses the NGFS downscaled country data for USA, IND and EU27
+        # (built by mef_prepare_inputs.py), so the R12 substitutes (North America, South Asia, Western +
+        # Eastern Europe) are no longer needed. For the native IAM file, re-add them here, e.g.
+        # "USA": {r"MESSAGE": ["MESSAGEix-GLOBIOM 2.0-R12|North America"]},
     },
 
     # ---- YOUR empirical anchors (same currency year and EF basis!) ----

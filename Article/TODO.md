@@ -36,6 +36,25 @@ Open, with owner:
      - (d) **Currency audit to 2024 USD** of all cost parameters (e.g. `bm_transport_var` 0.19 is 2026 USD, EIA costs 2022 USD).
      - (e) **The source and records for the empirical build-margin method** (user).
      - (f) **NGFS citation year** (`ngfs2026`) to verify.
+3b. **MEF(P) revision 2 (done, 28 September 2026): what changed, and how to revert.** The baseline is commit `aaddc48` (NGFS fit with native MESSAGE R12 substitutes).
+   - **Central curves and MC spread: NGFS only** (GCAM + MESSAGE; REMIND excluded, now the CONFIG default).
+   - **MESSAGE uses the NGFS downscaled country data** for the USA, India and the EU-27 (`data-raw/mef_prepare_inputs.py`) instead of the R12 substitutes. China keeps the native region. The downscaled file has no CCS split, so the parent R12 region's CCS shares are applied (effect: USA P50 −5%, India −1%). It covers 2020–2050, giving 7 steps per scenario; there is no power-sector CO2, so the emissions check does not apply.
+   - **Refitted central curves:**
+     - USA P50 95 → 103 (k 1.78)
+     - India 41 → 44 (k 1.25)
+     - EU two-stage 64/138 → 45/138 (k1 0.96, k2 6.85, s 0.30)
+     - China unchanged (53, k 1.19)
+     - All checks pass (RMSE 0.13–0.14; GCAM/MESSAGE within a factor of 2).
+   - **MC draws:** the 1,000-draw NGFS bootstrap from the same fit (as before, no re-centring).
+   - **AR6 not used:** a pooled NGFS + AR6 spread (re-centred on NGFS) was tried and dropped. Its bootstrap narrowed rather than widened the bands, and using it would have required a post-hoc harmonisation. The script is in `bak/mef_spread_ar6.py`; the AR6 cache is in `GIS/raw/ar6/`.
+   - **Files changed:**
+     - `inst/extdata/mef_shape_draws*.csv`
+     - `data-raw/ngfs_mef_fit.py` (region overrides removed, REMIND excluded by default)
+     - new `data-raw/mef_prepare_inputs.py`
+     - calibration note
+     - Methods
+   - **To revert:** `git checkout aaddc48 -- BiocharAG/inst/extdata/mef_shape_draws.csv BiocharAG/inst/extdata/mef_shape_draws_all_models.csv`. The R code is unchanged.
+
 4. **Regional haulage level.** Implied collection speeds (US 56, Europe 45, India 30, China 26 km/h at 125 MWth) versus `haulage_location_factor` from long-haul freight rates (see section 2).
 5. **Remaining handoff items:** 7 (calibrate modelled corridors against existing pipelines) and 8 (update the manuscript Methods for v2 routing, the hub-and-spoke model, lift cost and sink/port/landfall choice).
 6. **Full re-run** of MC, SHAP and figures: MEF(P) is now implemented; pending the checks in item 3 and the currency audit.

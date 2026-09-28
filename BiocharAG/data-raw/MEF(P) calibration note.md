@@ -109,3 +109,23 @@ These use 60 draws each; full table in `GIS/raw/ngfs/sens/sensitivity_summary.cs
 3. **Price timing:** mid-period (current; the brief's default) or end-of-period (+20% P50). Recommended: keep mid.
 4. **Low Demand scenario:** kept (to reconfirm).
 5. **Anchor versus shape quantity:** the anchor is the empirical build margin and the shape is the fleet average, a deliberate mismatch documented in the Methods.
+
+## Revision 2 (28 Sep 2026): downscaled MESSAGE regions
+
+- **What changed:** MESSAGE's USA, India and EU fits now use the NGFS downscaled country data (`Downscaled_MESSAGEix-GLOBIOM 2.0-M-R12-NGFS_data.xlsx`: USA, IND, and the sum of the EU-27 member states) in place of the R12 substitutes. China keeps the native R12 region. Inputs are built by `mef_prepare_inputs.py`; the fit runs `ngfs_mef_fit.py --file ngfs_central_input.parquet`.
+- **Data limits of the downscaled file:**
+  - Generation is reported to 2050 only (7 five-year steps).
+  - There is no CCS split: coal and gas are divided using the parent R12 region's CCS shares by scenario and year (effect on P50: USA −5%, India −1%; without the split the EU fit becomes single-stage at P50 92).
+  - There is no power-sector CO2, so the emissions reconstruction check does not apply to these rows. Coverage is 1.00.
+  - The EU-27 carbon price is the generation-weighted mean of member-state prices.
+- **Config:** `region_overrides` removed; `model_exclude` defaults to `(?i)damage|REMIND` (REMIND exclusion signed off 27 Sep 2026).
+- **Final central curves** (GCAM + MESSAGE, 1,000 bootstrap draws; `GIS/raw/ngfs/final_v2/`; with REMIND: `final_v2_all/`):
+
+  | Region | Spec | Parameters | RMSE | Per-model P50 (GCAM / MESSAGE) |
+  |---|---|---|---|---|
+  | USA | one | P50 103.2, k 1.78 | 0.137 | 61 / 116 |
+  | EU | two | P50_1 45.4, k1 0.95; P50_2 137.8, k2 6.85; s 0.30 | 0.136 | 52 / 100 (single-stage) |
+  | China | one | P50 53.4, k 1.19 | 0.140 | 81 / 42 |
+  | India | one | P50 43.7, k 1.25 | 0.129 | 52 / 36 |
+
+- **MC spread:** the NGFS bootstrap from this fit (`mef_shape_draws.csv`, draws 1–1000). A pooled NGFS + IPCC AR6 R10 spread, re-centred on the NGFS central curves, was tried and dropped. Its bootstrap of the pooled fit reflects uncertainty in the ensemble mean, which narrowed the bands. The alternative, inter-model spread, would have required a post-hoc harmonisation. See `bak/mef_spread_ar6.py`.
