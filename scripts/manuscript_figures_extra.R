@@ -49,14 +49,8 @@ ggsave_with_scenario <- function(filename, plot, width, height, bg = "white", dp
   ggplot2::ggsave(filename = filename, plot = plot, width = width, height = height, bg = bg, dpi = dpi)
 }
 
-# Linear interpolation for fast sweeps
-# Net_Value(C) = Net_Value(0) + C * Abatement
-get_linear_baseline <- function(template, layers, base_params, vec = NULL) {
-  p0 <- base_params
-  p0[["c_price"]] <- 0
-  res0 <- run_scenario(template, layers, p0, vec = vec)
-  res0 # Returns net at C=0, and abatement
-}
+# Carbon-price sweeps use run_price_sweep(): net value is N0 + C * A(C), with the abatement A(C)
+# price-dependent through MEF(P), so a linear extrapolation from C = 0 is not valid.
 
 # --- FIGURE GENERATORS ---
 
@@ -65,7 +59,6 @@ generate_fig1_phys_boundary <- function(dat, region_name, save_map = FALSE,
                                         scenario = "default") {
   params <- set_scenario(scenarios[[scenario]], region = region_name)
   message("Generating Figure 1: Physical Boundary for ", region_name, "...")
-    params <- set_scenario(scenarios[[scenario]], region = r)
   params$region <- region_name
   res <- run_scenario(dat[["template", exact = TRUE]], dat[["layers", exact = TRUE]], params, vec = dat[["vec", exact = TRUE]])
 
@@ -124,7 +117,6 @@ generate_fig2_booster_penalty <- function(dat, region_name, save_map = FALSE,
                                           scenario = "default") {
   params <- set_scenario(scenarios[[scenario]], region = region_name)
   message("Generating Figure 2: Booster Penalty CDF for ", region_name, "...")
-    params <- set_scenario(scenarios[[scenario]], region = r)
   params$region <- region_name
 
   res <- run_scenario(dat[["template", exact = TRUE]], dat[["layers", exact = TRUE]], params, vec = dat[["vec", exact = TRUE]])
@@ -199,7 +191,6 @@ generate_fig3_evaporation <- function(
   metric <- match.arg(metric)
   params <- set_scenario(scenarios[[scenario]], region = region_name)
   message("Generating Figure 3: Evaporation Maps for ", region_name, " (Metric: ", metric, ")...")
-    params <- set_scenario(scenarios[[scenario]], region = r)
   params$region <- region_name
   all_df <- data.frame()
   for (cp in c_prices) {
@@ -350,7 +341,6 @@ generate_fig4_capital_wedge <- function(dat, region_name, save_map = FALSE,
   # We loop over discount rates. C price fixed.
   dr_seq <- seq(0, 0.20, by = 0.02)
   results <- list()
-    params <- set_scenario(scenarios[[scenario]], region = r)
   params$region <- region_name
   for (dr in dr_seq) {
     message("  Calculating DR: ", dr * 100, "%")
@@ -422,36 +412,21 @@ generate_fig5_cprice_threshold <- function(dat, region_name, save_map = FALSE,
     region_name, "..."
   )
 
-  # Get base NPV (at C=0) and Abatement using linear baseline
-    params <- set_scenario(scenarios[[scenario]], region = r)
   params$region <- region_name
-  base_res <- get_linear_baseline(dat[["template", exact = TRUE]], dat[["layers", exact = TRUE]], params, vec = dat[["vec", exact = TRUE]])
+  sweep <- run_price_sweep(dat[["template", exact = TRUE]], dat[["layers", exact = TRUE]], params, vec = dat[["vec", exact = TRUE]])
 
-  npv0 <- base_res$net
-  abate <- base_res$abate
-
-  # Calculate break-even prices
-  # P = (NPV0_Base - NPV0_Target) / (Abate_Target - Abate_Base)
-  # Threshold to leave BES: minimum C price where BECCS or BEBCS beats BES.
-
-  # To BEBCS
-  num_bebcs <- npv0[["BES"]] - npv0[["BEBCS"]]
-  den_bebcs <- abate[["BEBCS"]] - abate[["BES"]]
-  p_bebcs <- num_bebcs / den_bebcs
-  p_bebcs[den_bebcs <= 0] <- Inf # If abatement isn't higher, it won't win
-  # If it's negative, it already wins at $0 (unlikely for CDR vs BES)
-  p_bebcs[p_bebcs < 0] <- Inf
-
-  # To BECCS
-  num_beccs <- npv0[["BES"]] - npv0[["BECCS"]]
-  den_beccs <- abate[["BECCS"]] - abate[["BES"]]
-  p_beccs <- num_beccs / den_beccs
-  p_beccs[den_beccs <= 0] <- Inf
-  p_beccs[p_beccs < 0] <- Inf
-
-  # Min Threshold to leave BES
-  min_p <- min(c(p_bebcs, p_beccs), na.rm = TRUE)
-  min_p[min_p > 500] <- NA # Cap for plotting
+  # Threshold to leave BES: minimum C price where BECCS or BEBCS beats BES, i.e. where the difference
+  # (N0_target - N0_BES) + C * (A_target(C) - A_BES(C)) turns positive. Inf where the target never wins
+  # or already wins at C = 0.
+  switch_price <- function(j) {
+    p <- price_root(sweep$n0[, j] - sweep$n0[, 1],
+      function(cp) { a <- sweep_abate(sweep, cp); a[, j] - a[, 1] }, sweep$prices)
+    p[is.na(p) | p < 0] <- Inf
+    p
+  }
+  p_min <- pmin(switch_price(2), switch_price(3))
+  p_min[p_min > 500] <- NA # Cap for plotting
+  min_p <- sweep_to_raster(sweep, p_min, "threshold")
 
   if (!is.null(dat$admin0)) {
     min_p <- terra::mask(min_p, terra::vect(dat$admin0))
@@ -523,49 +498,27 @@ generate_fig6_macc <- function(save_map = FALSE, scenario = "default") {
 
   for (r in regions_ordered) {
     dat <- load_region_data(r)
-    cell_area <- terra::cellSize(dat$template, unit = "km")
-
     params <- set_scenario(scenarios[[scenario]], region = r)
     params$region <- r
-    base_res <- get_linear_baseline(dat[["template", exact = TRUE]], dat[["layers", exact = TRUE]], params, vec = dat[["vec", exact = TRUE]])
+    sweep <- run_price_sweep(dat[["template", exact = TRUE]], dat[["layers", exact = TRUE]], params, vec = dat[["vec", exact = TRUE]])
 
-    npv0 <- base_res$net
-    abate <- base_res$abate
-
-    stack_df <- terra::as.data.frame(
-      c(dat$layers$biomass_density, cell_area, npv0, abate),
-      xy = TRUE,
-      na.rm = TRUE
-    )
-    names(stack_df)[3:10] <- c(
-      "biomass", "area", "NPV0_BES", "NPV0_BECCS", "NPV0_BEBCS",
-      "A_BES", "A_BECCS", "A_BEBCS"
-    )
-
-    stack_df$cell_bm <- stack_df$biomass * stack_df$area
+    # Cells with results for all three technologies
+    keep <- stats::complete.cases(sweep$n0, sweep$abate[, , 1])
+    cell_area_vec <- dat$vec$cell_area[keep]
+    cell_bm_vec <- dat$vec$layers$biomass_density[keep] * cell_area_vec
 
     c_prices <- seq(-50, 250, by = 1)
     results <- list()
 
-    npv0_bes <- stack_df$NPV0_BES
-    npv0_beccs <- stack_df$NPV0_BECCS
-    npv0_bebcs <- stack_df$NPV0_BEBCS
-
-    a_bes <- stack_df$A_BES
-    a_beccs <- stack_df$A_BECCS
-    a_bebcs <- stack_df$A_BEBCS
-
-    total_a_bes <- a_bes * stack_df$cell_bm
-    total_a_beccs <- a_beccs * stack_df$cell_bm
-    total_a_bebcs <- a_bebcs * stack_df$cell_bm
-
-    cell_area_vec <- stack_df$area
-    cell_bm_vec <- stack_df$cell_bm
-
     for (cp in c_prices) {
-      val_bes <- npv0_bes + cp * a_bes
-      val_beccs <- npv0_beccs + cp * a_beccs
-      val_bebcs <- npv0_bebcs + cp * a_bebcs
+      a_cp <- sweep_abate(sweep, cp)[keep, , drop = FALSE]
+      val <- sweep$n0[keep, , drop = FALSE] + cp * a_cp
+      val_bes <- val[, 1]
+      val_beccs <- val[, 2]
+      val_bebcs <- val[, 3]
+      total_a_bes <- a_cp[, 1] * cell_bm_vec
+      total_a_beccs <- a_cp[, 2] * cell_bm_vec
+      total_a_bebcs <- a_cp[, 3] * cell_bm_vec
 
       max_val <- pmax(val_bes, val_beccs, val_bebcs, na.rm = TRUE)
       adopted <- !is.na(max_val) & (max_val >= 0)
@@ -675,7 +628,6 @@ generate_fig7_agronomic_bridge <- function(dat, region_name, save_map = FALSE,
 
   # 1. With Ag Value
   params$c_price <- c_price
-    params <- set_scenario(scenarios[[scenario]], region = r)
   params$region <- region_name
   res_ag <- run_scenario(dat[["template", exact = TRUE]], dat[["layers", exact = TRUE]], params, vec = dat[["vec", exact = TRUE]])
 
@@ -794,30 +746,10 @@ generate_fig8_breakeven_cprice <- function(save_map = FALSE,
     params <- set_scenario(scenarios[[scenario]], region = r)
     params$region <- r
 
-    # Get baseline NPV(0) and Abatement
-    base_res <- get_linear_baseline(dat[["template", exact = TRUE]], dat[["layers", exact = TRUE]], params, vec = dat[["vec", exact = TRUE]])
-
-    bes_npv <- base_res$net[["BES"]]
-    beccs_npv <- base_res$net[["BECCS"]]
-    bebcs_npv <- base_res$net[["BEBCS"]]
-
-    bes_abt <- base_res$abate[["BES"]]
-    beccs_abt <- base_res$abate[["BECCS"]]
-    bebcs_abt <- base_res$abate[["BEBCS"]]
-
-    calc_breakeven <- function(npv, abt) {
-      c_req <- -npv / abt
-      # Pixels physically impossible or strictly unprofitable
-      c_req <- terra::ifel(abt <= 0, NA, c_req)
-      return(c_req)
-    }
-
-    bes_c <- calc_breakeven(bes_npv, bes_abt)
-    beccs_c <- calc_breakeven(beccs_npv, beccs_abt)
-    bebcs_c <- calc_breakeven(bebcs_npv, bebcs_abt)
-
-    c_stack <- c(bes_c, beccs_c, bebcs_c)
-    names(c_stack) <- c("BES", "BECCS", "BEBCS")
+    # Break-even price per cell: where N0 + C * A(C) turns positive, from a carbon-price sweep
+    # (NA where a technology never breaks even)
+    sweep <- run_price_sweep(dat[["template", exact = TRUE]], dat[["layers", exact = TRUE]], params, vec = dat[["vec", exact = TRUE]])
+    c_stack <- sweep_to_raster(sweep, sweep_breakeven(sweep))
 
     # Find minimum break-even price across the 3 techs
     best_c <- min(c_stack, na.rm = TRUE)
@@ -1017,7 +949,6 @@ generate_fig9_optimal_scale_map <- function(dat, region_name, save_map = FALSE,
                                             scenario = "default") {
   params <- set_scenario(scenarios[[scenario]], region = region_name)
   message("Generating Figure 9: Optimal Scale Map for ", region_name, "...")
-    params <- set_scenario(scenarios[[scenario]], region = r)
   params$region <- region_name
 
   # Run for each tech with optimize_scale = TRUE

@@ -21,7 +21,7 @@ library(sf)
 }
 
 # 2) Factorial Analysis
-#    Executes a full factorial spatial TEA across 960 factorial scenarios
+#    Executes a full factorial spatial TEA across scenarios
 #    Evaluates technologies competitively
 #    Generates:
 #      "results/factorial_analysis_results.csv"

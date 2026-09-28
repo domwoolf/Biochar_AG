@@ -57,14 +57,8 @@ ggsave_with_scenario <- function(filename, plot, width, height, bg = "white", dp
   ggplot2::ggsave(filename = filename, plot = plot, width = width, height = height, bg = bg, dpi = dpi)
 }
 
-# Linear interpolation for fast sweeps
-# Net_Value(C) = Net_Value(0) + C * Abatement
-get_linear_baseline <- function(template, layers, base_params, vec = NULL) {
-  p0 <- base_params
-  p0[["c_price"]] <- 0
-  res0 <- run_scenario(template, layers, p0, vec = vec)
-  res0 # Returns net at C=0, and abatement
-}
+# Carbon-price sweeps use run_price_sweep(): net value is N0 + C * A(C), with the abatement A(C)
+# price-dependent through MEF(P), so a linear extrapolation from C = 0 is not valid.
 
 # --- FIGURE GENERATORS ---
 
@@ -253,49 +247,28 @@ generate_fig_macc <- function(save_map = FALSE, save_ai_data = FALSE, scenario =
 
   for (r in regions_ordered) {
     dat <- load_region_data(r)
-    cell_area <- terra::cellSize(dat$template, unit = "km")
 
     params <- set_scenario(scenarios[[scenario]], region = r)
     params$region <- r
-    base_res <- get_linear_baseline(dat[["template", exact = TRUE]], dat[["layers", exact = TRUE]], params, vec = dat[["vec", exact = TRUE]])
+    sweep <- run_price_sweep(dat[["template", exact = TRUE]], dat[["layers", exact = TRUE]], params, vec = dat[["vec", exact = TRUE]])
 
-    npv0 <- base_res$net
-    abate <- base_res$abate
-
-    stack_df <- terra::as.data.frame(
-      c(dat$layers$biomass_density, cell_area, npv0, abate),
-      xy = TRUE,
-      na.rm = TRUE
-    )
-    names(stack_df)[3:10] <- c(
-      "biomass", "area", "NPV0_BES", "NPV0_BECCS", "NPV0_BEBCS",
-      "A_BES", "A_BECCS", "A_BEBCS"
-    )
-
-    stack_df$cell_bm <- stack_df$biomass * stack_df$area
+    # Cells with results for all three technologies
+    keep <- stats::complete.cases(sweep$n0, sweep$abate[, , 1])
+    cell_area_vec <- dat$vec$cell_area[keep]
+    cell_bm_vec <- dat$vec$layers$biomass_density[keep] * cell_area_vec
 
     c_prices <- seq(-50, 250, by = 1)
     results <- list()
 
-    npv0_bes <- stack_df$NPV0_BES
-    npv0_beccs <- stack_df$NPV0_BECCS
-    npv0_bebcs <- stack_df$NPV0_BEBCS
-
-    a_bes <- stack_df$A_BES
-    a_beccs <- stack_df$A_BECCS
-    a_bebcs <- stack_df$A_BEBCS
-
-    total_a_bes <- a_bes * stack_df$cell_bm
-    total_a_beccs <- a_beccs * stack_df$cell_bm
-    total_a_bebcs <- a_bebcs * stack_df$cell_bm
-
-    cell_area_vec <- stack_df$area
-    cell_bm_vec <- stack_df$cell_bm
-
     for (cp in c_prices) {
-      val_bes <- npv0_bes + cp * a_bes
-      val_beccs <- npv0_beccs + cp * a_beccs
-      val_bebcs <- npv0_bebcs + cp * a_bebcs
+      a_cp <- sweep_abate(sweep, cp)[keep, , drop = FALSE]
+      val <- sweep$n0[keep, , drop = FALSE] + cp * a_cp
+      val_bes <- val[, 1]
+      val_beccs <- val[, 2]
+      val_bebcs <- val[, 3]
+      total_a_bes <- a_cp[, 1] * cell_bm_vec
+      total_a_beccs <- a_cp[, 2] * cell_bm_vec
+      total_a_bebcs <- a_cp[, 3] * cell_bm_vec
 
       max_val <- pmax(val_bes, val_beccs, val_bebcs, na.rm = TRUE)
       adopted <- !is.na(max_val) & (max_val >= 0)
@@ -430,30 +403,10 @@ generate_fig_breakeven_cprice <- function(save_map = FALSE,
     params <- set_scenario(scenarios[[scenario]], region = r)
     params$region <- r
 
-    # Get baseline NPV(0) and Abatement
-    base_res <- get_linear_baseline(dat[["template", exact = TRUE]], dat[["layers", exact = TRUE]], params, vec = dat[["vec", exact = TRUE]])
-
-    bes_npv <- base_res$net[["BES"]]
-    beccs_npv <- base_res$net[["BECCS"]]
-    bebcs_npv <- base_res$net[["BEBCS"]]
-
-    bes_abt <- base_res$abate[["BES"]]
-    beccs_abt <- base_res$abate[["BECCS"]]
-    bebcs_abt <- base_res$abate[["BEBCS"]]
-
-    calc_breakeven <- function(npv, abt) {
-      c_req <- -npv / abt
-      # Pixels physically impossible or strictly unprofitable
-      c_req <- terra::ifel(abt <= 0, NA, c_req)
-      return(c_req)
-    }
-
-    bes_c <- calc_breakeven(bes_npv, bes_abt)
-    beccs_c <- calc_breakeven(beccs_npv, beccs_abt)
-    bebcs_c <- calc_breakeven(bebcs_npv, bebcs_abt)
-
-    c_stack <- c(bes_c, beccs_c, bebcs_c)
-    names(c_stack) <- c("BES", "BECCS", "BEBCS")
+    # Break-even price per cell: where N0 + C * A(C) turns positive, from a carbon-price sweep
+    # (NA where a technology never breaks even)
+    sweep <- run_price_sweep(dat[["template", exact = TRUE]], dat[["layers", exact = TRUE]], params, vec = dat[["vec", exact = TRUE]])
+    c_stack <- sweep_to_raster(sweep, sweep_breakeven(sweep))
 
     # Minimum break-even price across the 3 techs. Note: the technology with the lowest break-even price is
     # not necessarily the one with the highest NPV at a given carbon price (see generate_fig_evaporation).

@@ -191,3 +191,96 @@ In the model (`calculate_ccs_transport()`):
 
     The Alberta Basin was not added: it lies outside the US routing grid, so routes would be snapped to the border. **Done (28 Sep 2026):** `co2_sinks` rebuilt; transport layers regenerated. Sink counts: US 9 onshore saline / 4 EOR / 1 offshore; Europe 4 / 1 / 8; China 2 / 5 / 4; India 2 / 3 / 2. Tests pass.
 
+# Open Manuscript issues
+## Methods
+
+Review of the Methods section by subsection (28 Sep 2026): consistency with the code, completeness, and citation support. Items marked **Done** were fixed in `BiomassTEA.qmd`. **Reference required** items give suggested sources where a good one is known.
+
+### Code issue found during the review
+
+- **M0. MACC and break-even figures assumed net value is linear in the carbon price (DONE 28 Sep 2026).** `get_linear_baseline()` computed Net(C) = Net(0) + C × Abatement(0), which overstates the grid-displacement credit at high prices now that abatement depends on C through MEF(P). **Fix applied:** new `BiocharAG/R/price_sweep.R`. Net value is exactly N0 + C·A(C), with N0 independent of C (checked to 1e-13), so `run_price_sweep()` runs the model at C = 0–250 by 5 and 275–500 by 25 $/t (about 10 s per region) and stores A. `sweep_abate()`/`sweep_net()` interpolate A linearly (exact below 0, where MEF is flat; A held at its 500 $/t value above the grid); interpolation error against direct runs is < 0.05 $/Mg within the grid. `sweep_breakeven()`/`price_root()` find the lowest price where net value turns non-negative. `get_linear_baseline()` removed from `scripts/manuscript_figures.R` and `scripts/manuscript_figures_extra.R`; the MACC, break-even and Fig. 5 (switch-away-from-BES threshold) now use the sweep, and the MACC abatement now uses A(C) rather than A(0). Tests in `tests_and_demos/testthat/test-price_sweep.R`. Methods text (Economic Evaluation) updated; it also now describes the MACC as the code builds it (highest-net-value technology per cell at each price) rather than a ranking by break-even price. Effect (default scenario): adopted abatement falls by 10–45% (e.g. China 1196 → 936 Mt/yr and India 783 → 582 Mt/yr at $100; US 46 → 11 Mt/yr at $100); median BES break-even rises sharply (e.g. China 71 → 393 $/t). Also deleted stray `params <- set_scenario(..., region = r)` lines in six single-region functions of `manuscript_figures_extra.R`, which referenced an undefined `r` and, in Fig. 7, discarded the `c_price` argument.
+
+### Model Architecture
+
+- **M1. Done: grid and CRS statement was wrong.** The text said all inputs were projected to equal-area CRSs at 0.1°. In fact all layers are WGS84 at 0.1° (US 0.2°), and equal-area projections are used only for the collection-distance focal sums. Corrected.
+- **M2. Done: "NPV" definition.** The model computes a levelized annual net value per Mg of dry, ash-free feed (the NPV annualized with the CRF), not a project NPV. Clarified; "NPV" is kept as shorthand.
+- **M3. Done: naming.** "Bioenergy (BE)" changed to BES, consistent with the rest of the text. The table caption said "BiocharAG framework"; it now says C-SCAPE, and the Methods state that BiocharAG is the R package implementing it.
+- **M4. Done: typo** ("assumptions,m").
+- **M5. Done: terra citation added** (`hijmans2025terra`).
+
+### Biomass Feedstock Sourcing and Logistics
+
+- **M6. Currency year of the haulage rate (open).** The text says 0.19 $/Mg/km is "escalated to 2026 USD", but the study now uses 2024 USD (≈ 0.18). Part of the pending currency audit; update text and parameter together.
+- **M7. Reference required: truck emission factor** (0.0001 t CO2e per t·km). Suggested: GLEC Framework v3 (Smart Freight Centre, 2023) default intensities for heavy trucks.
+- **M8. Reference required: fixed loading and handling cost** ($5/Mg); see the existing item under Other open items.
+- **M9. Regional feedstock pricing is not spatial, and may double-count haulage (open; needs discussion).**
+  - The Methods describe spatially explicit feedstock prices (US farm-gate plus nutrient replacement, EU NUTS-3 roadside costs, Chinese risk multipliers). But the spatial layers (`us_base_cost`, `eu_base_eur`, `cn_*_risk`) are neither loaded by `load_region_data()` nor present in `GIS/processed/`, so every region uses scalar defaults: US 95.06, EU 40 € × 1.364 × 1.10 ≈ 60, China ¥250 ≈ 35 $/Mg (risk flags off), India ₹2,750 (bale, ≤ 50 km) or ₹5,200 (pellet).
+  - The Chinese value is a *plant-gate* (delivered) cost and the Indian values are described as bale *transport* costs, yet haulage is added on top.
+  - Decide whether to restore the spatial layers or describe scalar prices, and whether to net out transport from the Chinese and Indian prices.
+- **M10. Reference required: feedstock prices and exchange rates:**
+  - US: $70/Mg farm-gate; $25.06/Mg nutrient replacement (corn stover).
+  - EU: €40/Mg NUTS-3 roadside; storage premium +22.2% (3 months) / +36.4% (6 months).
+  - India: ₹2,750 bale; ₹5,200 pellet; 50 km threshold.
+  - China: ¥250 plant-gate; weather ×1.13; expansion ×1.53.
+  - Exchange rates: 1.10 $/€; 0.012 $/₹; 0.14 $/¥.
+- **M11. Reference required: fuel-quality penalty magnitudes.** The cited papers (Baxter 1998; García 2017; Luan 2025) describe the ash-related problems but not the specific values: CAPEX +25% / +10%, efficiency −10% / −5%, ash thresholds 5% and 2%. The Danish Energy Agency data give straw CHP investment about 20% above wood pellets (80 MW feed), which supports the order of magnitude.
+
+### Technology Pathways (BES, BECCS)
+
+- **M12. Done: default plant size.** The text said 250 MWth; the default is 125 MWth.
+- **M13. Reference required: BES techno-economics.** Values: CAPEX 3,000 $/kWe at the base location, efficiency 30%, capacity factor 85%, lifetime 30 years, scaling exponent 0.7. Suggested: EIA AEO2023 (50 MW biomass: $4,996/kW, 2022 USD; heat rate 13,500 Btu/kWh ≈ 25% efficiency) and IRENA, *Renewable Power Generation Costs in 2023* (2024).
+- **M14. Reference required: biomass properties** (C 48%, LHV 18.6 GJ/Mg daf, ash 5% and 15%). Suggested: the Phyllis2 database (TNO) for cereal straw, corn stover and rice straw.
+- **M15. Reference required: BECCS efficiency penalty (8 percentage points) and capture rate (90%).** Suggested: IEAGHG (2009), already cited for the CAPEX premium, if its efficiency drop matches; otherwise Bhave et al. (2017).
+
+### Carbon Transport and Geological Storage
+
+- **M16. Done: Pipeline Routing described the v1 algorithm** (GDEM slope aggregated at the 95th percentile, exp(0.25θ) friction, WDPA as absolute barriers, least-cost distance costed as km). Rewritten for v2: Geomorpho90m 250 m slope; separate cost and routing surfaces; tiered protected areas; physical length × route-average terrain multiplier; the r_max robustness result. New citations: `amatulli2020`, `wdpa2026`.
+- **M17. Done: hub-and-spoke section updated.** Physical length replaces the "effective distance"; the terrain multiplier, reference cost (US$50M per 100 km at 1 Mt/yr), scaling exponent 0.6, O&M 4% and booster pumping for lift (`mccollum2006`) are now stated.
+- **M18. Done: shipping section** said CO2 goes to the "nearest coastal port" and had no subsea option. Rewritten: joint land and sea port or landfall choice by weighted multi-source least-cost search, subsea pipelines (1.5 × CAPEX), and liquefaction, terminal and voyage costs.
+- **M19. Done: sink choice.** The text said the nearest saline sink is used. The model chooses, per cell, the class with the lowest transport-and-storage cost. A new subsection "Storage Sites and Sink Choice" describes the 46 basins and the four classes.
+- **M20. Reference required: sink database.** The 46 basin centroids (`data-raw/generate_sinks.R`) cite an unidentified "Global Geologic Carbon Storage Assessment". Suggested: OGCI CO2 Storage Resource Catalogue, Cycle 4 (2024); USGS (2013) National Assessment of Geologic Carbon Dioxide Storage Resources; project sources for the 16 basins added in September 2026.
+- **M21. Reference required: pipeline cost model parameters** (US$50M per 100 km at 1 Mt/yr, exponent 0.6, 3 Mt/yr trunk, 50 km feeder, 700 km booster threshold, penalty 2, O&M 4%). Suggested: ZEP (2011) *The Costs of CO2 Transport*; IEAGHG (2005) *Building the Cost Curves for CO2 Storage*; McCollum & Ogden (2006).
+- **M22. Reference required: terrain and altitude construction-cost multipliers and the routing premium.** Suggested: IEA GHG (2002) *Pipeline Transmission of CO2 and Energy* (terrain cost factors).
+- **M23. Reference required: shipping cost parameters** (liquefaction $20/t, terminal $15/t, voyage $0.035/t/km, sea-leg weights 0.7 and 1.5, subsea CAPEX 1.5×). Suggested: IEAGHG (2020) *The Status and Challenges of CO2 Shipping Infrastructures* (TR 2020-10); ZEP (2011) *The Costs of CO2 Transport*.
+
+### BEBCS
+
+- **M24. Reference required: pyrolysis and power-block techno-economics** (pyrolysis CAPEX $500 per Mg feed/yr, power block $1,500/kWe, efficiency 35%, parasitic 0.07 GJe/Mg, heater efficiency 0.8, lifetimes 20 and 25 years, py_temp 500 °C). Suggested: Woolf et al. (2016) Nature Communications (the nets1 model) where values come from it; otherwise original sources.
+- **M25. Done: agronomic valuation.**
+  - The text said physical *and nutrient* benefits are annuitized over 10 years; in the code only the physical benefit is annuitized (liming and nutrients are one-off credits). Corrected.
+  - Nutrient availability factors (N 10%, P 50%, K 80%) added.
+  - Lime price now refers to the regional table.
+- **M26. Reference required: biochar agronomic parameters** (CCE 15%; N, P and K contents; availability factors; 10-year impact duration).
+- **M27. The CEC value function is a heuristic (open; needs discussion).** The model assumes $50/Mg/yr in soil with CEC 5, falling linearly to $0 at CEC 30. It needs support: yield-response meta-analyses (e.g. Jeffery et al. 2011, *Agric. Ecosyst. Environ.*; Jeffery et al. 2017, *Environ. Res. Lett.*) or presentation as an illustrative assumption with a sensitivity range.
+- **M28. Reference required: regional fertilizer and lime prices** (`price_n`, `price_p`, `price_k`, `price_lime`).
+
+### Baseline Energy System and Offsets
+
+- **M29. Done: net abatement balances** now include CO2 transport emissions (BECCS) and field-application diesel (BEBCS), with a pointer to the residue counterfactual.
+- **M30. Done: grid displacement.**
+  - "Today's effective carbon price" changed to explicit, consistent with the P_now decision.
+  - Ember (`ember2025`) and IPCC AR5 Annex III (`schlomer2014`) cited for generation data and life-cycle intensities.
+- **M31. Reference required: oil life-cycle intensity (700 g/kWh).** IPCC AR5 Annex III does not list oil-fired generation; a source is needed (e.g. UNECE 2021 *Life Cycle Assessment of Electricity Generation Options*, if it covers oil).
+
+### Regional Cost Adjustment and Economics
+
+- **M32. Reference required: regional CAPEX location factors** (US 1.25, Europe 1.15, China 0.7, India 0.65) and the O&M location factors derived from them.
+- **M33. Reference required: regional discount rates** (US 5%, Europe 4.5%, China 4.5%, India 10%). Suggested: Steffen (2020) *Energy Economics* 88:104783 (cost of capital for renewable energy projects by country); IEA *Cost of Capital Observatory*.
+
+### Sections missing from the Methods
+
+- **M34. Drafted, to review: new subsections.**
+  - "Spatial Input Data": SoilGrids 2.0 (`poggio2021`), soil temperature (`lembrechts2022`), electricity prices.
+  - "Economic Evaluation and Technology Selection": net value, CRF, lifetimes, technology choice, break-even price, MACCs.
+  - "Uncertainty and Sensitivity Analyses": Monte Carlo design, XGBoost (`chen2016xgboost`) and SHAP (`lundberg2017`), factorial design.
+
+  These describe what the code does. Check that the factorial design matches the manuscript runs: `run_analyses.R` comments say 960 scenarios, while `factorial_analysis.R` gives 720.
+- **M35. Reference required: electricity prices** (EIA, Eurostat, NDRC, CERC industrial prices 2024–25) and the wholesale factor 0.4.
+- **M36. Bibliography: `lembrechts2022`** uses "and others" for its long author list; complete it or use the journal's recommended short form.
+
+### Housekeeping done during the review
+
+- **M37. Done: `data-raw/generate_us_soil_layers.R` moved to `bak/generate_us_soil_layers_demo.R`.** It generates *synthetic* demo soil layers and writes `us_soil_ph.tif` and `us_soil_cec.tif`, so running it would overwrite the real SoilGrids layers. The current layers match SoilGrids: US pH 4.1–9.0, median 6.3, spatially patchy like Europe. The orphaned demo outputs `GIS/processed/soil_ph.tif` and `soil_cec.tif` (January 2026) are unused and can be deleted.
+
+
+

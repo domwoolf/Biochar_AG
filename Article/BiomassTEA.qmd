@@ -46,11 +46,11 @@ It is, therefore, critical to understand where biochar could be the best use of 
 
 ## Model Architecture
 
-The C-SCAPE (Carbon Spatial Cost and Allocation Pathways Evaluator) model (version 1.0) evaluates three biomass utilization pathways: Bioenergy (BE), Bioenergy with Carbon Capture and Storage (BECCS), and Bioenergy with Biochar Carbon Storage (BEBCS). The model evaluates a spatially-varying net present value (NPV) for each technology using a discounted cost-benefit analysis, with GHG emissions and removals converted to 100-year CO~2~ equivalent values and internalized into the economic analysis using an assumed carbon price.
+The C-SCAPE (Carbon Spatial Cost and Allocation Pathways Evaluator) model (version 1.0; implemented as the R package BiocharAG) evaluates three biomass utilization pathways: Bioenergy (BES), Bioenergy with Carbon Capture and Storage (BECCS), and Bioenergy with Biochar Carbon Storage (BEBCS). For each grid cell and technology, the model calculates a discounted cost-benefit balance, expressed as a levelized annual net value per megagram of dry, ash-free feedstock (the net present value annualized with the capital recovery factor; referred to as NPV below). GHG emissions and removals are converted to 100-year CO~2~ equivalents and internalized using an assumed carbon price.
 
-The model was deployed across the coterminous United States, Europe, India, and China. All spatial inputs were projected into region-specific, equal-area coordinate reference systems (EPSG:5070, EPSG:3035, EPSG:8859, and ESRI:102025, for the US, Europe, India, and China, respectively), and harmonized to a 0.1-degree resolution. The model was implemented in the R programming language, using the Terra package for spatial analysis.
+The model was deployed across the coterminous United States, Europe, India, and China. All spatial inputs were harmonized to a geographic (WGS84) grid of 0.1° (0.2° for the United States). Area-dependent calculations use cell areas on the ellipsoid, and the biomass collection distances were computed in region-specific equal-area projections (EPSG:5070, EPSG:3035 and Albers equal-area projections for China and India) before being returned to the model grid. The model was implemented in R, using the terra package for spatial analysis [@hijmans2025terra].
 
-The following model description outlines the assumptions,m equations and parameters used in the model. The default parameter values are provided in a table at the end of the Methods.
+The following model description outlines the assumptions, equations and parameters used in the model. The default parameter values are provided in a table at the end of the Methods.
 
 ### Biomass Feedstock Sourcing and Logistics
 
@@ -62,7 +62,7 @@ Haulage costs vary with terrain and road access, which the flat per-kilometre ra
 
 #### Fuel Quality
 
-Agricultural crop residues typically have a higher ash content than the wood chips more commonly used in bioenergy combustion. High-ash feedstocks carry significant fouling and slagging risks, requiring additional capital expenditures (CAPEX) and operating expenditure (OPEX), for example through deployment of Circulating Fluidized Bed (CFB) boilers. This fuel quality penalty is modelled, relative to a wood-chip fired bioenergy plant, as an increase in base CAPEX for the combustion technologies (BES and BECCS) of 25% for high-ash feedstocks (ash above 5%) or 10% for medium-ash feedstocks (2–5%), and a reduction in electrical conversion efficiency of 10% or 5% respectively. O&M costs are not penalised separately: they are charged as a fraction of CAPEX, which already carries the penalty, and straw-fired plants have the same ratio of O&M to investment cost as wood-fired plants [@dea2020].[@luan2025a; @baxter1998; @garcía2017]
+Agricultural crop residues typically have a higher ash content than the wood chips more commonly used in bioenergy combustion. High-ash feedstocks carry significant fouling and slagging risks, requiring additional capital expenditures (CAPEX) and operating expenditure (OPEX), for example through deployment of Circulating Fluidized Bed (CFB) boilers. This fuel quality penalty is modelled, relative to a wood-chip fired bioenergy plant, as an increase in base CAPEX for the combustion technologies (BES and BECCS) of 25% for high-ash feedstocks (ash above 5%) or 10% for medium-ash feedstocks (2–5%), and a reduction in electrical conversion efficiency of 10% or 5% respectively. O&M costs are not penalised separately: they are charged as a fraction of CAPEX, which already carries the penalty, and straw-fired plants have the same ratio of O&M to investment cost as wood-fired plants [@dea2020]. The fouling, slagging and corrosion risks of high-ash, high-alkali residues are reviewed by @baxter1998, @garcía2017 and @luan2025a.
 
 #### Regional Pricing Structures
 
@@ -78,7 +78,7 @@ Feedstock pricing is not treated as a static global constant; rather, it is deri
 
 ### Technology Pathways and Thermodynamics
 
-The core thermodynamic engine evaluates three distinct biomass utilization pathways, processing the standardized $250\text{ MW}_{\text{th}}$ biomass input into varying ratios of exported electrical energy and sequestered carbon.
+The core thermodynamic engine evaluates three distinct biomass utilization pathways, processing a biomass input of $125\text{ MW}_{\text{th}}$ by default (@tbl-parameters) into varying ratios of exported electrical energy and sequestered carbon.
 
 #### Bioenergy (BES)
 
@@ -96,49 +96,53 @@ The capture process is parameterized with a 90% capture efficiency rate. The tot
 
 ### Carbon Transport and Geological Storage
 
+#### Storage Sites and Sink Choice
+
+Geological storage is represented by 46 storage basins across the four regions (onshore saline formations, onshore oil fields suitable for CO~2~-enhanced oil recovery (EOR), and offshore saline formations and depleted fields). They are listed with their locations and types in the model repository. <!-- TODO (reference required): source for the sink database. --> Four transport-and-storage classes are evaluated for every grid cell: pipeline to an onshore saline site; pipeline to an EOR site (only when EOR is allowed, which is not the default); pipeline and ship to an offshore site; and pipeline, including a subsea section, to an offshore site. For each cell and plant size, the model selects the class with the lowest combined transport and storage cost for that plant's CO~2~ flow.
+
 #### Pipeline Routing
 
-Captured CO~2~ is routed from every grid cell to its assigned geological sink by pipeline (onshore sinks) or by a combined pipeline and ship route (offshore sinks). Standard spatial optimization models frequently rely on simple Euclidean distances or Voronoi tessellations, which artificially generate circular geographical discontinuities in net present value (NPV) maps. To eliminate these artifacts and accurately model the economic constraints of CO~2~ transport, this framework implements a deterministic Lowest Cost Routing logic that relies on a terrain-optimized Least Cost Path (LCP) algorithm rather than linear assumptions.
+Pipeline routes are computed on a grid ten times finer than the model grid (0.02° for the United States, 0.01° elsewhere). Two surfaces are used, one to choose each route and one to cost it, so that the routing can avoid difficult terrain without that avoidance being charged as extra pipeline length. Slope from the 250 m Geomorpho90m dataset [@amatulli2020] is converted, per 250 m pixel, into a construction-cost multiplier $F_{cost}(\theta)$. This multiplier is piecewise linear in slope $\theta$: 1.0 at 0°, 1.05 at 5°, 1.2 at 10°, 1.6 at 17°, 2.3 at 25°, 3.2 at 35° and 4.0 at 45°. The per-pixel values are then averaged to the routing grid, with additive premiums above 2,500 m altitude. <!-- TODO (reference required): terrain and altitude construction-cost multipliers. --> The routing surface adds a planning-risk premium for steep ground, $F_{route} = F_{cost}\,[1 + r_{max}\,\mathrm{logistic}((\theta - 20^\circ)/3^\circ)]$ with $r_{max} = 2$, capped at 25.
 
-Topographic friction surfaces were generated by deriving the slope (in degrees) from the Global Digital Elevation Model (GDEM). To preserve localized linear barriers—such as mountain ridges or steep ravines—during spatial aggregation to the base model resolution, the high-resolution slope data was aggregated using a 95th percentile percolation threshold. The terrain friction surface was then parameterized using an exponential cost function:
+Protected areas from the World Database on Protected Areas [@wdpa2026] are tiered. Strictly protected areas (IUCN categories Ia, Ib and II, and natural World Heritage sites) are barriers. Other designated terrestrial protected areas can be crossed at a construction-cost premium of 25% and a routing premium of 100%. Marine protected areas are not applied to the land routing.
 
-$$M(\theta) = \exp(0.25 \cdot \theta)$$
-
-where $\theta$ represents the aggregated slope. Furthermore, to ensure that proposed CO~2~ infrastructure avoids ecologically sensitive or legally restricted regions, protected areas from the World Database on Protected Areas (WDPA) were rasterized and treated as absolute barriers. This forces the routing algorithm to find the most efficient path around protected zones. Because least-cost path distances are accumulated over this friction surface, they already include the additional length and cost of routing around terrain and protected areas; no further tortuosity multiplier is therefore applied.
+Least-cost paths on $F_{route}$ from every cell to the nearest target were computed with terra [@hijmans2025terra]. The resulting route tree was then traced to measure, for each route, its physical length $L$, the line integral of $F_{cost}$ along the route, and the highest point of the route above the source. Pipeline cost is charged on the physical length multiplied by the route-average construction-cost multiplier (the line integral of $F_{cost}$ divided by $L$). No further tortuosity factor is applied. In a robustness test, setting $r_{max}$ between 0 and 2 changed the optimal technology in less than 0.4% of grid cells.
 
 #### Hub-and-Spoke Pipeline Modality
 
-Standard length-invariant TEA cost functions for CO~2~ pipelines adequately model regional networks but fundamentally underestimate the capital and energetic burdens of long-distance transport. Specifically, maintaining CO~2~ in a dense or supercritical phase over extended distances requires the deployment of intermediate booster compression stations to overcome frictional pressure drops.
+Standard length-invariant TEA cost functions for CO~2~ pipelines adequately model regional networks but underestimate the capital and energy burdens of long-distance transport, which requires intermediate booster compression to overcome frictional pressure drops. Pipeline CAPEX is therefore calculated with a piecewise-linear hub-and-spoke model:
 
-To simulate this without computationally intensive grid-level pump topology, pipeline CAPEX is calculated using a piecewise linear hub-and-spoke framework:
+1.  **The Feeder Leg:** Sources build a dedicated feeder pipeline for the first 50 km ($d_{feeder}$), bearing the full CAPEX scaled to their own CO~2~ flow (scaling exponent 0.6).
 
-1.  **The Feeder Leg:** Sources build a dedicated feeder pipeline for the first 50 km ($d_{feeder}$), bearing the full capacity-scaled CAPEX.
+2.  **The Trunk Leg (Base Phase):** Up to 700 km, the source connects to a regional trunkline operating at an efficient scale (3 Mt CO~2~ yr^-1^), paying a share of its CAPEX proportional to its mass flow.
 
-2.  **The Trunk Leg (Base Phase):** For distances up to 700 km, the source connects to a regional trunkline operating at an efficient scale (e.g., 3 Mtpa), paying only a proportional mass share of the CAPEX.
+3.  **The Trunk Leg (Booster Phase):** Beyond 700 km, the marginal trunkline cost is doubled ($P_{booster} = 2.0$) to approximate the capital and operating costs of intermediate booster stations.
 
-3.  **The Trunk Leg (Booster Phase):** For distances exceeding 700 km, the marginal cost of the trunkline increases by a penalty factor ($P_{booster} = 2.0$) to approximate the compounding capital and operational costs of intermediate booster stations.
+The trunkline CAPEX share is:
 
-The trunkline CAPEX share ($CAPEX_{trunk}$) is calculated as:
-
-$$CAPEX_{trunk} =
+$$CAPEX_{trunk} = m \cdot
 \begin{cases}
-C_{base} \cdot (d_{effective} - 50) & \text{if } d_{effective} \le 700 \\
-C_{base} \cdot (700 - 50) + (C_{base} \cdot P_{booster}) \cdot (d_{effective} - 700) & \text{if } d_{effective} > 700
+C_{base} \cdot (L - 50) & \text{if } L \le 700 \\
+C_{base} \cdot (700 - 50) + (C_{base} \cdot P_{booster}) \cdot (L - 700) & \text{if } L > 700
 \end{cases}$$
 
-where $d_{effective}$ is the terrain-routed least-cost distance and $C_{base}$ is the unit length cost of the efficient-scale trunkline, scaled to the site's proportional mass.
+Here $L$ is the physical route length (km), $m$ is the route-average construction-cost multiplier, and $C_{base}$ is the unit-length cost of the efficient-scale trunkline, scaled to the source's share of its mass flow. The reference cost is US\$50 million per 100 km for a 1 Mt yr^-1^ pipeline, scaled by the regional CAPEX factor. Annual pipeline O&M is 4% of CAPEX. <!-- TODO (reference required): pipeline reference cost, scaling exponent, trunk scale, booster threshold and penalty, O&M fraction. --> Routes that climb require booster pumping to restore the pressure lost in lifting dense-phase CO~2~. Pumps are sized for the lift beyond a 1 MPa design margin, with pump CAPEX following @mccollum2006, and their electricity is charged at the regional electricity price.
 
-#### Maritime Shipping
+#### Maritime Shipping and Subsea Pipelines
 
-CO~2~ destined for offshore geological sinks is shipped. Inland sources first transport CO~2~ by pipeline to the nearest coastal port, where it is liquefied and loaded, before a sea voyage to the sink:
+CO~2~ destined for offshore sinks is either shipped or carried by pipeline to the sink:
 
-$$C_{shipping} = C_{pipeline}(d_{coast}) + C_{liquefaction} + C_{terminal} + (c_{voyage} \cdot d_{sea})$$
+$$C_{ship} = C_{pipeline}(L_{port}) + C_{liquefaction} + C_{terminal} + c_{voyage} \cdot d_{sea}, \qquad C_{subsea} = C_{pipeline}(L_{landfall} + d_{sea})$$
 
-where $d_{coast}$ is the terrain-routed least-cost distance from the source to the coast, costed with the hub-and-spoke pipeline model, and $d_{sea}$ is the sea-routed distance from that port to the sink (land treated as impassable). The fixed liquefaction and terminal costs therefore apply only to offshore sinks, and the full overland cost is borne by inland sources, so shipping does not act as a cost ceiling for long-distance transport. CO~2~ destined for onshore sinks is transported by pipeline over the full least-cost distance. Emissions from CO~2~ transport are deducted from the BECCS abatement: for shipping, the emissions from liquefaction, loading and the voyage, which amount to about 2.5% of the CO~2~ carried over 200 km and about 18% over 12,000 km [@albaroudi2021]; for pipelines, the electricity for booster pumping over elevated routes, at the displaced grid intensity.
+$L_{port}$ and $L_{landfall}$ are the physical lengths of the onshore routes to the port or landfall. $d_{sea}$ is the sea distance from there to the sink, routed on a 0.02–0.04° grid with land impassable. Liquefaction and terminal costs are 20 and 15 US\$ per t CO~2~ (scaled by the regional CAPEX factor), and the voyage costs 0.035 US\$ per t per km. <!-- TODO (reference required): shipping cost parameters. --> For subsea pipelines, the subsea section carries 1.5 times the onshore CAPEX per km.
+
+Every coastal cell is a candidate port or landfall. The land route and the port are chosen together, by a multi-source least-cost search in which each coastal cell starts with its sea leg already priced: 0.7 flat-onshore-pipeline-km per sea km for shipping (the ratio of voyage to trunk-pipeline cost per t km), and 1.5 for subsea pipelines. The route therefore minimizes land and sea cost together rather than land distance alone. Fixed liquefaction and terminal costs do not affect this choice.
+
+Emissions from CO~2~ transport are deducted from the BECCS abatement. For shipping, these are the emissions from liquefaction, loading and the voyage, about 2.5% of the CO~2~ carried over 200 km and about 18% over 12,000 km [@albaroudi2021]. For pipelines, they are the emissions from the booster pumping electricity, at the displaced grid intensity.
 
 #### CO~2~ Injection
 
-CO~2~ injection and storage (injection wells and operations, and measurement, monitoring and verification) is costed separately from both the capture plant and CO~2~ transport, as a fixed cost per megagram of CO~2~ injected, with separate values for onshore and offshore storage sites (`ccs_storage_cost` and `cost_offshore_storage`, @tbl-parameters). The defaults, 10 US\$/t CO~2~ onshore (range 2–33) and 20 US\$/t CO~2~ offshore (range 5–50), follow a recent lifecycle assessment of storage costs from exploration to 50 years of post-closure monitoring. That assessment gives 2–15 US\$/t onshore and 5–31 US\$/t offshore for reservoirs with open boundary conditions, rising to 5–33 and 8–50 US\$/t for moderate-quality closed reservoirs [@gccsi2025]. These ranges are consistent with earlier estimates for European saline aquifers of €2–12/t onshore and €6–20/t offshore [@zep2011]. The applicable value depends on whether the sink to which each grid cell's CO~2~ is routed lies onshore or offshore; when enhanced oil recovery is excluded, this is the nearest saline storage site. Injection costs are applied to the mass of CO~2~ captured, in addition to the transport cost and the capture plant's own CAPEX and O&M.
+CO~2~ injection and storage (injection wells and operations, and measurement, monitoring and verification) is costed separately from both the capture plant and CO~2~ transport, as a fixed cost per megagram of CO~2~ injected, with separate values for onshore and offshore storage sites (`ccs_storage_cost` and `cost_offshore_storage`, @tbl-parameters). The defaults, 10 US\$/t CO~2~ onshore (range 2–33) and 20 US\$/t CO~2~ offshore (range 5–50), follow a recent lifecycle assessment of storage costs from exploration to 50 years of post-closure monitoring. That assessment gives 2–15 US\$/t onshore and 5–31 US\$/t offshore for reservoirs with open boundary conditions, rising to 5–33 and 8–50 US\$/t for moderate-quality closed reservoirs [@gccsi2025]. These ranges are consistent with earlier estimates for European saline aquifers of €2–12/t onshore and €6–20/t offshore [@zep2011]. The applicable cost follows the sink class chosen for each grid cell (see Storage Sites and Sink Choice). Injection costs are applied to the mass of CO~2~ captured, in addition to the transport cost and the capture plant's own CAPEX and O&M.
 
 ### Bioenergy with Biochar Storage (BEBCS)
 
@@ -178,11 +182,11 @@ Previous spatial models frequently value biochar using a static, exogenous globa
 
 $$Value_{ag} = Value_{lime} + Value_{nutrients} + Value_{physical}$$
 
-1.  **Liming Equivalence (**$Value_{lime}$): The model spatially evaluates the native soil pH against a neutral agricultural target (pH 6.5). If the soil is acidic, the biochar's Calcium Carbonate Equivalent (CCE, default 15%) is credited against the localized market price of bulk agricultural lime (e.g., $\$60/\text{Mg}$). If the regional soil is already alkaline, the liming value is strictly zero.
-2.  **Nutrient Substitution (**$Value_{nutrients}$): The available nitrogen (N), phosphorus (P), and potassium (K) fractions within the biochar are credited against prevailing regional fertilizer costs. Baseline valuations rely on standard commercial substitutes, deriving prices from Urea ($\$0.92/\text{kg N}$), Diammonium Phosphate ($\$1.10/\text{kg P}_2\text{O}_5$), and Potash ($\$0.62/\text{kg K}_2\text{O}$). Elemental P and K contents are converted to their oxide equivalents (×2.29 for P~2~O~5~ and ×1.20 for K~2~O) before pricing.
+1.  **Liming Equivalence (**$Value_{lime}$): The model spatially evaluates the native soil pH against a neutral agricultural target (pH 6.5). If the soil is acidic, the biochar's Calcium Carbonate Equivalent (CCE, default 15%) is credited against the regional market price of bulk agricultural lime (@tbl-parameters). If the regional soil is already alkaline, the liming value is strictly zero.
+2.  **Nutrient Substitution (**$Value_{nutrients}$): The available nitrogen (N), phosphorus (P), and potassium (K) fractions within the biochar are credited against prevailing regional fertilizer costs. Baseline valuations rely on standard commercial substitutes, deriving prices from Urea ($\$0.92/\text{kg N}$), Diammonium Phosphate ($\$1.10/\text{kg P}_2\text{O}_5$), and Potash ($\$0.62/\text{kg K}_2\text{O}$). Elemental P and K contents are converted to their oxide equivalents (×2.29 for P~2~O~5~ and ×1.20 for K~2~O) before pricing, and each nutrient is credited at its first-year plant availability (N 10%, P 50%, K 80%; @tbl-parameters). Regional fertilizer prices are given in @tbl-parameters.
 3.  **Physical/CEC Improvements (**$Value_{physical}$): Biochar provides long-term yield efficiency gains by increasing water retention and buffering nutrient leaching, effects that are most pronounced in degraded or sandy soils. This value is heuristically scaled inversely to the soil's native Cation Exchange Capacity (CEC). Soils with severe CEC deficits receive higher annual premiums (up to $\$50/\text{Mg}$), while heavy clay soils (CEC $> 30\text{ cmol/kg}$) receive zero premium.
 
-Because physical and chemical soil improvements degrade or saturate over time, the total annual physical and nutrient benefits are amortized as a Present Value of an Annuity over a conservative 10-year agronomic impact duration, discounted at the baseline financial discount rate.
+Liming and nutrient values are one-off credits per megagram of biochar applied. Because physical soil improvements degrade or saturate over time, the annual physical benefit is converted to a present value as an annuity over a 10-year agronomic impact duration, discounted at the regional discount rate.
 
 ### Baseline energy system and offsets
 
@@ -194,7 +198,9 @@ The net carbon abatement for each grid cell is defined as the sum of physical ca
 
 -   **BES:** Abatement relies entirely on the displacement of grid emissions, minus the Scope 3 emissions associated with diesel trucking of the biomass feedstock.
 -   **BECCS:** Abatement includes the physical CO~2~ captured and injected into the geological sink (assuming a 90% capture rate) plus the grid displacement credit. However, because the parasitic energy load of the capture process reduces the net electrical efficiency, the total energy exported and thus the resulting grid displacement credit is proportionally lower for BECCS than for pure BES.
--   **BEBCS:** Abatement combines the grid displacement credit with the permanent CO~2~ equivalent of the biochar carbon retained in the soil ($F_{perm}$) and the avoided soil N~2~O emissions ($A_{N_2O}$).
+-   **BEBCS:** Abatement combines the grid displacement credit with the permanent CO~2~ equivalent of the biochar carbon retained in the soil ($F_{perm}$) and the avoided soil N~2~O emissions ($A_{N_2O}$), minus the diesel emissions of biochar field application.
+
+For BECCS, the emissions of CO~2~ transport are also deducted (see Maritime Shipping). The residue removal counterfactual below applies to all pathways.
 
 For all pathways, Scope 3 feedstock transport emissions are modeled dynamically by applying a heavy-duty diesel transport emissions factor ($0.0001\text{ Mg CO}_2\text{e}$ per $\text{Mg}\cdot\text{km}$) to the effective biomass collection distance.
 
@@ -208,13 +214,13 @@ where $CF$ is the combustion factor, $EF$ the emission factors (g kg^-1^ dry mat
 
 #### Grid Displacement
 
-The carbon intensity of the electricity (or heat) displaced by bioenergy output depends on how far the energy system has decarbonized, which in turn depends on the carbon price. Because the carbon price $P$ is an exogenous input to the analysis, the displaced marginal emission factor (MEF) is modeled as a continuous function of $P$, so that the model does not combine a high carbon price with a fossil-dominated grid margin. Each grid cell's empirical build margin at today's effective carbon price is used as an anchor and scaled by a regional price-response curve calibrated to integrated assessment scenarios.
+The carbon intensity of the electricity (or heat) displaced by bioenergy output depends on how far the energy system has decarbonized, which in turn depends on the carbon price. Because the carbon price $P$ is an exogenous input to the analysis, the displaced marginal emission factor (MEF) is modeled as a continuous function of $P$, so that the model does not combine a high carbon price with a fossil-dominated grid margin. Each grid cell's empirical build margin at today's explicit carbon price is used as an anchor and scaled by a regional price-response curve calibrated to integrated assessment scenarios.
 
-**Empirical anchor.** New bioenergy capacity is assumed to displace the technology mix currently expanding on each grid. Using monthly national and US state electricity generation data (Ember), the sources with positive net generation growth ($\Delta G_i > 0$) between 2019 and 2024 are identified, and the build-margin intensity is their growth-weighted mean:
+**Empirical anchor.** New bioenergy capacity is assumed to displace the technology mix currently expanding on each grid. Using monthly national and US state electricity generation data [@ember2025], the sources with positive net generation growth ($\Delta G_i > 0$) between 2019 and 2024 are identified, and the build-margin intensity is their growth-weighted mean:
 
 $$MEF_{emp} = \frac{\sum_i \Delta G_{i} \cdot CI_{i}}{\sum_i \Delta G_{i}}$$
 
-where $CI_i$ is the IPCC life-cycle greenhouse gas intensity of source $i$: coal (820 g CO~2~e/kWh), natural gas (490), oil (700), solar (48), geothermal (38), hydro (24), nuclear (12) and wind (11.5). Bioenergy generation is assigned zero intensity, because bioenergy emissions are accounted for explicitly in the model; growth in bioenergy generation still counts in the denominator. Where no growth data are available, the average grid intensity is used. The resulting anchors are 378 g CO~2~e/kWh for China and 574 for India, with medians over biomass-producing grid cells of 341 for the United States (state level) and 38 for Europe (country level).
+where $CI_i$ is the IPCC median life-cycle greenhouse gas intensity of source $i$ [@schlomer2014]: coal (820 g CO~2~e/kWh), natural gas (490), oil (700), solar (48), geothermal (38), hydro (24), nuclear (12) and wind (11.5). Bioenergy generation is assigned zero intensity, because bioenergy emissions are accounted for explicitly in the model; growth in bioenergy generation still counts in the denominator. Where no growth data are available, the average grid intensity is used. The resulting anchors are 378 g CO~2~e/kWh for China and 574 for India, with medians over biomass-producing grid cells of 341 for the United States (state level) and 38 for Europe (country level).
 
 **Price-response curve.** The decline of the displaced intensity with carbon price follows a Hill (log-logistic) curve,
 
@@ -224,7 +230,19 @@ where $P_{now}$ is the region's current explicit carbon price on power-sector em
 
 ### Regional Cost Adjustment
 
-Capital costs for all plant and CO~2~ transport infrastructure (combustion and pyrolysis plants, power blocks, pipelines, liquefaction and port terminals) are specified for a base location and scaled by a regional capital cost location factor, so that the relative cost of technologies is consistent within each region. The O&M fraction of CAPEX is quoted for US and European plants and is scaled by a separate regional factor (1 for the US and Europe, 0.67 for China and 0.56 for India) that reflects the lower cost of labour relative to equipment in China and India, and biomass haulage costs are scaled by a regional road-freight cost factor (@tbl-parameters).
+Capital costs for all plant and CO~2~ transport infrastructure (combustion and pyrolysis plants, power blocks, pipelines, liquefaction and port terminals) are specified for a base location and scaled by a regional capital cost location factor, so that the relative cost of technologies is consistent within each region. The O&M fraction of CAPEX is quoted for US and European plants and is scaled by a separate regional factor (1 for the US and Europe, 0.67 for China and 0.56 for India) that reflects the lower cost of labour relative to equipment in China and India, and biomass haulage costs are scaled by a regional road-freight cost factor (@tbl-parameters). <!-- TODO (reference required): CAPEX multipliers. --> 
+
+### Spatial Input Data
+
+Crop residue availability is from @karan2023. Soil pH and cation exchange capacity (0–5 cm) are from SoilGrids 2.0 [@poggio2021] and mean annual soil temperature (0–5 cm) from the global soil bioclimatic maps of @lembrechts2022. Electricity prices are industrial prices by US state, European country and Chinese and Indian province (2024–2025), converted to wholesale prices by a factor of 0.4 (`wholesale_discount_factor`, @tbl-parameters). <!-- TODO (reference required): electricity price sources (EIA, Eurostat, NDRC, CERC) and the wholesale factor. --> Grid carbon intensities are described under Grid Displacement.
+
+### Economic Evaluation and Technology Selection
+
+For each grid cell and technology, the net value per megagram of feedstock is the sum of revenues (electricity sales, the carbon price multiplied by the net abatement, and the agronomic value of biochar or ash) minus costs. The costs are annualized CAPEX, O&M, feedstock and haulage, and, for BECCS, CO~2~ transport and storage. CAPEX is annualized with the capital recovery factor at the regional discount rate (@tbl-parameters) over the technology lifetime (30 years for BES and BECCS; 20 years for the pyrolysis unit and 25 years for its power block). All costs are in 2024 US dollars. The plant has a thermal input of 125 MW~th~ by default, and the preferred technology in each cell is the one with the highest net value. Because the displaced grid intensity falls as the carbon price rises (see Grid Displacement), net abatement, and hence net value, is not linear in the carbon price. We therefore evaluate the model on a grid of carbon prices (0–250 US\$/t CO~2~ in steps of 5 US\$/t, and 275–500 US\$/t in steps of 25 US\$/t) and interpolate abatement linearly between grid points; net value is the carbon-price-independent part plus the carbon price multiplied by the interpolated abatement. The break-even carbon price of a technology is the lowest carbon price at which its net value becomes non-negative. Marginal abatement cost curves assign each grid cell, at each carbon price, to the technology with the highest net value if that value is non-negative, and sum the biomass, area and abatement of the assigned cells.
+
+### Uncertainty and Sensitivity Analyses
+
+Parameter uncertainty was propagated by Monte Carlo simulation, with 5,000 draws per region. Each parameter with an uncertainty range (@tbl-parameters) was sampled from a PERT or uniform distribution, bounded as shown in the table, and correlated parameters were sampled jointly through a Gaussian copula. The uncertainty of the grid displacement curve was represented by sampling one of its 1,000 bootstrap draws in each iteration. The drivers of each technology's net value were identified by fitting gradient-boosted regression trees [XGBoost; @chen2016xgboost] to the Monte Carlo results and computing SHAP values [@lundberg2017]. The same method was applied across grid cells, to the choice of preferred technology, to identify its spatial drivers. A full factorial analysis evaluated 720 scenarios: four regions, carbon prices of 0–200 US\$/t CO~2~, discount rates of 2%, 8% and 15%, plant sizes of 50, 150 and 250 MW~th~, with and without CO~2~-EOR, and with and without early adoption. Under early adoption, each plant builds a dedicated pipeline over the full distance to the sink instead of sharing a trunkline.
 
 ### Model Parameters and Data Sources
 
@@ -232,7 +250,7 @@ To ensure full reproducibility and transparency, the operational, financial, and
 
 ```{r}
 #| label: tbl-parameters
-#| tbl-cap: "Operational, financial, and biophysical parameters utilized within the BiocharAG framework."
+#| tbl-cap: "Operational, financial, and biophysical parameters of the C-SCAPE model."
 #| echo: false
 #| message: false
 #| warning: false
