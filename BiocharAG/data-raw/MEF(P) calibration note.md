@@ -37,7 +37,7 @@ The MESSAGE substitutes were signed off by the study lead on 27 Sep 2026.
 - **Shape quantity:** fleet-average intensity (`bm_method = "average"`), not the model build margin (see Escalations).
 - **Specs:** single- and two-stage only (no time drift; the TEA has no year dimension). Single-stage is forced for China and India.
 - **Anchoring:** per grid cell, with MEF_cell(P) = floor + (MCI_cell − floor) · H(P)/H(P_now). The script therefore writes shape curves only; the anchoring is done in R.
-- **P_now (explicit prices, to check):** EU 80, China 12, USA 0, India 0 $/t.
+- **P_now (explicit prices):** EU 80, China 12, USA 0, India 0 $/t at the first calibration; updated to EU 70 and China 14 (2024 averages; see "P_now decision").
 
 ## Code changes to the script
 
@@ -93,7 +93,7 @@ These use 60 draws each; full table in `GIS/raw/ngfs/sens/sensitivity_summary.cs
 
 - **`price_timing = "end"`:** raises P50 by 18–22% (USA 115, China 63, India 46). The EU becomes single-stage (P50 109). MEF at $100 rises by 0.02–0.03 t/MWh.
 - **The build-margin (capacity) method:** fails the checks (see Escalation 1).
-- **P_now:** the explicit/implicit cases act in the TEA through `grid_p_now`, not in the fit. REMIND's current-policy implicit prices (US ≈ $46, EU ≈ $58, China $12–22, India $3–14 in US$2024) indicate the scale of the implicit component.
+- **P_now:** the explicit/implicit cases act in the TEA through `grid_p_now`, not in the fit. REMIND's current-policy implicit prices (US ≈ $32, EU ≈ $40, China ≈ $8, India ≈ $2 in US$2024; corrected 28 Sep, previously double-deflated; GCAM and MESSAGE report 0) indicate the scale of the implicit component.
 
 ## Bottom-up coal-to-gas check
 
@@ -129,3 +129,15 @@ These use 60 draws each; full table in `GIS/raw/ngfs/sens/sensitivity_summary.cs
   | India | one | P50 43.7, k 1.25 | 0.129 | 52 / 36 |
 
 - **MC spread:** the NGFS bootstrap from this fit (`mef_shape_draws.csv`, draws 1–1000). A pooled NGFS + IPCC AR6 R10 spread, re-centred on the NGFS central curves, was tried and dropped. Its bootstrap of the pooled fit reflects uncertainty in the ensemble mean, which narrowed the bands. The alternative, inter-model spread, would have required a post-hoc harmonisation. See `bak/mef_spread_ar6.py`.
+
+## P_now decision (28 Sep 2026)
+
+P_now is today's **explicit** carbon price on power emissions: EU 70 (ETS), China 14 (national ETS), USA 0, India 0 (US$2024). These are 2024 annual averages: EU ETS €65/t at 1.08 USD/EUR; China national ETS ¥98/t at 7.20 CNY/USD. They replace the earlier estimates of 80 and 12. The TEA's carbon price is interpreted as an explicit price.
+
+Alternatives were assessed and rejected:
+
+1. **Model-consistent reading.** GCAM and MESSAGE report a Current Policies price of 0 in 2025 in every region because they model current policies as constraints. REMIND reports US 32, EU 40, China 8 and India 2, but it is excluded from the fit.
+2. **Inversion from AR6 no-policy baselines.** The 2025–2030 baseline build margins (P1a/P0_1a; 12 models, 27 scenarios) have medians of USA 0.16, EU 0.25, China 0.47 and India 0.55 t/MWh. These give China P_now ≈ $17/t, no solution for the USA and India (their empirical build margins exceed the baseline), and an implausibly high value for the EU (empirical 0.04 against baseline 0.25).
+3. **Bottom-up effective prices.** Not pursued; this measures a different axis.
+
+Anchoring at explicit prices embeds today's non-price policies in the empirical anchor rather than as a shift along the curve.

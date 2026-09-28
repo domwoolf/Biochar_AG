@@ -30,7 +30,12 @@ Open, with owner:
      - BEBCS gains share at $100–200/t in every region.
    - **Anchors:** recomputed with biomass = 0 (99 of 278 values fell slightly). The Methods text was corrected (the window is 2019–2024, not 2018–2023; values updated).
    - **Open, to check:**
-     - (a) **P_now values** (explicit prices EU 80, China 12, US 0, India 0 $/t); consider an implicit-price sensitivity (REMIND implicit US ≈ 46, EU ≈ 58).
+     - (a) **P_now = today's explicit carbon price (decision 28 Sep 2026)**: EU 70, China 14, US 0, India 0 $/t (US$2024; checked 28 Sep against 2024 averages: EU ETS €65/t, China national ETS ¥98/t). The TEA's carbon price is interpreted as an explicit price, so the curve predicts the displaced intensity at an explicit price X. Alternatives considered and rejected:
+       - Model-consistent P_now = 0: GCAM and MESSAGE report a Current Policies price of 0 because they model current policies as constraints.
+       - Inversion from AR6 no-policy baselines: gives China ≈ $17/t, no solution for the US and India, and an implausible value for the EU.
+       - Bottom-up effective prices.
+
+       The low BES NPV at low carbon prices is accepted as realistic: there has been little residue-fired power build-out outside Danish straw CHP.
      - (b) REMIND exclusion: **signed off 27 Sep 2026** (fails RMSE and model agreement; all-model draws kept, `mef_include_remind`).
      - (c) **Low Demand scenario kept:** to reconfirm.
      - (d) **Currency audit to 2024 USD** of all cost parameters (e.g. `bm_transport_var` 0.19 is 2026 USD, EIA costs 2022 USD).

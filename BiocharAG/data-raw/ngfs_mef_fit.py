@@ -156,15 +156,14 @@ CONFIG = {
     },
 
     # ---- YOUR empirical anchors (same currency year and EF basis!) ----
-    # p_now: estimated current effective carbon prices, US$2024/tCO2 (explicit prices;
-    # TO CHECK, see Article/TODO.md): EU ETS ~80; China national ETS ~12; US and
-    # India no national price. mef_emp: the TEA anchors each grid cell on its own
+    # p_now: current explicit carbon prices, US$2024/tCO2 (2024 averages): EU ETS EUR 65 x 1.08
+    # = 70; China national ETS CNY 98 / 7.20 = 14; US and India no national price. mef_emp: the TEA anchors each grid cell on its own
     # empirical build margin (MEF_cell(P) = floor + (MCI_cell - floor) H(P)/H(P_now)),
     # so only p_now is needed here; mef_emp is left unset (shape curves only).
     "anchors": {
         "USA":   {"mef_emp": None, "p_now": 0.0},
-        "EU":    {"mef_emp": None, "p_now": 80.0},
-        "China": {"mef_emp": None, "p_now": 12.0},
+        "EU":    {"mef_emp": None, "p_now": 70.0},
+        "China": {"mef_emp": None, "p_now": 14.0},
         "India": {"mef_emp": None, "p_now": 0.0},
     },
     "clamp_below_now": False,       # True: MEF(P <= P_now) = MEF_emp
