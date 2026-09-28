@@ -100,8 +100,15 @@ calculate_bebcs <- function(params) {
     # handling are charged.
     bc_haul_cost <- if (isFALSE(as.logical(params$bc_return_haul))) 0 else
       bc_yield * (if (!is.null(params$bm_transport_fixed)) params$bm_transport_fixed else 5) * location_factor(params, "haulage")
-    logistics_cost <- logistics$cost + bc_haul_cost
-    transport_emissions_co2e <- logistics$emissions
+    # Field application: spreading and incorporation, per ha at the biochar application rate
+    # (bc_app_rate_c Mg C/ha / biochar C content = Mg biochar/ha); tractor diesel emissions
+    bc_rate_mg_ha <- (if (!is.null(params$bc_app_rate_c)) params$bc_app_rate_c else 10) / bc_c_content
+    bc_field_cost_ha <- if (!is.null(params$bc_field_cost)) params$bc_field_cost else 116
+    bc_field_cost <- bc_yield * bc_field_cost_ha / bc_rate_mg_ha * location_factor(params, "haulage")
+    bc_field_diesel <- if (!is.null(params$bc_field_diesel)) params$bc_field_diesel else 10
+    bc_field_emissions <- bc_yield / bc_rate_mg_ha * bc_field_diesel * 2.68e-3 # Mg CO2 / Mg feed (2.68 kg CO2/L)
+    logistics_cost <- logistics$cost + bc_haul_cost + bc_field_cost
+    transport_emissions_co2e <- logistics$emissions + bc_field_emissions
 
     feedstock_cost <- if (!is.null(params$feedstock_cost)) params$feedstock_cost else 0
     total_cost <- annual_capex_py + annual_capex_power + annual_om + logistics_cost + feedstock_cost
@@ -158,6 +165,7 @@ calculate_bebcs <- function(params) {
       om_cost_mg = annual_om,
       biomass_cost_mg = biomass_cost,
       biochar_haul_cost_mg = bc_haul_cost, # included in biomass_cost_mg
+      biochar_field_cost_mg = bc_field_cost, # included in biomass_cost_mg
       co2_transport_cost_mg = 0,
       co2_transport_distance_km = NA,
       biomass_transport_distance_km = effective_dist,

@@ -47,6 +47,13 @@ sinks_list <- tribble(
     "North America", "Powder River Basin", "Muddy Sandstone", "Onshore", 44.5, -105.5, 1.0, TRUE, "Wyoming coal/EOR belt",
     "North America", "San Juan Basin", "Entrada Sandstone", "Onshore", 36.5, -107.5, 1.0, FALSE, "Four Corners region",
     "North America", "Anadarko Basin", "Granite Wash", "Onshore", 35.5, -99.0, 1.0, TRUE, "Oklahoma/Texas Panhandle (EOR)",
+    # Added 28 Sep 2026 (coverage review). The Alberta Basin (Canada) is not added: it lies outside the
+    # US routing grid, so routes would be snapped to the border and understated.
+    "North America", "Gulf of Mexico (offshore)", "Miocene sands (Texas/Louisiana shelf)", "Offshore", 28.8, -94.0, 1.0, FALSE, "Offshore saline; e.g. Bayou Bend CCS",
+    "North America", "San Joaquin Basin", "Monterey/Stevens sands", "Onshore", 35.3, -119.4, 1.0, FALSE, "California; Elk Hills Class VI project",
+    "North America", "Sacramento Basin", "Starkey/Winters sands", "Onshore", 38.8, -121.8, 1.0, FALSE, "California; saline and depleted gas",
+    "North America", "Denver-Julesburg Basin", "Lyons/Dakota sandstones", "Onshore", 40.5, -104.0, 1.0, FALSE, "Colorado Front Range saline",
+    "North America", "Greater Green River Basin", "Weber/Madison (Rock Springs Uplift)", "Onshore", 41.6, -108.9, 1.0, FALSE, "Wyoming saline",
 
     # --- EUROPE (Offshore Focus) ---
     "Europe", "Northern North Sea (NO)", "Utsira Formation", "Offshore", 58.4, 1.9, 1.2, FALSE, "Sleipner site; Massive aquifer",
@@ -56,6 +63,13 @@ sinks_list <- tribble(
     "Europe", "North German Basin", "Mid. Buntsandstein", "Onshore", 53.0, 10.0, 1.2, FALSE, "Onshore Germany",
     "Europe", "Paris Basin", "Keuper/Dogger", "Onshore", 48.5, 3.0, 1.2, FALSE, "France industrial hub",
     "Europe", "Pannonian Basin", "Sava/Drava Depr.", "Onshore", 46.0, 17.0, 1.2, TRUE, "Croatia/Hungary EOR",
+    # Added 28 Sep 2026 (coverage review)
+    "Europe", "Adriatic (Ravenna)", "Depleted gas fields (Porto Corsini)", "Offshore", 44.4, 12.6, 1.2, FALSE, "Eni Ravenna CCS; injecting since 2024",
+    "Europe", "East Irish Sea (HyNet)", "Hamilton depleted gas fields", "Offshore", 53.6, -3.6, 1.2, FALSE, "Liverpool Bay",
+    "Europe", "Danish North Sea (Greensand)", "Nini West field", "Offshore", 56.5, 4.8, 1.2, FALSE, "Greensand; injection from 2025",
+    "Europe", "Prinos (Greece)", "Prinos depleted oil field", "Offshore", 40.8, 24.5, 1.2, FALSE, "North Aegean",
+    "Europe", "Duero Basin (Spain)", "Utrillas sandstone", "Onshore", 41.8, -4.5, 1.2, FALSE, "Iberian onshore saline",
+    "Europe", "Polish Lowlands", "Lower Jurassic saline", "Onshore", 52.3, 18.5, 1.2, FALSE, "Polish onshore saline",
 
     # --- CHINA (Source-Sink Mismatch) ---
     "China", "Ordos Basin", "Triassic Liujiagou", "Onshore", 39.33, 110.15, 0.7, TRUE, "Shenhua region; EOR Potential",
@@ -65,6 +79,11 @@ sinks_list <- tribble(
     "China", "Subei Basin", "Paleogene Sands", "Onshore", 33.0, 119.5, 0.7, FALSE, "Near Yangtze Delta",
     "China", "Junggar Basin", "Jurassic/Triassic", "Onshore", 45.0, 86.0, 0.7, TRUE, "Xinjiang Oilfield (EOR)",
     "China", "Pearl River Mouth", "Enping 15-1", "Offshore", 21.5, 114.5, 0.7, FALSE, "Greater Bay Area",
+    # Added 28 Sep 2026 (coverage review)
+    "China", "Sichuan Basin", "Triassic/Jurassic saline and gas fields", "Onshore", 30.5, 105.5, 0.7, FALSE, "Large saline and depleted gas capacity",
+    "China", "Jianghan Basin", "Qianjiang Formation", "Onshore", 30.3, 112.8, 0.7, TRUE, "Jianghan Oilfield (EOR)",
+    "China", "Beibu Gulf", "Weixinan sag", "Offshore", 20.5, 108.5, 0.7, FALSE, "Offshore saline",
+    "China", "East China Sea Shelf", "Xihu depression", "Offshore", 29.0, 124.0, 0.7, FALSE, "Offshore saline and gas fields",
 
     # --- INDIA (Emerging / Data Poor) ---
     "India", "Cambay Basin", "Gandhar/Ankleshwar", "Onshore", 21.7, 72.9, 0.7, TRUE, "Gujarat industrial belt; EOR Potential",
@@ -72,7 +91,9 @@ sinks_list <- tribble(
     "India", "Assam-Arakan", "Barail/Tipam", "Onshore", 27.5, 95.5, 0.7, TRUE, "Northeast; Older oilfields",
     "India", "Cauvery Basin", "Cretaceous Sands", "Onshore", 11.0, 79.5, 0.7, FALSE, "Tamil Nadu region",
     "India", "Rajasthan Basin", "Barmer/Jaisalmer", "Onshore", 26.0, 71.0, 0.7, TRUE, "Northwest desert (Cairn Oil)",
-    "India", "Mahanadi Basin", "Mesozoic Sediments", "Onshore", 20.0, 87.0, 0.7, FALSE, "Odisha region"
+    "India", "Mahanadi Basin", "Mesozoic Sediments", "Onshore", 20.0, 87.0, 0.7, FALSE, "Odisha region",
+    # Added 28 Sep 2026 (coverage review)
+    "India", "Mumbai Offshore", "Bombay High / Bassein", "Offshore", 19.4, 71.3, 0.7, FALSE, "West coast; saline and depleted fields"
 )
 
 # Convert to sf object (CRS 4326 for WGS84)

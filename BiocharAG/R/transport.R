@@ -198,6 +198,20 @@ calculate_ccs_transport <- function(co2_mass, distance, is_offshore = FALSE, dis
   return(ifelse_raster(co2_mass <= 0, 0, final_cost))
 }
 
+#' Booster Pumping Electricity for Lifting CO2
+#'
+#' Electricity to restore the pressure lost lifting dense-phase CO2 over the highest point of a
+#' pipeline route, beyond the design inlet margin (see `co2_lift_cost()`).
+#'
+#' @inheritParams co2_lift_cost
+#' @return Electricity use (MWh per Mg CO2).
+#' @keywords internal
+co2_lift_elec_mwh_per_t <- function(hrel_max_m, rho = 900, dp_margin_mpa = 1, pump_eff = 0.75) {
+  h <- ifelse_raster(is.na(hrel_max_m), 0, pmax_raster(hrel_max_m, 0))
+  dp_pa <- pmax_raster(rho * 9.81 * h - dp_margin_mpa * 1e6, 0)
+  1000 * dp_pa / (rho * pump_eff) / 3.6e9
+}
+
 #' Booster Pumping Cost of Lifting CO2 Over a Pipeline Route
 #'
 #' Dense-phase CO2 loses about 0.9 MPa per 100 m of lift, so a pipeline must arrive at the highest

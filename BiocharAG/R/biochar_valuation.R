@@ -64,9 +64,10 @@ calculate_biochar_value <- function(params, bc_yield) {
         avail_k <- if (!is.null(params$avail_k)) params$avail_k else 0.8
 
         kg_to_mg_conv <- if (!is.null(params$kg_to_mg)) params$kg_to_mg else 1000 # 1000 converts kg to Mg
+        # Contents are elemental (kg P, kg K per kg biochar); prices are per kg P2O5 and K2O
         v_nut_per_mg_char <- (c_n * avail_n * p_n * kg_to_mg_conv) +
-            (c_p * avail_p * p_p * kg_to_mg_conv) +
-            (c_k * avail_k * p_k * kg_to_mg_conv)
+            (c_p * P_TO_P2O5 * avail_p * p_p * kg_to_mg_conv) +
+            (c_k * K_TO_K2O * avail_k * p_k * kg_to_mg_conv)
 
         # 3. Physical/CEC Value (Yield Efficiency)
         soil_cec <- if (!is.null(params$soil_cec)) params$soil_cec else 20
@@ -128,6 +129,11 @@ calculate_ash_value <- function(params) {
     price_p <- if (!is.null(params$price_p)) params$price_p else 1.10
 
     v_lime <- ifelse_raster(soil_ph < target_ph, ash_cce * price_lime, 0)
-    v_p <- ash_p * avail_p * price_p * 1000
+    v_p <- ash_p * P_TO_P2O5 * avail_p * price_p * 1000 # elemental P content; price per kg P2O5
     ash_mass * (v_lime + v_p)
 }
+
+# Mass conversion from elemental nutrient to fertiliser oxide basis (fertiliser prices are quoted
+# per kg P2O5 and K2O): P2O5/2P = 141.94/61.95; K2O/2K = 94.20/78.20
+P_TO_P2O5 <- 2.291
+K_TO_K2O <- 1.205

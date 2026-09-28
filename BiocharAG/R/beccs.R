@@ -74,8 +74,10 @@ calculate_beccs <- function(params) {
     # --- CCS Transport & Storage Component ---
     capex_loc <- location_factor(params, "capex")
     om_loc <- location_factor(params, "om")
-    base_cost_onshore_storage <- if (!is.null(params$ccs_storage_cost)) params$ccs_storage_cost else 12.0
-    base_cost_offshore_storage <- if (!is.null(params$cost_offshore_storage)) cost_offshore_storage else 40.0
+    base_cost_onshore_storage <- if (!is.null(params$ccs_storage_cost)) params$ccs_storage_cost else 10.0
+    base_cost_offshore_storage <- if (!is.null(params$cost_offshore_storage)) cost_offshore_storage else 20.0
+    ship_fixed <- if (!is.null(params$co2_ship_emis_fixed)) params$co2_ship_emis_fixed else 0.022
+    ship_km <- if (!is.null(params$co2_ship_emis_per_km)) params$co2_ship_emis_per_km else 1.3e-5
 
     if (!is.null(params$onsal_len_km)) {
       # v2 route layers: physical route length, route-average terrain cost multiplier and lift for each
@@ -142,6 +144,19 @@ calculate_beccs <- function(params) {
       co2_dist_chosen <- ifelse_raster(co2_sink_class == 1, r_onsal$len, ifelse_raster(co2_sink_class == 2, r_oneor$len,
         ifelse_raster(co2_sink_class == 3, r_ship$len, r_pipe$len)))
       ts_cost <- ts_per_t * co2_captured
+
+      # CO2 transport emissions (t CO2 per t CO2 captured) of the chosen route: lift pumping electricity
+      # at the displaced grid intensity for pipelines; liquefaction, loading and voyage for ships
+      grid_t_mwh <- ff_c_intensity * 3.6
+      lift_emis <- function(hrel) if (is.null(hrel)) 0 else zero_na(co2_lift_elec_mwh_per_t(hrel)) * grid_t_mwh
+      e_onsal <- lift_emis(params$onsal_hrel_max_m)
+      e_oneor <- lift_emis(params$oneor_hrel_max_m)
+      e_ship <- ship_fixed + ship_km * zero_na(if (is.null(off_layer("offship", "sea_km"))) 0 else off_layer("offship", "sea_km")) +
+        lift_emis(off_layer("offship", "hrel_max_m"))
+      e_pipe <- lift_emis(off_layer("offpipe", "hrel_max_m"))
+      co2_ts_emis_rate <- ifelse_raster(co2_sink_class == 1, e_onsal, ifelse_raster(co2_sink_class == 2, e_oneor,
+        ifelse_raster(co2_sink_class == 3, e_ship, e_pipe)))
+      co2_ts_emis_rate <- ifelse_raster(is.na(co2_sink_class), 0, co2_ts_emis_rate)
     } else {
       # v1 layers: least-cost distance to the nearest (saline) sink, with its onshore/offshore flag
       dist_onshore <- if (!is.null(params$dist_onshore)) params$dist_onshore else Inf
@@ -199,7 +214,10 @@ calculate_beccs <- function(params) {
       ts_cost <- pmin_raster(ts_cost_onshore, ts_cost_offshore)
       co2_sink_class <- ifelse_raster(ts_cost_onshore < ts_cost_offshore, 1, 3)
       co2_dist_chosen <- ifelse_raster(ts_cost_onshore < ts_cost_offshore, dist_onshore, dist_offshore)
+      voyage_km <- if (is.null(dist_sea)) dist_offshore else dist_sea
+      co2_ts_emis_rate <- ifelse_raster(co2_sink_class == 3, ship_fixed + ship_km * ifelse_raster(is.finite(voyage_km), voyage_km, 0), 0)
     }
+    co2_transport_emissions <- co2_ts_emis_rate * co2_captured # Mg CO2 / Mg feed
 
     # 4. Plant Costs (CAPEX/OPEX)
     scaling_factor_val <- if (!is.null(params$scaling_factor)) scaling_factor else 0.7
@@ -229,7 +247,8 @@ calculate_beccs <- function(params) {
     # Carbon Abatement (CO2e conversion & transport penalty applied)
     co2e_sequestered <- bm_c * capture_rate * molar_ratio_c
     c_displaced <- energy_output * ff_c_intensity
-    tot_c_abatement <- co2e_sequestered + c_displaced - transport_emissions_co2e + residue_counterfactual_ghg(params)
+    tot_c_abatement <- co2e_sequestered + c_displaced - transport_emissions_co2e - co2_transport_emissions +
+      residue_counterfactual_ghg(params)
     abatement_value <- tot_c_abatement * c_price
 
     ash_value <- calculate_ash_value(params) # Recycled combustion ash (lime + P)
@@ -260,6 +279,7 @@ calculate_beccs <- function(params) {
       co2_transport_cost_mg = ts_cost,
       co2_transport_distance_km = co2_dist_chosen,
       co2_sink_class = co2_sink_class, # 1 onshore saline, 2 onshore EOR, 3 offshore by ship, 4 offshore by pipeline
+      co2_transport_emissions = co2_transport_emissions, # Mg CO2 / Mg feed
       biomass_transport_distance_km = effective_dist,
       energy_revenue_mg = energy_revenue,
       abatement_revenue_mg = abatement_value,

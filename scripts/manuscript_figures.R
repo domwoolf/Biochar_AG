@@ -31,6 +31,12 @@ TECH_COLORS <- c(
   "BEBCS" = "#2ca02c" # Green
 )
 
+# Low-saturation version of a colour (same hue), used for cells where no technology has a positive NPV
+desaturate_color <- function(col, sat = 0.3, val = 0.97) {
+  hsv_col <- grDevices::rgb2hsv(grDevices::col2rgb(col))
+  grDevices::hsv(hsv_col[1, ], hsv_col[2, ] * sat, pmax(hsv_col[3, ], val))
+}
+
 # Figure Output Directory
 out_dir <- if (dir.exists("figures")) "figures/" else if (dir.exists("../figures")) "../figures/" else "figures/"
 
@@ -140,8 +146,17 @@ generate_fig_evaporation <- function(
   )
 
   build_tech_plot <- function(df_data) {
+    # Saturated fill where the optimal technology has a positive NPV; low saturation (same hue)
+    # where even the best technology loses money (NPV <= 0)
+    techs <- names(TECH_COLORS)
+    neg_labels <- paste0(techs, " (NPV \u2264 0)")
+    df_data$tech_npv <- factor(
+      ifelse(df_data$max_npv > 0, df_data$tech, paste0(df_data$tech, " (NPV \u2264 0)")),
+      levels = as.vector(rbind(techs, neg_labels))
+    )
+    fill_values <- stats::setNames(c(TECH_COLORS, desaturate_color(TECH_COLORS)), c(techs, neg_labels))
     plt <- ggplot() +
-      geom_tile(data = df_data, aes(x = .data$x, y = .data$y, fill = .data$tech))
+      geom_tile(data = df_data, aes(x = .data$x, y = .data$y, fill = .data$tech_npv))
     if (!is.null(dat$admin0)) {
       plt <- plt + geom_sf(
         data = dat$admin0,
@@ -156,9 +171,8 @@ generate_fig_evaporation <- function(
     }
     plt +
       coord_sf(crs = 4326) +
-      scale_fill_manual(
-        values = c("BES" = "#1f77b4", "BECCS" = "#d62728", "BEBCS" = "#2ca02c")
-      ) +
+      scale_fill_manual(values = fill_values, drop = FALSE) +
+      guides(fill = guide_legend(nrow = 2, byrow = FALSE)) +
       facet_grid(cp_label ~ dr_label) +
       theme_void(base_size = 14) +
       theme(
