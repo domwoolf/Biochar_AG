@@ -16,7 +16,7 @@ calculate_bebcs <- function(params) {
       eff <- power_eff
       price <- if (!is.null(params$elec_price)) params$elec_price else 100
       c_intensity <- if (!is.null(params$ff_c_intensity)) params$ff_c_intensity else (12 / 3600)
-      base_energy_capex <- if (!is.null(params$bebcs_power_capital_cost)) params$bebcs_power_capital_cost else 1500
+      base_energy_capex <- if (!is.null(params$bebcs_power_capital_cost)) params$bebcs_power_capital_cost else 2600
       life <- if (!is.null(params$bebcs_power_life)) params$bebcs_power_life else 25
       om_fac <- plant_om_fraction(params, "bebcs_power_om_factor")
     } else {
@@ -133,7 +133,8 @@ calculate_bebcs <- function(params) {
       residue_counterfactual_ghg(params)
     abatement_value <- tot_c_abatement * c_price
 
-    bc_val_res <- calculate_biochar_value(params, bc_yield)
+    bc_val_res <- calculate_biochar_value(params, bc_yield, bc_c_content,
+      bc_decay_rate = -log(pmax_raster(bc_stability, 1e-6)) / 100) # mean decay rate implied by 100-yr Fperm
     biochar_economic_value <- bc_val_res$value_usd_per_mg_feedstock
 
     total_revenue <- energy_revenue + biochar_economic_value + abatement_value

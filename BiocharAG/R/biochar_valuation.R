@@ -6,13 +6,18 @@
 #'
 #' @param params List of parameters including `bc_valuation_method`, `bc_price`, `bc_ag_value`, etc.
 #' @param bc_yield Numeric. Biochar yield fraction (Mg Biochar / Mg Feedstock).
+#' @param bc_c_content Biochar carbon content (Mg C / Mg biochar), used to convert the soil physical
+#'   benefit (`bc_cec_value`, per Mg biochar C) to a value per Mg biochar. Defaults to
+#'   `params$bc_c_content`, else 0.75.
+#' @param bc_decay_rate Decay rate of biochar carbon (1/yr), used in the perpetuity for the soil
+#'   physical benefit. Defaults to `params$bc_decay_rate`, else 0.003.
 #'
 #' @return A list containing:
 #' \item{value_usd_per_mg_feedstock}{Total economic value per Mg of biomass feedstock.}
 #' \item{method_used}{Character string indicating the method ("market_price" or "ag_value").}
 #' \item{detail}{Intermediate values (e.g. unit price per Mg char).}
 #' @export
-calculate_biochar_value <- function(params, bc_yield) {
+calculate_biochar_value <- function(params, bc_yield, bc_c_content = NULL, bc_decay_rate = NULL) {
     method <- if (!is.null(params$bc_valuation_method)) params$bc_valuation_method else "ag_value"
 
     # Initialize
@@ -71,17 +76,20 @@ calculate_biochar_value <- function(params, bc_yield) {
 
         # 3. Physical/CEC Value (Yield Efficiency)
         soil_cec <- if (!is.null(params$soil_cec)) params$soil_cec else 20
-        # Heuristic: Value is proportional to CEC deficit (Sandier = More value)
-        # Assume $50/Mg annual benefit in pure sand (CEC=5), $0 in clay (CEC>30)
-        # Linear ramp: (30 - CEC) * 2
-        cec_val_annual <- pmax_raster(0, (30 - soil_cec) * 2)
+        # Annual yield benefit from raising soil CEC, proportional to the CEC deficit: the full value
+        # bc_cec_value ($/Mg biochar C/yr; Woolf et al. 2016) at CEC <= 5 cmol/kg (sands), falling linearly
+        # to 0 at CEC >= 30. Valued as a yield increment, not a substitute input: higher CEC raises the
+        # whole fertilizer response curve.
+        cec_value <- if (!is.null(params$bc_cec_value)) params$bc_cec_value else 21.1
+        bc_c <- if (!is.null(bc_c_content)) bc_c_content else if (!is.null(params$bc_c_content)) params$bc_c_content else 0.75
+        cec_frac <- pmin_raster(pmax_raster((30 - soil_cec) / 25, 0), 1)
+        cec_val_annual <- cec_value * bc_c * cec_frac # $/Mg biochar/yr
 
-        # Discounted over impact duration
-        dur <- if (!is.null(params$ag_impact_duration)) params$ag_impact_duration else 10
+        # Biochar CEC rises with ageing (surface oxidation), so the benefit is treated as a perpetuity that
+        # lasts as long as the biochar carbon: present value = annual value / (discount rate + decay rate)
         dr <- if (!is.null(params$discount_rate)) params$discount_rate else 0.1
-        apv <- (1 - (1 + dr)^-dur) / dr
-
-        v_phys_per_mg_char <- cec_val_annual * apv
+        k <- if (!is.null(bc_decay_rate)) bc_decay_rate else if (!is.null(params$bc_decay_rate)) params$bc_decay_rate else 0.003
+        v_phys_per_mg_char <- cec_val_annual / (dr + k)
 
         # Total
         total_val_per_mg_char <- v_lime_per_mg_char + v_nut_per_mg_char + v_phys_per_mg_char
