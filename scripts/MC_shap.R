@@ -11,7 +11,7 @@ plot_sensitivity_evolution <- function(
   data_path = "results/mc_analysis_results.csv",
   technology_name = "BECCS",
   region_name = "Europe",
-  discount_rate = 0.08,
+  discount_rate = NULL,
   target_c_price = 100
 ) {
   # 1. Load the Monte Carlo results
@@ -150,7 +150,7 @@ plot_sensitivity_evolution <- function(
     labs(
       title = paste0(
         "Evolution of Parameter Sensitivity vs. Carbon Price (R Port)\n",
-        technology_name, " in ", region_name, " (DR=", discount_rate * 100, "%)"
+        technology_name, " in ", region_name, " (DR=", if (is.null(discount_rate)) "regional" else paste0(discount_rate * 100, "%"), ")"
       ),
       x = "Carbon Price ($/tCO2e)",
       y = "Mean Absolute SHAP Value (Impact on NPV)",
@@ -227,7 +227,7 @@ plot_sensitivity_evolution <- function(
 plot_global_beeswarm <- function(
   data_path = "results/mc_analysis_results.csv",
   technology_name = "BECCS",
-  discount_rate = 0.08,
+  discount_rate = NULL, # NULL = each region's central (regional) rate; mc_analysis.R samples {0.02, regional}
   target_c_price = 100
 ) {
   # 1. Load the Monte Carlo results
@@ -235,10 +235,10 @@ plot_global_beeswarm <- function(
   df <- fread(data_path, data.table = FALSE)
 
   # Filter conditionally to the specific technology and carbon price across all regions
-  sub_df <- df %>%
+  dr_keep <- if (is.null(discount_rate)) df$discount_rate > 0.02 else df$discount_rate == discount_rate
+  sub_df <- df[dr_keep, ] %>%
     filter(
       technology == technology_name,
-      discount_rate == !!discount_rate,
       c_price == !!target_c_price,
       !is.na(npv_mean)
     )
@@ -308,7 +308,7 @@ plot_global_beeswarm <- function(
     labs(
       title = paste0(
         "Global SHAP Beeswarm Plot (Carbon Price = $", target_c_price, ")\n",
-        technology_name, " - All Regions Aggregated (DR=", discount_rate * 100, "%)"
+        technology_name, " - All Regions Aggregated (DR=", if (is.null(discount_rate)) "regional" else paste0(discount_rate * 100, "%"), ")"
       )
     ) +
     theme(plot.title = element_text(face = "bold", size = 12, hjust = 0.5))
@@ -352,7 +352,7 @@ generate_evolution_plots <- function() {
     data_path = "results/mc_analysis_results.csv",
     technology_name = "BECCS",
     region_name = "Europe",
-    discount_rate = 0.08,
+    discount_rate = NULL,
     target_c_price = 100
   )
 
@@ -360,7 +360,7 @@ generate_evolution_plots <- function() {
     data_path = "results/mc_analysis_results.csv",
     technology_name = "BECCS",
     region_name = "US",
-    discount_rate = 0.08,
+    discount_rate = NULL,
     target_c_price = 100
   )
 
@@ -368,7 +368,7 @@ generate_evolution_plots <- function() {
     data_path = "results/mc_analysis_results.csv",
     technology_name = "BECCS",
     region_name = "China",
-    discount_rate = 0.08,
+    discount_rate = NULL,
     target_c_price = 100
   )
 
@@ -376,7 +376,7 @@ generate_evolution_plots <- function() {
     data_path = "results/mc_analysis_results.csv",
     technology_name = "BECCS",
     region_name = "India",
-    discount_rate = 0.08,
+    discount_rate = NULL,
     target_c_price = 100
   )
 }
@@ -385,21 +385,21 @@ generate_global_beeswarm_plots <- function() {
   plot_global_beeswarm(
     data_path = "results/mc_analysis_results.csv",
     technology_name = "BECCS",
-    discount_rate = 0.08,
+    discount_rate = NULL,
     target_c_price = 100
   )
 
   plot_global_beeswarm(
     data_path = "results/mc_analysis_results.csv",
     technology_name = "BES",
-    discount_rate = 0.08,
+    discount_rate = NULL,
     target_c_price = 100
   )
 
   plot_global_beeswarm(
     data_path = "results/mc_analysis_results.csv",
     technology_name = "BEBCS",
-    discount_rate = 0.08,
+    discount_rate = NULL,
     target_c_price = 100
   )
 }
