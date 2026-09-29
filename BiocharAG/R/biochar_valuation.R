@@ -50,9 +50,9 @@ calculate_biochar_value <- function(params, bc_yield) {
         v_lime_per_mg_char <- ifelse_raster(soil_ph < target_ph, bc_cce * price_lime, 0)
 
         # 2. Nutrient Value (Substitution)
-        p_n <- if (!is.null(params$price_n)) params$price_n else 0.92
-        p_p <- if (!is.null(params$price_p)) params$price_p else 1.10
-        p_k <- if (!is.null(params$price_k)) params$price_k else 0.62
+        p_n <- if (!is.null(params$price_n)) params$price_n else 1.06
+        p_p <- if (!is.null(params$price_p)) params$price_p else 1.27
+        p_k <- if (!is.null(params$price_k)) params$price_k else 0.86
 
         c_n <- if (!is.null(params$bc_n_content)) params$bc_n_content else 0.005
         c_p <- if (!is.null(params$bc_p_content)) params$bc_p_content else 0.002
@@ -126,7 +126,7 @@ calculate_ash_value <- function(params) {
     ash_cce <- if (!is.null(params$ash_cce)) params$ash_cce else 0.85
     ash_p <- if (!is.null(params$ash_p_content)) params$ash_p_content else 0.012
     avail_p <- if (!is.null(params$avail_p)) params$avail_p else 0.5
-    price_p <- if (!is.null(params$price_p)) params$price_p else 1.10
+    price_p <- if (!is.null(params$price_p)) params$price_p else 1.27
 
     v_lime <- ifelse_raster(soil_ph < target_ph, ash_cce * price_lime, 0)
     v_p <- ash_p * P_TO_P2O5 * avail_p * price_p * 1000 # elemental P content; price per kg P2O5

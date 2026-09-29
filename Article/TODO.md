@@ -191,6 +191,8 @@ In the model (`calculate_ccs_transport()`):
 
     The Alberta Basin was not added: it lies outside the US routing grid, so routes would be snapped to the border. **Done (28 Sep 2026):** `co2_sinks` rebuilt; transport layers regenerated. Sink counts: US 9 onshore saline / 4 EOR / 1 offshore; Europe 4 / 1 / 8; China 2 / 5 / 4; India 2 / 3 / 2. Tests pass.
 
+- Check the role of soil temperature in the model.  It has a high SHAP value, which is surprising.
+
 # Open Manuscript issues
 ## Methods
 
@@ -225,8 +227,8 @@ Review of the Methods section by subsection (28 Sep 2026): consistency with the 
   | C5 | CO~2~ pipeline reference CAPEX | `transport.R` | US$50M per 100 km at 1 Mt/yr | Source and year? | |
   | C6 | Liquefaction, terminal, voyage | `transport.R` | 20, 15 $/t; 0.035 $/t/km | Source and year? (code comments cite an unidentified document, "[cite: 249–255]") | |
   | C7 | CO~2~ storage `ccs_storage_cost`, `cost_offshore_storage` | parameters.csv | 10, 20 $/t | GCCSI (2025) ranges: which USD year does the report use? (ZEP 2011 ranges are 2009 EUR; cited only as a check.) | |
-  | C8 | Fertilizer prices `price_n`, `price_p`, `price_k` (default and regional) | parameters.csv | e.g. 0.92 $/kg N, 1.10 $/kg P~2~O~5~, 0.62 $/kg K~2~O | Source and year for the defaults and each regional value? Fertilizer prices peaked in 2022, so the year matters. | |
-  | C9 | Lime price `price_lime` (default and regional) | parameters.csv | 60 (45/50/35/35) $/Mg | Source and year? | |
+  | C8 | Fertilizer prices `price_n`, `price_p`, `price_k` (default and regional) | parameters.csv | e.g. 0.92 $/kg N, 1.10 $/kg P~2~O~5~, 0.62 $/kg K~2~O | Source and year for the defaults and each regional value? Fertilizer prices peaked in 2022, so the year matters. | **DONE (29 Sep 2026):** world market prices in all regions (user decision: subsidies and export controls are transfers; the value of displaced fertilizer to the economy is at least the world price). World Bank Pink Sheet annual prices 2021–2025, each year escalated to 2024 USD with CPI-U (2025 = 321.943, BLS), then averaged: urea 486 $/t → N 1.06 $/kg; TSP 585 $/t → P~2~O~5~ 1.27 $/kg (DAP net of N: 1.03); KCl 516 $/t → K~2~O 0.86 $/kg. Previous defaults were the 2020–2024 nominal averages (N, P; K did not match); previous regional farm-gate values (e.g. India N 0.14, US 1.59) replaced. MC range ×0.6–1.8 kept (covers annual real prices 2020–2025). EU CBAM (from 2026, +10–20% on imported N) not applied, for consistency with treating policy wedges as transfers; revisit if CBAM is instead treated as pricing the embedded carbon. Methods and bibliography (`worldbank2026pinksheet`) updated. |
+  | C9 | Lime price `price_lime` (default and regional) | parameters.csv | 35 $/Mg (35/35/35/35) | Source and year? | low quality data source is https://teagasc.ie/publications/lime-is-a-key-ingredient-this-spring-on-farms-php/ but it is a minor component in the TEA, so low prioirty to find a better source. |
   | C10 | CEC physical benefit | `biochar_valuation.R` | 50 $/Mg/yr at CEC 5 | Heuristic (see M27); treat as 2024 USD? | |
   | C11 | Biochar price `bc_price` | parameters.csv | 100 $/t | Only used by the "sales" valuation method; treat as 2024 USD? | |
   | C12 | Field application `bc_field_cost` | parameters.csv | 116 $/ha | Converted assuming nets1 is in 2014 USD (87.8 × 1.325). Confirm the nets1 base year. | |
