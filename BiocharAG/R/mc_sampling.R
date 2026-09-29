@@ -18,7 +18,9 @@ qpert <- function(p, min, mode, max, lambda = 4) {
 #'
 #' Resolves the sampling bounds in `parameters.csv` against central (typically regional)
 #' values. `dist_bounds = "relative"` bounds are multipliers on the central value, so each
-#' region gets its own distribution; `"absolute"` bounds are used as given.
+#' region gets its own distribution; `"absolute"` bounds are used as given. A `dist_min` or
+#' `dist_max` cell may add regional overrides after the default, separated by semicolons
+#' (e.g. `0.85;India=0.5`); the region is taken from `central$region`.
 #'
 #' @param params_df Parameter table (as read from `parameters.csv`).
 #' @param central Named list of central values (e.g. `set_scenario(region = r)`); parameters
@@ -34,8 +36,9 @@ mc_distribution_table <- function(params_df, central = list(), names = NULL) {
     row <- rows[i, ]
     mode <- central[[row$name]]
     if (is.null(mode) || length(mode) != 1 || !is.numeric(mode)) mode <- suppressWarnings(as.numeric(row$default_value))
-    lo <- as.numeric(row$dist_min)
-    hi <- as.numeric(row$dist_max)
+    region <- normalize_region_name(central[["region", exact = TRUE]])
+    lo <- mc_bound_value(row$dist_min, region)
+    hi <- mc_bound_value(row$dist_max, region)
     bounds <- tolower(trimws(row$dist_bounds))
     if (bounds == "relative") {
       lo <- lo * mode
@@ -49,6 +52,25 @@ mc_distribution_table <- function(params_df, central = list(), names = NULL) {
     data.frame(name = row$name, distribution = tolower(row$distribution), min = lo, mode = mode, max = hi)
   })
   do.call(rbind, out)
+}
+
+#' Resolve a Sampling Bound with Optional Regional Overrides
+#'
+#' @param x A `dist_min` or `dist_max` cell: a number, or a default followed by `Region=value`
+#'   overrides separated by semicolons (e.g. `"0.85;India=0.5"`).
+#' @param region Normalised region name, or NULL.
+#' @return The numeric bound for `region`.
+#' @keywords internal
+mc_bound_value <- function(x, region = NULL) {
+  parts <- trimws(strsplit(as.character(x), ";", fixed = TRUE)[[1]])
+  if (!length(parts)) return(NA_real_)
+  val <- suppressWarnings(as.numeric(parts[1]))
+  for (p in parts[-1]) {
+    kv <- trimws(strsplit(p, "=", fixed = TRUE)[[1]])
+    if (length(kv) != 2) stop("Invalid regional bound '", p, "' in '", x, "'.")
+    if (!is.null(region) && identical(normalize_region_name(kv[1]), region)) val <- as.numeric(kv[2])
+  }
+  val
 }
 
 #' Sample Monte Carlo Parameters with Rank Correlation

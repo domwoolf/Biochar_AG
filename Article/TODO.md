@@ -210,7 +210,48 @@ Review of the Methods section by subsection (28 Sep 2026): consistency with the 
 
 ### Biomass Feedstock Sourcing and Logistics
 
-- **M6. Currency year of the haulage rate (open).** The text says 0.19 $/Mg/km is "escalated to 2026 USD", but the study now uses 2024 USD (≈ 0.18). Part of the pending currency audit; update text and parameter together.
+- **M6. Currency audit: all monetary values to 2024 USD (in progress, 28 Sep 2026).**
+  **Method.** Escalate with the US CPI-U annual average (BLS CUUR0000SA0), the index already used for the MEF(P) carbon prices (`ngfs_mef_fit.py`), the lift-pump CAPEX (`cpi_2005`) and `bc_field_cost`. Values quoted in another currency are converted to USD at the source-year average exchange rate and then escalated with CPI-U. Factors to 2024 (CPI-U 2024 = 313.689): 2005 1.606; 2006 1.556; 2007 1.513; 2008 1.457; 2009 1.462; 2010 1.439; 2011 1.395; 2012 1.366; 2013 1.347; 2014 1.325; 2015 1.323; 2016 1.307; 2017 1.280; 2018 1.249; 2019 1.227; 2020 1.212; 2021 1.158; 2022 1.072; 2023 1.029. 2024 average exchange rates: 1.082 USD/EUR, 7.20 CNY/USD, 83.7 INR/USD.
+  **Already in 2024 USD (no change):** `grid_p_now` (explicit 2024 averages); MEF(P) P~50~ values (NGFS US$2010 × 1.44); lift-pump CAPEX (McCollum & Ogden 2005 USD × 1.6); `c_price` and the sweep/factorial price grids (scenario inputs, defined in 2024 USD). Ratios and fractions (`plant_om_factor`, `beccs_capex_premium`, location factors, fuel-quality multipliers, CO~2~ pipeline O&M 4%) carry no currency year.
+  **Translated (DONE):** `bm_transport_var`: Searcy et al. (2007) 0.12 $/Mg/km in 2006 USD × 1.556 = 0.187 → 0.19 in 2024 USD. The value is unchanged; the "2026 USD" label in `parameters.csv` and the Methods was wrong and is corrected.
+  **Open: current basis needed.** Please fill in the "Current basis" column (source and currency year). I will then apply the factor above.
+
+  | # | Item | Where | Value | Question | Current basis (to fill) |
+  |---|---|---|---|---|---|
+  | C1 | BES CAPEX `bes_capital_cost` | parameters.csv | 3000 $/kWe (50 MWe) | Source and year? Also: CPI-U or a plant-cost index (CEPCI) for CAPEX? CEPCI has risen more (e.g. 2019→2024 ≈ 1.32 vs CPI 1.23). | This was a bit "hand-wavy". Median value from  Woolf et al. Nature Communications 7, 13160 (2016) was 3300 for >50MW capacity.  A discount to 3000 was applied to allow for our assumed larger size plant. The Woolf values were based on 6 studies published in 2010-2012. No adjustment to 2024 was applied.<br>**Replace with a documented estimate (see C1 review below).** |
+  | C2 | Pyrolysis CAPEX `py_cc` | parameters.csv | 500 $/(Mg feed/yr) | Source and year? | |
+  | C3 | BEBCS power block `bebcs_power_capital_cost` | parameters.csv | 1500 $/kWe | Source and year? | |
+  | C4 | BEBCS heat block `bebcs_heat_capital_cost`; heat price | parameters.csv; `bebcs.R` default `heat_price` 30 | 400 $/kWth; 30 $/MWh | Source and year? (heat mode only) | |
+  | C5 | CO~2~ pipeline reference CAPEX | `transport.R` | US$50M per 100 km at 1 Mt/yr | Source and year? | |
+  | C6 | Liquefaction, terminal, voyage | `transport.R` | 20, 15 $/t; 0.035 $/t/km | Source and year? (code comments cite an unidentified document, "[cite: 249–255]") | |
+  | C7 | CO~2~ storage `ccs_storage_cost`, `cost_offshore_storage` | parameters.csv | 10, 20 $/t | GCCSI (2025) ranges: which USD year does the report use? (ZEP 2011 ranges are 2009 EUR; cited only as a check.) | |
+  | C8 | Fertilizer prices `price_n`, `price_p`, `price_k` (default and regional) | parameters.csv | e.g. 0.92 $/kg N, 1.10 $/kg P~2~O~5~, 0.62 $/kg K~2~O | Source and year for the defaults and each regional value? Fertilizer prices peaked in 2022, so the year matters. | |
+  | C9 | Lime price `price_lime` (default and regional) | parameters.csv | 60 (45/50/35/35) $/Mg | Source and year? | |
+  | C10 | CEC physical benefit | `biochar_valuation.R` | 50 $/Mg/yr at CEC 5 | Heuristic (see M27); treat as 2024 USD? | |
+  | C11 | Biochar price `bc_price` | parameters.csv | 100 $/t | Only used by the "sales" valuation method; treat as 2024 USD? | |
+  | C12 | Field application `bc_field_cost` | parameters.csv | 116 $/ha | Converted assuming nets1 is in 2014 USD (87.8 × 1.325). Confirm the nets1 base year. | |
+  | C13 | Loading/handling `bm_transport_fixed` | parameters.csv | 5 $/Mg | Source and year? | |
+  | C14 | Wholesale electricity price layers | `data-raw/generate_elec_price_layer.R` | state/province $/MWh (fallback defaults, e.g. EU 160) × 0.4 | Script header says "2024/2025 estimates" in USD. Treat as 2024 USD? Source per region? | |
+  | C15 | US feedstock cost | `spatial_tea.R` | 70 + 25.06 $/Mg | Source and year of the farm-gate cost and the stover nutrient-replacement cost? | |
+  | C16 | EU feedstock cost | `spatial_tea.R` | €40/Mg × 1.364 storage × 1.10 USD/EUR | Source and year of €40? The exchange rate (1.10) should match that year. | |
+  | C17 | China feedstock cost | `spatial_tea.R` | ¥250/Mg × 0.14 USD/CNY | Source and year of ¥250? | |
+  | C18 | India feedstock cost | `spatial_tea.R` | ₹2750 (bale) / ₹5200 (pellet) per Mg × 0.012 USD/INR | Source and year? | |
+  | C19 | Discount rates `discount_rate` | parameters.csv | US 5%, EU 4.5%, China 4.5%, India 10% | Not a currency year, but with constant 2024 USD cash flows the rate should be real. Are these real or nominal? | |
+
+  **C1 review (29 Sep 2026): recent BES CAPEX estimates, 2024 USD per kWe net.**
+
+  | Source | Plant | Reported | 2024 USD/kWe |
+  |---|---|---|---|
+  | EIA AEO2026 EMM Assumptions, Table 3 (Sargent & Lundy basis) | US, 50 MW net, wood, BFB, heat rate 13,300 Btu/kWh HHV | $4,843/kW (2025$) | ≈4,720 (×≈0.975) |
+  | Sargent & Lundy for EIA (2020), AEO2020 capital cost report, Case 13 | US, 50 MW, BFB | $4,097/kW (2019$) | 5,030 |
+  | Danish Energy Agency, Technology Data for Energy Plants (rev. 0009, 2020), Large Straw CHP | 132 MW fuel input, 41.6 MWe, 31.5% net elec. eff. (LHV), grate | €3.4M/MWe (2015€), range 2.9–4.0 | 4,990 (range 4,260–5,870); ≈4,720 scaled to 50 MWe |
+  | IRENA, Renewable Power Generation Costs in 2024 (2025), Fig. 1.7/1.18 | All bioenergy commissioned in 2024 (mostly <25 MW, all feedstocks) | China 2,180; India 1,858; EU ≈3,460 (read from chart; 4,908 in 2022); world 3,242 (2024 USD) | same |
+  | CERC (India) RE Tariff Regulations 2024, normative cost FY2024-25 | Rice-straw Rankine plant, water-/air-cooled; aux. 10–12% | ₹697 / ₹744 lakh/MW (gross) | 833 / 889 gross; ≈925 / 1,010 net |
+  | China literature (e.g. 30 MW straw plants, 2008–2013) | 30 MW straw direct combustion | ≈8,400 CNY/kW | ≈1,800 |
+
+  Findings: (1) US and EU sources agree closely at ≈4,700 $/kWe for a 50 MWe plant, about 55% above 3000 and about 25% above the current effective values (3000 × location factor 1.25 = 3,750 US; × 1.15 = 3,450 EU). (2) China's current effective value (3000 × 0.7 = 2,100) matches IRENA (2,180). India's (3000 × 0.65 = 1,950) matches IRENA (1,858) but is about twice the CERC regulatory benchmark (≈925 net). (3) Side findings for other parameters: the EIA pair implies a BECCS CAPEX premium of ≈0.96 at equal thermal input (S&L 2024 Case 8, 50 MW net with 95% capture, $12,631/kW, heat rate 19,965; BES scaled to the same 293 MWth input with exponent 0.7), against `beccs_capex_premium` 0.4 (range 0.25–0.8); its efficiency penalty (25.7% → 17.1% HHV, 8.6 points) supports `beccs_eff_penalty` 0.08. EIA and DEA all-in O&M are ≈4.1% of CAPEX per year, supporting `plant_om_factor`, but CERC's India O&M (₹54.7 lakh/MW/yr) is 7.8% of its CAPEX, against the model's 4% × 0.56 = 2.2%. **DONE (29 Sep 2026):** `bes_capital_cost` (2024 USD/kWe, 50 MWe wood-fired reference) set per region: US 4,700 (EIA AEO2026); Europe 4,300 (DEA straw CHP scaled to 50 MWe, 4,720, ÷ 1.09 DEA straw/wood cost ratio at equal fuel input, since the ash penalty in `adjust_costs_for_fuel()` is added separately; DEA medium wood-chip CHP scaled to 50 MWe gives ≈4,110); China 2,200 and India 1,900 (IRENA 2025). `capex_location_factor` is no longer applied to BES/BECCS combustion CAPEX (`bes.R`, `beccs.R`); it still scales pyrolysis, the BEBCS power block and CO~2~ transport. MC range narrowed from ×0.75–1.5 to ×0.85–1.25. India's lower bound is set to ×0.5 (950 $/kWe, near the CERC benchmark of ≈925 net) via a new regional override syntax in `dist_min`/`dist_max` (`0.85;India=0.5`, parsed by `mc_bound_value()` in `mc_sampling.R`, with tests); India samples 950–2,375. `om_location_factor` set to 1 in all regions (was China 0.67, India 0.56): a single O&M fraction of CAPEX, with regional CAPEX setting the absolute level. Methods (Bioenergy; Regional Cost Adjustment) and bibliography (`eia2026`, `irena2025`, `cerc2024`) updated. Open: IRENA's China/India averages mix all feedstocks and include plants under 25 MW; the IEA WEO Extended Dataset (paid) has regional bioenergy CAPEX as a cross-check. BECCS premium moved to M38.
+
+  Not included: `calc_transport_cost()` in `transport.R` (legacy EUR pipeline formula × 1.1) is exported but not called by the model or the scripts; candidate for `bak/`.
 - **M7. Reference required: truck emission factor** (0.0001 t CO2e per t·km). Suggested: GLEC Framework v3 (Smart Freight Centre, 2023) default intensities for heavy trucks.
 - **M8. Reference required: fixed loading and handling cost** ($5/Mg); see the existing item under Other open items.
 - **M9. Regional feedstock pricing is not spatial, and may double-count haulage (open; needs discussion).**
@@ -284,3 +325,5 @@ Review of the Methods section by subsection (28 Sep 2026): consistency with the 
 
 
 
+
+- **M38. BECCS CAPEX premium should represent mature technology (open).** `beccs_capex_premium` = 0.4 (range 0.25–0.8) is the capture and compression CAPEX premium over BES at equal thermal input. Sargent & Lundy's 2024 estimate for EIA (50 MW net wood BFB with 95% capture, $12,631/kW 2023$, heat rate 19,965 Btu/kWh, against the 50 MW BES case at 13,300) implies ≈0.96 once BES is scaled to the same 293 MW~th~ input (exponent 0.7). That is a near-term, first-of-a-kind estimate. The model should use mature (nth-of-a-kind) costs, on the assumption that crop-residue BECCS follows established fossil CCS and wood-fired BECCS. To do: find NOAK or learning-adjusted estimates for post-combustion capture on biomass boilers (e.g. IEAGHG, NETL NOAK baselines, IEA/IPCC learning rates) and reconcile with the S&L value. Its efficiency penalty (25.7% → 17.1% HHV, 8.6 points) supports `beccs_eff_penalty` = 0.08.

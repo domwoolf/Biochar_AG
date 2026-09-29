@@ -105,3 +105,13 @@ test_that("BECCS early adoption transport cost logic", {
     expect_true(res_ea$total_cost > res_std$total_cost)
     expect_true(res_ea$ts_cost > res_std$ts_cost)
 })
+
+test_that("MC bounds accept regional overrides", {
+    expect_equal(BiocharAG:::mc_bound_value("0.85;India=0.5", "India"), 0.5)
+    expect_equal(BiocharAG:::mc_bound_value("0.85;India=0.5", "US"), 0.85)
+    expect_equal(BiocharAG:::mc_bound_value("1.25", "India"), 1.25)
+    df <- data.frame(name = "x", default_value = "10", distribution = "pert", dist_min = "0.85;India=0.5",
+        dist_max = "1.25", dist_bounds = "relative")
+    expect_equal(mc_distribution_table(df, list(x = 10, region = "India"))$min, 5)
+    expect_equal(mc_distribution_table(df, list(x = 10, region = "Europe"))$min, 8.5)
+})

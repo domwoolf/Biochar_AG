@@ -41,7 +41,7 @@ calculate_beccs <- function(params) {
     }
   }
 
-  if (is.null(params$bes_capital_cost)) params$bes_capital_cost <- 3000
+  if (is.null(params$bes_capital_cost)) params$bes_capital_cost <- 4700
   if (is.null(params$bes_capex_ref_eff)) params$bes_capex_ref_eff <- 0.30
   if (is.null(params$beccs_capex_premium)) params$beccs_capex_premium <- 0.40
   params <- adjust_costs_for_fuel(params)
@@ -221,9 +221,10 @@ calculate_beccs <- function(params) {
 
     # 4. Plant Costs (CAPEX/OPEX)
     scaling_factor_val <- if (!is.null(params$scaling_factor)) scaling_factor else 0.7
-    # Equivalent BES plant for the same thermal input, plus the capture/compression premium
+    # Equivalent BES plant for the same thermal input, plus the capture/compression premium. bes_capital_cost
+    # is a local (regional) value, so the CAPEX location factor is not applied (it still scales CO2 transport).
     total_capex <- combustion_plant_capex(bes_capital_cost, plant_mw_th, bes_capex_ref_eff, scaling_factor_val) *
-      (1 + beccs_capex_premium) * location_factor(params, "capex")
+      (1 + beccs_capex_premium)
     annuity_fac <- calculate_annuity_factor(discount_rate, bes_life)
     annual_capex_payment <- total_capex / annuity_fac
 

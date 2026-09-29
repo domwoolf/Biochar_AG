@@ -10,7 +10,7 @@
 #' @export
 calculate_bes <- function(params) {
   # Default to modern params if not present
-  if (is.null(params$bes_capital_cost)) params$bes_capital_cost <- 3000
+  if (is.null(params$bes_capital_cost)) params$bes_capital_cost <- 4700
   if (is.null(params$bes_energy_efficiency)) params$bes_energy_efficiency <- 0.30
   if (is.null(params$bes_life)) params$bes_life <- 30
   if (is.null(params$bes_capex_ref_eff)) params$bes_capex_ref_eff <- 0.30
@@ -39,8 +39,8 @@ calculate_bes <- function(params) {
 
     # Total Capex ($), sized on thermal input at the reference efficiency
     scaling_factor_val <- if (!is.null(params$scaling_factor)) scaling_factor else 0.7
-    total_capex <- combustion_plant_capex(bes_capital_cost, plant_mw_th, bes_capex_ref_eff, scaling_factor_val) *
-      location_factor(params, "capex")
+    # bes_capital_cost is a local (regional) value, so the CAPEX location factor is not applied
+    total_capex <- combustion_plant_capex(bes_capital_cost, plant_mw_th, bes_capex_ref_eff, scaling_factor_val)
 
     # Annual Capex ($/yr)
     annuity_fac <- calculate_annuity_factor(discount_rate, bes_life)
