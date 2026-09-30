@@ -253,9 +253,10 @@ run_spatial_tea <- function(template_raster, params, spatial_layers = list(),
 #'   (EUR 20 / 37.5 / 62.5 per t dm, 2012 EUR; layer `eu_feedstock_usd` from data-raw/process_eu_feedstock.R)
 #'   x 1.285 USD/EUR (2012) x 1.366 (CPI-U) = 35.1 / 65.8 / 109.7. Cells without a country value, and runs
 #'   without the layer, use EUR 40/t dm = 70.2.
-#' - **China:** plant procurement price ~CNY 300/t less StrawFeed transport cost CNY 72.5/t (Wang et al.
-#'   2022; Nongan, Jilin, 2018-19) = CNY 228/t, / 6.908 CNY/USD (2019) x 1.227 (CPI-U) = 40.5. Optional
-#'   weather risk multiplier x1.13 (Wang et al. 2022).
+#' - **China:** field-side supply cost from the StrawFeed model (Wang et al. 2022; Nongan, Jilin, 2018-19):
+#'   raking 1.0 + baling 84.3 + loading 14.3 = CNY 99.6/t (excluding transport, CNY 72.5/t), / 6.908 CNY/USD
+#'   (2019) x 1.227 (CPI-U) = 17.7. Cost basis (no farmer or broker margin), consistent with the S2Biom
+#'   (Europe) and Sokhansanj et al. (India) costs. Optional weather risk multiplier x1.13 (Wang et al. 2022).
 #' - **India:** `india_feedstock_cost` = 34 $/Mg: baled paddy straw at the field side, dry basis (Sokhansanj
 #'   et al. 2023, $33.14/t dm, 2023 USD), sampled 12-50 (paddy straw value where burned, Erenstein 2011, to
 #'   fodder-market straw prices, Duncan et al. 2020; Lopes et al. 2023).
@@ -285,7 +286,7 @@ calculate_regional_feedstock_cost <- function(region, params) {
     } else if (region == "India") {
         cost_usd <- if (!is.null(params$india_feedstock_cost)) params$india_feedstock_cost else 34
     } else if (region == "China") {
-        base_cny <- if (!is.null(params$cn_base_cny)) params$cn_base_cny else 228 # CNY/t, 2019
+        base_cny <- if (!is.null(params$cn_base_cny)) params$cn_base_cny else 99.6 # CNY/t, 2019
         weather_risk_val <- if (!is.null(params$cn_weather_risk)) params$cn_weather_risk else FALSE
         weather_risk <- ifelse_raster(weather_risk_val, 1.13, 1.0)
         cost_usd <- base_cny * weather_risk / 6.908 * 1.227
