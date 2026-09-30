@@ -256,15 +256,16 @@ run_spatial_tea <- function(template_raster, params, spatial_layers = list(),
 #' - **China:** plant procurement price ~CNY 300/t less StrawFeed transport cost CNY 72.5/t (Wang et al.
 #'   2022; Nongan, Jilin, 2018-19) = CNY 228/t, / 6.908 CNY/USD (2019) x 1.227 (CPI-U) = 40.5. Optional
 #'   weather risk multiplier x1.13 (Wang et al. 2022).
-#' - **India:** farm-gate paddy straw INR 1,200-2,000/t, midpoint 1,600 (about 2024), / 83.7 INR/USD =
-#'   19.1. Consistent with CEEW's delivered bale cost at 50 km (INR 2,500-3,000) less the model's haulage.
+#' - **India:** `india_feedstock_cost` = 34 $/Mg: baled paddy straw at the field side, dry basis (Sokhansanj
+#'   et al. 2023, $33.14/t dm, 2023 USD), sampled 12-50 (paddy straw value where burned, Erenstein 2011, to
+#'   fodder-market straw prices, Duncan et al. 2020; Lopes et al. 2023).
 #' - **Storage (all regions):** `feedstock_storage_cost` ($/Mg, US/EU basis, about six months) scaled by
 #'   `haulage_location_factor` (labour and equipment), see `parameters.csv`.
 #'
 #' @param region Character string: "US", "EU"/"Europe", "India", or "China".
 #' @param params List of parameters; optional overrides `us_base_cost` ($/Mg, 2024 USD), `eu_base_eur`
-#'   (EUR/t dm, 2012 EUR; fallback), `eu_feedstock_usd` (layer, USD/Mg), `cn_base_cny` (CNY/t, 2019), `cn_weather_risk`, `inr_farmgate_cost` (INR/t,
-#'   2024), `feedstock_storage_cost`, `haulage_location_factor`.
+#'   (EUR/t dm, 2012 EUR; fallback), `eu_feedstock_usd` (layer, USD/Mg), `cn_base_cny` (CNY/t, 2019), `cn_weather_risk`, `india_feedstock_cost` ($/Mg,
+#'   2024 USD), `feedstock_storage_cost`, `haulage_location_factor`.
 #' @return Field-side feedstock cost including storage, USD/Mg (2024 USD).
 #' @export
 calculate_regional_feedstock_cost <- function(region, params) {
@@ -282,8 +283,7 @@ calculate_regional_feedstock_cost <- function(region, params) {
             cost_usd <- if (inherits(x, "SpatRaster")) terra::ifel(is.na(x), cost_usd, x) else ifelse(is.na(x), cost_usd, x)
         }
     } else if (region == "India") {
-        inr <- if (!is.null(params$inr_farmgate_cost)) params$inr_farmgate_cost else 1600 # INR/t, ~2024
-        cost_usd <- inr / 83.7
+        cost_usd <- if (!is.null(params$india_feedstock_cost)) params$india_feedstock_cost else 34
     } else if (region == "China") {
         base_cny <- if (!is.null(params$cn_base_cny)) params$cn_base_cny else 228 # CNY/t, 2019
         weather_risk_val <- if (!is.null(params$cn_weather_risk)) params$cn_weather_risk else FALSE
