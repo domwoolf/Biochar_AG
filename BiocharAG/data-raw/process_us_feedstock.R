@@ -1,3 +1,8 @@
+# NOTE (2026-09-30, issue #52): NOT CURRENTLY APPLIED. The model uses a flat US farm-gate price
+# (Billion-Ton Update 2011, $50/dry ton) because the Billion-Ton price is uniform by design, and
+# load_region_data() does not load this script's output. Kept for a possible later analysis of
+# competition with livestock feed (cattle-density opportunity cost of corn stover).
+
 library(terra)
 library(sf)
 library(dplyr)

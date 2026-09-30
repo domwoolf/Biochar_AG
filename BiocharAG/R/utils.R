@@ -165,6 +165,13 @@ load_region_data <- function(region_name, gis_path = NULL, transport_version = c
     for (nm in intersect(transport_v2_layer_names(), names(tl))) layers[[nm]] <- tl[[nm]]
   }
 
+  # Spatial field-side feedstock cost (2024 USD/Mg); built by data-raw/process_eu_feedstock.R (Europe)
+  fc_path <- file.path(gis_path, paste0(p_base, "_feedstock_cost.tif"))
+  if (file.exists(fc_path)) {
+    fc <- terra::rast(fc_path)
+    for (nm in names(fc)) layers[[nm]] <- fc[[nm]]
+  }
+
   # Haulage terrain / road-network factors per plant size; built by data-raw/generate_logistics_layers.R
   hf_path <- file.path(gis_path, paste0(p_dist, "_haul_factors.tif"))
   if (file.exists(hf_path)) {
@@ -238,7 +245,7 @@ run_scenario <- function(template, layers, params, vec = NULL) {
       p[["ff_c_intensity"]] <- spatial_layers[["ff_c_intensity", exact = TRUE]]
     }
 
-    for (layer_name in c("cn_weather_risk", "cn_expansion_risk", "eu_base_eur", "us_base_cost")) {
+    for (layer_name in c("cn_weather_risk", "eu_feedstock_usd", "us_base_cost")) {
       if (layer_name %in% names(spatial_layers)) p[[layer_name]] <- spatial_layers[[layer_name, exact = TRUE]]
     }
 

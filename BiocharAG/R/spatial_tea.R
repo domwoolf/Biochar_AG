@@ -65,7 +65,7 @@ run_spatial_tea <- function(template_raster, params, spatial_layers = list(),
             p$ff_c_intensity <- spatial_layers$ff_c_intensity
         }
 
-        for (layer_name in c("cn_weather_risk", "cn_expansion_risk", "eu_base_eur", "us_base_cost")) {
+        for (layer_name in c("cn_weather_risk", "eu_feedstock_usd", "us_base_cost")) {
             if (layer_name %in% names(spatial_layers)) p[[layer_name]] <- spatial_layers[[layer_name]]
         }
 
@@ -207,7 +207,7 @@ run_spatial_tea <- function(template_raster, params, spatial_layers = list(),
     }
 
     # Map additional spatial layers for feedstock cost logic
-    for (layer_name in c("cn_weather_risk", "cn_expansion_risk", "eu_base_eur", "us_base_cost")) {
+    for (layer_name in c("cn_weather_risk", "eu_feedstock_usd", "us_base_cost")) {
         if (layer_name %in% names(spatial_layers)) p[[layer_name]] <- spatial_layers[[layer_name]]
     }
 
@@ -249,8 +249,10 @@ run_spatial_tea <- function(template_raster, params, spatial_layers = list(),
 #'   supply is profitable at a farm-gate price of $50 per dry short ton (2011 USD assumed) = $55.1/Mg x
 #'   1.395 (CPI-U) = 76.9. The farm-gate price includes the grower payment for nutrient removal, so no
 #'   separate nutrient charge is added.
-#' - **Europe:** S2Biom NUTS-3 road-side cost (Dees et al. 2017), EUR 40 per t dm (2012 EUR) x 1.285
-#'   USD/EUR (2012) x 1.366 (CPI-U) = 70.2.
+#' - **Europe:** S2Biom road-side costs of cereal straw (Dees et al. 2017) aggregated to country level
+#'   (EUR 20 / 37.5 / 62.5 per t dm, 2012 EUR; layer `eu_feedstock_usd` from data-raw/process_eu_feedstock.R)
+#'   x 1.285 USD/EUR (2012) x 1.366 (CPI-U) = 35.1 / 65.8 / 109.7. Cells without a country value, and runs
+#'   without the layer, use EUR 40/t dm = 70.2.
 #' - **China:** plant procurement price ~CNY 300/t less StrawFeed transport cost CNY 72.5/t (Wang et al.
 #'   2022; Nongan, Jilin, 2018-19) = CNY 228/t, / 6.908 CNY/USD (2019) x 1.227 (CPI-U) = 40.5. Optional
 #'   weather risk multiplier x1.13 (Wang et al. 2022).
@@ -261,7 +263,7 @@ run_spatial_tea <- function(template_raster, params, spatial_layers = list(),
 #'
 #' @param region Character string: "US", "EU"/"Europe", "India", or "China".
 #' @param params List of parameters; optional overrides `us_base_cost` ($/Mg, 2024 USD), `eu_base_eur`
-#'   (EUR/t dm, 2012 EUR), `cn_base_cny` (CNY/t, 2019), `cn_weather_risk`, `inr_farmgate_cost` (INR/t,
+#'   (EUR/t dm, 2012 EUR; fallback), `eu_feedstock_usd` (layer, USD/Mg), `cn_base_cny` (CNY/t, 2019), `cn_weather_risk`, `inr_farmgate_cost` (INR/t,
 #'   2024), `feedstock_storage_cost`, `haulage_location_factor`.
 #' @return Field-side feedstock cost including storage, USD/Mg (2024 USD).
 #' @export
@@ -271,8 +273,14 @@ calculate_regional_feedstock_cost <- function(region, params) {
     if (region %in% c("US", "USA")) {
         cost_usd <- if (!is.null(params$us_base_cost)) params$us_base_cost else 76.9
     } else if (region %in% c("EU", "Europe")) {
-        base_eur <- if (!is.null(params$eu_base_eur)) params$eu_base_eur else 40.0 # EUR/t dm, 2012
+        # Country-level S2Biom costs (layer eu_feedstock_usd, 2024 USD/Mg dm) where available; elsewhere
+        # the default road-side cost of EUR 40/t dm (2012 EUR)
+        base_eur <- if (!is.null(params$eu_base_eur)) params$eu_base_eur else 40.0
         cost_usd <- base_eur * 1.285 * 1.366 # 2012 EUR -> 2012 USD -> 2024 USD
+        x <- params$eu_feedstock_usd
+        if (!is.null(x)) {
+            cost_usd <- if (inherits(x, "SpatRaster")) terra::ifel(is.na(x), cost_usd, x) else ifelse(is.na(x), cost_usd, x)
+        }
     } else if (region == "India") {
         inr <- if (!is.null(params$inr_farmgate_cost)) params$inr_farmgate_cost else 1600 # INR/t, ~2024
         cost_usd <- inr / 83.7

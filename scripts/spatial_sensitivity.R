@@ -54,7 +54,7 @@ evaluate_tech_vectorized <- function(tech_fun, tech_name, base_params, spatial_l
   for (nm in intersect(transport_layer_names(), names(spatial_layers))) p[[nm]] <- spatial_layers[[nm]]
   if ("ff_c_intensity" %in% names(spatial_layers)) p$ff_c_intensity <- spatial_layers$ff_c_intensity
 
-  for (layer_name in c("cn_weather_risk", "cn_expansion_risk", "eu_base_eur", "us_base_cost")) {
+  for (layer_name in c("cn_weather_risk", "eu_feedstock_usd", "us_base_cost")) {
     if (layer_name %in% names(spatial_layers)) p[[layer_name]] <- spatial_layers[[layer_name]]
   }
 
