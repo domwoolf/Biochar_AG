@@ -66,7 +66,7 @@ Agricultural crop residues typically have a higher ash content than the wood chi
 
 #### Regional Pricing Structures
 
-Feedstock is priced at the field side (farm gate or road side), in 2024 USD per Mg; haulage from the field to the plant is costed separately (see Biomass Transport Costs and Emissions), so delivered or plant-gate prices are not used.
+Feedstock is priced at the field side (farm gate or road side), in 2024 USD per Mg; haulage from the field to the plant is costed separately (see Biomass Transport Costs and Emissions), so delivered or plant-gate prices are not used. For Europe, China and India the values are costs of collection at the field side, excluding the margins of farmers and intermediaries; for the United States, where no comparable national cost estimate is available, the value is a farm-gate price that includes the grower's payment and profit, so it is somewhat higher than a cost-only estimate would be.
 
 -   **United States:** US\$50 per dry short ton (2011 USD), or 76.9 US\$/Mg in 2024 USD: in the Billion-Ton Update, about 80% of the primary crop residue supply is profitable to collect at a farm-gate price of US\$45 per dry ton and 90% at US\$50 [@perlack2011]. The Billion-Ton prices are uniform across the country because the underlying POLYSYS runs apply a single national price, raised until a large and reliable supply is offered. The farm-gate price comprises the harvest cost and a grower payment that already compensates for the nutrients removed with the residue, so no separate nutrient-replacement charge is added.
 
