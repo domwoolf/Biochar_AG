@@ -7,7 +7,7 @@ library(geodata)
 # ==============================================================================
 # process_transport_layers.R  -- v2: route on one surface, measure on another
 # ------------------------------------------------------------------------------
-# Changes relative to v1 (see Article/TODO.md "effective km"):
+# Changes relative to v1 (see docs/design/co2_transport_routing.md, "effective km"; issue #17):
 #
 #  1. Two friction surfaces on the same routing grid.
 #       F_cost  : bounded construction-cost multiplier (x flat-terrain cost per km)

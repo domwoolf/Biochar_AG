@@ -177,9 +177,9 @@ calculate_ccs_transport <- function(co2_mass, distance, is_offshore = FALSE, dis
   }
 
   # Ship transport: pipeline to the port, liquefaction and terminal, then voyage.
-  # TODO (see Article/TODO.md): the port is the one nearest the source by routing cost, not the one
-  # minimising pipeline + ship cost. Without dist_coast/dist_sea (v1 layers) the inland leg is zero and
-  # the voyage is priced over the full (friction-weighted) distance to the sink.
+  # With v2 layers the port and land route are chosen jointly on land + sea cost (#17). Without
+  # dist_coast/dist_sea (v1 layers) the inland leg is zero and the voyage is priced over the full
+  # (friction-weighted) distance to the sink.
   ship_cost <- function() {
     coast <- if (is.null(dist_coast)) 0 else dist_coast
     sea <- if (is.null(dist_sea)) distance else dist_sea
