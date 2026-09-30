@@ -174,9 +174,8 @@ results_list <- parallel::mclapply(seq_along(regions), function(s) {
     if ("soil_temp" %in% names(spatial_layers)) p$soil_temp <- spatial_layers$soil_temp
 
     if ("elec_price" %in% names(spatial_layers)) {
-      factor <- if (!is.null(p$wholesale_discount_factor)) p$wholesale_discount_factor else 0.4
       ep_mult <- if (!is.null(mc_row$elec_price_multiplier)) mc_row$elec_price_multiplier else 1.0
-      p$elec_price <- spatial_layers$elec_price * ep_mult * factor
+      p$elec_price <- spatial_layers$elec_price * ep_mult
     } else if (!is.null(p$elec_price)) {
       ep_mult <- if (!is.null(mc_row$elec_price_multiplier)) mc_row$elec_price_multiplier else 1.0
       p$elec_price <- p$elec_price * ep_mult

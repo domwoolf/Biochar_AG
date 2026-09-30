@@ -74,8 +74,7 @@ for (i in 1:nrow(factorial_grid)) {
 
   if ("soil_temp" %in% names(spatial_layers)) p$soil_temp <- spatial_layers$soil_temp
   if ("elec_price" %in% names(spatial_layers)) {
-    factor <- if (!is.null(p$wholesale_discount_factor)) p$wholesale_discount_factor else 0.4
-    p$elec_price <- spatial_layers$elec_price * factor
+    p$elec_price <- spatial_layers$elec_price
   }
   if ("soil_ph" %in% names(spatial_layers)) p$soil_ph <- spatial_layers$soil_ph
   if ("soil_cec" %in% names(spatial_layers)) p$soil_cec <- spatial_layers$soil_cec

@@ -136,6 +136,10 @@ load_region_data <- function(region_name, gis_path = NULL, transport_version = c
     NULL
   }
 
+  # The templates are bounding boxes; keep only biomass inside the region's countries (e.g. drop
+  # Canada and Mexico from the US box, Russia and North Africa from the Europe box)
+  if (!is.null(admin0)) bm <- terra::mask(bm, terra::vect(admin0))
+
   layers <- list(
     biomass_density = bm,
     soil_temp = st,
@@ -233,8 +237,7 @@ run_scenario <- function(template, layers, params, vec = NULL) {
 
     if ("soil_temp" %in% names(spatial_layers)) p[["soil_temp"]] <- spatial_layers[["soil_temp", exact = TRUE]]
     if ("elec_price" %in% names(spatial_layers)) {
-      factor <- if (!is.null(p[["wholesale_discount_factor", exact = TRUE]])) p[["wholesale_discount_factor", exact = TRUE]] else 0.4
-      p[["elec_price"]] <- spatial_layers[["elec_price", exact = TRUE]] * factor
+      p[["elec_price"]] <- spatial_layers[["elec_price", exact = TRUE]]
     }
     if ("soil_ph" %in% names(spatial_layers)) p[["soil_ph"]] <- spatial_layers[["soil_ph", exact = TRUE]]
     if ("soil_cec" %in% names(spatial_layers)) p[["soil_cec"]] <- spatial_layers[["soil_cec", exact = TRUE]]

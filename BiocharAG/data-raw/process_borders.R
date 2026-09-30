@@ -75,7 +75,9 @@ regions <- list(
     ),
     Europe = list(
         prefix = "europe",
-        filter = NULL, # Render all nations inside the Europe bounding box
+        filter = NULL, # All nations inside the Europe bounding box, except those below
+        # Outside the study region but inside the bounding box: Russia, North Africa and the Middle East
+        exclude_iso = c("RUS", "DZA", "MAR", "TUN", "SYR"),
         template = file.path(gis_proc, "europe_biomass.tif")
     )
 )
@@ -97,6 +99,7 @@ for (r_name in names(regions)) {
     # ---- Process Admin 0 ----
     message("Filtering Admin 0...")
     sub_a0 <- filter_by_name(v_a0, reg$filter)
+    if (!is.null(reg$exclude_iso)) sub_a0 <- sub_a0[!(sub_a0$ISO_A3 %in% reg$exclude_iso), ]
     
     message("Cropping Admin 0 to Bounding Box...")
     # Wrap in tryCatch as cropping can occasionally fail if geometries are invalid
@@ -116,6 +119,7 @@ for (r_name in names(regions)) {
     # But we'll do it for Europe too if available.
     message("Filtering Admin 1...")
     sub_a1 <- filter_by_name(v_a1, reg$filter)
+    if (!is.null(reg$exclude_iso)) sub_a1 <- sub_a1[!(sub_a1$ISO_A3 %in% reg$exclude_iso), ]
     
     message("Cropping Admin 1 to Bounding Box...")
     crop_a1 <- tryCatch({
