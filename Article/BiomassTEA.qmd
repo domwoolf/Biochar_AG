@@ -66,15 +66,17 @@ Agricultural crop residues typically have a higher ash content than the wood chi
 
 #### Regional Pricing Structures
 
-Feedstock pricing is not treated as a static global constant; rather, it is derived via a spatially explicit shadow-pricing logic converted to a normalized $\text{USD/Mg}$ equivalent.
+Feedstock is priced at the field side (farm gate or road side), in 2024 USD per Mg; haulage from the field to the plant is costed separately (see Biomass Transport Costs and Emissions), so delivered or plant-gate prices are not used.
 
--   **United States:** Establishes a baseline farm-gate cost ($\$70.00/\text{Mg}$) combined with a nutrient replacement penalty (e.g., $\$25.06/\text{Mg}$ for corn stover) to compensate for the export of field nutrients.
+-   **United States:** US\$50 per dry short ton (2011 USD), or 76.9 US\$/Mg in 2024 USD: in the Billion-Ton Update, about 80% of the primary crop residue supply is profitable to collect at a farm-gate price of US\$45 per dry ton and 90% at US\$50 [@perlack2011]. The Billion-Ton prices are uniform across the country because the underlying POLYSYS runs apply a single national price, raised until a large and reliable supply is offered. The farm-gate price comprises the harvest cost and a grower payment that already compensates for the nutrients removed with the residue, so no separate nutrient-replacement charge is added.
 
--   **Europe:** Utilizes a baseline NUTS-3 regional roadside cost, modified by a temporal volatility multiplier that accounts for interim storage costs (up to a 36.4% premium for 6-month storage).
+-   **Europe:** a road-side cost of €40 per t of dry matter (2012 EUR), or 70.2 US\$/Mg in 2024 USD, representative of the NUTS-3 cereal-straw costs of the S2Biom atlas [@dees2017s2biom], which range from €25–50 in France, Spain, Romania and Hungary to more than €100 in Germany, Austria and Scandinavia.
 
--   **India:** Capitalizes on the necessity to avoid crop stubble burning. The model assumes a $\$0$ stumpage fee, but imposes a step-cost for densification: raw bale transport costs apply under 50 km, while more expensive pelletization costs are triggered for catchment zones exceeding 50 km.
+-   **China:** straw is bought by power plants through brokers at about ¥300 per t delivered in Northeast China [@wang2022strawfeed], and at ¥200–300 per t at the plant gate in other major producing provinces. Subtracting the transport cost estimated for the same supply chain (¥72.5 per t) gives a field-side price of ¥228 per t (2019), or 40.5 US\$/Mg in 2024 USD.
 
--   **China:** Modifies a baseline plant-gate cost with exogenous spatial risk multipliers, applying premiums for localized weather volatility and rural expansion risks.
+-   **India:** paddy straw, which has little value as fodder because of its high silica content and is otherwise burned in the field, trades at ₹1,200–2,000 per t at the farm gate; the midpoint, ₹1,600 per t, is 19.1 US\$/Mg. This is consistent with delivered costs of ₹2,500–3,000 per t for bales hauled 50 km [@ceew2023exsitu] once the model's haulage cost is subtracted. Wheat straw, which is traded as fodder at ₹5,000–7,000 per t, is not used as a feedstock. <!-- TODO (#53): a better source for the Indian farm-gate price. -->
+
+Year-round operation also requires interim storage of residues harvested within a few weeks. Published storage costs vary widely, from about 3 to 42 US\$/Mg (2024 USD): 3–11 for US farm-scale storage [@becerra2022; @brechbill2008; @beach2012], 18 for on-farm and 31 for purpose-built storage in the United Kingdom [@shackley2011], 34 for storage and handling [@kung2013], and about 42 for six months' storage of German straw, where storage is 36.4% of the total supply cost [@karras2024]. We add 15 US\$/Mg for the United States and Europe, sampled from 3 to 42 in the Monte Carlo analysis, and scale it by the regional haulage cost factor for China and India (11 and 10 US\$/Mg), consistent with storage accounting for 20–30% of the delivered cost of paddy straw in India [@ceew2023exsitu].
 
 ### Technology Pathways and Thermodynamics
 
