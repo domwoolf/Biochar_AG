@@ -7,7 +7,10 @@
 # Output: GIS/processed/europe_feedstock_cost.tif, layer `eu_feedstock_usd`: field-side feedstock cost
 # in 2024 USD per dry Mg = EUR (2012) x 1.285 USD/EUR (2012 average) x 1.366 (US CPI-U 2024/2012).
 # Storage is not included; the model adds `feedstock_storage_cost` in calculate_regional_feedstock_cost().
-# Cells with no country price (e.g. Cyprus, Kosovo, Turkiye) are NA and use the model's European default.
+# Rows with no country name set a default for unpriced countries in a World Bank region (e.g.
+# "N. Africa and M.E." -> MENA: Algeria, Morocco, Tunisia, Syria). Values for Kosovo (as Serbia/Croatia),
+# Cyprus (as Greece), Turkiye and North Africa/Middle East (lowest class) are author judgements (issue #102).
+# Cells still without a price are NA and use the model's European default.
 #
 # Usage (from BiocharAG/): Rscript data-raw/process_eu_feedstock.R
 
@@ -29,12 +32,23 @@ admin0 <- sf::st_transform(admin0, terra::crs(r_template))
 
 message("Processing S2Biom country prices...")
 price_data <- read.csv("data-raw/Biomass_price_Europe.csv", check.names = FALSE, stringsAsFactors = FALSE)
-price_data$ISO_A3 <- countrycode::countrycode(price_data[["Country Name"]], "country.name", "iso3c")
 price_data$eu_feedstock_usd <- as.numeric(price_data$Price) * eur2012_to_usd2024
+has_country <- !is.na(price_data[["Country Name"]]) & price_data[["Country Name"]] != "NA"
+country_prices <- price_data[has_country, ]
+country_prices$ISO_A3 <- countrycode::countrycode(country_prices[["Country Name"]], "country.name", "iso3c",
+  custom_match = c(Kosovo = "XKX"))
 
-countries_cost <- admin0 %>%
-  dplyr::left_join(price_data[, c("ISO_A3", "eu_feedstock_usd")], by = "ISO_A3") %>%
-  dplyr::filter(!is.na(eu_feedstock_usd))
+admin0 <- admin0 %>% dplyr::left_join(country_prices[, c("ISO_A3", "eu_feedstock_usd")], by = "ISO_A3")
+
+# Region-level defaults for countries without their own value
+region_wb <- c("N. Africa and M.E." = "MENA")
+for (k in which(!has_country)) {
+  wb <- region_wb[[price_data$Region[k]]]
+  fill <- is.na(admin0$eu_feedstock_usd) & admin0$WB_REGION == wb
+  admin0$eu_feedstock_usd[fill] <- price_data$eu_feedstock_usd[k]
+  message("  Region default ", price_data$Region[k], ": ", paste(admin0$NAM_0[fill], collapse = "; "))
+}
+countries_cost <- dplyr::filter(admin0, !is.na(eu_feedstock_usd))
 missing <- setdiff(admin0$NAM_0, countries_cost$NAM_0)
 message("  No price (model default used): ", paste(missing, collapse = "; "))
 
