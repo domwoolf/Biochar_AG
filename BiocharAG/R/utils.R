@@ -396,7 +396,7 @@ biomass_logistics <- function(params, mass = 1) {
   var_mult <- s_t * kt + s_f * kd * g + max(0, 1 - s_t - s_f) * kd
   list(
     effective_dist = effective_dist,
-    cost = mass * (pv("bm_transport_fixed", 5.0) + pv("bm_transport_var", 0.15) * effective_dist * var_mult) *
+    cost = mass * (pv("bm_transport_fixed", 6.27) + pv("bm_transport_var", 0.15) * effective_dist * var_mult) *
       location_factor(params, "haulage"),
     emissions = mass * effective_dist * kd * g * pv("transport_emissions_factor", 0.0001)
   )

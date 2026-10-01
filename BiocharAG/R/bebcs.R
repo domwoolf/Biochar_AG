@@ -99,7 +99,7 @@ calculate_bebcs <- function(params) {
     # field-edge storage and whose empty return leg is already in the per-km cost: only loading and
     # handling are charged.
     bc_haul_cost <- if (isFALSE(as.logical(params$bc_return_haul))) 0 else
-      bc_yield * (if (!is.null(params$bm_transport_fixed)) params$bm_transport_fixed else 5) * location_factor(params, "haulage")
+      bc_yield * (if (!is.null(params$bm_transport_fixed)) params$bm_transport_fixed else 6.27) * location_factor(params, "haulage")
     # Field application: spreading and incorporation, per ha at the biochar application rate
     # (bc_app_rate_c Mg C/ha / biochar C content = Mg biochar/ha); tractor diesel emissions
     bc_rate_mg_ha <- (if (!is.null(params$bc_app_rate_c)) params$bc_app_rate_c else 10) / bc_c_content
