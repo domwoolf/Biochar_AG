@@ -29,8 +29,13 @@ TECH_COLORS <- c(
   "BEBCS" = "#2ca02c" # Green
 )
 
-# Figure Output Directory
-out_dir <- if (dir.exists("figures")) "figures/" else if (dir.exists("../figures")) "../figures/" else "figures/"
+# Output directories: all model results (data, figures, AI summary tables) live under results/.
+# The manuscript reads them through the symlink Article/results -> ../results.
+results_dir <- if (dir.exists("results")) "results/" else if (dir.exists("../results")) "../results/" else "results/"
+out_dir <- paste0(results_dir, "figures/")
+ai_dir <- paste0(results_dir, "ai_summaries/")
+dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
+dir.create(ai_dir, showWarnings = FALSE, recursive = TRUE)
 
 # --- HELPER FUNCTIONS ---
 

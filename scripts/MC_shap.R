@@ -162,14 +162,14 @@ plot_sensitivity_evolution <- function(
       panel.grid.minor = element_blank()
     )
 
-  dir.create("results", showWarnings = FALSE)
+  dir.create("results/mc_shap", showWarnings = FALSE, recursive = TRUE)
 
-  ev_png <- sprintf("results/sensitivity_evolution_R_%s_%s_toggles.png", technology_name, region_name)
+  ev_png <- sprintf("results/mc_shap/sensitivity_evolution_R_%s_%s_toggles.png", technology_name, region_name)
   ggsave(ev_png, plot = p_ev, width = 10, height = 6, dpi = 300)
   message("Saved evolution plot to ", ev_png)
 
   # --- AI Summary Export ---
-  ai_dir <- "figures/ai_summaries/"
+  ai_dir <- "results/ai_summaries/"
   dir.create(ai_dir, showWarnings = FALSE, recursive = TRUE)
   ai_csv <- sprintf("%smc_shap_importance_%s_%s.csv", ai_dir, technology_name, region_name)
   write.csv(importance_all, ai_csv, row.names = FALSE)
@@ -190,7 +190,7 @@ plot_sensitivity_evolution <- function(
       ) +
       theme(plot.title = element_text(face = "bold", size = 12, hjust = 0.5))
 
-    bee_png <- sprintf("results/beeswarm_R_%s_%s_c_%d.png", technology_name, region_name, target_c_price)
+    bee_png <- sprintf("results/mc_shap/beeswarm_R_%s_%s_c_%d.png", technology_name, region_name, target_c_price)
     ggsave(bee_png, plot = p_bee, width = 9, height = 6, dpi = 300)
     message("Saved beeswarm plot to ", bee_png)
 
@@ -214,7 +214,7 @@ plot_sensitivity_evolution <- function(
           ) +
           theme(plot.title = element_text(face = "bold", size = 12, hjust = 0.5))
 
-        dep_png <- sprintf("results/dependence_R_%s_%s_%s_c_%d.png", technology_name, region_name, feat, target_c_price)
+        dep_png <- sprintf("results/mc_shap/dependence_R_%s_%s_%s_c_%d.png", technology_name, region_name, feat, target_c_price)
         ggsave(dep_png, plot = p_dep, width = 8, height = 5, dpi = 300)
         message("Saved dependence plot for ", feat, " to ", dep_png)
       }
@@ -339,8 +339,8 @@ plot_global_beeswarm <- function(
       )
   }
 
-  dir.create("results", showWarnings = FALSE)
-  bee_png <- sprintf("results/beeswarm_global_%s_c_%d.png", technology_name, target_c_price)
+  dir.create("results/mc_shap", showWarnings = FALSE, recursive = TRUE)
+  bee_png <- sprintf("results/mc_shap/beeswarm_global_%s_c_%d.png", technology_name, target_c_price)
   ggsave(bee_png, plot = p_bee, width = 10, height = 7, dpi = 300)
   message("Saved global beeswarm plot to ", bee_png)
 

@@ -365,25 +365,25 @@ Realizing the climate mitigation potential of global biomass requires moving bey
 
 # Figures
 
-![Minimum Break-even carbon price for each technology option. The penultimate row shows the technology with the lowest break-even price, and the final row shows that price. The lowest break-even technology is the first to become profitable as the carbon price rises; it is not necessarily the technology with the highest NPV at a given carbon price (see @fig-evap-usa to @fig-evap-china).](images/Global_Fig8_Breakeven_CPrice_CP100_MW250_reg.png){#fig-break-even width="100%"}
+![Minimum Break-even carbon price for each technology option. The penultimate row shows the technology with the lowest break-even price, and the final row shows that price. The lowest break-even technology is the first to become profitable as the carbon price rises; it is not necessarily the technology with the highest NPV at a given carbon price (see @fig-evap-usa to @fig-evap-china).](results/figures/Global_Fig8_Breakeven_CPrice_CP100_MW250_reg.png){#fig-break-even width="100%"}
 
-![Optimal technology as a function of carbon price and discount rate (USA).](images/US_Fig3_Evaporation_Maps_CP100_MW250.png){#fig-evap-usa width="100%"}
+![Optimal technology as a function of carbon price and discount rate (USA).](results/figures/US_Fig3_Evaporation_Maps_CP100_MW250.png){#fig-evap-usa width="100%"}
 
-![Optimal technology as a function of carbon price and discount rate (Europe).](images/Europe_Fig3_Evaporation_Maps_CP100_MW250.png){#fig-evap-eur width="100%"}
+![Optimal technology as a function of carbon price and discount rate (Europe).](results/figures/Europe_Fig3_Evaporation_Maps_CP100_MW250.png){#fig-evap-eur width="100%"}
 
-![Optimal technology as a function of carbon price and discount rate (India).](images/US_Fig3_Evaporation_Maps_CP100_MW250_reg.png){#fig-evap-india width="100%"}
+![Optimal technology as a function of carbon price and discount rate (India).](results/figures/India_Fig3_Evaporation_Maps_CP100_MW250_reg.png){#fig-evap-india width="100%"}
 
-![Optimal technology as a function of carbon price and discount rate (China).](images/China_Fig3_Evaporation_Maps_CP100_MW250_reg.png){#fig-evap-china width="100%"}
+![Optimal technology as a function of carbon price and discount rate (China).](results/figures/China_Fig3_Evaporation_Maps_CP100_MW250_reg.png){#fig-evap-china width="100%"}
 
-![Marginal abatement cost curve for Europe. Land area is the total area of the grid cells assigned to each technology, not the cropland area within them.](images/Europe_Fig6_MACC_CP100_MW250.png){#fig-MACC-eur width="50%"}
+![Marginal abatement cost curve for Europe. Land area is the total area of the grid cells assigned to each technology, not the cropland area within them.](results/figures/Europe_Fig6_MACC_CP100_MW250.png){#fig-MACC-eur width="50%"}
 
-![Marginal abatement cost curve for India. Land area is the total area of the grid cells assigned to each technology, not the cropland area within them.](images/India_Fig6_MACC_EA_CP100_MW250.png){#fig-MACC-india width="50%"}
+![Marginal abatement cost curve for India. Land area is the total area of the grid cells assigned to each technology, not the cropland area within them.](results/figures/India_Fig6_MACC_EA_CP100_MW250.png){#fig-MACC-india width="50%"}
 
-![Marginal abatement cost curve for China. Land area is the total area of the grid cells assigned to each technology, not the cropland area within them.](images/China_Fig6_MACC_EA_CP100_MW250.png){#fig-MACC-china width="50%"}
+![Marginal abatement cost curve for China. Land area is the total area of the grid cells assigned to each technology, not the cropland area within them.](results/figures/China_Fig6_MACC_EA_CP100_MW250.png){#fig-MACC-china width="50%"}
 
-![Dominant driver of breakeven carbon prices (Shapley decomposition).](images/map_dominant_shap_feature.png){#fig-shap-dominant width="100%"}
+![Dominant spatial driver of the optimal technology in each grid cell: the input with the largest absolute SHAP value for the cell's optimal technology, from surrogate classifiers fitted separately for each region (scenario CP100_MW250; see Supplementary Information). The China panel includes all territory within the World Bank boundary of China, including both the PRC and the ROC.](results/spatial_shap/map_dominant_shap_feature.png){#fig-shap-dominant width="100%"}
 
-![Magnitude of the dominant driver (Shapley decomposition).](images/map_max_shap_magnitude-2.png){#fig-shap-magnitude width="100%"}
+![Magnitude (absolute SHAP value, log-odds) of the dominant spatial driver in each grid cell, from the regional surrogate classifiers. The China panel includes all territory within the World Bank boundary of China, including both the PRC and the ROC.](results/spatial_shap/map_max_shap_magnitude.png){#fig-shap-magnitude width="100%"}
 
 # References
 

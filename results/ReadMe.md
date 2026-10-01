@@ -1,3 +1,19 @@
+# Model results
+
+All model outputs (data tables, figures and AI summary tables) are written here by the scripts in `scripts/` (run from the repository root, e.g. via `scripts/run_analyses.R`). Only this ReadMe is tracked by git; everything else is regenerated. The manuscript and SI read these files through the symlink `Article/results -> ../results`, so the documents always use the current outputs; do not copy figures into `Article/`.
+
+| Path | Contents | Written by |
+|---|---|---|
+| `figures/` | Manuscript figures (evaporation maps, MACCs, break-even prices, extra figures) | `manuscript_figures.R`, `manuscript_figures_extra.R` |
+| `factorial_analysis_results.csv` | Factorial spatial TEA results | `factorial_analysis.R` |
+| `mc_analysis_results.csv` | Monte Carlo results | `mc_analysis.R` |
+| `mc_shap/` | Monte Carlo SHAP plots (evolution, beeswarm, dependence) | `MC_shap.R` |
+| `spatial_sensitivity_results.csv` | Per-cell inputs and results for the spatial sensitivity scenario | `spatial_sensitivity.R` |
+| `spatial_shap/` | Spatial SHAP: global and regional beeswarm and dependence plots, dominant-driver maps, importance table, per-cell SHAP summary | `spatial_shap.R` |
+| `ai_summaries/` | Compact CSV summaries of the above for AI-assisted review | all of the above |
+
+## Column definitions (factorial and summary tables)
+
 All fundamental revenues and costs are normalized to the dry biomass input to ensure they are perfectly additive (i.e., `capital_cost_mg` + `om_cost_mg` + `biomass_cost_mg` + `co2_transport_cost_mg` = `total_cost`). The `_mg` suffix stands for "per Mg of dry biomass." 
 
 ### Spatial & Volume Metrics

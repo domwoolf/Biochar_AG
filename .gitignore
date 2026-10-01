@@ -19,3 +19,6 @@ results/
 # Large downloaded source archives (checksums in GIS/raw/ngfs/checksums.sha256)
 Resources/*.zip
 __pycache__/
+
+# Retired files (to be cleaned up)
+bak/

@@ -305,7 +305,7 @@ write.table(
 message("Monte Carlo Analysis Complete. Results saved to results/mc_analysis_results.csv")
 
 # --- AI Summary Export ---
-ai_dir <- "figures/ai_summaries/"
+ai_dir <- "results/ai_summaries/"
 dir.create(ai_dir, showWarnings = FALSE, recursive = TRUE)
 
 if (nrow(results_df) > 0) {

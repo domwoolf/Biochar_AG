@@ -37,8 +37,13 @@ desaturate_color <- function(col, sat = 0.3, val = 0.97) {
   grDevices::hsv(hsv_col[1, ], hsv_col[2, ] * sat, pmax(hsv_col[3, ], val))
 }
 
-# Figure Output Directory
-out_dir <- if (dir.exists("figures")) "figures/" else if (dir.exists("../figures")) "../figures/" else "figures/"
+# Output directories: all model results (data, figures, AI summary tables) live under results/.
+# The manuscript reads them through the symlink Article/results -> ../results.
+results_dir <- if (dir.exists("results")) "results/" else if (dir.exists("../results")) "../results/" else "results/"
+out_dir <- paste0(results_dir, "figures/")
+ai_dir <- paste0(results_dir, "ai_summaries/")
+dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
+dir.create(ai_dir, showWarnings = FALSE, recursive = TRUE)
 
 # --- HELPER FUNCTIONS ---
 
@@ -123,9 +128,7 @@ generate_fig_evaporation <- function(
         df_ai$Discount_Rate <- dr
         df_ai$Carbon_Price <- cp
 
-        ai_dir <- paste0(out_dir, "ai_summaries/")
-        dir.create(ai_dir, showWarnings = FALSE)
-        write.csv(df_ai, paste0(ai_dir, "evaporation_spatial_", region_name, "_DR", dr * 100, "_CP", cp, "_", scenario, ".csv"), row.names = FALSE)
+                        write.csv(df_ai, paste0(ai_dir, "evaporation_spatial_", region_name, "_DR", dr * 100, "_CP", cp, "_", scenario, ".csv"), row.names = FALSE)
       }
     }
   }
@@ -350,9 +353,7 @@ generate_fig_macc <- function(save_map = FALSE, save_ai_data = FALSE, scenario =
       )
 
     if (save_ai_data) {
-      ai_dir <- paste0(out_dir, "ai_summaries/")
-      dir.create(ai_dir, showWarnings = FALSE)
-      write.csv(combined_macc, paste0(ai_dir, "macc_data_", scenario, ".csv"), row.names = FALSE)
+                  write.csv(combined_macc, paste0(ai_dir, "macc_data_", scenario, ".csv"), row.names = FALSE)
     }
 
     if (save_map) {
@@ -614,9 +615,7 @@ generate_fig_breakeven_cprice <- function(save_map = FALSE,
   }
 
   if (save_ai_data && length(df_ai_list) > 0) {
-    ai_dir <- paste0(out_dir, "ai_summaries/")
-    dir.create(ai_dir, showWarnings = FALSE)
-    df_ai_all <- dplyr::bind_rows(df_ai_list)
+            df_ai_all <- dplyr::bind_rows(df_ai_list)
     write.csv(df_ai_all, paste0(ai_dir, "breakeven_data_", scenario, ".csv"), row.names = FALSE)
   }
 

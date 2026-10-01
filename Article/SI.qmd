@@ -1,0 +1,106 @@
+---
+title: "Supplementary Information: Optimal biomass-based climate change mitigation pathways are spatially heterogeneous due to localized technoeconomic and biophysical constraints"
+date: last-modified
+bibliography: references.bib
+csl: science.csl
+link-citations: true
+format:
+  pdf:
+    documentclass: article
+    papersize: letter
+    geometry:
+      - margin=1in
+    number-sections: true
+    keep-tex: true
+    header-includes: |
+      \usepackage{authblk}
+      \usepackage{draftwatermark}
+      \SetWatermarkText{DRAFT. Not for distribution}
+      \SetWatermarkScale{0.35}
+      \SetWatermarkColor[gray]{0.88}
+      \author[1]{Dominic Woolf}
+      \author[2]{Jocelyn Lavallee}
+      \author[2]{Anna Raffeld}
+      \author[2]{Doria Gordon}
+      \author[2]{Emily Oldfield}
+      \affil[1]{Cornell University}
+      \affil[2]{Environmental Defense Fund}
+      \renewcommand\author[2][]{}
+      \renewcommand{\thefigure}{S\arabic{figure}}
+      \renewcommand{\thetable}{S\arabic{table}}
+  html:
+    toc: true
+execute:
+  echo: false
+  warning: false
+---
+
+# Spatial drivers of the optimal technology (SHAP analysis)
+
+## Method
+
+To identify which spatial inputs determine the optimal technology in each grid cell, we fitted a surrogate classifier to the spatial sensitivity results (scenario CP100_MW250: carbon price 100 US\$/t CO~2~, plant size 250 MW~th~) and attributed its predictions to the inputs with SHAP (SHapley Additive exPlanations) values [@chen2016xgboost]. The classifier is a gradient-boosted tree ensemble (XGBoost; multi-class soft-probability objective, maximum depth 6, learning rate 0.05, 120 rounds) that predicts the technology with the highest net value (BES, BECCS or BEBCS) from ten cell-level inputs: biomass density, soil temperature, electricity price, field-side feedstock cost, the length of the CO~2~ route chosen by BECCS, whether that route ends at an offshore sink, the storage cost at that sink, soil pH, soil cation exchange capacity (CEC) and the displaced grid carbon intensity. SHAP values are in log-odds of each class.
+
+Two kinds of model are fitted. A global model, fitted to all four regions together, shows which inputs distinguish the regions as well as cells within them. Because some inputs are constant within a region (for example, feedstock cost outside Europe and the electricity price in India), in the global model they partly act as labels for the region rather than as drivers of within-region variation. A separate model is therefore fitted for each region; inputs that are constant within the region are dropped. The regional models are used for the maps of the dominant driver (@fig-si-shap-dominant, @fig-si-shap-magnitude) and for the regional beeswarm and dependence plots. Beeswarm and dependence plots show a random sample of 20,000 cells per model; SHAP values were computed for all cells. In the dependence plots, points are coloured by the input with the strongest estimated interaction with the plotted input.
+
+```{r}
+#| label: tbl-si-shap-importance
+#| tbl-cap: "Share of mean absolute SHAP value (%, summed over classes) by input and model, and the training accuracy of each classifier. A dash marks an input that is constant within the region and was dropped from that region's model."
+imp <- read.csv("results/spatial_shap/shap_importance_by_model.csv")
+labs <- c(biomass_density = "Biomass density", soil_temp = "Soil temperature", elec_price = "Electricity price",
+          feedstock_cost = "Feedstock cost", co2_route_km = "CO2 route length", co2_offshore = "Offshore CO2 sink",
+          co2_storage_cost = "CO2 storage cost", soil_ph = "Soil pH", soil_cec = "Soil CEC",
+          ff_c_intensity = "Grid carbon intensity")
+models <- intersect(c("Global", "US", "Europe", "China", "India"), unique(imp$model))
+tab <- data.frame(Input = unname(labs))
+for (m in models) {
+  s <- imp[imp$model == m, ]
+  tab[[m]] <- ifelse(names(labs) %in% s$feature, sprintf("%.1f", s$share_pct[match(names(labs), s$feature)]), "–")
+}
+g <- suppressWarnings(as.numeric(tab$Global))
+tab <- tab[order(-ifelse(is.na(g), -1, g)), ] # by global importance
+acc <- vapply(models, function(m) sprintf("%.1f", imp$accuracy_pct[imp$model == m][1]), character(1))
+tab <- rbind(tab, c("Training accuracy", acc))
+knitr::kable(tab, row.names = FALSE, align = c("l", rep("r", length(models))))
+```
+
+## Dominant drivers
+
+![Dominant spatial driver of the optimal technology in each grid cell: the input with the largest absolute SHAP value for the cell's optimal technology, from the regional models. Scenario CP100_MW250. The China panel includes all territory within the World Bank boundary of China, including both the PRC and the ROC.](results/spatial_shap/map_dominant_shap_feature.png){#fig-si-shap-dominant width="100%"}
+
+![Magnitude (absolute SHAP value, log-odds) of the dominant spatial driver in each grid cell, from the regional models. The China panel includes all territory within the World Bank boundary of China, including both the PRC and the ROC.](results/spatial_shap/map_max_shap_magnitude.png){#fig-si-shap-magnitude width="100%"}
+
+## Beeswarm plots
+
+![SHAP values of each input for each optimal technology, global model (all regions). Each point is a grid cell; colour shows the input value (low to high).](results/spatial_shap/beeswarm_Global.png){#fig-si-bee-global width="100%"}
+
+![SHAP values by input, United States model.](results/spatial_shap/beeswarm_US.png){#fig-si-bee-us width="100%"}
+
+![SHAP values by input, Europe model.](results/spatial_shap/beeswarm_Europe.png){#fig-si-bee-europe width="100%"}
+
+![SHAP values by input, China model.](results/spatial_shap/beeswarm_China.png){#fig-si-bee-china width="100%"}
+
+![SHAP values by input, India model.](results/spatial_shap/beeswarm_India.png){#fig-si-bee-india width="100%"}
+
+## Dependence plots
+
+```{r}
+#| results: asis
+dep <- list.files("results/spatial_shap", pattern = "^dependence_.*\\.png$")
+ord <- c("Global", "US", "Europe", "China", "India")
+key <- sub("^dependence_([^_]+)_(.*)\\.png$", "\\1|\\2", dep)
+dep <- dep[order(match(sub("\\|.*", "", key), ord), sub(".*\\|", "", key))]
+nm <- c(Global = "global model (all regions)", US = "United States model", Europe = "Europe model",
+        China = "China model", India = "India model")
+for (f in dep) {
+  parts <- strsplit(sub("\\.png$", "", sub("^dependence_", "", f)), "_")[[1]]
+  lab <- tolower(paste0("fig-si-dep-", parts[1], "-", parts[2]))
+  cat(sprintf("![SHAP dependence plots for %s, %s: SHAP value of each input against its value, coloured by the input with the strongest interaction.](results/spatial_shap/%s){#%s width=\"100%%\"}\n\n",
+              parts[2], nm[parts[1]], f, lab))
+}
+```
+
+# References {.unnumbered}
+
+::: {#refs}
+:::

@@ -173,6 +173,25 @@ for (r in regions) {
   res_bebcs <- evaluate_tech_vectorized(BiocharAG::calculate_bebcs, "BEBCS", params_regional, spatial_layers, cell_area_vals, r)
 
   message("  Calculating economic metrics and breakdowns...")
+  # Field-side feedstock cost input (2024 USD/Mg, incl. storage; spatial in Europe)
+  p_fc <- params_regional
+  for (layer_name in c("cn_weather_risk", "eu_feedstock_usd", "us_base_cost")) {
+    if (layer_name %in% names(spatial_layers)) p_fc[[layer_name]] <- spatial_layers[[layer_name]]
+  }
+  feedstock_cost_input <- rep_len(BiocharAG::calculate_regional_feedstock_cost(r, p_fc), length(active_indices))
+
+  # CO2 route chosen by BECCS: length, offshore flag and storage cost at the reached sink
+  # (site-specific storage cost x storage_cost_factor where classified, else the regional parameter)
+  sclass <- res_beccs$co2_sink_class
+  sfac <- if (!is.null(params_regional$storage_cost_factor)) params_regional$storage_cost_factor else 1
+  stor_of <- function(layer, base) {
+    v <- spatial_layers[[layer]]
+    if (is.null(v)) rep(base, length(sclass)) else ifelse(is.na(v), base, v * sfac)
+  }
+  on_base <- params_regional$ccs_storage_cost
+  off_base <- params_regional$cost_offshore_storage
+  co2_storage_cost <- ifelse(sclass == 1, stor_of("onsal_storage_cost", on_base),
+    ifelse(sclass == 2, on_base, ifelse(sclass == 3, stor_of("offship_storage_cost", off_base), stor_of("offpipe_storage_cost", off_base))))
   # Logistics transport and feedstock calculations
   effective_dist_bes <- res_bes$avg_dist_chosen * tort
   logistics_cost_bes <- tf + (tv * effective_dist_bes)
@@ -238,9 +257,10 @@ for (r in regions) {
     biomass_density = spatial_layers$biomass_density,
     soil_temp = if ("soil_temp" %in% names(spatial_layers)) spatial_layers$soil_temp else NA,
     elec_price = if ("elec_price" %in% names(spatial_layers)) spatial_layers$elec_price else NA,
-    dist_sink_km = if ("dist_sink_km" %in% names(spatial_layers)) spatial_layers$dist_sink_km else NA,
-    dist_sink_saline_km = if ("dist_sink_saline_km" %in% names(spatial_layers)) spatial_layers$dist_sink_saline_km else NA,
-    sink_is_offshore = if ("sink_is_offshore" %in% names(spatial_layers)) spatial_layers$sink_is_offshore else NA,
+    feedstock_cost = feedstock_cost_input,
+    co2_route_km = res_beccs$co2_transport_distance_km,
+    co2_offshore = as.numeric(sclass %in% c(3, 4)),
+    co2_storage_cost = co2_storage_cost,
     soil_ph = if ("soil_ph" %in% names(spatial_layers)) spatial_layers$soil_ph else NA,
     soil_cec = if ("soil_cec" %in% names(spatial_layers)) spatial_layers$soil_cec else NA,
     ff_c_intensity = ff_ci_vals,
@@ -302,7 +322,7 @@ write.csv(results_df, OUTPUT_FILE, row.names = FALSE)
 message("Spatial Sensitivity Analysis Complete. Results saved to: ", OUTPUT_FILE)
 
 # --- AI Summary Export: Zonal Stats ---
-ai_dir <- "figures/ai_summaries/"
+ai_dir <- "results/ai_summaries/"
 dir.create(ai_dir, showWarnings = FALSE, recursive = TRUE)
 
 df_admin_all <- data.frame()
