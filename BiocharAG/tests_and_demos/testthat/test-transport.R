@@ -59,12 +59,13 @@ test_that("BECCS chooses the sink class with the lowest transport + storage cost
 test_that("sink_storage_costs maps routed sinks to site-specific storage costs", {
     lk <- tempfile(fileext = ".csv")
     utils::write.csv(data.frame(
-        Basin_Name = c("Illinois Basin", "Permian Basin", "Cauvery Basin"),
-        Sub_Unit = c("Mt. Simon Sandstone", "San Andres/Clearfork", "Cretaceous Sands"),
-        sink = c(2, 1, 3)
+        Basin_Name = c("Jianghan Basin", "Illinois Basin", "Cauvery Basin", "Permian Basin"),
+        Sub_Unit = c("Qianjiang Formation", "Mt. Simon Sandstone", "Cretaceous Sands", "San Andres/Clearfork"),
+        sink = c(1, 2, 3, 4)
     ), lk, row.names = FALSE)
     cost <- sink_storage_costs(lk)
     expect_equal(cost[2], 8.00) # NETL Mount Simon, IL (2023 USD 7.77 x CPI)
-    expect_true(is.na(cost[1])) # EOR sink: regional parameter applies
+    expect_true(is.na(cost[1])) # EOR-only sink: regional parameter applies
     expect_true(is.na(cost[3])) # unclassified sink
+    expect_equal(cost[4], 11.11) # EOR basin that is also a saline sink: NETL Canyon, TX
 })

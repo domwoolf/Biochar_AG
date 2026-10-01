@@ -101,7 +101,7 @@ sinks_list <- tribble(
 # ==============================================================================
 # Storage_Class: "netl" (US onshore saline, formation-level cost), "open_saline", "closed_saline",
 # "depleted" (depleted oil/gas field), or "unclassified". Storage_Cost is NA for unclassified sinks and
-# for EOR sinks, which use the regional parameters ccs_storage_cost / cost_offshore_storage.
+# for EOR-only sinks, which use the regional parameters ccs_storage_cost / cost_offshore_storage.
 #
 # netl: FECM/NETL CO2_S_COM v4 (2024) baseline first-year break-even price (2023 USD) of the cheapest
 #   formation in the sink's state with >= 1 Gt prospective resource (else in the basin), x 1.0295
@@ -130,6 +130,12 @@ storage_tbl <- tribble(
   "Sacramento Basin", "netl", 6.84, "NETL CO2_S_COM: Forbes, CA",
   "Denver-Julesburg Basin", "netl", 21.89, "NETL CO2_S_COM: Morrison, CO",
   "Greater Green River Basin", "netl", 13.90, "NETL CO2_S_COM: Nugget, WY",
+  # EOR basins that are also saline sinks (issue #105)
+  "Permian Basin", "netl", 10.79, "NETL CO2_S_COM: Canyon, TX",
+  "Williston Basin", "netl", 11.08, "NETL CO2_S_COM: Inyan Kara, ND",
+  "Powder River Basin", "netl", 15.47, "NETL CO2_S_COM: Minnelusa, WY",
+  "Anadarko Basin", "netl", 29.74, "NETL CO2_S_COM: Simpson Sandstone, OK",
+  "Ordos Basin", "closed_saline", NA, "Liujiagou: low-permeability sandstone (Shenhua saline demonstration)",
   # Open saline aquifers: regionally extensive, well-connected sands
   "Gulf of Mexico (offshore)", "open_saline", NA, "Regionally extensive Miocene shelf sands",
   "Northern North Sea (NO)", "open_saline", NA, "Utsira/Johansen: regionally extensive aquifers; no measurable pressure build-up at Sleipner",
@@ -144,12 +150,19 @@ storage_tbl <- tribble(
   "Danish North Sea (Greensand)", "depleted", NA, "Nini West depleted oil field",
   "Prinos (Greece)", "depleted", NA, "Prinos depleted oil field"
 )
+# Saline and EOR are separate flags (issue #105). Has_Saline: the sink is a saline storage target; EOR
+# basins with documented saline storage resource are both. Jianghan, Assam-Arakan and Rajasthan remain
+# EOR-only (no saline resource assessment found).
+eor_and_saline <- c("Permian Basin", "Williston Basin", "Powder River Basin", "Anadarko Basin", "Pannonian Basin",
+                    "Ordos Basin", "Songliao Basin", "Bohai Bay Basin", "Tarim Basin", "Junggar Basin", "Cambay Basin")
 sinks_list <- sinks_list |>
+  mutate(Has_Saline = !Is_EOR | Basin_Name %in% eor_and_saline) |>
   left_join(storage_tbl, by = "Basin_Name") |>
   mutate(
     Storage_Class = dplyr::coalesce(Storage_Class, "unclassified"),
+    # Storage_Cost is the saline storage cost; EOR routes use the regional parameter
     Storage_Cost = dplyr::case_when(
-      Is_EOR ~ NA_real_,
+      !Has_Saline ~ NA_real_,
       Storage_Class == "netl" ~ netl_usd(NETL_2023),
       Storage_Class %in% names(class_cost) ~ vapply(seq_along(Type), function(i) {
         cc <- class_cost[[Storage_Class[i]]]
@@ -169,4 +182,4 @@ usethis::use_data(co2_sinks, overwrite = TRUE)
 # Print Summary
 message("Sinks database updated with ", nrow(sinks_list), " entries.")
 print(table(sinks_list$Region, sinks_list$Type))
-print(as.data.frame(sinks_list[, c("Region", "Basin_Name", "Type", "Is_EOR", "Storage_Class", "Storage_Cost")]))
+print(as.data.frame(sinks_list[, c("Region", "Basin_Name", "Type", "Is_EOR", "Has_Saline", "Storage_Class", "Storage_Cost")]))

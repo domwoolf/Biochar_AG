@@ -173,7 +173,8 @@ load_region_data <- function(region_name, gis_path = NULL, transport_version = c
     lk_path <- file.path(gis_path, paste0(p_dist, "_sinks_lookup.csv"))
     sink_cost <- sink_storage_costs(lk_path)
     if (!is.null(sink_cost)) {
-      for (cls in c("onsal", "oneor", "offship", "offpipe", "offship_any", "offpipe_any")) {
+      # Storage_Cost is the saline cost; EOR routes (oneor) keep the regional parameter
+      for (cls in c("onsal", "offship", "offpipe", "offship_any", "offpipe_any")) {
         idx_nm <- paste0(cls, if (startsWith(cls, "off")) "_sink" else "_target")
         if (!idx_nm %in% names(tl)) next
         layers[[paste0(cls, "_storage_cost")]] <- terra::classify(tl[[idx_nm]], cbind(seq_along(sink_cost), sink_cost), others = NA)

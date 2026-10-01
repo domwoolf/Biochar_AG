@@ -150,6 +150,14 @@ transport_params <- function(...) {
         # TEA parameter co2_subsea_capex_factor).
         sea_route_weight_ship = 0.7,
         sea_route_weight_pipe = 1.5,
+        # Storage cost seeds the route search (issue #104): each sink starts with its storage cost
+        # (co2_sinks$Storage_Cost, else the defaults below, 2024 USD/t) converted to flat-pipeline km at
+        # the reference trunk cost, so a farther but cheaper sink can win. Same 0.05 $/t/km reference
+        # as the sea-leg weights. Set storage_route_offsets = FALSE to route on transport cost only.
+        storage_route_offsets = TRUE,
+        storage_route_cost_per_km = 0.05,
+        storage_default_onshore = 10,  # = ccs_storage_cost
+        storage_default_offshore = 20, # = cost_offshore_storage
 
         # --- Numerics / outputs ------------------------------------------------
         costdist_maxiter = 500,
@@ -687,10 +695,17 @@ process_transport_layers <- function(region_name, template_path, file_prefix,
     sinks_b <- sf::st_transform(sinks_sub, terra::crs(r_geom))
     is_off <- sinks_b$Type == "Offshore"
     is_eor <- !is.na(sinks_b$Is_EOR) & as.logical(sinks_b$Is_EOR)
-    cls_onsal <- which(!is_off & !is_eor)
+    # Saline and EOR are separate flags (issue #105): a basin can be both a saline and an EOR target
+    has_sal <- if ("Has_Saline" %in% names(sinks_b)) !is.na(sinks_b$Has_Saline) & as.logical(sinks_b$Has_Saline) else !is_eor
+    cls_onsal <- which(!is_off & has_sal)
     cls_oneor <- which(!is_off & is_eor)
     cls_off <- which(is_off)
+    # Storage-cost offsets in route-friction metres (flat-pipeline km x 1000)
+    stor <- if ("Storage_Cost" %in% names(sinks_b)) sinks_b$Storage_Cost else rep(NA_real_, nrow(sinks_b))
+    stor <- ifelse(is.na(stor), ifelse(is_off, params$storage_default_offshore, params$storage_default_onshore), stor)
+    stor_m <- if (isTRUE(params$storage_route_offsets)) stor / params$storage_route_cost_per_km * 1000 else rep(0, nrow(sinks_b))
     message(sprintf("Sinks: %d onshore saline, %d onshore EOR, %d offshore.", length(cls_onsal), length(cls_oneor), length(cls_off)))
+    message("Storage offsets (flat-pipeline km): ", paste(sprintf("%s %.0f", sinks_b$Basin_Name, stor_m / 1000), collapse = "; "))
 
     # --- Processing extent (routing grid + sinks + margin), in lon/lat --------
     e <- terra::ext(r_geom)
@@ -769,12 +784,14 @@ process_transport_layers <- function(region_name, template_path, file_prefix,
     )
 
     # --- Onshore classes ---------------------------------------------------------
-    onshore_class <- function(label, idx) {
+    onshore_class <- function(label, idx, seed_storage = FALSE) {
         if (!length(idx)) return(na_class_layers(label, ctx, params))
         tc <- sink_target_cells(sinks_b[idx, ], F_route, passable, params)
-        route_and_summarise(label, tc$cell, idx[tc$sink], ctx, params)
+        sid <- idx[tc$sink]
+        off <- if (seed_storage && length(unique(stor_m[sid])) > 1) stor_m[sid] - min(stor_m[sid]) else NULL
+        route_and_summarise(label, tc$cell, sid, ctx, params, offset = off)
     }
-    lay_onsal <- onshore_class("onsal", cls_onsal)
+    lay_onsal <- onshore_class("onsal", cls_onsal, seed_storage = TRUE)
     gc()
     lay_oneor <- onshore_class("oneor", cls_oneor)
     gc()
@@ -784,8 +801,8 @@ process_transport_layers <- function(region_name, template_path, file_prefix,
     # exist, offship_any / offpipe_any (any offshore sink). Each coastal cell seeds the land Dijkstra
     # with its sea leg priced at sea_route_weight_* flat-pipeline km per sea km.
     off_modes <- c(ship = params$sea_route_weight_ship, pipe = params$sea_route_weight_pipe)
-    off_sets <- list(sal = which(!is_eor[cls_off]))
-    if (any(is_eor[cls_off])) off_sets$any <- seq_along(cls_off)
+    off_sets <- list(sal = which(has_sal[cls_off]))
+    if (any(is_eor[cls_off] & !has_sal[cls_off])) off_sets$any <- seq_along(cls_off)
     off_label <- function(mode, set) paste0("off", mode, if (set == "any") "_any" else "")
     lay_off <- list()
     for (set in names(off_sets)) for (mode in names(off_modes)) lay_off <- c(lay_off, na_class_layers(off_label(mode, set), ctx, params, offshore = TRUE))
@@ -812,10 +829,15 @@ process_transport_layers <- function(region_name, template_path, file_prefix,
             if (!length(ok_port)) next
             for (mode in names(off_modes)) {
                 lab <- off_label(mode, set)
-                lay <- route_and_summarise(lab, port_cells[ok_port], ok_port, ctx, params, offset = off_modes[[mode]] * b$d[ok_port] * 1000)
+                # Each port's sink minimises sea-leg + storage cost for this mode (issue #104)
+                Cm <- sweep(off_modes[[mode]] * D * 1000, 2, stor_m[cls_off], "+")
+                bm <- best_col(Cm, off_sets[[set]])
+                bm$sea <- D[cbind(seq_len(nrow(D)), bm$k)]
+                bm$off <- bm$d - min(bm$d[ok_port], na.rm = TRUE)
+                lay <- route_and_summarise(lab, port_cells[ok_port], ok_port, ctx, params, offset = bm$off[ok_port])
                 pidx <- as.integer(lay[[paste0(lab, "_target")]])
-                lay[[paste0(lab, "_sea_km")]] <- b$d[pidx]
-                lay[[paste0(lab, "_sink")]] <- as.numeric(cls_off[b$k[pidx]])
+                lay[[paste0(lab, "_sea_km")]] <- bm$sea[pidx]
+                lay[[paste0(lab, "_sink")]] <- as.numeric(cls_off[bm$k[pidx]])
                 lay_off[names(lay)] <- lay
                 gc()
             }
