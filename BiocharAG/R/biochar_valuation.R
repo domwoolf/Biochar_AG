@@ -49,7 +49,7 @@ calculate_biochar_value <- function(params, bc_yield, bc_c_content = NULL, bc_de
         # 1. Liming Value (Substitution)
         soil_ph <- if (!is.null(params$soil_ph)) params$soil_ph else 6.5
         target_ph <- if (!is.null(params$target_ph)) params$target_ph else 6.5
-        price_lime <- if (!is.null(params$price_lime)) params$price_lime else 60
+        price_lime <- if (!is.null(params$price_lime)) params$price_lime else 59
         bc_cce <- if (!is.null(params$bc_cce)) params$bc_cce else 0.15
 
         v_lime_per_mg_char <- ifelse_raster(soil_ph < target_ph, bc_cce * price_lime, 0)
@@ -130,7 +130,7 @@ calculate_ash_value <- function(params) {
     ash_mass <- ash / (1 - ash) # Mg ash / Mg daf feed
     soil_ph <- if (!is.null(params$soil_ph)) params$soil_ph else 6.5
     target_ph <- if (!is.null(params$target_ph)) params$target_ph else 6.5
-    price_lime <- if (!is.null(params$price_lime)) params$price_lime else 60
+    price_lime <- if (!is.null(params$price_lime)) params$price_lime else 59
     ash_cce <- if (!is.null(params$ash_cce)) params$ash_cce else 0.85
     ash_p <- if (!is.null(params$ash_p_content)) params$ash_p_content else 0.012
     avail_p <- if (!is.null(params$avail_p)) params$avail_p else 0.5
