@@ -37,7 +37,7 @@ calculate_bebcs <- function(params) {
     } else {
       plant_mw_th <- (if (!is.null(params$plant_mw)) params$plant_mw else 50) / eff
     }
-    capacity_factor_val <- if (!is.null(params$capacity_factor)) capacity_factor else 0.85
+    capacity_factor_val <- if (!is.null(params$capacity_factor)) capacity_factor else 0.70
     scaling_factor_val <- if (!is.null(params$scaling_factor)) scaling_factor else 0.7
     feed_mg_hr <- plant_mw_th * 3.6 / bm_lhv # Mg daf feed / hr
     actual_annual_biomass <- feed_mg_hr * 8760 * capacity_factor_val

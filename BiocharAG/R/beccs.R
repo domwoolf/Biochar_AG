@@ -67,7 +67,7 @@ calculate_beccs <- function(params) {
       plant_mw_th <- plant_mw / beccs_efficiency
     }
 
-    capacity_factor_val <- if (!is.null(params$capacity_factor)) capacity_factor else 0.85
+    capacity_factor_val <- if (!is.null(params$capacity_factor)) capacity_factor else 0.70
     annual_biomass <- (plant_mw_th * 8760 * capacity_factor_val) / (bm_lhv * gj_to_mwh_conv)
     annual_co2_total <- annual_biomass * co2_captured
 

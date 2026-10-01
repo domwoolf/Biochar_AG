@@ -71,7 +71,6 @@ run_spatial_tea <- function(template_raster, params, spatial_layers = list(),
         dens <- spatial_layers$biomass_density
 
         if (is.null(p$bm_lhv)) p$bm_lhv <- 18.6
-        capacity_factor <- 0.85
 
         npv_list <- list()
         tc_list <- list()

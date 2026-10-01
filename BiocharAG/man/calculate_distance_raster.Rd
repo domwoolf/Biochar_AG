@@ -9,7 +9,8 @@ calculate_distance_raster(
   target_mw_th,
   region,
   gis_dir = NULL,
-  save_to_disk = TRUE
+  save_to_disk = TRUE,
+  capacity_factor = NULL
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ calculate_distance_raster(
 \item{gis_dir}{Optional directory path to save the raster}
 
 \item{save_to_disk}{Logical, whether to save the raster to disk}
+
+\item{capacity_factor}{Plant capacity factor; defaults to the \code{capacity_factor} parameter.}
 }
 \value{
 SpatRaster of average collection distance in km

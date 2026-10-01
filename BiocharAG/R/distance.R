@@ -5,15 +5,17 @@
 #' @param region Character string for region name (e.g., "us", "china")
 #' @param gis_dir Optional directory path to save the raster
 #' @param save_to_disk Logical, whether to save the raster to disk
+#' @param capacity_factor Plant capacity factor; defaults to the `capacity_factor` parameter.
 #'
 #' @return SpatRaster of average collection distance in km
 #' @export
-calculate_distance_raster <- function(dens_wgs84, target_mw_th, region, gis_dir = NULL, save_to_disk = TRUE) {
+calculate_distance_raster <- function(dens_wgs84, target_mw_th, region, gis_dir = NULL, save_to_disk = TRUE,
+                                      capacity_factor = NULL) {
     if (!requireNamespace("terra", quietly = TRUE)) stop("terra package required.")
 
     radii_km <- c(5, 10, 25, 50, 100, 150, 250, 500)
     bm_lhv <- 18.6 # Default LHV
-    capacity_factor <- 0.85
+    if (is.null(capacity_factor)) capacity_factor <- set_scenario()$capacity_factor # parameters.csv default
 
     # Equal-Area Projections for each region
     proj_dict <- list(

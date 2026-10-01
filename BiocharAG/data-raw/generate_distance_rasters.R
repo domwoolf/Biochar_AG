@@ -8,8 +8,10 @@ regions <- c("us", "china", "europe", "india")
 sizes_mw_th <- c(5, 25, 50, 100, 125, 150, 250, 500)
 radii_km <- c(5, 10, 25, 50, 100, 150, 250, 500)
 
-bm_lhv <- 18.6 # Default LHV
-capacity_factor <- 0.85
+# Plant capacity factor and LHV from the canonical parameter file (issue #56)
+par <- read.csv("inst/extdata/parameters.csv", stringsAsFactors = FALSE)
+bm_lhv <- as.numeric(par$default_value[par$name == "bm_lhv"])
+capacity_factor <- as.numeric(par$default_value[par$name == "capacity_factor"])
 
 # Equal-Area Projections for each region to ensure accurate circular buffers
 proj_dict <- list(

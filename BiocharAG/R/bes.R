@@ -12,7 +12,7 @@ calculate_bes <- function(params) {
   # Default to modern params if not present
   if (is.null(params$bes_capital_cost)) params$bes_capital_cost <- 4700
   if (is.null(params$bes_energy_efficiency)) params$bes_energy_efficiency <- 0.30
-  if (is.null(params$bes_life)) params$bes_life <- 30
+  if (is.null(params$bes_life)) params$bes_life <- 25
   if (is.null(params$bes_capex_ref_eff)) params$bes_capex_ref_eff <- 0.30
 
   # Apply Fuel Quality Penalties (High Ash -> Higher Cost)
@@ -34,7 +34,7 @@ calculate_bes <- function(params) {
       plant_mw_th <- plant_mw / bes_energy_efficiency
     }
 
-    capacity_factor_val <- if (!is.null(params$capacity_factor)) capacity_factor else 0.85
+    capacity_factor_val <- if (!is.null(params$capacity_factor)) capacity_factor else 0.70
     annual_biomass <- (plant_mw_th * 8760 * capacity_factor_val) / (bm_lhv * gj_to_mwh_conv)
 
     # Total Capex ($), sized on thermal input at the reference efficiency
