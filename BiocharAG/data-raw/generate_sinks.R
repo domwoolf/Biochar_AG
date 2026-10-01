@@ -96,6 +96,70 @@ sinks_list <- tribble(
     "India", "Mumbai Offshore", "Bombay High / Bassein", "Offshore", 19.4, 71.3, 0.7, FALSE, "West coast; saline and depleted fields"
 )
 
+# ==============================================================================
+# Storage cost by sink (issue #103), 2024 USD per t CO2 injected (exploration to post-closure)
+# ==============================================================================
+# Storage_Class: "netl" (US onshore saline, formation-level cost), "open_saline", "closed_saline",
+# "depleted" (depleted oil/gas field), or "unclassified". Storage_Cost is NA for unclassified sinks and
+# for EOR sinks, which use the regional parameters ccs_storage_cost / cost_offshore_storage.
+#
+# netl: FECM/NETL CO2_S_COM v4 (2024) baseline first-year break-even price (2023 USD) of the cheapest
+#   formation in the sink's state with >= 1 Gt prospective resource (else in the basin), x 1.0295
+#   (US CPI-U 2024/2023). Pressure build-up and interference are modelled per formation.
+# open_saline / closed_saline: Global CCS Institute (2025), midpoint of the open-boundary range
+#   (onshore 2-15, offshore 5-31) or the moderate closed-boundary range (onshore 5-33, offshore 8-50).
+# depleted: ZEP (2011) offshore depleted fields, mean of the cases with and without re-usable legacy
+#   wells (medium EUR 6 and 10/t, 2009 EUR) x 1.387 USD/EUR (ZEP) x 1.462 (US CPI-U 2024/2009).
+#   GCCSI's closed case (a saline aquifer pressurised above hydrostatic) does not apply: depleted
+#   fields start below their original pressure.
+netl_usd <- function(x) round(x * 313.689 / 304.702, 2)
+class_cost <- list(
+  open_saline = c(Onshore = 8.5, Offshore = 18),
+  closed_saline = c(Onshore = 19, Offshore = 29),
+  depleted = c(Onshore = NA, Offshore = round(mean(c(6, 10)) * 1.387 * 313.689 / 214.537, 2))
+)
+storage_tbl <- tribble(
+  ~Basin_Name, ~Storage_Class, ~NETL_2023, ~Storage_Basis,
+  # US onshore saline: NETL formation used
+  "Gulf Coast Basin", "netl", 6.22, "NETL CO2_S_COM: Frio, TX (fluvial)",
+  "Illinois Basin", "netl", 7.77, "NETL CO2_S_COM: Mount Simon, IL",
+  "Michigan Basin", "netl", 7.95, "NETL CO2_S_COM: Mount Simon, MI",
+  "Appalachian Basin", "netl", 24.00, "NETL CO2_S_COM: Copper Ridge, OH (no formation >= 1 Gt in PA; Rose Run PA 80)",
+  "San Juan Basin", "netl", 9.46, "NETL CO2_S_COM: Morrison, NM",
+  "San Joaquin Basin", "netl", 7.53, "NETL CO2_S_COM: Starkey, CA",
+  "Sacramento Basin", "netl", 6.84, "NETL CO2_S_COM: Forbes, CA",
+  "Denver-Julesburg Basin", "netl", 21.89, "NETL CO2_S_COM: Morrison, CO",
+  "Greater Green River Basin", "netl", 13.90, "NETL CO2_S_COM: Nugget, WY",
+  # Open saline aquifers: regionally extensive, well-connected sands
+  "Gulf of Mexico (offshore)", "open_saline", NA, "Regionally extensive Miocene shelf sands",
+  "Northern North Sea (NO)", "open_saline", NA, "Utsira/Johansen: regionally extensive aquifers; no measurable pressure build-up at Sleipner",
+  "Paris Basin", "open_saline", NA, "Dogger: regionally extensive carbonate aquifer (geothermal use across the basin)",
+  # Closed / compartmentalised saline aquifers
+  "North German Basin", "closed_saline", NA, "Buntsandstein compartmentalised by salt structures and faults",
+  # Depleted oil and gas fields
+  "Southern North Sea (NL)", "depleted", NA, "P18/P15 depleted gas fields (Porthos)",
+  "Southern North Sea (UK)", "depleted", NA, "Goldeneye depleted gas-condensate field",
+  "Adriatic (Ravenna)", "depleted", NA, "Porto Corsini depleted gas fields",
+  "East Irish Sea (HyNet)", "depleted", NA, "Hamilton depleted gas fields",
+  "Danish North Sea (Greensand)", "depleted", NA, "Nini West depleted oil field",
+  "Prinos (Greece)", "depleted", NA, "Prinos depleted oil field"
+)
+sinks_list <- sinks_list |>
+  left_join(storage_tbl, by = "Basin_Name") |>
+  mutate(
+    Storage_Class = dplyr::coalesce(Storage_Class, "unclassified"),
+    Storage_Cost = dplyr::case_when(
+      Is_EOR ~ NA_real_,
+      Storage_Class == "netl" ~ netl_usd(NETL_2023),
+      Storage_Class %in% names(class_cost) ~ vapply(seq_along(Type), function(i) {
+        cc <- class_cost[[Storage_Class[i]]]
+        if (is.null(cc)) NA_real_ else unname(cc[Type[i]])
+      }, numeric(1)),
+      TRUE ~ NA_real_
+    )
+  ) |>
+  select(-NETL_2023)
+
 # Convert to sf object (CRS 4326 for WGS84)
 co2_sinks <- st_as_sf(sinks_list, coords = c("Lon", "Lat"), crs = 4326)
 
@@ -105,3 +169,4 @@ usethis::use_data(co2_sinks, overwrite = TRUE)
 # Print Summary
 message("Sinks database updated with ", nrow(sinks_list), " entries.")
 print(table(sinks_list$Region, sinks_list$Type))
+print(as.data.frame(sinks_list[, c("Region", "Basin_Name", "Type", "Is_EOR", "Storage_Class", "Storage_Cost")]))

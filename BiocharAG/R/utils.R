@@ -167,6 +167,18 @@ load_region_data <- function(region_name, gis_path = NULL, transport_version = c
   if (use_v2) {
     tl <- terra::rast(tl_path)
     for (nm in intersect(transport_v2_layer_names(), names(tl))) layers[[nm]] <- tl[[nm]]
+    # Storage cost of the sink each route reaches (issue #103): the routing records the sink index
+    # (onshore *_target, offshore *_sink) into <prefix>_sinks_lookup.csv; costs come from co2_sinks.
+    # NA where the sink is unclassified, so the regional storage parameter applies.
+    lk_path <- file.path(gis_path, paste0(p_dist, "_sinks_lookup.csv"))
+    sink_cost <- sink_storage_costs(lk_path)
+    if (!is.null(sink_cost)) {
+      for (cls in c("onsal", "oneor", "offship", "offpipe", "offship_any", "offpipe_any")) {
+        idx_nm <- paste0(cls, if (startsWith(cls, "off")) "_sink" else "_target")
+        if (!idx_nm %in% names(tl)) next
+        layers[[paste0(cls, "_storage_cost")]] <- terra::classify(tl[[idx_nm]], cbind(seq_along(sink_cost), sink_cost), others = NA)
+      }
+    }
   }
 
   # Spatial field-side feedstock cost (2024 USD/Mg); built by data-raw/process_eu_feedstock.R (Europe)
@@ -332,8 +344,30 @@ transport_layer_names <- function(version = c("all", "v1", "v2")) {
 
 transport_v2_layer_names <- function() {
   off <- c("offship", "offpipe", "offship_any", "offpipe_any")
-  c(as.vector(outer(c("onsal", "oneor", off), c("len_km", "terrain_mult", "hrel_max_m"), paste, sep = "_")),
+  c(as.vector(outer(c("onsal", "oneor", off), c("len_km", "terrain_mult", "hrel_max_m", "storage_cost"), paste, sep = "_")),
     paste0(off, "_sea_km"))
+}
+
+#' Storage Cost of Each Routed Sink
+#'
+#' Matches a region's sink lookup (written by data-raw/process_transport_layers.R, one row per sink in
+#' routing order) to `co2_sinks` by basin and sub-unit and returns each sink's storage cost (2024 USD
+#' per t CO2; NA for unclassified and EOR sinks).
+#'
+#' @param lookup_path Path to `<prefix>_sinks_lookup.csv`.
+#' @return Numeric vector indexed by the lookup's `sink` column, or NULL if unavailable.
+#' @keywords internal
+sink_storage_costs <- function(lookup_path) {
+  if (!file.exists(lookup_path)) return(NULL)
+  env <- new.env()
+  ok <- tryCatch({ utils::data("co2_sinks", package = "BiocharAG", envir = env); TRUE }, error = function(e) FALSE, warning = function(w) FALSE)
+  if (!ok || is.null(env$co2_sinks[["Storage_Cost"]])) return(NULL)
+  sk <- sf::st_drop_geometry(env$co2_sinks)
+  lk <- utils::read.csv(lookup_path, stringsAsFactors = FALSE)
+  cost <- sk$Storage_Cost[match(paste(lk$Basin_Name, lk$Sub_Unit), paste(sk$Basin_Name, sk$Sub_Unit))]
+  out <- rep(NA_real_, max(lk$sink))
+  out[lk$sink] <- cost
+  out
 }
 
 #' Plant O&M Fraction

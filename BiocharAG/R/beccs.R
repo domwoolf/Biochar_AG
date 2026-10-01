@@ -89,6 +89,13 @@ calculate_beccs <- function(params) {
         elec_price = if (!is.null(params$elec_price)) params$elec_price else 0
       )
       zero_na <- function(x) ifelse_raster(is.na(x), 0, x)
+      # Storage cost of the sink each route reaches (issue #103), scaled by storage_cost_factor for
+      # Monte Carlo sampling; the regional parameter applies where the sink is unclassified
+      storage_factor <- if (!is.null(params$storage_cost_factor)) params$storage_cost_factor else 1
+      sink_storage <- function(layer, base) {
+        if (is.null(layer)) return(base)
+        ifelse_raster(is.na(layer), base, layer * storage_factor)
+      }
       pipe_class <- function(cls) {
         len <- params[[paste0(cls, "_len_km"), exact = TRUE]]
         if (is.null(len)) return(list(cost = Inf, len = NA_real_))
@@ -97,7 +104,8 @@ calculate_beccs <- function(params) {
           terrain_mult = params[[paste0(cls, "_terrain_mult"), exact = TRUE]],
           hrel_max_m = params[[paste0(cls, "_hrel_max_m"), exact = TRUE]]
         )))
-        list(cost = ifelse_raster(is.na(len), Inf, tc + base_cost_onshore_storage), len = len)
+        stor <- sink_storage(params[[paste0(cls, "_storage_cost"), exact = TRUE]], base_cost_onshore_storage)
+        list(cost = ifelse_raster(is.na(len), Inf, tc + stor), len = len)
       }
       r_onsal <- pipe_class("onsal")
       r_oneor <- if (allow_eor) pipe_class("oneor") else list(cost = Inf, len = NA_real_)
@@ -119,7 +127,8 @@ calculate_beccs <- function(params) {
           distance = 0, is_offshore = TRUE, dist_coast = zero_na(land), dist_sea = zero_na(sea),
           terrain_mult = off_layer("offship", "terrain_mult"), hrel_max_m = off_layer("offship", "hrel_max_m")
         )))
-        r_ship <- list(cost = ifelse_raster(is.na(land) | is.na(sea), Inf, tc + base_cost_offshore_storage), len = land + sea)
+        stor <- sink_storage(off_layer("offship", "storage_cost"), base_cost_offshore_storage)
+        r_ship <- list(cost = ifelse_raster(is.na(land) | is.na(sea), Inf, tc + stor), len = land + sea)
       }
       r_pipe <- no_route
       if (!is.null(off_layer("offpipe", "len_km"))) {
@@ -134,7 +143,8 @@ calculate_beccs <- function(params) {
           distance = land + sea, terrain_mult = tm_all, hrel_max_m = off_layer("offpipe", "hrel_max_m")
         )))
         missing <- is.na(off_layer("offpipe", "len_km")) | is.na(off_layer("offpipe", "sea_km"))
-        r_pipe <- list(cost = ifelse_raster(missing, Inf, tc + base_cost_offshore_storage), len = land + sea)
+        stor <- sink_storage(off_layer("offpipe", "storage_cost"), base_cost_offshore_storage)
+        r_pipe <- list(cost = ifelse_raster(missing, Inf, tc + stor), len = land + sea)
       }
 
       ts_per_t <- pmin_raster(pmin_raster(r_onsal$cost, r_oneor$cost), pmin_raster(r_ship$cost, r_pipe$cost))
