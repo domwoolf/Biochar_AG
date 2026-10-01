@@ -189,7 +189,7 @@ generate_fig2_booster_penalty <- function(dat, region_name, save_map = FALSE,
 # Figure 3: Evaporation Maps
 generate_fig3_evaporation <- function(
   dat, region_name, save_map = FALSE,
-  d_rates = c(0.02, 0.08, 0.15), c_prices = c(30, 100, 150),
+  d_rates = BiocharAG::sensitivity_discount_rates, c_prices = c(30, 100, 150),
   scenario = "default",
   metric = c("optimal_tech", "max_npv", "both")
 ) {
@@ -238,7 +238,7 @@ generate_fig3_evaporation <- function(
 
   all_df$dr_label <- factor(
     all_df$dr_label,
-    levels = c("Discount Rate: 2%", "Discount Rate: 8%", "Discount Rate: 15%")
+    levels = paste0("Discount Rate: ", d_rates * 100, "%")
   )
   all_df$cp_label <- factor(
     all_df$cp_label,

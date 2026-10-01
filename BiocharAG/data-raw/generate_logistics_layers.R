@@ -42,7 +42,7 @@ logistics_params <- function(...) {
         # Climb fuel (heavy truck, baled residue is volume-limited)
         payload_t = 20, tare_t = 15,
         engine_eff = 0.40, diesel_mj_per_l = 36,
-        descent_recovery = 0.5, # share of descent energy offsetting climbs on the same leg (coasting)
+        descent_recovery = 0, # no credit for descents (issue #13): diesel trucks recover little energy downhill
         flat_l_per_km_loaded = 0.38, flat_l_per_km_empty = 0.28,
         cores = max(1L, min(20L, parallel::detectCores() - 4L)),
         test_n = NULL # timing test: route only this many random plant cells, write nothing

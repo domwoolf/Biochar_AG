@@ -35,6 +35,81 @@ execute:
   warning: false
 ---
 
+# Monte Carlo parameter distributions
+
+Parameter uncertainty is propagated by Monte Carlo simulation (Methods, Uncertainty and Sensitivity Analyses). @tbl-si-mc lists every sampled parameter with its central value, distribution and bounds. The table is generated directly from the model's canonical parameter file (`BiocharAG/inst/extdata/parameters.csv`), so it always matches the values used in the simulations. Ranges marked "× central" are multipliers of the central value (which may differ by region); other ranges are in the parameter's units. Where a bound differs by region it is shown in parentheses. For spatially explicit inputs (for example the electricity price), the relative range is applied as a multiplier on the spatial layer.
+
+```{r}
+#| label: tbl-si-mc
+#| tbl-cap: "Parameters sampled in the Monte Carlo analysis: central values (by region where they differ), distribution and range. Generated from BiocharAG/inst/extdata/parameters.csv."
+library(dplyr)
+library(kableExtra)
+
+raw <- read.csv("../BiocharAG/inst/extdata/parameters.csv", check.names = FALSE, na.strings = "")
+regions <- c("US", "Europe", "China", "India")
+fmt_num <- function(x) {
+  v <- suppressWarnings(as.numeric(x))
+  ifelse(is.na(v), as.character(x), format(signif(v, 4), scientific = FALSE, drop0trailing = TRUE, trim = TRUE))
+}
+fmt_num1 <- function(x) vapply(x, fmt_num, character(1), USE.NAMES = FALSE)
+# Split a bound such as "0.85;India=0.5" into its base value and regional overrides
+parse_bound <- function(b) {
+  parts <- strsplit(as.character(b), ";", fixed = TRUE)[[1]]
+  ov <- if (length(parts) > 1) {
+    kv <- do.call(rbind, strsplit(parts[-1], "=", fixed = TRUE))
+    stats::setNames(kv[, 2], kv[, 1])
+  } else character(0)
+  list(base = parts[1], ov = ov)
+}
+fmt_range <- function(lo, hi, rel) {
+  a <- parse_bound(lo); b <- parse_bound(hi)
+  unit <- if (rel) " × central" else ""
+  out <- paste0(fmt_num(a$base), "–", fmt_num(b$base), unit)
+  ovr <- union(names(a$ov), names(b$ov))
+  if (length(ovr)) {
+    extra <- vapply(ovr, function(r) {
+      l <- if (r %in% names(a$ov)) a$ov[[r]] else a$base
+      h <- if (r %in% names(b$ov)) b$ov[[r]] else b$base
+      paste0(r, " ", fmt_num(l), "–", fmt_num(h))
+    }, character(1))
+    out <- paste0(out, " (", paste(extra, collapse = "; "), ")")
+  }
+  out
+}
+central <- function(row) {
+  v <- unlist(row[regions])
+  if (all(is.na(v))) return(paste0(fmt_num(row[["default_value"]]), " (spatial)"))
+  if (length(unique(v)) == 1) return(fmt_num(v[1]))
+  paste(paste(regions, fmt_num1(v)), collapse = "; ")
+}
+
+mc <- raw |> filter(!is.na(distribution), distribution != "none") |> arrange(category, name)
+tab <- data.frame(
+  Parameter = mc$name,
+  Description = mc$description,
+  Units = ifelse(is.na(mc$units), "", mc$units),
+  Central = vapply(seq_len(nrow(mc)), function(i) central(mc[i, ]), character(1)),
+  Dist. = tools::toTitleCase(mc$distribution),
+  Range = vapply(seq_len(nrow(mc)), function(i) fmt_range(mc$dist_min[i], mc$dist_max[i], mc$dist_bounds[i] == "relative"), character(1))
+)
+grp <- rle(mc$category)
+k <- kbl(tab, format = if (knitr::is_latex_output()) "latex" else "html", booktabs = TRUE, longtable = TRUE,
+         escape = TRUE, row.names = FALSE) |>
+  kable_styling(latex_options = c("repeat_header"), font_size = 7) |>
+  column_spec(1, width = "3.3cm", monospace = TRUE) |>
+  column_spec(2, width = "4.1cm") |>
+  column_spec(3, width = "2.1cm") |>
+  column_spec(4, width = "2.2cm") |>
+  column_spec(5, width = "0.9cm") |>
+  column_spec(6, width = "2.6cm")
+start <- 1
+for (g in seq_along(grp$lengths)) {
+  k <- pack_rows(k, gsub("~", "", grp$values[g]), start, start + grp$lengths[g] - 1)
+  start <- start + grp$lengths[g]
+}
+k
+```
+
 # Spatial drivers of the optimal technology (SHAP analysis)
 
 ## Method

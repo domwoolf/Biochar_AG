@@ -60,6 +60,15 @@ if (!dir.exists(proc_dir)) dir.create(proc_dir, recursive = TRUE)
 #' @importFrom rlang .data
 utils::globalVariables(c("co2_sinks"))
 
+#' Default value of a TEA parameter from inst/extdata/parameters.csv (run from BiocharAG/), so GIS-step
+#' weights that mirror TEA parameters cannot drift from them.
+tea_default <- function(name, csv = "inst/extdata/parameters.csv") {
+    p <- utils::read.csv(csv, stringsAsFactors = FALSE)
+    v <- as.numeric(p$default_value[p$name == name])
+    if (length(v) != 1 || is.na(v)) stop("TEA parameter not found in ", csv, ": ", name)
+    v
+}
+
 # ==============================================================================
 # Parameters
 # ==============================================================================
@@ -146,18 +155,18 @@ transport_params <- function(...) {
         # Sea-leg price in flat onshore-pipeline-km per sea km, used ONLY to choose the port / landfall.
         # Ship: voyage ~0.035 $/t/km vs ~0.05 $/t/km for a shared onshore trunk (hub-and-spoke at
         # 3 Mt/yr, 10 %, 20 yr) -> ~0.7. Terminal and liquefaction are fixed per tonne, so they do not
-        # affect which port is best. Subsea pipeline: offshore/onshore CAPEX ratio (keep equal to the
-        # TEA parameter co2_subsea_capex_factor).
+        # affect which port is best. Subsea pipeline: offshore/onshore CAPEX ratio, read from the TEA
+        # parameter co2_subsea_capex_factor so the two stay equal (issue #19).
         sea_route_weight_ship = 0.7,
-        sea_route_weight_pipe = 1.5,
+        sea_route_weight_pipe = tea_default("co2_subsea_capex_factor"),
         # Storage cost seeds the route search (issue #104): each sink starts with its storage cost
         # (co2_sinks$Storage_Cost, else the defaults below, 2024 USD/t) converted to flat-pipeline km at
         # the reference trunk cost, so a farther but cheaper sink can win. Same 0.05 $/t/km reference
         # as the sea-leg weights. Set storage_route_offsets = FALSE to route on transport cost only.
         storage_route_offsets = TRUE,
         storage_route_cost_per_km = 0.05,
-        storage_default_onshore = 10,  # = ccs_storage_cost
-        storage_default_offshore = 20, # = cost_offshore_storage
+        storage_default_onshore = tea_default("ccs_storage_cost"),
+        storage_default_offshore = tea_default("cost_offshore_storage"),
 
         # --- Numerics / outputs ------------------------------------------------
         costdist_maxiter = 500,

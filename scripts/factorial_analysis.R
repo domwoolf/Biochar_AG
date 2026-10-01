@@ -6,7 +6,7 @@ source("scripts/manuscript_figures.R")
 factorial_grid <- expand.grid(
   region = c("US", "China", "Europe", "India"),
   c_price = c(0, 50, 100, 150, 200),
-  discount_rate = c(0.02, 0.05, 0.10), # real
+  discount_rate = BiocharAG::sensitivity_discount_rates, # real; defined once in the package
   allow_eor = c(TRUE, FALSE),
   early_adoption = c(TRUE, FALSE),
   plant_mw_th = c(50, 150, 250),

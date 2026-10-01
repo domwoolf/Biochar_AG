@@ -70,7 +70,7 @@ ggsave_with_scenario <- function(filename, plot, width, height, bg = "white", dp
 ################ Figure: Evaporation Maps ################
 generate_fig_evaporation <- function(
   dat, region_name, save_map = FALSE, save_ai_data = FALSE,
-  d_rates = c(0.02, 0.08, 0.15), c_prices = c(30, 100, 150),
+  d_rates = BiocharAG::sensitivity_discount_rates, c_prices = c(30, 100, 150),
   scenario = "default",
   metric = c("optimal_tech", "max_npv", "both")
 ) {
@@ -128,14 +128,14 @@ generate_fig_evaporation <- function(
         df_ai$Discount_Rate <- dr
         df_ai$Carbon_Price <- cp
 
-                        write.csv(df_ai, paste0(ai_dir, "evaporation_spatial_", region_name, "_DR", dr * 100, "_CP", cp, "_", scenario, ".csv"), row.names = FALSE)
+        write.csv(df_ai, paste0(ai_dir, "evaporation_spatial_", region_name, "_DR", dr * 100, "_CP", cp, "_", scenario, ".csv"), row.names = FALSE)
       }
     }
   }
 
   all_df$dr_label <- factor(
     all_df$dr_label,
-    levels = c("Discount Rate: 2%", "Discount Rate: 8%", "Discount Rate: 15%")
+    levels = paste0("Discount Rate: ", d_rates * 100, "%")
   )
   all_df$cp_label <- factor(
     all_df$cp_label,

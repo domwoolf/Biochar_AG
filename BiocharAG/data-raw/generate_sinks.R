@@ -29,9 +29,12 @@ library(tibble)
 library(usethis)
 
 # ==============================================================================
-# Global Carbon Sink Database
-# Source: Global Geologic Carbon Storage Assessment & Technoeconomic Transport Modeling
-# Table 1: Comprehensive Global Storage Basin and Sink List
+# Global Carbon Sink Database (issue #63)
+# Basin centroids and storage types follow the OGCI CO2 Storage Resource Catalogue, Cycle 4 (2024) and,
+# for the United States, the USGS (2013) National Assessment of Geologic CO2 Storage Resources (Circular
+# 1386). Basins added on 28 Sep 2026 are placed at operating or planned projects listed in the Global CCS
+# Institute CO2RE facilities database (e.g. Porthos, Northern Lights, Greensand, Ravenna CCS, HyNet,
+# Bayou Bend, Elk Hills).
 # ==============================================================================
 
 sinks_list <- tribble(

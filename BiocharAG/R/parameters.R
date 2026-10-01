@@ -164,6 +164,16 @@ apply_regional_overrides <- function(params, region = NULL) {
   params
 }
 
+#' Discount Rates for Sensitivity Analyses
+#'
+#' Real discount rates used wherever results are shown across a range of costs of capital: the factorial
+#' analysis and the evaporation maps of optimal technology. Defined once here so that all analyses use
+#' the same set (issue #40). The regional base-case rates are the `discount_rate` parameter.
+#'
+#' @format Numeric vector of real discount rates (fractions).
+#' @export
+sensitivity_discount_rates <- c(0.02, 0.05, 0.10)
+
 #' Set Scenario Parameters
 #'
 #' Returns a list of default parameters overridden by a specific scenario
