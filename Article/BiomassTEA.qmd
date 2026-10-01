@@ -224,7 +224,7 @@ The carbon intensity of the electricity (or heat) displaced by bioenergy output 
 
 $$MEF_{emp} = \frac{\sum_i \Delta G_{i} \cdot CI_{i}}{\sum_i \Delta G_{i}}$$
 
-where $CI_i$ is the IPCC median life-cycle greenhouse gas intensity of source $i$ [@schlomer2014]: coal (820 g CO~2~e/kWh), natural gas (490), oil (700), solar (48), geothermal (38), hydro (24), nuclear (12) and wind (11.5). Bioenergy generation is assigned zero intensity, because bioenergy emissions are accounted for explicitly in the model; growth in bioenergy generation still counts in the denominator. Where no growth data are available, the average grid intensity is used. The resulting anchors are 378 g CO~2~e/kWh for China and 574 for India, with medians over biomass-producing grid cells of 341 for the United States (state level) and 38 for Europe (country level).
+where $CI_i$ is the IPCC median life-cycle greenhouse gas intensity of source $i$ [@schlomer2014]: coal (820 g CO~2~e/kWh), natural gas (490), solar (48), geothermal (38), hydro (24), nuclear (12) and wind (11.5). Bioenergy generation is assigned zero intensity, because bioenergy emissions are accounted for explicitly in the model; growth in bioenergy generation still counts in the denominator. Where no growth data are available, the average grid intensity is used. The resulting anchors are 378 g CO~2~e/kWh for China and 574 for India, with medians over biomass-producing grid cells of 341 for the United States (state level) and 38 for Europe (country level).
 
 **Price-response curve.** The decline of the displaced intensity with carbon price follows a Hill (log-logistic) curve,
 
