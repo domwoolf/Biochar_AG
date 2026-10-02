@@ -33,7 +33,7 @@ This file held the issue list until 2026-09-30, when every item was migrated to 
 | T11 | [#11](https://github.com/domwoolf/Biochar_AG/issues/11) | closed | Plant-side site cost factor (handoff item 6): dropped |
 | T12 | [#12](https://github.com/domwoolf/Biochar_AG/issues/12) | open | Regional level of haulage cost (collection speeds vs freight-rate factors) |
 | T13 | [#13](https://github.com/domwoolf/Biochar_AG/issues/13) | open | Climb-fuel factor assumes 50% descent energy recovery |
-| T14 | [#14](https://github.com/domwoolf/Biochar_AG/issues/14) | open | Calibrate modelled CO2 corridors against existing pipelines (handoff item 7) |
+| T14 | [#14](https://github.com/domwoolf/Biochar_AG/issues/14) | closed | Calibrate modelled CO2 corridors against existing pipelines (handoff item 7) |
 | T15 | [#15](https://github.com/domwoolf/Biochar_AG/issues/15) | closed | Manuscript Methods for v2 routing (handoff item 8) |
 | T16 | [#16](https://github.com/domwoolf/Biochar_AG/issues/16) | open | Full re-run of Monte Carlo, SHAP and manuscript figures |
 | T17 | [#17](https://github.com/domwoolf/Biochar_AG/issues/17) | closed | CO2 transport routing v2 (path choice separated from cost; cost-based sink, port and landfall choice) |

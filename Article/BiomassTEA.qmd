@@ -114,7 +114,7 @@ Least-cost paths on $F_{route}$ from every cell to the nearest target were compu
 
 Standard length-invariant TEA cost functions for CO~2~ pipelines adequately model regional networks but underestimate the capital and energy burdens of long-distance transport, which requires intermediate booster compression to overcome frictional pressure drops. Pipeline CAPEX is therefore calculated with a piecewise-linear hub-and-spoke model:
 
-1.  **The Feeder Leg:** Sources build a dedicated feeder pipeline for the first 50 km ($d_{feeder}$), bearing the full CAPEX scaled to their own CO~2~ flow (scaling exponent 0.6).
+1.  **The Feeder Leg:** Sources build a dedicated feeder pipeline for the first 50 km ($d_{feeder}$), bearing the full CAPEX scaled to their own CO~2~ flow (scaling exponent 0.6). Routes of 50 km or less are dedicated pipelines throughout.
 
 2.  **The Trunk Leg (Base Phase):** Up to 700 km, the source connects to a regional trunkline operating at an efficient scale (3 Mt CO~2~ yr^-1^), paying a share of its CAPEX proportional to its mass flow.
 
@@ -128,7 +128,7 @@ C_{base} \cdot (L - 50) & \text{if } L \le 700 \\
 C_{base} \cdot (700 - 50) + (C_{base} \cdot P_{booster}) \cdot (L - 700) & \text{if } L > 700
 \end{cases}$$
 
-Here $L$ is the physical route length (km), $m$ is the route-average construction-cost multiplier, and $C_{base}$ is the unit-length cost of the efficient-scale trunkline, scaled to the source's share of its mass flow. The reference cost is US\$50 million per 100 km for a 1 Mt yr^-1^ pipeline, scaled by the regional CAPEX factor. Annual pipeline O&M is 4% of CAPEX. <!-- TODO (reference required): pipeline reference cost, scaling exponent, trunk scale, booster threshold and penalty, O&M fraction. --> Routes that climb require booster pumping to restore the pressure lost in lifting dense-phase CO~2~. Pumps are sized for the lift beyond a 1 MPa design margin, with pump CAPEX following @mccollum2006, and their electricity is charged at the regional electricity price.
+Here $L$ is the physical route length (km), $m$ is the route-average construction-cost multiplier (applied to the feeder leg as well), and $C_{base}$ is the unit-length cost of the efficient-scale trunkline, scaled to the source's share of its mass flow. The reference cost is US\$50 million per 100 km for a 1 Mt yr^-1^ pipeline, scaled by the regional CAPEX factor. Annual pipeline O&M is 4% of CAPEX, and pipeline CAPEX is annualized over the 25-year plant lifetime at the regional discount rate. <!-- TODO (reference required): pipeline reference cost, scaling exponent, trunk scale, booster threshold and penalty, O&M fraction. --> Routes that climb require booster pumping to restore the pressure lost in lifting dense-phase CO~2~. Pumps are sized for the lift beyond a 1 MPa design margin, with pump CAPEX following @mccollum2006, and their electricity is charged at the regional electricity price.
 
 #### Maritime Shipping and Subsea Pipelines
 
