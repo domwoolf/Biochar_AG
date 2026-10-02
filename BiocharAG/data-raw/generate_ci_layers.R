@@ -46,11 +46,16 @@ message("  -> Created us_ff_c_intensity.tif")
 message("Processing Europe carbon intensity layer...")
 eu_admin <- st_read(paste0(gis_path, "europe_admin0.gpkg"), quiet = TRUE)
 
-# Join by country name. The CSV has names like "Germany", "France", etc.
-# Harmonise World Bank admin names that differ from the CSV (otherwise these countries get NA CI)
-name_alias <- c("Czech Republic" = "Czechia", "Slovak Republic" = "Slovakia")
-eu_admin$ci_name <- ifelse(eu_admin$NAM_0 %in% names(name_alias), name_alias[eu_admin$NAM_0], eu_admin$NAM_0)
-eu_admin <- merge(eu_admin, df, by.x = "ci_name", by.y = "Name", all.x = TRUE)
+# Join on ISO 3166-1 alpha-2 code (the CSV's Code for countries), which avoids name mismatches such as
+# "Turkiye" vs "Turkey" that left whole countries without a carbon intensity. Fall back to the name.
+name_alias <- c("Czech Republic" = "Czechia", "Slovak Republic" = "Slovakia", "Kosovo" = "Kosovo")
+df_country <- df[nchar(df$Code) == 2, ]
+eu_admin$Merged_CI_tCO2_GJ <- df_country$Merged_CI_tCO2_GJ[match(eu_admin$ISO_A2, df_country$Code)]
+ci_name <- ifelse(eu_admin$NAM_0 %in% names(name_alias), name_alias[eu_admin$NAM_0], eu_admin$NAM_0)
+by_name <- df$Merged_CI_tCO2_GJ[match(ci_name, df$Name)]
+eu_admin$Merged_CI_tCO2_GJ <- ifelse(is.na(eu_admin$Merged_CI_tCO2_GJ), by_name, eu_admin$Merged_CI_tCO2_GJ)
+missing_ci <- eu_admin$NAM_0[is.na(eu_admin$Merged_CI_tCO2_GJ)]
+if (length(missing_ci)) message("  No carbon intensity for: ", paste(missing_ci, collapse = "; "))
 
 eu_bm <- rast(paste0(gis_path, "europe_biomass.tif"))
 eu_ci <- rasterize(eu_admin, eu_bm, field = "Merged_CI_tCO2_GJ")
