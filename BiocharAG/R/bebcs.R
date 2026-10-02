@@ -114,7 +114,7 @@ calculate_bebcs <- function(params) {
     bc_rate_mg_ha <- (if (!is.null(params$bc_app_rate_c)) params$bc_app_rate_c else 10) / bc_c_content
     bc_field_cost_ha <- if (!is.null(params$bc_field_cost)) params$bc_field_cost else 116
     bc_field_cost <- bc_yield * bc_field_cost_ha / bc_rate_mg_ha * location_factor(params, "haulage")
-    bc_field_diesel <- if (!is.null(params$bc_field_diesel)) params$bc_field_diesel else 10
+    bc_field_diesel <- if (!is.null(params$bc_field_diesel)) params$bc_field_diesel else 17.5
     bc_field_emissions <- bc_yield / bc_rate_mg_ha * bc_field_diesel * 2.68e-3 # Mg CO2 / Mg feed (2.68 kg CO2/L)
     logistics_cost <- logistics$cost + bc_haul_cost + bc_field_cost
     transport_emissions_co2e <- logistics$emissions + bc_field_emissions

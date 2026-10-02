@@ -52,7 +52,7 @@ This file held the issue list until 2026-09-30, when every item was migrated to 
 | T30 | [#30](https://github.com/domwoolf/Biochar_AG/issues/30) | open | Potassium in fly ash is not credited |
 | T31 | [#31](https://github.com/domwoolf/Biochar_AG/issues/31) | open | Residue burning shares for the US and China are estimates |
 | T32 | [#32](https://github.com/domwoolf/Biochar_AG/issues/32) | closed | Biochar field application cost and tractor diesel |
-| T33 | [#33](https://github.com/domwoolf/Biochar_AG/issues/33) | open | Check the biochar spreading diesel estimate (10 L/ha) |
+| T33 | [#33](https://github.com/domwoolf/Biochar_AG/issues/33) | closed | Check the biochar spreading diesel estimate (10 L/ha) |
 | T34 | [#34](https://github.com/domwoolf/Biochar_AG/issues/34) | closed | Ash return haulage excluded as negligible |
 | T35 | [#35](https://github.com/domwoolf/Biochar_AG/issues/35) | closed | Avoided liming emissions not credited |
 | T36 | [#36](https://github.com/domwoolf/Biochar_AG/issues/36) | closed | CRS consistency check across all layers |
@@ -86,7 +86,7 @@ This file held the issue list until 2026-09-30, when every item was migrated to 
 | M21 | [#64](https://github.com/domwoolf/Biochar_AG/issues/64) | open | Reference required: pipeline cost model parameters |
 | M22 | [#65](https://github.com/domwoolf/Biochar_AG/issues/65) | open | Reference required: terrain and altitude cost multipliers and routing premium |
 | M23 | [#66](https://github.com/domwoolf/Biochar_AG/issues/66) | open | Reference required: CO2 shipping cost parameters |
-| M24 | [#67](https://github.com/domwoolf/Biochar_AG/issues/67) | open | Reference required: pyrolysis and power-block techno-economics |
+| M24 | [#67](https://github.com/domwoolf/Biochar_AG/issues/67) | closed | Reference required: pyrolysis and power-block techno-economics |
 | M25 | [#68](https://github.com/domwoolf/Biochar_AG/issues/68) | closed | Agronomic valuation text vs code |
 | M26 | [#69](https://github.com/domwoolf/Biochar_AG/issues/69) | open | Reference required: biochar agronomic parameters |
 | M27 | [#70](https://github.com/domwoolf/Biochar_AG/issues/70) | open | CEC value function is a heuristic |
