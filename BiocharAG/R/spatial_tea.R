@@ -64,7 +64,7 @@ run_spatial_tea <- function(template_raster, params, spatial_layers = list(),
             p$ff_c_intensity <- spatial_layers$ff_c_intensity
         }
 
-        for (layer_name in c("cn_weather_risk", "eu_feedstock_usd", "us_base_cost")) {
+        for (layer_name in aux_layer_names()) {
             if (layer_name %in% names(spatial_layers)) p[[layer_name]] <- spatial_layers[[layer_name]]
         }
 
@@ -204,7 +204,7 @@ run_spatial_tea <- function(template_raster, params, spatial_layers = list(),
     }
 
     # Map additional spatial layers for feedstock cost logic
-    for (layer_name in c("cn_weather_risk", "eu_feedstock_usd", "us_base_cost")) {
+    for (layer_name in aux_layer_names()) {
         if (layer_name %in% names(spatial_layers)) p[[layer_name]] <- spatial_layers[[layer_name]]
     }
 

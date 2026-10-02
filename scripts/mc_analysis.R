@@ -193,7 +193,7 @@ results_list <- parallel::mclapply(seq_along(regions), function(s) {
       p$ff_c_intensity <- p$ff_c_intensity * ff_mult
     }
 
-    for (layer_name in c("cn_weather_risk", "eu_feedstock_usd", "us_base_cost")) {
+    for (layer_name in aux_layer_names()) {
       if (layer_name %in% names(spatial_layers)) p[[layer_name]] <- spatial_layers[[layer_name]]
     }
 

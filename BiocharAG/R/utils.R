@@ -182,6 +182,11 @@ load_region_data <- function(region_name, gis_path = NULL, transport_version = c
     }
   }
 
+  # Share of available residue otherwise burned in the field (0-1); built by
+  # data-raw/generate_residue_burn_layer.R from Smerald et al. (2023) and Karan et al. (2023)
+  rb_path <- file.path(gis_path, paste0(p_base, "_residue_burn.tif"))
+  if (file.exists(rb_path)) layers[["residue_burn_map"]] <- terra::rast(rb_path)[[1]]
+
   # Spatial field-side feedstock cost (2024 USD/Mg); built by data-raw/process_eu_feedstock.R (Europe)
   fc_path <- file.path(gis_path, paste0(p_base, "_feedstock_cost.tif"))
   if (file.exists(fc_path)) {
@@ -261,7 +266,7 @@ run_scenario <- function(template, layers, params, vec = NULL) {
       p[["ff_c_intensity"]] <- spatial_layers[["ff_c_intensity", exact = TRUE]]
     }
 
-    for (layer_name in c("cn_weather_risk", "eu_feedstock_usd", "us_base_cost")) {
+    for (layer_name in aux_layer_names()) {
       if (layer_name %in% names(spatial_layers)) p[[layer_name]] <- spatial_layers[[layer_name, exact = TRUE]]
     }
 
@@ -341,6 +346,18 @@ transport_layer_names <- function(version = c("all", "v1", "v2")) {
   v1 <- c("dist_sink_km", "dist_sink_saline_km", "sink_is_offshore", "sink_is_offshore_saline",
           "dist_coast_km", "dist_sea_km", "dist_sea_saline_km")
   switch(version, v1 = v1, v2 = transport_v2_layer_names(), all = c(v1, transport_v2_layer_names()))
+}
+
+#' Auxiliary Spatial Layer Names
+#'
+#' Spatial layers passed straight through to the parameter list when present: feedstock cost inputs
+#' (`cn_weather_risk`, `eu_feedstock_usd`, `us_base_cost`) and the share of available residue that
+#' would otherwise be burned (`residue_burn_map`, issue #31).
+#'
+#' @return Character vector of layer names.
+#' @export
+aux_layer_names <- function() {
+  c("cn_weather_risk", "eu_feedstock_usd", "us_base_cost", "residue_burn_map")
 }
 
 transport_v2_layer_names <- function() {
@@ -468,6 +485,7 @@ attach_size_layers <- function(p, spatial_layers, sz) {
 #' burned (a gain). CO2 from burning is biogenic and not counted. The soil GHG penalty defaults to zero:
 #' McClelland et al. (2025) found that the SOC gain and the N2O increase from retaining residues
 #' approximately cancel through 2100 in all regions studied except the Brazilian Cerrado.
+#' The burnt share is the cell-level `residue_burn_map` (times `residue_burn_factor`) where available.
 #'
 #' @param params Parameter list.
 #' @return Net abatement in Mg CO2e / Mg feed (positive = avoided emissions exceed the soil penalty).
@@ -475,7 +493,15 @@ attach_size_layers <- function(p, spatial_layers, sz) {
 residue_counterfactual_ghg <- function(params) {
   pv <- function(n, d) if (!is.null(params[[n, exact = TRUE]])) params[[n, exact = TRUE]] else d
   soil_ghg_penalty <- pv("residue_soil_ghg_penalty", 0) # Mg CO2e / Mg feed removed
-  burn_ghg <- pv("residue_burn_fraction", 0) * pv("residue_burn_cf", 0.8) *
+  # Spatial share (residue_burn_map) scaled by the sampled residue_burn_factor, capped at 1; the
+  # regional residue_burn_fraction applies where the map is absent or NA
+  f_burn <- pv("residue_burn_fraction", 0)
+  burn_map <- params[["residue_burn_map", exact = TRUE]]
+  if (!is.null(burn_map)) {
+    f_map <- pmin_raster(burn_map * pv("residue_burn_factor", 1), 1)
+    f_burn <- if (inherits(f_map, "SpatRaster")) terra::ifel(is.na(f_map), f_burn, f_map) else ifelse(is.na(f_map), f_burn, f_map)
+  }
+  burn_ghg <- f_burn * pv("residue_burn_cf", 0.8) *
     (pv("residue_burn_ch4_ef", 2.7) * pv("gwp_ch4", 27) + pv("residue_burn_n2o_ef", 0.07) * pv("gwp_n2o", 273)) / 1000
   burn_ghg - soil_ghg_penalty
 }
