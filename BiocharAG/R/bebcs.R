@@ -26,6 +26,15 @@ calculate_bebcs <- function(params) {
       # Heat displaces the same price-dependent intensity as electricity: over time, fossil heating is
       # replaced by decarbonised electric heating (tCO2/GJ heat)
       c_intensity <- if (!is.null(params$ff_c_intensity)) params$ff_c_intensity else (12 / 3600)
+      # Exploratory (issue #106): if heat_boiler_ci (t CO2/MWh heat) is given, heat displaces the cleaner
+      # of a fossil boiler and a grid heat pump (MEF(P) / COP); heat_offtake is the share of heat sold.
+      if (!is.null(params$heat_boiler_ci)) {
+        cop <- if (!is.null(params$heat_pump_cop)) params$heat_pump_cop else 3
+        c_intensity <- pmin_raster(params$heat_boiler_ci / 3.6, c_intensity / cop)
+      }
+      offtake <- if (!is.null(params$heat_offtake)) params$heat_offtake else 1
+      c_intensity <- c_intensity * offtake
+      price <- price * offtake
       base_energy_capex <- if (!is.null(params$bebcs_heat_capital_cost)) params$bebcs_heat_capital_cost else 400
       life <- if (!is.null(params$bebcs_heat_life)) params$bebcs_heat_life else 25
       om_fac <- plant_om_fraction(params, "bebcs_heat_om_factor")

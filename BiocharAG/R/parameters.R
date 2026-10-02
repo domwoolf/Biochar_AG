@@ -98,6 +98,13 @@ scenarios_base <- list(
     plant_mw_th = c(BES = 250, BECCS = 250, BEBCS = 250),
     early_adoption = TRUE
   ),
+  # Heat sensitivity (issue #106): BEBCS sells heat instead of power. Reported only where year-round heat
+  # demand exists; never aggregated to regional totals.
+  HEAT_CP100_MW250 = list(
+    c_price = 100,
+    plant_mw_th = c(BES = 250, BECCS = 250, BEBCS = 250),
+    bebcs_energy_mode = "heat"
+  ),
   EA_CP100_MW250_EOR = list(
     c_price = 100,
     plant_mw_th = c(BES = 250, BECCS = 250, BEBCS = 250),

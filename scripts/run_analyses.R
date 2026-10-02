@@ -62,3 +62,10 @@ library(sf)
 {
   source("scripts/spatial_shap.R")
 }
+
+# 7) Heat sensitivity (issue #106)
+#    BEBCS selling heat instead of power, where year-round heat demand exists (reported per cell only)
+#    Generates: results/heat_sensitivity/ (cell table, maps, distribution plot)
+{
+  source("scripts/heat_sensitivity.R")
+}

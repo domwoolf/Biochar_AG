@@ -10,6 +10,7 @@ All model outputs (data tables, figures and AI summary tables) are written here 
 | `mc_shap/` | Monte Carlo SHAP plots (evolution, beeswarm, dependence) | `MC_shap.R` |
 | `spatial_sensitivity_results.csv` | Per-cell inputs and results for the spatial sensitivity scenario | `spatial_sensitivity.R` |
 | `spatial_shap/` | Spatial SHAP: global and regional beeswarm and dependence plots, dominant-driver maps, importance table, per-cell SHAP summary | `spatial_shap.R` |
+| `heat_sensitivity/` | Heat sensitivity scenario (BEBCS selling heat where year-round heat demand exists): per-cell table, maps, distribution plot; reported per cell, never as regional totals | `heat_sensitivity.R` |
 | `ai_summaries/` | Compact CSV summaries of the above for AI-assisted review | all of the above |
 
 ## Column definitions (factorial and summary tables)
