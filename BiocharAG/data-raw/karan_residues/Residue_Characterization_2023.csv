@@ -1,0 +1,48 @@
+n,category,crop,name,residue_fraction,harvestable_res_fraction,harvestable_notes,harvest_to dm_factor,yield_mean,yield_max,prod_global,moisture_pc,DM_pc,ash_pc,lhv,C_dm,N_dm,C_daf,N_daf,lignin_dm,reference,comment
+1,Cereals,Wheat,WHEA,Straw,0.4,Scarlat 2010,0.88,1486.94157249926,32068.1,,9.59,0.9041,8.17,18.19,45.042615,0.64281,49.05,0.7,18.29,"Average of 74 samples, Phyllis 2",
+2,Cereals,Barley,BARL,Straw,0.4,Scarlat 2010,0.88,973.210131035604,62848.2,,8.81,0.9119,5.99,18.03,44.74876,0.733278,47.6,0.78,18,"Average of 17 samples, Phyllis 2",
+3,Cereals,Maize,MAIZ,Straw,0.5,Scarlat 2010,0.87,2616.92901611033,58812.4,,7.2,0.928,4.87,18,46.442466,0.513702,48.82,0.54,7.1,"Average of 12 samples, Phyllis 2",
+,Cereals,Maize,MAIZC,Cob,0.9,Secondary,,,,,7.52,0.9248,2.37,16.15,46.120412,0.615069,47.24,0.63,12.26,"Average of 12 samples, Phyllis 2",
+4,Cereals,Rice,RICE,Straw,0.75,Proville 2020,0.9,1211.32231075613,76148.9,,8.52,0.9148,18.53,17.26,41.085321,0.920611,50.43,1.13,14.02,"Average of 17 samples, Phyllis 2",
+,Cereals,Rice,RICEH,Husk,0.9,Secondary,,,,,10.6,0.894,18.03,16.42,37.820958,0.73773,46.14,0.9,22.83,"Average of 9 samples, Phyllis 2",
+5,Cereals,Sorghum,SORG,Straw,0.4,Scarlat 2010,0.88,868.335677397452,79537,,6.51,0.9349,7.03,17.74,44.988183,0.771651,48.39,0.83,9.44,"Average of 21 samples, Phlyllis 2",
+6,Cereals,Pearl Millet,PMIL,Straw,0.4,Scarlat 2010,0.9,171.992734025197,22815.4,,6.9,0.931,8.6,17.7,39.95094,0.00914,43.71,0.01,10.7,"Millet straw (#1948 Phyllis 2), Feedipedia",
+7,Cereals,Small Millet,SMIL,Straw,0.4,Scarlat 2010,0.9,223.146052901765,20171.8,,6.9,0.931,8.6,17.7,39.95094,0.00914,43.71,0.01,10.7,,Assumed to be same as pearl millet
+8,Cereals,Oats (44.87%),oats,Straw,0.4,Scarlat 2010,0.88,868.150540147877,25341.9,,8.2,0.918,5.44,18.62,47.677152,0.624096,50.42,0.66,15.4,"Average of 4 samples, Phyllis 2",
+9,Cereals,Triticale (26.52%),triticale,Straw,0.4,Scarlat 2010,0.88,,,,8.65,0.9135,5.8,17.68,39.69588,1.15866,42.14,1.23,29,"Average of 3 records, see Sheet2",
+10,Cereals,Rye (28.61%),rye,Straw,0.4,Scarlat 2010,0.88,,,,8,0.92,4.09,16.45,47.235675,0.565869,49.25,0.59,11.4,"Average of 12 samples, Phyllis 2",
+,Cereals,Other cereals,OCER,Straw,0.4,Scarlat 2010,,,,,8.26212,0.9173788,5.149237,17.749875,45.4342120959,0.7492036281,47.889407,0.791137,18.6,,
+11,Roots and Tubers,Sugarbeet,SUGB,Tops,0.8,Lal 2005,0.14,6267.9537312068,503497.5,,87,0.13,4.8,17.44,44.49648,1.83736,46.74,1.93,1.6,"Average of 2 samples, Phyllis 2",
+12,Roots and Tubers,Potato,POTA,Tops and stems,0.8,Lal 2005,0.25,9830.15879684497,321938.2,,77,0.23,13.3,17.7,34.9401,1.50858,40.3,1.74,9.4,See Sheet 2,"Average of leaves, stems and roots from Coûteaux et al. 2008 (see sheet 2) "
+13,Roots and Tubers,Cassava,CASS,Tops and stems,0.8,Lal 2005,0.35,2954.96905972027,216503.2,,10.4,0.896,8.4,19.7,46.82592,0.35724,51.12,0.39,8,"Feedipedia, Pattiya 2011",Dehydrated residue
+14,Legume vegetables,Beans,BEAN,Straw,0.5,Lal 2005,1,649.589034697663,21664.5,,10.3,0.897,5.93,17.26,42.971176,0.827816,45.68,0.88,10.3,"Feedipedia (Faba bean) Average of 3 samples, Phyllis 2",
+15,Legume vegetables,Chickpea,CHIC,Straw,0.5,Lal 2005,1,217.92117246436,24679.4,,9.6,0.904,7.4,18.1,40.17914,0.82414,43.39,0.89,11.9,Feedipedia,Values in red assumed to be average of beans and pigeonpea
+16,Legume vegetables,Cowpea,COWP,Straw,0.5,Lal 2005,1,83.7426786115192,11820.1,,8.8,0.912,13.7,17.5,37.44557,0.76807,43.39,0.89,8,Feedipedia,Values in red assumed to be average of beans and pigeonpea
+17,Legume vegetables,Pigeonpea,PIGE,Straw,0.5,Lal 2005,1,41.320670319286,7387.5,,9.7,0.903,4.6,19.2,41.1,0.9,43.0817610062893,0.943396226415094,17.1,"Feedipedia, Tanquilut et al. 2020",
+18,Oil crops,Rapeseed,RAPE,Straw,0.5,Scarlat 2010,0.9,500.214757326666,301686.1,,8.86,0.9114,5.96,20.81,47.762916,2.003052,50.79,2.13,13,"Feedipedia, Average of 16 samples, Phyllis 2",
+19,Oil crops,Sunflower,SUNF,Straw,0.5,Scarlat 2010,0.9,439.673113864034,23438.9,,9.2,0.908,7.98,20.06,49.074266,1.28828,53.33,1.4,22.3,"Average of 8 samples, Phyllis 2",
+20,Oil crops,Soybean,SOYB,Straw,0.4,Scarlat 2010,0.9,708.441135914123,27050.5,,10.9,0.891,6,19,45.9,0.8366,48.8297872340426,0.89,16,"Feedipedia, Average of 2 samples, Phyllis 2",
+21,Oil crops,Other oil crops,OOIL,Straw,0.4,Scarlat 2010,0.22,456.050157475461,29896.3,,9.65333333333333,0.903466666666667,6.64666666666667,19.9566666666667,47.5790606666667,1.37597733333333,50.9832624113475,1.47333333333333,17.1,,"Avereage of Rapeseed, Sunflower and Soybean"
+22,Plantation crops,Groundnut,GROU,Straw,0.4,Scarlat 2010,0.67,464.597571044213,44643.2,,8.8,0.912,9.9,17.8,37.1,1.53,41.1764705882353,1.69811320754717,10.2,"Feedipedia, Jin et al. 2008",
+,Plantation crops,Groundnut,GROUH,Husk,0.9,Secondary,,,,,7.88,0.9212,4.7,18.13,44.20014,0.93394,46.38,0.98,13.6,"Feedipedia, Average of 4 samples, Phyllis 2",
+23,Plantation crops,Coconut,CNUTF,Frond,0.9,Secondary,0.18,774.815076240269,42837.8,,7.08,0.9292,4.96,19 (HHV),32.323104,0.437184,34.01,0.46,18.15,Aziz et al. 2018,
+,Plantation crops,Coconut,CNUTS,Shell,0.9,Secondary,,,,,8.1,0.919,1.11,19.43,51.304132,0.168113,51.88,0.17,33.54,"Average of 7 samples, Phyllis 2",
+,Plantation crops,Coconut,CNUTH,Husk,0.9,Secondary,,,,,8.9,0.911,4.6,17,55.08,0.22,57.7358490566038,0.230607966457023,25.73,Pawar et al. 2021,
+24,Plantation crops,Oil palm,OILPS,Shell,0.9,Secondary,0.23,539.920490209861,181156.8,,14.9,0.851,3.44,19.94,50.288448,0.685576,52.08,0.71,49,"Average of 2 records, Phyllis 2",
+,Plantation crops,Oil palm,OILPB,Bunche,0.9,Secondary,,,,,69.9,0.301,6.33,15.21,43.547183,0.337212,46.49,0.36,36.23,"Average of 7 samples, Phyllis 2",
+25,Plantation crops,Sesameseed,SESA,Straw,0.33,Lal 2005,3.44,143.511228502412,155795,,6.96,0.9304,7.04,15.6,45.04,0.42,48.4509466437177,0.451807228915663,7.35,"Yilmaz et al. (2020), kumar et al. 2020",
+26,Plantation crops,Sugarcane,SUGC,Straw,0.75,Woolf 2010,0.1,9418.72159332017,495957.9,,9.13,0.9087,4.4,18.19,47.69484,0.3824,49.89,0.4,5.6,"Average of 5 samples, Phyllis 2",
+,Plantation crops,Sugarcane,SUGCB,Bagasse,0.9,Secondary,,,,,20.76,0.7924,5.7,18.24,46.49933,0.31119,49.31,0.33,20.13,"Average of 8 samples, Phyllis 2",
+27,Plantation crops,Cotton,COTT,Straw,0.4,Scarlat 2010,0.35,364.489460596271,33286.2,,15.9,0.841,6.69,17.42,45.059399,1.045072,48.29,1.12,15.73,"Average of 7 samples, Phyllis 2, Silanikove and Levanon 1986",Average of three records from different soil types
+28,Plantation crops,Cocoa,COCO,Pods,0.9,Secondary,0.5,39.7885000126085,5643.6,,9,0.91,11.2,17.4,45.48,1.19,51.2162162162162,1.34009009009009,13.4,"Feedipedia, Adjin-Tetteh et al 2018",
+29,Plantation crops,Tea,TEAS,Woody residue,0.9,Secondary,0.3,72.2804522427837,18600.5,,7.075,0.92925,4.9125,18.5,56.6775,1.69,59.6056263967398,1.77731037202577,30.125,"Average of 4 tea clones, Dutta and Baruah 2014",
+30,Plantation crops,Tobacco,TOBA,Straw,0.9,Wang 2010 https://www.sciencedirect.com/science/article/abs/pii/S1671292709602790,0.45,317.052306421396,45186.8,,12.3,0.877,13.26,14.98 (HHV),36.769086,1.934302,42.39,2.23,21.73,"Akalin and Karagoz 2011; Average of 2 samples, Phyllis 2",
+31,Plantation crops,Banana,BANA,Pith,0.1,???,0.35,4124.89823925059,187884.9,,92.8,0.0720000000000001,12.05,16.6,39.95,3.76426,45.4235361000569,4.28,14.85,"Feedipedia, Average of 2 samples, Phyllis 2, Noonari et al. 2019",
+32,Plantation crops,Plantain,PLNT,Pith,0.1,???,0.35,505.460028193121,49646.3,,93.1,0.0690000000000001,11.3,16.7,40.24,1.3,45.1121076233184,1.45739910313901,4.5,Feedipedia,¶ unavailable values considered same as Banana
+,Plantation crops,Plantain,PLNTP,Peels,0.1,???,,,,,84,0.16,10.8,17.3,40.24,1.3,45.1121076233184,1.45739910313901,4.5,"Feedipedia, Pathak et al. 2017",
+33,Plantation crops,Temperate fruit,TEMPF,Prunings,0.9,prunings,0.45,4503.57717905427,174683,,12.5,0.875,2.23,18.69,48.210387,0.713721,49.31,0.73,11.7,"Average of 8 samples, Phyllis 2 (See Sheet 2)",
+34,Plantation crops,Tropical fruit,mango,Mango Prunings,0.9,prunings,0.46,6831.78185457613,304315.2,,51.41,0.4859,3.01,17.62,43.8,1.13,45.159294772657,1.16506856376946,23.85,"Nagle et al. 2022, Henrique et al. 2013",
+,Plantation crops,Tropical fruit,pineapple,Pineapple Tops,0.1,???,,,,,79.4,0.206,4.9,18.2,41.35899,1.59768,43.49,1.68,4.28,"Feedipedia, Mansor et al. 2018, Daud et al. 2014",
+,Plantation crops,Tropical fruit,TROPF,prunings and tops,0.9,prunings,,,,,60.9266,0.390734,3.6526,17.8172,42.9700566,1.2890112,44.5917345499536,1.34014525208784,17.1962,,Weighted average
+35,Plantation crops,Arabica coffee,ACOF,Husk,0.9,Secondary,0.35,63.6002186528563,7471.9,,22.4,0.776,4.74,21.07,48.363502,1.152646,50.77,1.21,16.3,"Average of 5 samples, Phyllis 2",
+36,Plantation crops,Robusta coffee,RCOF,Husk,0.9,Secondary,0.35,72.0709186901996,7429.1,,22.4,0.776,4.74,21.07,48.363502,1.152646,50.77,1.21,16.3,Assumed to be same as Arabica coffee,

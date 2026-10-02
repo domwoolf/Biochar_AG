@@ -19,7 +19,7 @@ library(terra)
 
 gis_raw <- "GIS/raw"
 gis_proc <- "GIS/processed"
-karan_dir <- "Resources/Karan_biomass_calcs"
+karan_dir <- "BiocharAG/data-raw/karan_residues"
 
 # 1. Smerald burnt fraction of cereal residue production, 2017-2021 mean (layers 1..25 = 1997..2021)
 nc <- file.path(gis_raw, "Global_crop_residue/data/dataset/crop_residue_usage_mean.nc")
