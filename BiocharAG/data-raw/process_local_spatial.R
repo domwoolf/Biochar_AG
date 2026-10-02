@@ -12,7 +12,7 @@ proc_dir <- "../GIS/processed"
 if (!dir.exists(proc_dir)) dir.create(proc_dir, recursive = TRUE)
 
 # File names
-biomass_file <- file.path(raw_dir, "res_avail.tif")
+biomass_file <- file.path(proc_dir, "res_avail.tif")
 temp_file <- file.path(raw_dir, "SBIO1_0_5cm_Annual_Mean_Temperature.tif")
 
 # 2. Check Exists

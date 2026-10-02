@@ -40,7 +40,7 @@ c_dm <- res_tbl$C_dm[match(spam_crop[keep], res_tbl$name)] / 100
 cereal_c <- sum(rast(spam_files[keep]) * c_dm, na.rm = TRUE)
 
 # 3. Burnt cereal residue carbon and available residue carbon at 5'
-avail_c <- rast(file.path(gis_raw, "res_avail.tif")) # Mg C / yr per pixel
+avail_c <- rast(file.path(gis_proc, "res_avail.tif")) # Mg C / yr per pixel
 cereal_c <- resample(cereal_c, avail_c, method = "near")
 burnt_c <- resample(f_s, avail_c, method = "near") * cereal_c
 
