@@ -50,7 +50,7 @@ This file held the issue list until 2026-09-30, when every item was migrated to 
 | T28 | [#28](https://github.com/domwoolf/Biochar_AG/issues/28) | closed | Biochar nutrient and liming values should not scale with (silica) ash |
 | T29 | [#29](https://github.com/domwoolf/Biochar_AG/issues/29) | closed | K and P units: convert elemental contents to oxides before pricing |
 | T30 | [#30](https://github.com/domwoolf/Biochar_AG/issues/30) | open | Potassium in fly ash is not credited |
-| T31 | [#31](https://github.com/domwoolf/Biochar_AG/issues/31) | open | Residue burning shares for the US and China are estimates |
+| T31 | [#31](https://github.com/domwoolf/Biochar_AG/issues/31) | closed | Residue burning shares for the US and China are estimates |
 | T32 | [#32](https://github.com/domwoolf/Biochar_AG/issues/32) | closed | Biochar field application cost and tractor diesel |
 | T33 | [#33](https://github.com/domwoolf/Biochar_AG/issues/33) | closed | Check the biochar spreading diesel estimate (10 L/ha) |
 | T34 | [#34](https://github.com/domwoolf/Biochar_AG/issues/34) | closed | Ash return haulage excluded as negligible |
