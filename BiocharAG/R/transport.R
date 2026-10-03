@@ -27,12 +27,16 @@
 #' @param terrain_share Fraction of pipeline CAPEX that scales with terrain. Default 1.
 #' @param hrel_max_m Highest point of the pipeline route above the source (m). NULL = no lift cost.
 #' @param elec_price Electricity price for booster pumping ($/MWh). Default 0.
+#' @param ship_costs Named ship transport costs (2024 USD): `liquefaction` and `terminal` ($/t, scaled by
+#'   `capex_factor`) and `voyage` ($/t/km). Defaults from parameters.csv (`co2_liquefaction_cost`,
+#'   `co2_ship_terminal_cost`, `co2_ship_voyage_cost`).
 #' @return Transport cost ($/Mg CO2).
 #' @export
 calculate_ccs_transport <- function(co2_mass, distance, is_offshore = FALSE, discount_rate = 0.10, lifetime = 20,
                                     early_adoption = FALSE, dist_coast = NULL, dist_sea = NULL,
                                     capex_factor = 1, om_factor = 1, terrain_mult = 1, terrain_share = 1,
-                                    hrel_max_m = NULL, elec_price = 0) {
+                                    hrel_max_m = NULL, elec_price = 0,
+                                    ship_costs = c(liquefaction = 24.5, terminal = 15, voyage = 0.010)) {
   safe_co2_mass <- pmax(co2_mass, 1e-6)
   annuity_fac <- (1 - (1 + discount_rate)^(-lifetime)) / discount_rate
   opex_factor <- 0.04 * om_factor
@@ -79,10 +83,8 @@ calculate_ccs_transport <- function(co2_mass, distance, is_offshore = FALSE, dis
   ship_cost <- function() {
     coast <- if (is.null(dist_coast)) 0 else dist_coast
     sea <- if (is.null(dist_sea)) distance else dist_sea
-    # Liquefaction 24.5 $/t: Chen & Morosuk (2021), 21.1-21.3 USD/t (2021) x 1.158 (CPI-U 2024/2021) (#87).
-    # Terminal 15 $/t and voyage 0.035 $/t/km: pending sources (#87)
-    cost_liq_term <- (24.5 + 15.0) * capex_factor
-    pipeline_cost(coast) + cost_liq_term + 0.035 * sea
+    cost_liq_term <- (ship_costs[["liquefaction"]] + ship_costs[["terminal"]]) * capex_factor
+    pipeline_cost(coast) + cost_liq_term + ship_costs[["voyage"]] * sea
   }
 
   if (isTRUE(all(is_offshore))) {

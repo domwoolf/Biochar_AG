@@ -153,11 +153,11 @@ transport_params <- function(...) {
         sink_point_buffer_km = 0,  # >0 turns point sinks into discs of target cells
         sea_agg_factor = 2,        # sea routing grid = routing grid x this factor
         # Sea-leg price in flat onshore-pipeline-km per sea km, used ONLY to choose the port / landfall.
-        # Ship: voyage ~0.035 $/t/km vs ~0.05 $/t/km for a shared onshore trunk (hub-and-spoke at
-        # 3 Mt/yr, 10 %, 20 yr) -> ~0.7. Terminal and liquefaction are fixed per tonne, so they do not
-        # affect which port is best. Subsea pipeline: offshore/onshore CAPEX ratio, read from the TEA
+        # Ship: voyage cost (TEA parameter co2_ship_voyage_cost, $/t/km) / ~0.05 $/t/km for a shared
+        # onshore trunk (hub-and-spoke at 3 Mt/yr, 10 %, 20 yr); 0.010 / 0.05 = 0.2 (issue #87).
+        # Terminal and liquefaction are fixed per tonne, so they do not affect which port is best. Subsea pipeline: offshore/onshore CAPEX ratio, read from the TEA
         # parameter co2_subsea_capex_factor so the two stay equal (issue #19).
-        sea_route_weight_ship = 0.7,
+        sea_route_weight_ship = tea_default("co2_ship_voyage_cost") / 0.05,
         sea_route_weight_pipe = tea_default("co2_subsea_capex_factor"),
         # Storage cost seeds the route search (issue #104): each sink starts with its storage cost
         # (co2_sinks$Storage_Cost, else the defaults below, 2024 USD/t) converted to flat-pipeline km at
