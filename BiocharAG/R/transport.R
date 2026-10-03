@@ -42,6 +42,8 @@ calculate_ccs_transport <- function(co2_mass, distance, is_offshore = FALSE, dis
   pipeline_cost <- function(dist) {
     ref_mass <- 1000000
     ref_dist <- 100
+    # 50 M$ per 100 km at 1 Mt/yr: within the 0.47-0.58 M$/km of the Solomon et al. (2024) diameter regression
+    # (2.1575 EUR/m per mm + 0.018, 2024 EUR) for the ~200-250 mm needed for 1 Mt/yr (issue #86)
     base_capex_ref <- 50000000 * capex_factor
     scale_factor <- 0.6
     feeder_threshold_km <- 50
@@ -77,7 +79,9 @@ calculate_ccs_transport <- function(co2_mass, distance, is_offshore = FALSE, dis
   ship_cost <- function() {
     coast <- if (is.null(dist_coast)) 0 else dist_coast
     sea <- if (is.null(dist_sea)) distance else dist_sea
-    cost_liq_term <- (20.0 + 15.0) * capex_factor
+    # Liquefaction 24.5 $/t: Chen & Morosuk (2021), 21.1-21.3 USD/t (2021) x 1.158 (CPI-U 2024/2021) (#87).
+    # Terminal 15 $/t and voyage 0.035 $/t/km: pending sources (#87)
+    cost_liq_term <- (24.5 + 15.0) * capex_factor
     pipeline_cost(coast) + cost_liq_term + 0.035 * sea
   }
 
