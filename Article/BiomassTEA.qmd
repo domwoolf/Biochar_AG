@@ -207,7 +207,7 @@ The net carbon abatement for each grid cell is defined as the sum of physical ca
 
 For BECCS, the emissions of CO~2~ transport are also deducted (see Maritime Shipping). The residue removal counterfactual below applies to all pathways.
 
-For all pathways, Scope 3 feedstock transport emissions are modeled dynamically by applying a heavy-duty diesel transport emissions factor ($0.0001\text{ Mg CO}_2\text{e}$ per $\text{Mg}\cdot\text{km}$) to the effective biomass collection distance.
+For all pathways, Scope 3 feedstock transport emissions are modeled dynamically by applying a heavy-duty diesel transport emissions factor ($0.0001\text{ Mg CO}_2\text{e}$ per $\text{Mg}\cdot\text{km}$, the well-to-wheel default for a 34–40 t articulated diesel truck at average load, including empty running [@glec2024]) to the effective biomass collection distance.
 
 #### Residue Removal Counterfactual
 
