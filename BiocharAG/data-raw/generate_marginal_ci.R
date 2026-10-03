@@ -2,6 +2,12 @@
 # This script calculates the marginal carbon intensity (CI) of new electricity generation capacity 
 # by country and US state by analyzing recent growth (2019-2024) across generation sources.
 # It also ingests average grid CIs as a fallback for regions without growth or missing data.
+#
+# Provenance (issue #5): R port of the original Python build-margin script (Ember monthly generation,
+# 2018-2023 window, IPCC AR5 median life-cycle intensities: Schlomer et al. 2014). Changes since: window
+# moved to 2019-2024; bioenergy set to 0 g/kWh instead of 230 (its emissions are counted explicitly in the
+# TEA); the original Paris-aligned bound (displaced generation = nuclear, 12 g/kWh) is superseded by the
+# NGFS-calibrated price-response curve MEF(P), whose floor is MEF_min = 20 g/kWh (Pehl et al. 2017).
 
 library(dplyr)
 library(tidyr)
