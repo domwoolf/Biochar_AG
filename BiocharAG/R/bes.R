@@ -6,8 +6,10 @@
 #' - Explicitly tracks Scope 3 transport emissions and road tortuosity.
 #'
 #' BES is evaluated in two operating modes within the same run, and each cell takes the better one:
-#' base load (`capacity_factor_bes_base`, average wholesale price) and flexible, load-following operation
-#' (`capacity_factor_bes_flex`, price `elec_price * bes_flex_price_capture`). Abatement per Mg is the same
+#' base load (`capacity_factor_bes_base`, price `elec_price * bes_base_price_capture`) and flexible,
+#' load-following operation (`capacity_factor_bes_flex`, price `elec_price * bes_flex_price_capture`).
+#' The capture ratios (realised / time-averaged price) come from hourly day-ahead prices
+#' (data-raw/elec_prices/price_capture.R). Abatement per Mg is the same
 #' in both modes apart from small differences in haulage emissions, so the mode is chosen on net value
 #' excluding carbon revenue; the choice is then independent of the carbon price, which keeps
 #' `run_price_sweep()` exact. The allocation of biomass between modes also depends on the fleet mix and
@@ -25,9 +27,8 @@ calculate_bes <- function(params) {
     if (!is.null(p$elec_price)) p$elec_price <- p$elec_price * price_mult
     calculate_bes_mode(p)
   }
-  capture <- if (!is.null(params$bes_flex_price_capture)) params$bes_flex_price_capture else 1.4
-  base <- run_mode("BES_BASE", 1)
-  flex <- run_mode("BES_FLEX", capture)
+  base <- run_mode("BES_BASE", if (!is.null(params$bes_base_price_capture)) params$bes_base_price_capture else 1.05)
+  flex <- run_mode("BES_FLEX", if (!is.null(params$bes_flex_price_capture)) params$bes_flex_price_capture else 1.30)
   n0 <- function(r) r$net_value - r$abatement_revenue_mg
   use_flex <- n0(flex) > n0(base)
   out <- base
