@@ -190,6 +190,10 @@ run_spatial_tea <- function(template_raster, params, spatial_layers = list(),
     if ("soil_cec" %in% names(spatial_layers)) p$soil_cec <- spatial_layers$soil_cec
     for (nm in intersect(transport_layer_names(), names(spatial_layers))) p[[nm]] <- spatial_layers[[nm]]
     if ("avg_dist" %in% names(spatial_layers)) p$avg_dist <- spatial_layers$avg_dist
+    # Technology-specific collection distances where the size layers exist
+    if (!optimize_scale && paste0("dist_", params$plant_mw_th, "MWth") %in% names(spatial_layers)) {
+        p <- attach_size_layers(p, spatial_layers, params$plant_mw_th)
+    }
     if (!optimize_scale) {
         for (nm in c("kt", "kd", "g")) {
             ln <- paste0("haul_", nm, "_", params$plant_mw_th)

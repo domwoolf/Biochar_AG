@@ -19,6 +19,9 @@ calculate_bes <- function(params) {
   params <- adjust_costs_for_fuel(params)
   params$ff_c_intensity <- displaced_grid_ci(params) # MEF(P): displaced grid intensity at this carbon price
 
+  # Collection distance at this technology's capacity factor (attach_size_layers)
+  if (!is.null(params[["avg_dist_BES", exact = TRUE]])) params$avg_dist <- params[["avg_dist_BES", exact = TRUE]]
+
   with(params, {
     # 1. Energy Output
     energy_output <- bm_lhv * bes_energy_efficiency
@@ -34,7 +37,7 @@ calculate_bes <- function(params) {
       plant_mw_th <- plant_mw / bes_energy_efficiency
     }
 
-    capacity_factor_val <- if (!is.null(params$capacity_factor)) capacity_factor else 0.70
+    capacity_factor_val <- tech_capacity_factor(params, "BES")
     annual_biomass <- (plant_mw_th * 8760 * capacity_factor_val) / (bm_lhv * gj_to_mwh_conv)
 
     # Total Capex ($), sized on thermal input at the reference efficiency

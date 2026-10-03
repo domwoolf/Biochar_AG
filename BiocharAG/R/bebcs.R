@@ -7,6 +7,9 @@ calculate_bebcs <- function(params) {
   soil_temp <- if (!is.null(params$soil_temp)) params$soil_temp else 14.9
   params$ff_c_intensity <- displaced_grid_ci(params) # MEF(P): displaced grid intensity at this carbon price
 
+  # Collection distance at this technology's capacity factor (attach_size_layers)
+  if (!is.null(params[["avg_dist_BEBCS", exact = TRUE]])) params$avg_dist <- params[["avg_dist_BEBCS", exact = TRUE]]
+
   with(params, {
     bebcs_energy_mode <- if (!is.null(params$bebcs_energy_mode)) params$bebcs_energy_mode else "power"
     gj_to_mwh_conv <- if (!is.null(params$gj_to_mwh)) gj_to_mwh else 0.277778
@@ -46,7 +49,7 @@ calculate_bebcs <- function(params) {
     } else {
       plant_mw_th <- (if (!is.null(params$plant_mw)) params$plant_mw else 50) / eff
     }
-    capacity_factor_val <- if (!is.null(params$capacity_factor)) capacity_factor else 0.70
+    capacity_factor_val <- tech_capacity_factor(params, "BEBCS")
     scaling_factor_val <- if (!is.null(params$scaling_factor)) scaling_factor else 0.7
     feed_mg_hr <- plant_mw_th * 3.6 / bm_lhv # Mg daf feed / hr
     actual_annual_biomass <- feed_mg_hr * 8760 * capacity_factor_val
