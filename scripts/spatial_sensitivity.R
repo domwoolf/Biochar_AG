@@ -110,7 +110,7 @@ evaluate_tech_vectorized <- function(tech_fun, tech_name, base_params, spatial_l
           }
         }
         out_res[["plant_mw_th_chosen"]][cells_mask] <- plant_sizes_mw_th[i]
-        out_res[["avg_dist_chosen"]][cells_mask] <- attach_size_layers(base_params, spatial_layers, plant_sizes_mw_th[i])[[paste0("avg_dist_", tech_name)]][cells_mask]
+        out_res[["avg_dist_chosen"]][cells_mask] <- (results_by_size[[i]][["biomass_transport_distance_km"]] / tort)[cells_mask]
       }
     }
     return(out_res)
@@ -127,7 +127,7 @@ evaluate_tech_vectorized <- function(tech_fun, tech_name, base_params, spatial_l
 
     res <- tech_fun(p)
     res[["plant_mw_th_chosen"]] <- rep(sz, length(spatial_layers$biomass_density))
-    res[["avg_dist_chosen"]] <- p[[paste0("avg_dist_", tech_name)]]
+    res[["avg_dist_chosen"]] <- res[["biomass_transport_distance_km"]] / tort # technology (and BES mode) distance
     return(res)
   }
 }

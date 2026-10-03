@@ -458,7 +458,7 @@ biomass_logistics <- function(params, mass = 1) {
 #'
 #' Sets `avg_dist` from the `dist_<sz>MWth` layer and, where present, `haul_kt`, `haul_kd` and
 #' `haul_g` from the `haul_<kt|kd|g>_<sz>` layers (see `data-raw/generate_logistics_layers.R`), and
-#' `avg_dist_<BES|BECCS|BEBCS>` at each technology's capacity factor (see `size_distance()`).
+#' `avg_dist_<BES_BASE|BES_FLEX|BECCS|BEBCS>` at each technology's capacity factor (see `size_distance()`).
 #'
 #' @param p Parameter list.
 #' @param spatial_layers Named list of layers (rasters or vectors).
@@ -479,7 +479,7 @@ attach_size_layers <- function(p, spatial_layers, sz) {
   # capacity_factor, so each technology's layer is read at the plant size with the same annual biomass
   # demand (sz x capacity_factor_<tech> / capacity_factor). Haulage factors stay at the nominal size.
   cf_ref <- if (!is.null(p[["capacity_factor", exact = TRUE]])) p[["capacity_factor", exact = TRUE]] else 0.70
-  for (tech in c("BES", "BECCS", "BEBCS")) {
+  for (tech in c("BES_BASE", "BES_FLEX", "BECCS", "BEBCS")) {
     p[[paste0("avg_dist_", tech)]] <- size_distance(spatial_layers, sz * tech_capacity_factor(p, tech) / cf_ref)
   }
   p
@@ -510,10 +510,11 @@ size_distance <- function(spatial_layers, sz) {
 
 #' Technology Capacity Factor
 #'
-#' `capacity_factor_<tech>` (bes, beccs, bebcs) where set, otherwise the shared `capacity_factor`.
+#' `capacity_factor_<tech>` (bes_base, bes_flex, bes, beccs, bebcs) where set, otherwise the shared
+#' `capacity_factor`.
 #'
 #' @param params Parameter list.
-#' @param tech "BES", "BECCS" or "BEBCS".
+#' @param tech "BES_BASE", "BES_FLEX", "BES", "BECCS" or "BEBCS".
 #' @return Capacity factor (fraction).
 #' @keywords internal
 tech_capacity_factor <- function(params, tech) {

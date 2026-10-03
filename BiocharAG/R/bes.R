@@ -5,10 +5,49 @@
 #' - Calculates Levelized Cost of Electricity components (CAPEX/OPEX).
 #' - Explicitly tracks Scope 3 transport emissions and road tortuosity.
 #'
+#' BES is evaluated in two operating modes within the same run, and each cell takes the better one:
+#' base load (`capacity_factor_bes_base`, average wholesale price) and flexible, load-following operation
+#' (`capacity_factor_bes_flex`, price `elec_price * bes_flex_price_capture`). Abatement per Mg is the same
+#' in both modes apart from small differences in haulage emissions, so the mode is chosen on net value
+#' excluding carbon revenue; the choice is then independent of the carbon price, which keeps
+#' `run_price_sweep()` exact. The allocation of biomass between modes also depends on the fleet mix and
+#' demand dynamics of each grid, which are not modelled.
+#'
 #' @param params A list of parameters.
-#' @return A list of calculated metrics for BES.
+#' @return A list of calculated metrics for BES, with `bes_mode` (1 = base load, 2 = flexible).
 #' @export
 calculate_bes <- function(params) {
+  run_mode <- function(tech, price_mult) {
+    p <- params
+    p$capacity_factor_bes <- tech_capacity_factor(params, tech)
+    d <- params[[paste0("avg_dist_", tech), exact = TRUE]]
+    if (!is.null(d)) p$avg_dist_BES <- d
+    if (!is.null(p$elec_price)) p$elec_price <- p$elec_price * price_mult
+    calculate_bes_mode(p)
+  }
+  capture <- if (!is.null(params$bes_flex_price_capture)) params$bes_flex_price_capture else 1.4
+  base <- run_mode("BES_BASE", 1)
+  flex <- run_mode("BES_FLEX", capture)
+  n0 <- function(r) r$net_value - r$abatement_revenue_mg
+  use_flex <- n0(flex) > n0(base)
+  out <- base
+  for (nm in names(base)) {
+    b <- base[[nm]]
+    f <- flex[[nm]]
+    if (is.character(b) || (length(b) == 1 && !inherits(b, "SpatRaster") && identical(b, f))) next
+    out[[nm]] <- ifelse_raster(use_flex, f, b)
+  }
+  out$bes_mode <- ifelse_raster(use_flex, 2, 1)
+  out
+}
+
+#' BES Metrics for One Operating Mode
+#'
+#' @param params A list of parameters (`capacity_factor_bes`, `avg_dist_BES` and `elec_price` set for
+#'   the mode by `calculate_bes()`).
+#' @return A list of calculated metrics for BES.
+#' @keywords internal
+calculate_bes_mode <- function(params) {
   # Default to modern params if not present
   if (is.null(params$bes_capital_cost)) params$bes_capital_cost <- 4700
   if (is.null(params$bes_energy_efficiency)) params$bes_energy_efficiency <- 0.30
