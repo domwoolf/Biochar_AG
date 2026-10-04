@@ -265,7 +265,7 @@ generate_fig_macc <- function(save_map = FALSE, save_ai_data = FALSE, scenario =
 
     for (cp in c_prices) {
       a_cp <- sweep_abate(sweep, cp)[keep, , drop = FALSE]
-      val <- sweep$n0[keep, , drop = FALSE] + cp * a_cp
+      val <- sweep_n0(sweep, cp)[keep, , drop = FALSE] + cp * a_cp
       val_bes <- val[, 1]
       val_beccs <- val[, 2]
       val_bebcs <- val[, 3]
@@ -626,6 +626,10 @@ generate_fig_breakeven_cprice <- function(save_map = FALSE,
 }
 
 run_all_manuscript_figures <- function(save_map = TRUE, save_ai_data = TRUE) { # xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  # A name missing from `scenarios` (e.g. added to parameters.R without reloading the package) would
+  # make set_scenario() silently run the default, so stop instead
+  missing <- setdiff(setdiff(.scenarios, "default"), names(scenarios))
+  if (length(missing) > 0) stop("Unknown scenario(s): ", paste(missing, collapse = ", "), ". Reload with devtools::load_all(\"BiocharAG\").")
   for (scenario_name in .scenarios) {
     for (r in .regions) {
       dat <- load_region_data(r)

@@ -98,6 +98,12 @@ scenarios_base <- list(
     plant_mw_th = c(BES = 250, BECCS = 250, BEBCS = 250),
     early_adoption = TRUE
   ),
+  EA_CP100_MW250_EOR = list(
+    c_price = 100,
+    plant_mw_th = c(BES = 250, BECCS = 250, BEBCS = 250),
+    early_adoption = TRUE,
+    allow_eor = TRUE
+  ),
   # Heat sensitivity (issue #106): BEBCS sells heat instead of power. Reported only where year-round heat
   # demand exists; never aggregated to regional totals.
   HEAT_CP100_MW250 = list(
@@ -105,11 +111,13 @@ scenarios_base <- list(
     plant_mw_th = c(BES = 250, BECCS = 250, BEBCS = 250),
     bebcs_energy_mode = "heat"
   ),
-  EA_CP100_MW250_EOR = list(
-    c_price = 100,
-    plant_mw_th = c(BES = 250, BECCS = 250, BEBCS = 250),
-    early_adoption = TRUE,
-    allow_eor = TRUE
+  # BEBCS without energy co-products: syngas and bio-oil surplus is flared.
+  BEBCS_NoEnergy = list(
+    bebcs_energy_mode = "heat",
+    bebcs_heat_capital_cost = 0,
+    bebcs_heat_efficiency = 0,
+    heat_price = 0,
+    heat_offtake = 0
   )
 )
 
@@ -218,7 +226,7 @@ set_scenario <- function(scenario = list(), region = NULL) {
     }
   }
 
-  # 4. Apply scenario-specific regional variants (Tier 4)
+  # 4. Apply scenario-specific regional variants
   if (!is.null(r_key) && length(scenario) > 0) {
     reg_variants <- NULL
     if (!is.null(scenario$regional)) {

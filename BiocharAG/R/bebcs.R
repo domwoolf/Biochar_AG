@@ -1,9 +1,42 @@
 #' Calculate Biochar-Energy (BEBCS) Metrics
 #'
+#' `bebcs_energy_mode` selects how the surplus pyrolysis vapours and gases are used: "power" (power block),
+#' "none" (no energy co-product: the surplus is flared, with no energy block, revenue or grid credit),
+#' "heat" (heat-only block; sensitivity scenario, issue #106) or "flex" (default): "power" and "none"
+#' are both evaluated and each cell takes the one with the higher net value at the current carbon price.
+#' Heat is not part of "flex", because year-round heat demand is niche and opportunistic.
+#'
 #' @param params A list of parameters.
-#' @return A list of calculated metrics for BEBCS.
+#' @return A list of calculated metrics for BEBCS; under "flex", `bebcs_mode` (1 = power, 2 = none).
 #' @export
 calculate_bebcs <- function(params) {
+  mode <- if (!is.null(params$bebcs_energy_mode)) params$bebcs_energy_mode else "flex"
+  if (mode != "flex") return(calculate_bebcs_mode(params))
+  run_mode <- function(m) {
+    p <- params
+    p$bebcs_energy_mode <- m
+    calculate_bebcs_mode(p)
+  }
+  pw <- run_mode("power")
+  no <- run_mode("none")
+  use_none <- no$net_value > pw$net_value
+  out <- pw
+  for (nm in names(pw)) {
+    a <- pw[[nm]]
+    b <- no[[nm]]
+    if (is.character(a) || (length(a) == 1 && !inherits(a, "SpatRaster") && identical(a, b))) next
+    out[[nm]] <- ifelse_raster(use_none, b, a)
+  }
+  out$bebcs_mode <- ifelse_raster(use_none, 2, 1)
+  out
+}
+
+#' BEBCS Metrics for One Energy Mode
+#'
+#' @param params A list of parameters with `bebcs_energy_mode` "power", "none" or "heat".
+#' @return A list of calculated metrics for BEBCS.
+#' @keywords internal
+calculate_bebcs_mode <- function(params) {
   soil_temp <- if (!is.null(params$soil_temp)) params$soil_temp else 14.9
   params$ff_c_intensity <- displaced_grid_ci(params) # MEF(P): displaced grid intensity at this carbon price
 
@@ -12,10 +45,20 @@ calculate_bebcs <- function(params) {
 
   with(params, {
     bebcs_energy_mode <- if (!is.null(params$bebcs_energy_mode)) params$bebcs_energy_mode else "power"
+    if (!bebcs_energy_mode %in% c("power", "none", "heat")) stop("Unknown bebcs_energy_mode: ", bebcs_energy_mode)
     gj_to_mwh_conv <- if (!is.null(params$gj_to_mwh)) gj_to_mwh else 0.277778
     power_eff <- if (!is.null(params$bebcs_power_efficiency)) params$bebcs_power_efficiency else 0.35
 
-    if (bebcs_energy_mode == "power") {
+    if (bebcs_energy_mode == "none") {
+      # No energy co-product: the surplus vapours and gases are flared (no energy block, revenue or credit).
+      # Process heat and the parasitic load are still met from the pyrolysis fuel.
+      eff <- 0
+      price <- 0
+      c_intensity <- 0
+      base_energy_capex <- 0
+      life <- 25
+      om_fac <- 0
+    } else if (bebcs_energy_mode == "power") {
       eff <- power_eff
       price <- if (!is.null(params$elec_price)) params$elec_price else 100
       c_intensity <- if (!is.null(params$ff_c_intensity)) params$ff_c_intensity else (12 / 3600)
@@ -47,7 +90,7 @@ calculate_bebcs <- function(params) {
     if (!is.null(params$plant_mw_th)) {
       plant_mw_th <- resolve_plant_mw_th(params$plant_mw_th, "BEBCS")
     } else {
-      plant_mw_th <- (if (!is.null(params$plant_mw)) params$plant_mw else 50) / eff
+      plant_mw_th <- (if (!is.null(params$plant_mw)) params$plant_mw else 50) / (if (eff > 0) eff else power_eff)
     }
     capacity_factor_val <- tech_capacity_factor(params, "BEBCS")
     scaling_factor_val <- if (!is.null(params$scaling_factor)) scaling_factor else 0.7
@@ -155,7 +198,7 @@ calculate_bebcs <- function(params) {
     # Added diagnostics for factorial
     biomass_cost <- feedstock_cost + logistics_cost
     total_capex_per_mg <- annual_capex_py + annual_capex_power
-    lcoe <- (total_capex_per_mg + annual_om + biomass_cost - biochar_economic_value) / energy_prod
+    lcoe <- if (eff > 0) (total_capex_per_mg + annual_om + biomass_cost - biochar_economic_value) / energy_prod else NA
     cost_of_co2_avoided <- ifelse_raster(tot_c_abatement > 0, total_cost / tot_c_abatement, Inf)
     abatement_efficiency <- ifelse_raster(co2e_sequestered > 0, tot_c_abatement / co2e_sequestered, 0)
     total_capex_m <- (total_py_capex + total_energy_capex) / 1e6

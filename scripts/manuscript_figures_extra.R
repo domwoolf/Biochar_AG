@@ -424,7 +424,7 @@ generate_fig5_cprice_threshold <- function(dat, region_name, save_map = FALSE,
   # (N0_target - N0_BES) + C * (A_target(C) - A_BES(C)) turns positive. Inf where the target never wins
   # or already wins at C = 0.
   switch_price <- function(j) {
-    p <- price_root(sweep$n0[, j] - sweep$n0[, 1],
+    p <- price_root(function(cp) { n <- sweep_n0(sweep, cp); n[, j] - n[, 1] },
       function(cp) { a <- sweep_abate(sweep, cp); a[, j] - a[, 1] }, sweep$prices)
     p[is.na(p) | p < 0] <- Inf
     p
@@ -517,7 +517,7 @@ generate_fig6_macc <- function(save_map = FALSE, scenario = "default") {
 
     for (cp in c_prices) {
       a_cp <- sweep_abate(sweep, cp)[keep, , drop = FALSE]
-      val <- sweep$n0[keep, , drop = FALSE] + cp * a_cp
+      val <- sweep_n0(sweep, cp)[keep, , drop = FALSE] + cp * a_cp
       val_bes <- val[, 1]
       val_beccs <- val[, 2]
       val_bebcs <- val[, 3]

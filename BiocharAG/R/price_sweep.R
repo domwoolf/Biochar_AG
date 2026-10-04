@@ -15,8 +15,9 @@
 #' @param params Scenario parameter list (`c_price` is overwritten).
 #' @param vec Pre-extracted vectors from `load_region_data()$vec` (required).
 #' @param prices Carbon-price grid ($/tCO2), increasing and starting at 0.
-#' @return A list with `prices`, `n0` (cells x 3 net value without carbon revenue), `abate`
-#'   (cells x 3 x prices), `active_indices` and `template`.
+#' @return A list with `prices`, `n0` (cells x 3 net value without carbon revenue at C = 0), `n0_grid`
+#'   (the same at each price; see `sweep_n0`), `abate` (cells x 3 x prices), `active_indices` and
+#'   `template`.
 #' @export
 run_price_sweep <- function(template, layers, params, vec, prices = c(seq(0, 250, by = 5), seq(275, 500, by = 25))) {
   if (is.null(vec) || is.null(vec[["active_indices", exact = TRUE]])) stop("run_price_sweep() needs `vec`.")
@@ -24,15 +25,43 @@ run_price_sweep <- function(template, layers, params, vec, prices = c(seq(0, 250
   if (prices[1] != 0) stop("The price grid must start at 0.")
   n_cell <- length(vec[["active_indices", exact = TRUE]])
   abate <- array(NA_real_, dim = c(n_cell, 3, length(prices)), dimnames = list(NULL, c("BES", "BECCS", "BEBCS"), NULL))
-  n0 <- NULL
+  n0_grid <- abate
   for (i in seq_along(prices)) {
     params[["c_price"]] <- prices[i]
     res <- run_scenario(template, layers, params, vec = vec)[["vec_res", exact = TRUE]]
     abate[, , i] <- res[["abate", exact = TRUE]]
-    if (i == 1) n0 <- res[["net", exact = TRUE]]
+    # Net value without carbon revenue, from the configuration chosen at this price. Constant across
+    # prices unless a technology switches configuration with the carbon price (BEBCS "flex" mode).
+    n0_grid[, , i] <- res[["net", exact = TRUE]] - prices[i] * res[["abate", exact = TRUE]]
   }
+  n0 <- n0_grid[, , 1]
   colnames(n0) <- c("BES", "BECCS", "BEBCS")
-  list(prices = prices, n0 = n0, abate = abate, active_indices = vec[["active_indices", exact = TRUE]], template = template)
+  list(prices = prices, n0 = n0, n0_grid = n0_grid, abate = abate,
+       active_indices = vec[["active_indices", exact = TRUE]], template = template)
+}
+
+#' Net Value without Carbon Revenue at a Carbon Price, Interpolated from a Sweep
+#'
+#' Equal to `sweep$n0` for every cell whose configuration does not change with the carbon price; for
+#' BEBCS in "flex" mode it follows the energy mode chosen at each price.
+#'
+#' @inheritParams sweep_abate
+#' @return Cells x 3 matrix ($/Mg).
+#' @export
+sweep_n0 <- function(sweep, cp) {
+  if (is.null(sweep$n0_grid)) return(sweep$n0)
+  p <- sweep$prices
+  n <- length(p)
+  if (cp <= p[1]) return(sweep$n0_grid[, , 1])
+  if (cp >= p[n]) return(sweep$n0_grid[, , n])
+  i <- findInterval(cp, p)
+  if (cp == p[i]) return(sweep$n0_grid[, , i]) # avoids 0 * -Inf where a technology has no route
+  w <- (cp - p[i]) / (p[i + 1] - p[i])
+  lo <- sweep$n0_grid[, , i]
+  hi <- sweep$n0_grid[, , i + 1]
+  out <- (1 - w) * lo + w * hi
+  out[is.infinite(lo) & lo == hi] <- lo[is.infinite(lo) & lo == hi]
+  out
 }
 
 #' Abatement at a Carbon Price, Interpolated from a Sweep
@@ -57,7 +86,7 @@ sweep_abate <- function(sweep, cp) {
 #' @return Cells x 3 matrix of net value ($/Mg).
 #' @export
 sweep_net <- function(sweep, cp) {
-  sweep$n0 + cp * sweep_abate(sweep, cp)
+  sweep_n0(sweep, cp) + cp * sweep_abate(sweep, cp)
 }
 
 #' Lowest Carbon Price at which N0 + C * A(C) Turns Non-Negative
@@ -66,21 +95,23 @@ sweep_net <- function(sweep, cp) {
 #' and above the top of the grid, A is constant and the root is solved exactly. Cells that are already
 #' non-negative at C = 0 get the (zero or negative) root -N0 / A(0).
 #'
-#' @param n0 Value at C = 0 (vector over cells).
+#' @param n0 Value without carbon revenue: a vector over cells, or a function of a scalar price returning one.
 #' @param a_at Function of a scalar price returning A (vector over cells).
 #' @param prices Price grid of the sweep (starts at 0).
 #' @param step Scan step ($/tCO2).
 #' @return Break-even price per cell; NA where the value never turns positive with rising price.
 #' @export
 price_root <- function(n0, a_at, prices, step = 1) {
+  n0_at <- if (is.function(n0)) n0 else function(cp) n0
+  n00 <- n0_at(0)
   a0 <- a_at(0)
-  out <- ifelse(n0 >= 0 & a0 > 0, -n0 / a0, NA_real_)
-  todo <- which(is.finite(n0) & n0 < 0)
+  out <- ifelse(n00 >= 0 & a0 > 0, -n00 / a0, NA_real_)
+  todo <- which(is.finite(n00) & n00 < 0)
   c_prev <- 0
-  f_prev <- n0
+  f_prev <- n00
   for (cp in unique(c(seq(step, max(prices), by = step), max(prices)))) {
     if (!length(todo)) break
-    f <- n0 + cp * a_at(cp)
+    f <- n0_at(cp) + cp * a_at(cp)
     hit <- todo[is.finite(f[todo]) & f[todo] >= 0]
     if (length(hit)) {
       out[hit] <- c_prev + (cp - c_prev) * (-f_prev[hit]) / (f[hit] - f_prev[hit])
@@ -91,7 +122,7 @@ price_root <- function(n0, a_at, prices, step = 1) {
   }
   a_top <- a_at(max(prices))
   beyond <- todo[is.finite(a_top[todo]) & a_top[todo] > 0]
-  out[beyond] <- -n0[beyond] / a_top[beyond]
+  out[beyond] <- -n0_at(max(prices))[beyond] / a_top[beyond]
   out
 }
 
@@ -102,7 +133,7 @@ price_root <- function(n0, a_at, prices, step = 1) {
 #' @return Cells x 3 matrix of break-even prices ($/tCO2); NA where a technology never breaks even.
 #' @export
 sweep_breakeven <- function(sweep, step = 1) {
-  out <- sapply(1:3, function(j) price_root(sweep$n0[, j], function(cp) sweep_abate(sweep, cp)[, j], sweep$prices, step))
+  out <- sapply(1:3, function(j) price_root(function(cp) sweep_n0(sweep, cp)[, j], function(cp) sweep_abate(sweep, cp)[, j], sweep$prices, step))
   colnames(out) <- c("BES", "BECCS", "BEBCS")
   out
 }

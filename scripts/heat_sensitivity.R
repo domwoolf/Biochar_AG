@@ -38,7 +38,7 @@ for (r in REGIONS) {
       p <- BiocharAG::set_scenario(c(list(c_price = cp, plant_mw_th = PLANT), extra), region = r)
       run_scenario(d$template, d$layers, p, d$vec)$vec_res
     }
-    pw <- run(list())
+    pw <- run(list()) # base case: BEBCS "flex" (power block or no energy co-product, per cell)
     ht <- run(list(bebcs_energy_mode = "heat"))
     cells[[length(cells) + 1]] <- data.frame(
       region = r, c_price = cp, x = d$vec$xy[, 1], y = d$vec$xy[, 2], biomass_density = d$vec$layers$biomass_density,
