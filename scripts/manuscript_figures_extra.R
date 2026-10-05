@@ -512,7 +512,7 @@ generate_fig6_macc <- function(save_map = FALSE, scenario = "default") {
     cell_area_vec <- dat$vec$cell_area[keep]
     cell_bm_vec <- dat$vec$layers$biomass_density[keep] * cell_area_vec
 
-    c_prices <- seq(-50, 250, by = 1)
+    c_prices <- seq(0, 250, by = 1)
     results <- list()
 
     for (cp in c_prices) {

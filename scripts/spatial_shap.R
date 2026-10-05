@@ -122,7 +122,7 @@ for (m in models) {
       theme_bw(base_size = 10) + labs(title = cl, x = "SHAP value (log-odds)")
   })
   p_bee <- wrap_plots(bees, nrow = 1) +
-    plot_annotation(title = paste0("SHAP values for the optimal technology: ", m$label, " model"))
+    plot_annotation() # no figure title: the caption describes it
   ggsave(file.path(OUT_DIR, sprintf("beeswarm_%s.png", m$label)), p_bee,
          width = 4.5 * length(m$classes), height = 0.35 * length(m$features) + 2, dpi = 300)
 
@@ -130,7 +130,6 @@ for (m in models) {
   for (cl in m$classes) {
     p_dep <- sv_dependence(m$shp[[cl]][idx, ], v = unname(feature_labels[m$features]), color_var = "auto", alpha = 0.4, size = 0.6) &
       theme_bw(base_size = 9)
-    p_dep <- p_dep + plot_annotation(title = sprintf("SHAP dependence, %s model: %s", m$label, cl))
     ggsave(file.path(OUT_DIR, sprintf("dependence_%s_%s.png", m$label, cl)), p_dep,
            width = 12, height = 3 * ceiling(length(m$features) / 3) + 1, dpi = 250)
   }

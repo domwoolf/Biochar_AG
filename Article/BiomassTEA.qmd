@@ -24,10 +24,10 @@ format:
       \linenumbers
       \usepackage{authblk}
       \usepackage{marvosym}
-      \usepackage{draftwatermark}
-      \SetWatermarkText{DRAFT. Not for distribution}
-      \SetWatermarkScale{0.35}
-      \SetWatermarkColor[gray]{0.88}
+      %\usepackage{draftwatermark}
+      %\SetWatermarkText{DRAFT. Not for distribution}
+      %\SetWatermarkScale{0.35}
+      %\SetWatermarkColor[gray]{0.88}
       \author[1]{Dominic Woolf\,\thanks{Correspondence to d.woolf@cornell.edu}}
       \author[2]{Jocelyn Lavallee}
       \author[2]{Anna Raffeld}
@@ -37,6 +37,81 @@ format:
       \affil[2]{Environmental Defense Fund}
       \renewcommand\author[2][]{}
 ---
+
+```{r pipeline-setup}
+#| include: false
+# Model pipeline: each step below is a cached chunk that runs in its own R process (scripts/ run from the
+# repository root) and reruns only when the files it depends on change. Fingerprints are content
+# hashes for code and parameters (stable across git checkouts) and size + modification time for the
+# large, untracked GIS layers. Logs go to results/logs/.
+repo <- normalizePath("..")
+run_mc <- FALSE # Monte Carlo simulation takes hours: set TRUE to include it, or run scripts/mc_analysis.R
+fig_scenarios <- c("default") # scenarios for the main figures (see scripts/run_analyses.R)
+
+files_in <- function(paths) {
+  paths <- file.path(repo, paths)
+  f <- unlist(lapply(paths, function(p) if (dir.exists(p)) list.files(p, recursive = TRUE, full.names = TRUE) else p))
+  sort(f[file.exists(f)])
+}
+fp_hash <- function(...) unname(tools::md5sum(files_in(c(...)))) # content hash
+fp_stat <- function(...) { # size + mtime, for large untracked data
+  i <- file.info(files_in(c(...)))
+  paste(basename(rownames(i)), i$size, as.numeric(i$mtime))
+}
+fp_model <- function() list(fp_hash("BiocharAG/R", "BiocharAG/inst/extdata", "BiocharAG/DESCRIPTION",
+  "scripts/manuscript_figures.R"), fp_stat("GIS/processed"))
+
+run_step <- function(name, code) {
+  dir.create(file.path(repo, "results", "logs"), showWarnings = FALSE, recursive = TRUE)
+  log <- file.path(repo, "results", "logs", paste0(name, ".log"))
+  callr::r(function(code, repo) { setwd(repo); eval(parse(text = code), envir = globalenv()) },
+    args = list(code = code, repo = repo), wd = repo, stdout = log, stderr = "2>&1")
+  invisible(Sys.time())
+}
+```
+
+```{r pipeline-figures}
+#| include: false
+#| cache: true
+#| cache.extra: !expr list(fp_model(), fig_scenarios)
+run_step("figures", sprintf('source("scripts/manuscript_figures.R"); .regions <- c("US", "China", "Europe", "India"); .scenarios <- %s; run_all_manuscript_figures(save_map = TRUE)', deparse(fig_scenarios)))
+```
+
+```{r pipeline-factorial}
+#| include: false
+#| cache: true
+#| cache.extra: !expr list(fp_model(), fp_hash("scripts/factorial_analysis.R"))
+run_step("factorial", 'source("scripts/factorial_analysis.R")')
+```
+
+```{r pipeline-mc}
+#| include: false
+#| eval: !expr run_mc
+#| cache: true
+#| cache.extra: !expr list(fp_model(), fp_hash("scripts/mc_analysis.R"))
+run_step("mc_analysis", 'source("scripts/mc_analysis.R")')
+```
+
+```{r pipeline-mc-shap}
+#| include: false
+#| cache: true
+#| cache.extra: !expr list(fp_hash("scripts/MC_shap.R", "results/mc_analysis_results.csv"))
+run_step("mc_shap", 'source("scripts/MC_shap.R"); generate_evolution_plots(); generate_global_beeswarm_plots()')
+```
+
+```{r pipeline-spatial-sensitivity}
+#| include: false
+#| cache: true
+#| cache.extra: !expr list(fp_model(), fp_hash("scripts/spatial_sensitivity.R"))
+run_step("spatial_sensitivity", 'source("scripts/spatial_sensitivity.R")')
+```
+
+```{r pipeline-spatial-shap}
+#| include: false
+#| cache: true
+#| cache.extra: !expr list(fp_hash("scripts/spatial_shap.R", "scripts/manuscript_figures.R", "results/spatial_sensitivity_results.csv"))
+run_step("spatial_shap", 'source("scripts/spatial_shap.R")')
+```
 
 # INTRODUCTION
 
@@ -48,11 +123,11 @@ It is, therefore, critical to understand where biochar could be the best use of 
 
 ## Capital-intensive pathways are highly sensitive to discount rates and carbon prices
 
-Figures [fig-evap-usa](#fig-evap-usa) to [fig-evap-china](#fig-evap-china) illustrate the core vulnerability of CDR pathways to capital lock-out. Because both BECCS (heavy upfront infrastructure) and BEBCS (deferred agronomic value) are highly sensitive to the cost of capital, high discount rates act as a strong barrier to adoption, forcing a retreat to traditional Bioenergy (BES) without high carbon prices. For example, in the USA, at a 2% social discount rate and a \$30/t carbon price, BEBCS covers a large extent of the US Midwest and South, with BECCS only being viable close to CO~2~ sinks. However, stepping up to the 8% market baseline eliminates BEBCS's advantage, replacing it with almost entirely with BES. The value of biochar relies heavily on liming and nutrient substitution benefits that are amortized over a 10-year agronomic impact duration. At an 8% or 15% discount rate, the present value of those future soil benefits is diminished, rendering the upfront thermal penalties of pyrolysis economically unviable at low carbon prices. At a 2% discount rate and intermediate carbon price (around \$100/t), BECCS is nearly universal across the US. At 15%, the BECCS dominance is fractured, with BES reclaiming the geographic margins (e.g., the Northeast and far West), and BEBCS remaining only in localized pockets where soil conditions make it particularly attractive. This occurs because, when capital is expensive, the penalty for long-distance pipelines becomes insurmountable until carbon prices reach the \$150/t range. By the time the carbon price reaches \$150/t, the maps become almost entirely red across all discount rates. At this pricing level, the high CDR capture efficiency overwhelms the high cost of capital, making BECCS the most economically attractive option.
+@fig-evap-usa to @fig-evap-china illustrate the core vulnerability of CDR pathways to capital lock-out. Because both BECCS (heavy upfront infrastructure) and BEBCS (deferred agronomic value) are highly sensitive to the cost of capital, high discount rates act as a strong barrier to adoption, forcing a retreat to traditional Bioenergy (BES) without high carbon prices. For example, in the USA, at a 2% social discount rate and a \$30/t carbon price, BEBCS covers a large extent of the US Midwest and South, with BECCS only being viable close to CO~2~ sinks. However, stepping up to the 8% market baseline eliminates BEBCS's advantage, replacing it with almost entirely with BES. The value of biochar relies heavily on liming and nutrient substitution benefits that are amortized over a 10-year agronomic impact duration. At an 8% or 15% discount rate, the present value of those future soil benefits is diminished, rendering the upfront thermal penalties of pyrolysis economically unviable at low carbon prices. At a 2% discount rate and intermediate carbon price (around \$100/t), BECCS is nearly universal across the US. At 15%, the BECCS dominance is fractured, with BES reclaiming the geographic margins (e.g., the Northeast and far West), and BEBCS remaining only in localized pockets where soil conditions make it particularly attractive. This occurs because, when capital is expensive, the penalty for long-distance pipelines becomes insurmountable until carbon prices reach the \$150/t range. By the time the carbon price reaches \$150/t, the maps become almost entirely red across all discount rates. At this pricing level, the high CDR capture efficiency overwhelms the high cost of capital, making BECCS the most economically attractive option.
 
 ## Biochar provides a mid-price transition technology option and a long-term solution for specific agro-ecological zones
 
-Figure [fig-evap-china](#fig-evap-china) provides a counterpoint to the US results. It shows how soils with strong production constraints that can be alleviated by biochar can create a persistent competitive advantage for biochar, particularly when combined with large distances to CO~2~ storage sites. BEBCS performs a central role as a transition technology that peaks at intermediate carbon prices that are high enough to make its carbon sequestration competitive with BES, but not so high that the more efficient CDR of BECCS per unit biomass outcompetes it (Figures [fig-MACC-eur](#fig-MACC-eur), [fig-MACC-india](#fig-MACC-india), and [fig-MACC-china](#fig-MACC-china)). Nonetheless, while BECCS ultimately becomes the optimal technology across the entire US spatial domain at high carbon prices, BEBCS remains the most viable pathway in southern China across almost all price and discount rate scenarios. This demonstrates that BEBCS is not merely a transition technology, but the optimal long-term pathway for specific agro-ecological zones. In Southern China, characterized by highly weathered, acidic soils, the biochar's liming and nutrient use efficiency benefits provide a substantial economic credit that buffers against high processing costs. The model scales physical yield efficiency gains inversely to the soil's native Cation Exchange Capacity (CEC), thus granting severe CEC deficits higher premiums. This is confirmed by the SHAP analysis (Figure [fig-shap-dominant](#fig-shap-dominant)), which identifies soil CEC as the dominant spatial driver in this region.
+@fig-evap-china provides a counterpoint to the US results. It shows how soils with strong production constraints that can be alleviated by biochar can create a persistent competitive advantage for biochar, particularly when combined with large distances to CO~2~ storage sites. BEBCS performs a central role as a transition technology that peaks at intermediate carbon prices that are high enough to make its carbon sequestration competitive with BES, but not so high that the more efficient CDR of BECCS per unit biomass outcompetes it (@fig-macc). Nonetheless, while BECCS ultimately becomes the optimal technology across the entire US spatial domain at high carbon prices, BEBCS remains the most viable pathway in southern China across almost all price and discount rate scenarios. This demonstrates that BEBCS is not merely a transition technology, but the optimal long-term pathway for specific agro-ecological zones. In Southern China, characterized by highly weathered, acidic soils, the biochar's liming and nutrient use efficiency benefits provide a substantial economic credit that buffers against high processing costs. The model scales physical yield efficiency gains inversely to the soil's native Cation Exchange Capacity (CEC), thus granting severe CEC deficits higher premiums. This is confirmed by the SHAP analysis (@fig-shap-dominant), which identifies soil CEC as the dominant spatial driver in this region.
 
 ## Regional policies hinder biochar competitiveness
 
@@ -94,7 +169,7 @@ The following model description outlines the assumptions, equations and paramete
 
 ### Biomass transport costs and emissions
 
-High resolution rasters of available crop residue biomass were derived from the sustainably harvestable crop residues of Karan et al. [@karan2023], which exclude the fraction that must be retained to avoid soil degradation, minus the fraction used as livestock fodder and bedding, estimated for each world region from the stover feed use of @herrero2013. The supply modelled here therefore does not divert residues from these uses. The average transport distance for biomass was calculated from this using focal statistics based on the annual biomass requirement for the conversion facility. The required annual biomass mass ($M_{req}$) is determined by the target thermal capacity, the capacity factor, and the biomass lower heating value (LHV). Collection distances were computed for a reference capacity factor of 0.70 and a series of plant sizes; each technology uses the distance for the plant size with the same annual biomass demand at its own capacity factor, interpolated in the square root of plant size. A spatial focal sum algorithm was applied to aggregate the surrounding biomass over a discrete series of expanding radii (from 5 km up to 500 km). The required collection radius was then calculated via quadratic interpolation between these radial bins. All domains were uniformly projected and resampled to the 0.1 degree ($\sim 10\text{ km}$) equal-area grid prior to executing the focal sum algorithms to ensure methodological consistency. Assuming a circular catchment geometry, the average straight-line collection distance is approximated as two-thirds of the interpolated bounding radius (i.e. assuming homogeneous distribution within the catchment area). The average straight-line distance was multiplied by a tortuosity factor of 1.3 to calculate the effective road transport distance.[@sultana2014] Biomass logistical costs were modeled using a fixed material handling and loading cost and a variable trucking cost applied to the effective road distance. The loading and handling cost is 6.27 \$/Mg (4.59 \$ per dry tonne in 2012 USD, escalated to 2024 USD with the US consumer price index) [@beach2012]. The variable cost of 0.19 \$/Mg/km (0.12 \$/Mg/km for straw and stover in 2006 USD, escalated to 2024 USD with the US consumer price index) is the truck distance-variable cost of @searcy2007, which is expressed per kilometre of one-way distance and includes the empty return trip.
+High resolution rasters of available crop residue biomass were derived from the sustainably harvestable crop residues of Karan et al. [@karan2023], which exclude the fraction that must be retained to avoid soil degradation, minus the fraction used as livestock fodder and bedding, estimated for each world region from the stover feed use of @herrero2013. The supply modelled here therefore does not divert residues from these uses. The average transport distance for biomass was calculated from this using focal statistics based on the annual biomass requirement for the conversion facility. The required annual biomass mass ($M_{req}$) is determined by the target thermal capacity, the capacity factor, and the biomass lower heating value (LHV). Collection distances were computed for a reference capacity factor of 0.70 and a series of plant sizes; each technology uses the distance for the plant size with the same annual biomass demand at its own capacity factor, interpolated in the square root of plant size. A spatial focal sum algorithm was applied to aggregate the surrounding biomass over a discrete series of expanding radii (from 5 km up to 500 km). The required collection radius was then calculated via quadratic interpolation between these radial bins. All domains were uniformly projected and resampled to the 0.1 degree ($\sim 10\text{ km}$) equal-area grid prior to executing the focal sum algorithms to ensure methodological consistency. Assuming a circular catchment geometry, the average straight-line collection distance is approximated as two-thirds of the interpolated bounding radius (i.e. assuming homogeneous distribution within the catchment area). The average straight-line distance was multiplied by a tortuosity factor of 1.3 to calculate the effective road transport distance.[@sultana2014] Biomass logistical costs were modeled using a fixed material handling and loading cost and a variable trucking cost applied to the effective road distance. The loading and handling cost is 6.27 \$/Mg (4.59 \$ per dry tonne in 2012 USD, escalated to 2024 USD with the US consumer price index) [@beach2012]. The variable cost of 0.19 \$/Mg/km (0.12 \$/Mg/km for straw and stover in 2006 USD, escalated to 2024 USD with the US consumer price index) is the truck distance-variable cost of @searcy2007, which is expressed per kilometre of one-way distance and includes the empty return trip. Each grid cell contributes only its own biomass to the regional totals, so a grid cell represents a share of a plant rather than a plant site: the number of plants of each technology follows from the biomass allocated to it, and its collection distance assumes that the biomass within the collection radius is not used by a different technology. Where technologies are intermixed, plants of each technology keep their design size and draw on interlocking catchments, so their collection radius increases by about $1/\sqrt{f}$, where $f$ is the share of the biomass within the radius that is not allocated to another technology. Enlarging the catchment is much cheaper than building smaller plants, because haulage costs are small relative to the economies of scale in capital costs. Because the preferred technology is spatially coherent at the scale of a catchment, $f$ averages 0.89–1.00 across the carbon prices and discount rates of @fig-evap-usa–@fig-evap-china, which would raise haulage costs by less than 0.5 US\$/Mg on average. The assumption fails for small, isolated patches of one technology within another, for which there is too little biomass of that technology nearby to supply a plant; such cells (with $f < 0.5$) hold 0–7% of the adopted biomass, and their biomass would in practice be used by the surrounding technology.
 
 Haulage costs vary with terrain and road access, which the flat per-kilometre rate does not capture. For every candidate plant location and plant size, travel from each field in the collection area to the plant was routed as the least-time path on the global motorised friction surface of @weiss2020, at 30 arc-seconds. Biomass-weighted over the collection area, this gives the travel time and road-path length per kilometre of straight-line distance, and the cumulative climb on the loaded and empty legs. The variable trucking cost was divided into time-based costs (driver wages and benefits, truck finance, insurance; 64%), fuel (24%) and other distance-based costs (repairs, tyres, tolls; 12%), following @atri2024. The time-based share scales with travel time, fuel with road distance and climb, and the remainder with road distance. Climb fuel is the energy to lift the loaded and empty truck over the cumulative ascent of each leg; descents are not credited, because diesel trucks recover little of the energy on downhill grades. Each factor is normalised to a biomass-weighted mean of one within each region, because the regional level of haulage cost is set by the regional haulage cost factor (@tbl-parameters). The factors therefore redistribute haulage cost within a region, from flat, well-connected areas to rugged or poorly connected ones. Biochar is returned to the fields as a backhaul in the feedstock trucks, which run year-round from field-edge storage, so only its loading and handling cost is charged. Field application (spreading and incorporation) is costed per hectare at the biochar application rate [@woolf2016optimal], and the diesel used by the tractor (17.5 L ha^-1^, the median of published estimates for spreading and incorporation [@roberts2010; @pujolpereira2016; @leppakoski2021; @cheng2025]) is counted as an emission. Scope three transportation emissions associated with feedstock procurement were estimated using a heavy-duty diesel transport emissions factor applied to the effective distance, scaled with the fuel factors, and deducted from the net carbon abatement.
 
@@ -108,8 +183,7 @@ Feedstock is priced at the field side (farm gate or road side), in 2024 USD per 
 
 -   **United States:** US\$50 per dry short ton (2011 USD), or 76.9 US\$/Mg in 2024 USD: in the Billion-Ton Update, about 80% of the primary crop residue supply is profitable to collect at a farm-gate price of US\$45 per dry ton and 90% at US\$50 [@perlack2011]. The Billion-Ton prices are uniform across the country because the underlying POLYSYS runs apply a single national price, raised until a large and reliable supply is offered. The farm-gate price comprises the harvest cost and a grower payment that already compensates for the nutrients removed with the residue, so no separate nutrient-replacement charge is added.
 
--   **Europe:** road-side costs of cereal straw from the S2Biom atlas [@dees2017s2biom], which maps them at NUTS-3 level by activity-based costing, aggregated to country level in three cost classes: €20 per t of dry matter (2012 EUR) for eastern Europe, Poland and the Baltic states; €37.5 for most of central, northern and southern Europe, including France and Spain; and €62.5 for Germany, Belgium, the Netherlands and Luxembourg. In 2024 USD these are 35.1, 65.8 and 109.7 US\$/Mg. Countries without an S2Biom value are assigned by analogy: Kosovo to the lowest class, like Serbia and Croatia; Cyprus to the middle class, like Greece; and Türkiye and the North African and Middle Eastern countries within the European
- grid to the lowest class, as residue costs there are generally below those of most of Europe.
+-   **Europe:** road-side costs of cereal straw from the S2Biom atlas [@dees2017s2biom], which maps them at NUTS-3 level by activity-based costing, aggregated to country level in three cost classes: €20 per t of dry matter (2012 EUR) for eastern Europe, Poland and the Baltic states; €37.5 for most of central, northern and southern Europe, including France and Spain; and €62.5 for Germany, Belgium, the Netherlands and Luxembourg. In 2024 USD these are 35.1, 65.8 and 109.7 US\$/Mg. Countries without an S2Biom value are assigned by analogy: Kosovo to the lowest class, like Serbia and Croatia; Cyprus to the middle class, like Greece; and Türkiye and the North African and Middle Eastern countries within the European grid to the lowest class, as residue costs there are generally below those of most of Europe.
 
 -   **China:** the field-side cost of collecting corn straw estimated with the StrawFeed supply-chain model for Nongan county, Jilin [@wang2022strawfeed]: raking, baling and loading cost ¥99.6 per t (2019), or 17.7 US\$/Mg in 2024 USD, excluding the ¥72.5 per t of transport to the plant. Like the European and Indian values, this is a cost and excludes the margins of farmers and brokers; power plants in Northeast China pay about ¥300 per t delivered [@wang2022strawfeed], and ¥200–300 per t at the plant gate in other major producing provinces.
 
@@ -273,7 +347,7 @@ where $P_{now}$ is the region's current explicit carbon price on power-sector em
 
 ## Regional cost adjustment
 
-The combustion plant CAPEX of BES and BECCS is specified for each region directly (see Bioenergy (BES)). Other capital costs (pyrolysis plants, the BEBCS power block, pipelines, liquefaction and port terminals) are specified for a base location and scaled by a regional capital cost location factor, so that the relative cost of technologies is consistent within each region. O&M is charged at the same fraction of CAPEX in every region, so its absolute level follows regional CAPEX. The fraction does not fall where labour is cheaper: India's regulated O&M allowance for biomass plants is 7.8% of the regulated CAPEX per year [@cerc2024], compared with about 4% in the United States and Europe [@eia2026; @dea2020]. Biomass haulage costs are scaled by a regional road-freight cost factor (@tbl-parameters). <!-- TODO (reference required): CAPEX multipliers. --> 
+The combustion plant CAPEX of BES and BECCS is specified for each region directly (see Bioenergy (BES)). Other capital costs (pyrolysis plants, the BEBCS power block, pipelines, liquefaction and port terminals) are specified for a base location and scaled by a regional capital cost location factor, so that the relative cost of technologies is consistent within each region. O&M is charged at the same fraction of CAPEX in every region, so its absolute level follows regional CAPEX. The fraction does not fall where labour is cheaper: India's regulated O&M allowance for biomass plants is 7.8% of the regulated CAPEX per year [@cerc2024], compared with about 4% in the United States and Europe [@eia2026; @dea2020]. Biomass haulage costs are scaled by a regional road-freight cost factor (@tbl-parameters). <!-- TODO (reference required): CAPEX multipliers. -->
 
 ## Spatial input data
 
@@ -286,7 +360,6 @@ For each grid cell and technology, the net value per megagram of feedstock is th
 ## Uncertainty and sensitivity analyses
 
 Parameter uncertainty was propagated by Monte Carlo simulation, with 5,000 draws per region. Each parameter with an uncertainty range was sampled from a PERT or uniform distribution, with the central values, distributions and bounds listed in @tbl-si-mc (see Statistical methods), and correlated parameters were sampled jointly through a Gaussian copula. The uncertainty of the grid displacement curve was represented by sampling one of its 1,000 bootstrap draws in each iteration. The drivers of each technology's net value were identified by fitting gradient-boosted regression trees [XGBoost; @chen2016xgboost] to the Monte Carlo results and computing SHAP values [@lundberg2017]. The same method was applied across grid cells, to the choice of preferred technology, to identify its spatial drivers. A full factorial analysis evaluated 720 scenarios: four regions, carbon prices of 0–200 US\$/t CO~2~, real discount rates of 2%, 5% and 10%, plant sizes of 50, 150 and 250 MW~th~, with and without CO~2~-EOR, and with and without early adoption. Under early adoption, each plant builds a dedicated pipeline over the full distance to the sink instead of sharing a trunkline.
-
 
 ## Statistical methods
 
@@ -382,33 +455,23 @@ gt(display_df, groupname_col = "Category") |>
   )
 ```
 
-
-
-
 # FIGURES
 
-![Minimum Break-even carbon price for each technology option. The penultimate row shows the technology with the lowest break-even price, and the final row shows that price. The lowest break-even technology is the first to become profitable as the carbon price rises; it is not necessarily the technology with the highest NPV at a given carbon price (see @fig-evap-usa to @fig-evap-china).](results/figures/Global_Fig8_Breakeven_CPrice_CP100_MW250_reg.png){#fig-break-even width="100%"}
+![Minimum Break-even carbon price for each technology option. The penultimate row shows the technology with the lowest break-even price, and the final row shows that price. The lowest break-even technology is the first to become profitable as the carbon price rises; it is not necessarily the technology with the highest NPV at a given carbon price (see @fig-evap-usa to @fig-evap-china).](results/figures/Breakeven_CPrice.png){#fig-break-even width="100%"}
 
-![Optimal technology as a function of carbon price and discount rate (USA).](results/figures/US_Fig3_Evaporation_Maps_CP100_MW250.png){#fig-evap-usa width="100%"}
+![Optimal technology as a function of carbon price and discount rate (USA).](results/figures/US_Evaporation_Maps.png){#fig-evap-usa width="100%"}
 
-![Optimal technology as a function of carbon price and discount rate (Europe).](results/figures/Europe_Fig3_Evaporation_Maps_CP100_MW250.png){#fig-evap-eur width="100%"}
+![Optimal technology as a function of carbon price and discount rate (Europe).](results/figures/Europe_Evaporation_Maps.png){#fig-evap-eur width="100%"}
 
-![Optimal technology as a function of carbon price and discount rate (India).](results/figures/India_Fig3_Evaporation_Maps_CP100_MW250_reg.png){#fig-evap-india width="100%"}
+![Optimal technology as a function of carbon price and discount rate (India).](results/figures/India_Evaporation_Maps.png){#fig-evap-india width="100%"}
 
-![Optimal technology as a function of carbon price and discount rate (China).](results/figures/China_Fig3_Evaporation_Maps_CP100_MW250_reg.png){#fig-evap-china width="100%"}
+![Optimal technology as a function of carbon price and discount rate (China).](results/figures/China_Evaporation_Maps.png){#fig-evap-china width="100%"}
 
-![Marginal abatement cost curve for Europe. Land area is the total area of the grid cells assigned to each technology, not the cropland area within them.](results/figures/Europe_Fig6_MACC_CP100_MW250.png){#fig-MACC-eur width="50%"}
-
-![Marginal abatement cost curve for India. Land area is the total area of the grid cells assigned to each technology, not the cropland area within them.](results/figures/India_Fig6_MACC_EA_CP100_MW250.png){#fig-MACC-india width="50%"}
-
-![Marginal abatement cost curve for China. Land area is the total area of the grid cells assigned to each technology, not the cropland area within them.](results/figures/China_Fig6_MACC_EA_CP100_MW250.png){#fig-MACC-china width="50%"}
+![Marginal abatement cost curves: abatement potential of the technology with the highest non-negative net value in each grid cell, by region, as a function of the carbon price.](results/figures/MACC.png){#fig-macc width="100%"}
 
 ![Dominant spatial driver of the optimal technology in each grid cell: the input with the largest absolute SHAP value for the cell's optimal technology, from surrogate classifiers fitted separately for each region (scenario CP100_MW250; see Supplementary Information). The China panel includes all territory within the World Bank boundary of China, including both the PRC and the ROC.](results/spatial_shap/map_dominant_shap_feature.png){#fig-shap-dominant width="100%"}
 
 ![Magnitude (absolute SHAP value, log-odds) of the dominant spatial driver in each grid cell, from the regional surrogate classifiers. The China panel includes all territory within the World Bank boundary of China, including both the PRC and the ROC.](results/spatial_shap/map_max_shap_magnitude.png){#fig-shap-magnitude width="100%"}
-
-
-
 
 # REFERENCES AND NOTES
 
@@ -526,6 +589,8 @@ knitr::kable(tab, row.names = FALSE, align = c("l", rep("r", length(models))))
 ```
 
 ## Supplementary figures {.unnumbered}
+
+![Biomass converted by the technology with the highest non-negative net value in each grid cell, by region, as a function of the carbon price (the biomass equivalent of @fig-macc).](results/figures/MACC_biomass.png){#fig-si-macc-biomass width="100%"}
 
 ![SHAP values of each input for each optimal technology, global model (all regions). Each point is a grid cell; colour shows the input value (low to high).](results/spatial_shap/beeswarm_Global.png){#fig-si-bee-global width="100%"}
 

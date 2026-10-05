@@ -157,7 +157,7 @@ plot_sensitivity_evolution <- function(
       color = "Key Parameters / Toggles"
     ) +
     theme(
-      plot.title = element_text(face = "bold", size = 12, hjust = 0.5),
+      plot.title = element_blank(), # no titles in figures: captions describe them
       legend.position = "right",
       panel.grid.minor = element_blank()
     )
@@ -188,7 +188,7 @@ plot_sensitivity_evolution <- function(
           technology_name, " in ", region_name
         )
       ) +
-      theme(plot.title = element_text(face = "bold", size = 12, hjust = 0.5))
+      theme(plot.title = element_blank()) # no titles in figures: captions describe them
 
     bee_png <- sprintf("results/mc_shap/beeswarm_R_%s_%s_c_%d.png", technology_name, region_name, target_c_price)
     ggsave(bee_png, plot = p_bee, width = 9, height = 6, dpi = 300)
@@ -212,7 +212,7 @@ plot_sensitivity_evolution <- function(
               technology_name, " in ", region_name
             )
           ) +
-          theme(plot.title = element_text(face = "bold", size = 12, hjust = 0.5))
+          theme(plot.title = element_blank()) # no titles in figures: captions describe them
 
         dep_png <- sprintf("results/mc_shap/dependence_R_%s_%s_%s_c_%d.png", technology_name, region_name, feat, target_c_price)
         ggsave(dep_png, plot = p_dep, width = 8, height = 5, dpi = 300)
@@ -311,7 +311,7 @@ plot_global_beeswarm <- function(
         technology_name, " - All Regions Aggregated (DR=", if (is.null(discount_rate)) "regional" else paste0(discount_rate * 100, "%"), ")"
       )
     ) +
-    theme(plot.title = element_text(face = "bold", size = 12, hjust = 0.5))
+    theme(plot.title = element_blank()) # no titles in figures: captions describe them
 
   # Add second color legend for region mapping
   opt <- getOption("shapviz.viridis_args", list(begin = 0.25, end = 0.85, option = "inferno"))

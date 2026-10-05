@@ -153,7 +153,7 @@ generate_fig_evaporation <- function(
     )
     fill_values <- stats::setNames(c(TECH_COLORS, desaturate_color(TECH_COLORS)), c(techs, neg_labels))
     plt <- ggplot() +
-      geom_tile(data = df_data, aes(x = .data$x, y = .data$y, fill = .data$tech_npv))
+      geom_tile(data = df_data, aes(x = .data$x, y = .data$y, fill = .data$tech_npv), show.legend = TRUE) # keep absent levels in the legend
     if (!is.null(dat$admin0)) {
       plt <- plt + geom_sf(
         data = dat$admin0,
@@ -168,7 +168,7 @@ generate_fig_evaporation <- function(
     }
     plt +
       coord_sf(crs = 4326) +
-      scale_fill_manual(values = fill_values, drop = FALSE) +
+      scale_fill_manual(values = fill_values, limits = names(fill_values), drop = FALSE) +
       guides(fill = guide_legend(nrow = 2, byrow = FALSE)) +
       facet_grid(cp_label ~ dr_label) +
       theme_void(base_size = 14) +
@@ -260,7 +260,7 @@ generate_fig_macc <- function(save_map = FALSE, save_ai_data = FALSE, scenario =
     cell_area_vec <- dat$vec$cell_area[keep]
     cell_bm_vec <- dat$vec$layers$biomass_density[keep] * cell_area_vec
 
-    c_prices <- seq(-50, 250, by = 1)
+    c_prices <- seq(0, 250, by = 1)
     results <- list()
 
     for (cp in c_prices) {
@@ -336,36 +336,35 @@ generate_fig_macc <- function(save_map = FALSE, save_ai_data = FALSE, scenario =
   combined_macc$Metric <- factor(combined_macc$Metric, levels = c("Biomass", "Area", "Abatement"), labels = metric_labels[c("Biomass", "Area", "Abatement")])
 
   if (sum(combined_macc$Value, na.rm = TRUE) > 0) {
-    p <- ggplot(combined_macc, aes(x = Price, y = Value, fill = Technology)) +
-      geom_area(alpha = 0.9, color = "black", linewidth = 0.2) +
-      scale_fill_manual(values = TECH_COLORS) +
-      ggh4x::facet_grid2(Region ~ Metric, scales = "free_y", independent = "y") +
-      theme_minimal(base_size = 14) +
-      labs(
-        x = "Carbon Price ($/t)",
-        y = ""
-      ) +
-      theme(
-        legend.position = "bottom",
-        strip.text = element_text(face = "bold", size = 12),
-        strip.background = element_rect(fill = "grey90", color = NA),
-        plot.title = element_blank()
-      )
+    # One four-panel figure (one panel per region) per metric: abatement for the main text (MACC.png),
+    # biomass converted for the Supplementary Materials (MACC_biomass.png)
+    macc_panel <- function(metric, y_lab) {
+      ggplot(combined_macc[combined_macc$Metric == metric_labels[[metric]], ],
+             aes(x = Price, y = Value, fill = Technology)) +
+        geom_area(alpha = 0.9, color = "black", linewidth = 0.2) +
+        scale_fill_manual(values = TECH_COLORS, limits = c("BES", "BECCS", "BEBCS")) +
+        facet_wrap(~Region, ncol = 2, scales = "free_y") +
+        theme_minimal(base_size = 14) +
+        labs(x = "Carbon price ($/t CO2)", y = y_lab, fill = "Technology") +
+        theme(
+          legend.position = "bottom",
+          strip.text = element_text(face = "bold", size = 12),
+          strip.background = element_rect(fill = "grey90", color = NA),
+          plot.title = element_blank()
+        )
+    }
+    p <- macc_panel("Abatement", "Abatement (Mt CO2e/yr)")
+    p_bm <- macc_panel("Biomass", "Biomass converted (Mt dry/yr)")
 
     if (save_ai_data) {
-                  write.csv(combined_macc, paste0(ai_dir, "macc_data_", scenario, ".csv"), row.names = FALSE)
+      write.csv(combined_macc, paste0(ai_dir, "macc_data_", scenario, ".csv"), row.names = FALSE)
     }
 
     if (save_map) {
-      ggsave_with_scenario(
-        paste0(out_dir, "MACC.png"),
-        p,
-        scenario = scenario,
-        width = 12,
-        height = 10,
-        bg = "white",
-        dpi = 300
-      )
+      for (f in list(list("MACC.png", p), list("MACC_biomass.png", p_bm))) {
+        ggsave_with_scenario(paste0(out_dir, f[[1]]), f[[2]], scenario = scenario,
+                             width = 10, height = 8, bg = "white", dpi = 300)
+      }
     } else {
       print(p)
     }
