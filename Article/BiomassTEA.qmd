@@ -45,7 +45,9 @@ format:
 # hashes for code and parameters (stable across git checkouts) and size + modification time for the
 # large, untracked GIS layers. Logs go to results/logs/.
 repo <- normalizePath("..")
-run_mc <- FALSE # Monte Carlo simulation takes hours: set TRUE to include it, or run scripts/mc_analysis.R
+run_mc <- TRUE # full Monte Carlo simulation takes hours: set TRUE to include it, or run scripts/mc_analysis.R
+test_mode <- TRUE # Limits size of MC run
+test_runs <- 100 # number of iterations in MC run
 fig_scenarios <- c("default") # scenarios for the main figures (see scripts/run_analyses.R)
 
 files_in <- function(paths) {
@@ -77,11 +79,11 @@ run_step <- function(name, code) {
 run_step("figures", sprintf('source("scripts/manuscript_figures.R"); .regions <- c("US", "China", "Europe", "India"); .scenarios <- %s; run_all_manuscript_figures(save_map = TRUE)', deparse(fig_scenarios)))
 ```
 
-```{r pipeline-factorial}
+```{r pipeline-variants}
 #| include: false
 #| cache: true
-#| cache.extra: !expr list(fp_model(), fp_hash("scripts/factorial_analysis.R"))
-run_step("factorial", 'source("scripts/factorial_analysis.R")')
+#| cache.extra: !expr list(fp_model(), fp_hash("scripts/variant_sweeps.R"))
+run_step("variants", 'source("scripts/variant_sweeps.R")')
 ```
 
 ```{r pipeline-mc}
@@ -138,6 +140,10 @@ In India, on the other hand, the mid carbon price advantage of BEBCS is almost e
 At lower carbon prices The optimal technology in Europe is almost universally BES, driven by high energy prices as the dominant driver across Europe. At \$30 / t CO~2~, the revenue from maximized power generation in BES outweighs the incentive to capture and sequester carbon, rendering the capital expenditure for BECCS and BEBCS unviable across all discount rates. As carbon prices increase, BECCS begins to dominate across central and northern Europe. BEBCS gains a strong advantage in Southern Europe, and Eastern Scandinavia where various combinations of large distances to CO~2~ sinks, already-low carbon intensity of the energy systems, and infertile soils make it more competitive. As in China, we see BEBCS maintain its advantage in these regions, even at very high carbon prices.
 
 The value of bioenergy power also depends on how it is dispatched within the wider power system, which this plant-level analysis represents only approximately. Each plant here processes a fixed annual quantity of biomass, set by its capacity and capacity factor, and BES chooses between base-load and flexible operation on its own net value. In system models that optimise capacity and hourly dispatch together, biomass is a scarce, storable fuel that the system directs to the hours and uses where it is most valuable, such as periods of high residual load, so that its operating regime depends on the generation mix, demand and other sources of flexibility of each grid [@johansson2019; @lehtveer2021; @ahlstrom2022]. Where such flexibility is scarce, the value of BES, and of BECCS operated below base load, may therefore be higher than estimated here; where it is abundant, base-load operation, as assumed here, is closer to the system optimum.
+
+## Plant size and CO~2~ infrastructure shift the technology mix
+
+Three structural assumptions that the Monte Carlo analysis holds fixed were tested by repeating the carbon-price sweep (@fig-si-variants). Plant size has the largest effect. Larger plants favour the more capital-intensive technologies through economies of scale: with 250 MW~th~ instead of 125 MW~th~ plants, BECCS is adopted at lower carbon prices, and in the United States abatement at 150 US\$/t CO~2~ rises from 46 to 337 Mt CO~2~e yr^-1^. With 50 MW~th~ plants, adoption is delayed and BEBCS keeps a larger share: in the United States at 200 US\$/t CO~2~, BEBCS provides 243 of 257 Mt CO~2~e yr^-1^, against 91 of 529 Mt CO~2~e yr^-1^ by default. In Europe, 250 MW~th~ BES plants are profitable even without a carbon price. Where almost all biomass is already used at high carbon prices, as in China and India above about 150 US\$/t CO~2~, plant size changes the timing of adoption but not the eventual abatement. These results should be read alongside the constraints on plant size that the model does not represent (see Methods): economies of scale favour ever larger plants, but road traffic, nuisance and local infrastructure limit the size of biomass plants in agricultural landscapes. Requiring each plant to build a dedicated pipeline to its sink, rather than share trunklines, delays BECCS and shifts biomass to BEBCS: at 150 US\$/t CO~2~, total abatement falls from 1,124 to 885 Mt CO~2~e yr^-1^ in China and from 287 to 209 Mt CO~2~e yr^-1^ in Europe. Allowing CO~2~-EOR as a sink raises abatement at intermediate carbon prices in China (from 731 to 821 Mt CO~2~e yr^-1^ at 100 US\$/t CO~2~) but by 5% or less in the other regions.
 
 ## Competing uses of crop residues
 
@@ -359,7 +365,7 @@ For each grid cell and technology, the net value per megagram of feedstock is th
 
 ## Uncertainty and sensitivity analyses
 
-Parameter uncertainty was propagated by Monte Carlo simulation, with 5,000 draws per region. Each parameter with an uncertainty range was sampled from a PERT or uniform distribution, with the central values, distributions and bounds listed in @tbl-si-mc (see Statistical methods), and correlated parameters were sampled jointly through a Gaussian copula. The uncertainty of the grid displacement curve was represented by sampling one of its 1,000 bootstrap draws in each iteration. The drivers of each technology's net value were identified by fitting gradient-boosted regression trees [XGBoost; @chen2016xgboost] to the Monte Carlo results and computing SHAP values [@lundberg2017]. The same method was applied across grid cells, to the choice of preferred technology, to identify its spatial drivers. A full factorial analysis evaluated 720 scenarios: four regions, carbon prices of 0–200 US\$/t CO~2~, real discount rates of 2%, 5% and 10%, plant sizes of 50, 150 and 250 MW~th~, with and without CO~2~-EOR, and with and without early adoption. Under early adoption, each plant builds a dedicated pipeline over the full distance to the sink instead of sharing a trunkline.
+Parameter uncertainty was propagated by Monte Carlo simulation, with 5,000 draws per region. Each parameter with an uncertainty range was sampled from a PERT or uniform distribution, with the central values, distributions and bounds listed in @tbl-si-mc (see Statistical methods), and correlated parameters were sampled jointly through a Gaussian copula. The uncertainty of the grid displacement curve was represented by sampling one of its 1,000 bootstrap draws in each iteration. The drivers of each technology's net value were identified by fitting gradient-boosted regression trees [XGBoost; @chen2016xgboost] to the Monte Carlo results and computing SHAP values [@lundberg2017]. The same method was applied across grid cells, to the choice of preferred technology, to identify its spatial drivers. Structural assumptions that the Monte Carlo analysis holds fixed were tested with the same carbon-price sweep as the marginal abatement cost curves, at the regional discount rates: plant sizes of 50 and 250 MW~th~ either side of the default of 125 MW~th~, dedicated pipelines instead of shared trunklines (each plant builds its own pipeline over the full distance to the sink), and CO~2~-EOR allowed as a sink (@fig-si-variants). Plant size is treated as a design assumption rather than optimised. When the model chooses the size that maximises net value in each cell, it tends towards the largest size considered, because economies of scale outweigh the longer haulage, implying gigawatt-scale plants throughout agricultural landscapes. In practice, plant size is limited by constraints outside the model, such as the road traffic and nuisance of continuous truck deliveries and the capacity of local roads and grid connections, so the default of 125 MW~th~ is large compared with typical biomass plants but not exceptional, and the size variants show the sensitivity of the results to this assumption.
 
 ## Statistical methods
 
@@ -591,6 +597,8 @@ knitr::kable(tab, row.names = FALSE, align = c("l", rep("r", length(models))))
 ## Supplementary figures {.unnumbered}
 
 ![Biomass converted by the technology with the highest non-negative net value in each grid cell, by region, as a function of the carbon price (the biomass equivalent of @fig-macc).](results/figures/MACC_biomass.png){#fig-si-macc-biomass width="100%"}
+
+![Sensitivity of the marginal abatement cost curves (@fig-macc) to structural assumptions: abatement of the technology with the highest non-negative net value in each grid cell, by region (rows), for the default (125 MW~th~ plants, shared CO~2~ trunklines, no CO~2~-EOR), plants of 50 and 250 MW~th~, dedicated pipelines from each plant to its sink, and CO~2~-EOR allowed as a sink (columns). Plant size is a design assumption; the size variants do not represent a recommended size, because local constraints on plant size, such as truck traffic, are outside the model.](results/figures/Variants_MACC.png){#fig-si-variants width="100%"}
 
 ![SHAP values of each input for each optimal technology, global model (all regions). Each point is a grid cell; colour shows the input value (low to high).](results/spatial_shap/beeswarm_Global.png){#fig-si-bee-global width="100%"}
 

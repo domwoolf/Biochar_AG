@@ -221,7 +221,7 @@
 spatially heterogeneous due to localized technoeconomic and biophysical
 constraints}
 \author{}
-\date{2026-10-04}
+\date{2026-10-05}
 
 \begin{document}
 \maketitle
@@ -407,6 +407,41 @@ operated below base load, may therefore be higher than estimated here;
 where it is abundant, base-load operation, as assumed here, is closer to
 the system optimum.
 
+\subsection{\texorpdfstring{Plant size and CO\textsubscript{2}
+infrastructure shift the technology
+mix}{Plant size and CO2 infrastructure shift the technology mix}}\label{plant-size-and-co2-infrastructure-shift-the-technology-mix}
+
+Three structural assumptions that the Monte Carlo analysis holds fixed
+were tested by repeating the carbon-price sweep
+(Figure~\ref{fig-si-variants}). Plant size has the largest effect.
+Larger plants favour the more capital-intensive technologies through
+economies of scale: with 250 MW\textsubscript{th} instead of 125
+MW\textsubscript{th} plants, BECCS is adopted at lower carbon prices,
+and in the United States abatement at 150 US\$/t CO\textsubscript{2}
+rises from 46 to 337 Mt CO\textsubscript{2}e yr\textsuperscript{-1}.
+With 50 MW\textsubscript{th} plants, adoption is delayed and BEBCS keeps
+a larger share: in the United States at 200 US\$/t CO\textsubscript{2},
+BEBCS provides 243 of 257 Mt CO\textsubscript{2}e
+yr\textsuperscript{-1}, against 91 of 529 Mt CO\textsubscript{2}e
+yr\textsuperscript{-1} by default. In Europe, 250 MW\textsubscript{th}
+BES plants are profitable even without a carbon price. Where almost all
+biomass is already used at high carbon prices, as in China and India
+above about 150 US\$/t CO\textsubscript{2}, plant size changes the
+timing of adoption but not the eventual abatement. These results should
+be read alongside the constraints on plant size that the model does not
+represent (see Methods): economies of scale favour ever larger plants,
+but road traffic, nuisance and local infrastructure limit the size of
+biomass plants in agricultural landscapes. Requiring each plant to build
+a dedicated pipeline to its sink, rather than share trunklines, delays
+BECCS and shifts biomass to BEBCS: at 150 US\$/t CO\textsubscript{2},
+total abatement falls from 1,124 to 885 Mt CO\textsubscript{2}e
+yr\textsuperscript{-1} in China and from 287 to 209 Mt
+CO\textsubscript{2}e yr\textsuperscript{-1} in Europe. Allowing
+CO\textsubscript{2}-EOR as a sink raises abatement at intermediate
+carbon prices in China (from 731 to 821 Mt CO\textsubscript{2}e
+yr\textsuperscript{-1} at 100 US\$/t CO\textsubscript{2}) but by 5\% or
+less in the other regions.
+
 \subsection{Competing uses of crop
 residues}\label{competing-uses-of-crop-residues}
 
@@ -546,7 +581,27 @@ USD, escalated to 2024 USD with the US consumer price index)
 2024 USD with the US consumer price index) is the truck
 distance-variable cost of (\citeproc{ref-searcy2007}{\emph{15}}), which
 is expressed per kilometre of one-way distance and includes the empty
-return trip.
+return trip. Each grid cell contributes only its own biomass to the
+regional totals, so a grid cell represents a share of a plant rather
+than a plant site: the number of plants of each technology follows from
+the biomass allocated to it, and its collection distance assumes that
+the biomass within the collection radius is not used by a different
+technology. Where technologies are intermixed, plants of each technology
+keep their design size and draw on interlocking catchments, so their
+collection radius increases by about \(1/\sqrt{f}\), where \(f\) is the
+share of the biomass within the radius that is not allocated to another
+technology. Enlarging the catchment is much cheaper than building
+smaller plants, because haulage costs are small relative to the
+economies of scale in capital costs. Because the preferred technology is
+spatially coherent at the scale of a catchment, \(f\) averages
+0.89--1.00 across the carbon prices and discount rates of
+Figure~\ref{fig-evap-usa}--Figure~\ref{fig-evap-china}, which would
+raise haulage costs by less than 0.5 US\$/Mg on average. The assumption
+fails for small, isolated patches of one technology within another, for
+which there is too little biomass of that technology nearby to supply a
+plant; such cells (with \(f < 0.5\)) hold 0--7\% of the adopted biomass,
+and their biomass would in practice be used by the surrounding
+technology.
 
 Haulage costs vary with terrain and road access, which the flat
 per-kilometre rate does not capture. For every candidate plant location
@@ -1635,13 +1690,24 @@ identified by fitting gradient-boosted regression trees {[}XGBoost;
 results and computing SHAP values
 (\citeproc{ref-lundberg2017}{\emph{109}}). The same method was applied
 across grid cells, to the choice of preferred technology, to identify
-its spatial drivers. A full factorial analysis evaluated 720 scenarios:
-four regions, carbon prices of 0--200 US\$/t CO\textsubscript{2}, real
-discount rates of 2\%, 5\% and 10\%, plant sizes of 50, 150 and 250
-MW\textsubscript{th}, with and without CO\textsubscript{2}-EOR, and with
-and without early adoption. Under early adoption, each plant builds a
-dedicated pipeline over the full distance to the sink instead of sharing
-a trunkline.
+its spatial drivers. Structural assumptions that the Monte Carlo
+analysis holds fixed were tested with the same carbon-price sweep as the
+marginal abatement cost curves, at the regional discount rates: plant
+sizes of 50 and 250 MW\textsubscript{th} either side of the default of
+125 MW\textsubscript{th}, dedicated pipelines instead of shared
+trunklines (each plant builds its own pipeline over the full distance to
+the sink), and CO\textsubscript{2}-EOR allowed as a sink
+(Figure~\ref{fig-si-variants}). Plant size is treated as a design
+assumption rather than optimised. When the model chooses the size that
+maximises net value in each cell, it tends towards the largest size
+considered, because economies of scale outweigh the longer haulage,
+implying gigawatt-scale plants throughout agricultural landscapes. In
+practice, plant size is limited by constraints outside the model, such
+as the road traffic and nuisance of continuous truck deliveries and the
+capacity of local roads and grid connections, so the default of 125
+MW\textsubscript{th} is large compared with typical biomass plants but
+not exceptional, and the size variants show the sensitivity of the
+results to this assumption.
 
 \subsection{Statistical methods}\label{statistical-methods}
 
@@ -3010,6 +3076,28 @@ Training accuracy & 99.0 & 100.0 & 99.6 & 99.2 & 99.9 \\
 with the highest non-negative net value in each grid cell, by region, as
 a function of the carbon price (the biomass equivalent of
 Figure~\ref{fig-macc}).}
+
+\end{figure}%
+
+\begin{figure}
+
+\centering{
+
+\includegraphics[width=1\linewidth,height=\textheight,keepaspectratio]{results/figures/Variants_MACC.png}
+
+}
+
+\caption{\label{fig-si-variants}Sensitivity of the marginal abatement
+cost curves (Figure~\ref{fig-macc}) to structural assumptions: abatement
+of the technology with the highest non-negative net value in each grid
+cell, by region (rows), for the default (125 MW\textsubscript{th}
+plants, shared CO\textsubscript{2} trunklines, no
+CO\textsubscript{2}-EOR), plants of 50 and 250 MW\textsubscript{th},
+dedicated pipelines from each plant to its sink, and
+CO\textsubscript{2}-EOR allowed as a sink (columns). Plant size is a
+design assumption; the size variants do not represent a recommended
+size, because local constraints on plant size, such as truck traffic,
+are outside the model.}
 
 \end{figure}%
 

@@ -20,13 +20,11 @@ library(sf)
   run_all_manuscript_figures(save_map = TRUE)
 }
 
-# 2) Factorial Analysis
-#    Executes a full factorial spatial TEA across scenarios
-#    Evaluates technologies competitively
-#    Generates:
-#      "results/factorial_analysis_results.csv"
+# 2) Structural variant sweeps (replaces the full factorial analysis)
+#    Plant size 50/250 MWth, dedicated pipelines, CO2-EOR allowed; carbon-price sweeps at regional rates
+#    Generates: results/variants/variant_macc_data.csv, results/figures/Variants_MACC.png
 {
-  source("scripts/factorial_analysis.R")
+  source("scripts/variant_sweeps.R")
 }
 
 # 3) Monte Carlo Simulations
