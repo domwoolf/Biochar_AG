@@ -62,6 +62,26 @@ ggsave_with_scenario <- function(filename, plot, width, height, bg = "white", dp
   ggplot2::ggsave(filename = filename, plot = plot, width = width, height = height, bg = bg, dpi = dpi)
 }
 
+# Unit strings for figure labels (SI units with Unicode super- and subscripts)
+U_CPRICE <- "US$ Mg\u207b\u00b9 CO\u2082e" # carbon price
+U_ABATE <- "Tg CO\u2082e yr\u207b\u00b9" # abatement
+U_BIOMASS <- "Tg dry matter yr\u207b\u00b9" # biomass converted
+
+# Map display: islands smaller than MIN_ISLAND_KM2 show as specks at figure scale, so maps drop them
+# (outlines and grid cells). Display only: model results include them.
+MIN_ISLAND_KM2 <- 2500
+display_admin <- function(dat, min_km2 = MIN_ISLAND_KM2) {
+  if (is.null(dat$admin0)) return(NULL)
+  polys <- function(x) sf::st_collection_extract(x, "POLYGON", warn = FALSE)
+  a0 <- sf::st_make_valid(dat$admin0)
+  parts <- sf::st_cast(sf::st_union(a0), "POLYGON")
+  area_km2 <- as.numeric(sf::st_area(sf::st_transform(parts, "+proj=eqearth"))) / 1e6
+  land <- sf::st_union(parts[area_km2 >= min_km2])
+  clip <- function(a) if (is.null(a)) NULL else polys(suppressWarnings(sf::st_intersection(sf::st_make_valid(a), land)))
+  list(admin0 = clip(a0), admin1 = clip(dat$admin1), land = land)
+}
+mask_display <- function(r, disp) if (is.null(disp)) r else terra::mask(r, terra::vect(disp$land))
+
 # Carbon-price sweeps use run_price_sweep(): net value is N0 + C * A(C), with the abatement A(C)
 # price-dependent through MEF(P), so a linear extrapolation from C = 0 is not valid.
 
@@ -75,9 +95,11 @@ generate_fig_evaporation <- function(
   metric = c("optimal_tech", "max_npv", "both")
 ) {
   metric <- match.arg(metric)
+  cp_label <- function(cp) paste0("Carbon price:\n", cp, " ", U_CPRICE)
   params <- set_scenario(scenarios[[scenario]], region = region_name)
   message("Generating Figure 3: Evaporation Maps for ", region_name, " (Metric: ", metric, ")...")
   params$region <- region_name
+  disp <- display_admin(dat)
   all_df <- data.frame()
   for (cp in c_prices) {
     for (dr in d_rates) {
@@ -101,18 +123,14 @@ generate_fig_evaporation <- function(
         max_npv_raster <- terra::app(res$net, max, na.rm = TRUE)
       }
 
-      if (!is.null(dat$admin0)) {
-        opt_raster <- terra::mask(opt_raster, terra::vect(dat$admin0))
-        max_npv_raster <- terra::mask(max_npv_raster, terra::vect(dat$admin0))
-      }
-      comb_r <- c(opt_raster, max_npv_raster)
+      comb_r <- mask_display(c(opt_raster, max_npv_raster), disp)
       names(comb_r) <- c("opt_tech", "max_npv")
       df <- terra::as.data.frame(comb_r, xy = TRUE, na.rm = TRUE)
 
       tech_levels <- c("1" = "BES", "2" = "BECCS", "3" = "BEBCS")
       df$tech <- tech_levels[as.character(df$opt_tech)]
-      df$dr_label <- paste0("Discount Rate: ", dr * 100, "%")
-      df$cp_label <- paste0("Carbon Price: $", cp, "/t")
+      df$dr_label <- paste0("Discount rate: ", dr * 100, "%")
+      df$cp_label <- cp_label(cp)
       all_df <- bind_rows(all_df, df)
 
       if (save_ai_data && !is.null(dat$admin1) && requireNamespace("exactextractr", quietly = TRUE)) {
@@ -135,36 +153,28 @@ generate_fig_evaporation <- function(
 
   all_df$dr_label <- factor(
     all_df$dr_label,
-    levels = paste0("Discount Rate: ", d_rates * 100, "%")
+    levels = paste0("Discount rate: ", d_rates * 100, "%")
   )
-  all_df$cp_label <- factor(
-    all_df$cp_label,
-    levels = paste0("Carbon Price: $", sort(unique(c_prices)), "/t")
-  )
+  all_df$cp_label <- factor(all_df$cp_label, levels = cp_label(sort(unique(c_prices))))
 
   build_tech_plot <- function(df_data) {
     # Saturated fill where the optimal technology has a positive NPV; low saturation (same hue)
     # where even the best technology loses money (NPV <= 0)
+    # Legend: one column per technology, NPV <= 0 on the top row
     techs <- names(TECH_COLORS)
     neg_labels <- paste0(techs, " (NPV \u2264 0)")
+    tech_levels <- as.vector(rbind(neg_labels, techs))
     df_data$tech_npv <- factor(
       ifelse(df_data$max_npv > 0, df_data$tech, paste0(df_data$tech, " (NPV \u2264 0)")),
-      levels = as.vector(rbind(techs, neg_labels))
+      levels = tech_levels
     )
-    fill_values <- stats::setNames(c(TECH_COLORS, desaturate_color(TECH_COLORS)), c(techs, neg_labels))
+    fill_values <- stats::setNames(c(TECH_COLORS, desaturate_color(TECH_COLORS)), c(techs, neg_labels))[tech_levels]
     plt <- ggplot() +
       geom_tile(data = df_data, aes(x = .data$x, y = .data$y, fill = .data$tech_npv), show.legend = TRUE) # keep absent levels in the legend
-    if (!is.null(dat$admin0)) {
-      plt <- plt + geom_sf(
-        data = dat$admin0,
-        fill = NA, color = "black", linewidth = 0.5
-      )
-    }
-    if (!is.null(dat$admin1)) {
-      plt <- plt + geom_sf(
-        data = dat$admin1,
-        fill = NA, color = "black", linetype = "dotted", linewidth = 0.2
-      )
+    if (!is.null(disp)) {
+      plt <- plt +
+        geom_sf(data = disp$admin0, fill = NA, color = "black", linewidth = 0.5) +
+        geom_sf(data = disp$admin1, fill = NA, color = "black", linetype = "dotted", linewidth = 0.2)
     }
     plt +
       coord_sf(crs = 4326) +
@@ -176,34 +186,27 @@ generate_fig_evaporation <- function(
         strip.text = element_text(face = "bold", margin = margin(b = 5, t = 5)),
         legend.position = "bottom"
       ) +
-      labs(fill = "Optimal Technology")
+      labs(fill = "Technology")
   }
 
   build_npv_plot <- function(df_data) {
     plt <- ggplot() +
       geom_tile(data = df_data, aes(x = .data$x, y = .data$y, fill = .data$max_npv))
-    if (!is.null(dat$admin0)) {
-      plt <- plt + geom_sf(
-        data = dat$admin0,
-        fill = NA, color = "black", linewidth = 0.5
-      )
-    }
-    if (!is.null(dat$admin1)) {
-      plt <- plt + geom_sf(
-        data = dat$admin1,
-        fill = NA, color = "black", linetype = "dotted", linewidth = 0.2
-      )
+    if (!is.null(disp)) {
+      plt <- plt +
+        geom_sf(data = disp$admin0, fill = NA, color = "black", linewidth = 0.5) +
+        geom_sf(data = disp$admin1, fill = NA, color = "black", linetype = "dotted", linewidth = 0.2)
     }
     plt +
       coord_sf(crs = 4326) +
-      scale_fill_viridis_c(option = "viridis", name = "Max NPV ($/Mg)") +
+      scale_fill_viridis_c(option = "viridis", name = "Max NPV (US$ Mg\u207b\u00b9)") +
       facet_grid(cp_label ~ dr_label) +
       theme_void(base_size = 14) +
       theme(
         strip.text = element_text(face = "bold", margin = margin(b = 5, t = 5)),
         legend.position = "bottom"
       ) +
-      labs(fill = "Max NPV ($/Mg)")
+      labs(fill = "Max NPV (US$ Mg\u207b\u00b9)")
   }
 
   out_plot <- if (metric == "optimal_tech") {
@@ -213,7 +216,7 @@ generate_fig_evaporation <- function(
   } else {
     # metric == "both"
     patchwork::wrap_plots(
-      build_tech_plot(all_df) + labs(title = paste0("Optimal Technology - ", region_name)),
+      build_tech_plot(all_df) + labs(title = paste0("Optimal technology - ", region_name)),
       build_npv_plot(all_df) + labs(title = paste0("Highest NPV - ", region_name)),
       ncol = 2
     )
@@ -329,9 +332,7 @@ generate_fig_macc <- function(save_map = FALSE, save_ai_data = FALSE, scenario =
   combined_macc$Region <- factor(combined_macc$Region, levels = c("US", "China", "Europe", "India"))
 
   metric_labels <- c(
-    "Abatement" = "Abatement Potential\n(MtCO2e/yr)",
-    "Area" = "Grid-Cell Area Assigned\n(Mha)",
-    "Biomass" = "Biomass Converted\n(Mt dry)"
+    "Abatement" = "Abatement", "Area" = "Area", "Biomass" = "Biomass"
   )
   combined_macc$Metric <- factor(combined_macc$Metric, levels = c("Biomass", "Area", "Abatement"), labels = metric_labels[c("Biomass", "Area", "Abatement")])
 
@@ -345,7 +346,7 @@ generate_fig_macc <- function(save_map = FALSE, save_ai_data = FALSE, scenario =
         scale_fill_manual(values = TECH_COLORS, limits = c("BES", "BECCS", "BEBCS")) +
         facet_wrap(~Region, ncol = 2, scales = "free_y") +
         theme_minimal(base_size = 14) +
-        labs(x = "Carbon price ($/t CO2)", y = y_lab, fill = "Technology") +
+        labs(x = paste0("Carbon price (", U_CPRICE, ")"), y = y_lab, fill = "Technology") +
         theme(
           legend.position = "bottom",
           strip.text = element_text(face = "bold", size = 12),
@@ -353,8 +354,8 @@ generate_fig_macc <- function(save_map = FALSE, save_ai_data = FALSE, scenario =
           plot.title = element_blank()
         )
     }
-    p <- macc_panel("Abatement", "Abatement (Mt CO2e/yr)")
-    p_bm <- macc_panel("Biomass", "Biomass converted (Mt dry/yr)")
+    p <- macc_panel("Abatement", paste0("Abatement (", U_ABATE, ")"))
+    p_bm <- macc_panel("Biomass", paste0("Biomass converted (", U_BIOMASS, ")"))
 
     if (save_ai_data) {
       write.csv(combined_macc, paste0(ai_dir, "macc_data_", scenario, ".csv"), row.names = FALSE)
@@ -388,7 +389,7 @@ generate_fig_breakeven_cprice <- function(save_map = FALSE,
   techs <- c("BES", "BECCS", "BEBCS", "Best_Tech", "Best_C")
   row_labels <- c(
     "BES" = "Bioenergy", "BECCS" = "BECCS", "BEBCS" = "Biochar",
-    "Best_Tech" = "Lowest\nBreak-even\nTech.", "Best_C" = "Lowest\nBreak-even\nPrice"
+    "Best_Tech" = "Lowest\nbreak-even\ntech.", "Best_C" = "Lowest\nbreak-even\nprice"
   )
 
   df_list <- list()
@@ -419,10 +420,11 @@ generate_fig_breakeven_cprice <- function(save_map = FALSE,
 
     full_stack <- c(c_stack, best_c, best_idx)
 
-    if (!is.null(dat$admin0)) {
-      full_stack <- terra::mask(full_stack, terra::vect(dat$admin0))
+    disp <- display_admin(dat)
+    if (!is.null(disp)) {
+      full_stack <- mask_display(full_stack, disp)
       # Save admin boundaries for plotting
-      admin_r <- dat$admin0
+      admin_r <- disp$admin0
       admin_r$Region <- r
       admin_list[[r]] <- admin_r
     }
@@ -575,7 +577,7 @@ generate_fig_breakeven_cprice <- function(save_map = FALSE,
   # Generate isolated legends using cowplot
   p_leg_cat <- ggplot(data.frame(x = 1, y = 1, Tech = factor(c("BES", "BECCS", "BEBCS"), levels = c("BES", "BECCS", "BEBCS"))), aes(x, y, fill = Tech)) +
     geom_tile() +
-    scale_fill_manual(values = TECH_COLORS, name = "Optimal\nTechnology") +
+    scale_fill_manual(values = TECH_COLORS, name = "Technology") +
     theme_void() +
     theme(legend.position = "bottom", legend.title = element_text(vjust = 0.8), legend.margin = margin(t = 0, b = 0))
 
@@ -587,7 +589,7 @@ generate_fig_breakeven_cprice <- function(save_map = FALSE,
       oob = scales::squish,
       breaks = c(-50, 0, 50, 100, 150, 200),
       labels = c("\u2264 -50", "0", "50", "100", "150", "\u2265 200"),
-      name = "Break-Even C-Price\n($/tCO2e)"
+      name = paste0("Break-even carbon price\n(", U_CPRICE, ")")
     ) +
     theme_void() +
     theme(legend.position = "bottom", legend.key.width = unit(1, "cm"), legend.title = element_text(vjust = 0.8), legend.margin = margin(t = 0, b = 0))

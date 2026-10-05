@@ -1,0 +1,49 @@
+terra 1.9.50
+Linking to GEOS 3.14.1, GDAL 3.12.2, PROJ 9.7.1; sf_use_s2() is TRUE
+
+Attaching package: ‘dplyr’
+
+The following objects are masked from ‘package:terra’:
+
+    intersect, union
+
+The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+Spherical geometry (s2) switched off
+[   0.1 s] 
+=== Transport layers (route/cost decoupled) for: India ===
+[   0.2 s] Sinks: 2 onshore saline, 3 onshore EOR, 2 offshore.
+[  18.4 s] No dem_path: using geodata::elevation_global() for elevation and land/sea mask.
+[  19.3 s] Evaluating terrain functions at native slope resolution and averaging to routing grid...
+[ 130.2 s] Loading cached protected-area tiers: ../GIS/processed/india_wdpa_tiers.gpkg
+[ 131.9 s] Assembling F_cost and F_route...
+[ 143.4 s]   Routing class 'onsal' to 2 target cells...
+[ 160.5 s]     route tree vs costDist: median rel. diff 1.5e-03, 99th pct 5.3e-03
+[ 163.6 s]   Routing class 'oneor' to 3 target cells...
+[ 179.5 s]     route tree vs costDist: median rel. diff 1.5e-03, 99th pct 4.8e-03
+[ 181.9 s] Offshore sinks: locating coastal cells and computing sea distances...
+[ 186.9 s]   set 'sal': 20720 coastal cells, 16461 with sea access to an offshore sink
+[ 186.9 s]   Routing class 'offship' to 16461 target cells...
+[ 195.8 s]     route integral + offset vs Dijkstra: max rel. diff 5.5e-15
+[ 197.9 s]   Routing class 'offpipe' to 16461 target cells...
+[ 205.2 s]     route integral + offset vs Dijkstra: max rel. diff 5.5e-15
+[ 207.6 s] Saved: ../GIS/processed/india_transport_layers.tif
+[ 207.7 s] Diagnostics over biomass cells (median / p95 / max):
+                       median     p95     max
+onsal_len_km          1127.19 2323.05 3747.80
+onsal_costlen_km      1169.60 2411.71 4372.04
+onsal_terrain_mult       1.01    1.10    1.33
+onsal_detour             1.07    1.40    2.00
+onsal_hrel_max_m       355.46 1516.37 4428.75
+offship_len_km         522.83 1400.55 3911.61
+offship_sea_km         366.24 1375.44 1774.25
+offpipe_len_km         967.45 2054.60 4150.56
+offpipe_sea_km           1.54  220.82 1683.34
+onsal_routing_premium    1.00    1.03    1.56
+TOTAL 3.5 min

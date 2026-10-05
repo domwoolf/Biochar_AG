@@ -13,16 +13,16 @@ source("scripts/manuscript_figures.R")
 
 # Configuration
 n_runs <- 5000 # Number of MC iterations per region
-test_mode <- FALSE # Set to FALSE for full production run
+if (!exists("test_mode")) test_mode <- FALSE # Set to FALSE for full production run
+if (!exists("test_runs")) test_runs <- 100 # How many iterations in test mode
 n_cores <- 12 # Set to integer to override default cores detection (detectCores() - 1)
 append <- FALSE # Set to TRUE to append to existing results file
 
 regions <- c("US", "China", "Europe", "India")
 
 if (test_mode) {
-  message("Running in TEST MODE: truncating runs to 50 for speed.")
-  n_runs <- 50
-  regions <- head(regions, 2)
+  message("Running in TEST MODE: ", test_runs, " iterations.")
+  n_runs <- test_runs
 }
 
 # Determine number of cores to use

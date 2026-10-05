@@ -29,7 +29,7 @@ INPUT_FILE <- "results/spatial_sensitivity_results.csv"
 OUT_DIR <- "results/spatial_shap"
 N_PLOT <- 20000 # cells sampled for beeswarm and dependence plots (SHAP is computed on all cells)
 REGIONS <- c("US", "Europe", "China", "India")
-CHINA_NOTE <- "The China panel includes all territory within the World Bank boundary of China, including both the PRC and the ROC."
+MAP_HEIGHT <- 3.4 # height of each map panel (inches); widths follow each region's aspect ratio
 
 dir.create(OUT_DIR, showWarnings = FALSE, recursive = TRUE)
 
@@ -47,8 +47,8 @@ features_all <- intersect(c(
 
 feature_labels <- c(
   biomass_density = "Biomass density", soil_temp = "Soil temperature", elec_price = "Electricity price",
-  feedstock_cost = "Feedstock cost", co2_route_km = "CO2 route length", co2_offshore = "Offshore CO2 sink",
-  co2_storage_cost = "CO2 storage cost", soil_ph = "Soil pH", soil_cec = "Soil CEC",
+  feedstock_cost = "Feedstock cost", co2_route_km = "CO\u2082 route length", co2_offshore = "Offshore CO\u2082 sink",
+  co2_storage_cost = "CO\u2082 storage cost", soil_ph = "Soil pH", soil_cec = "Soil CEC",
   ff_c_intensity = "Grid carbon intensity"
 )
 
@@ -122,16 +122,26 @@ for (m in models) {
       theme_bw(base_size = 10) + labs(title = cl, x = "SHAP value (log-odds)")
   })
   p_bee <- wrap_plots(bees, nrow = 1) +
-    plot_annotation() # no figure title: the caption describes it
+    plot_layout(guides = "collect") # the panels share one feature-value colour bar; no title (see caption)
   ggsave(file.path(OUT_DIR, sprintf("beeswarm_%s.png", m$label)), p_bee,
          width = 4.5 * length(m$classes), height = 0.35 * length(m$features) + 2, dpi = 300)
 
-  # Dependence: one panel per feature, coloured by the feature with the strongest interaction
+  # Dependence: one panel per feature, coloured by the feature with the strongest interaction, three
+  # panels per row with the colour bar under each panel so that all panels have the same size. Features
+  # whose SHAP values are all zero for this class are omitted.
   for (cl in m$classes) {
-    p_dep <- sv_dependence(m$shp[[cl]][idx, ], v = unname(feature_labels[m$features]), color_var = "auto", alpha = 0.4, size = 0.6) &
-      theme_bw(base_size = 9)
+    S <- m$shp[[cl]]$S
+    v_show <- colnames(S)[apply(abs(S), 2, max) > 1e-6]
+    deps <- lapply(v_show, function(v) {
+      sv_dependence(m$shp[[cl]][idx, ], v = v, color_var = "auto", alpha = 0.4, size = 0.6) +
+        theme_bw(base_size = 9) + labs(title = v, y = "SHAP value") +
+        guides(colour = guide_colourbar(direction = "horizontal", barwidth = unit(3.5, "cm"), barheight = unit(0.25, "cm"))) +
+        theme(legend.position = "bottom", legend.title.position = "top", legend.title = element_text(size = 8),
+              legend.text = element_text(size = 7), legend.margin = margin(0, 0, 0, 0))
+    })
+    p_dep <- wrap_plots(deps, ncol = 3)
     ggsave(file.path(OUT_DIR, sprintf("dependence_%s_%s.png", m$label, cl)), p_dep,
-           width = 12, height = 3 * ceiling(length(m$features) / 3) + 1, dpi = 250)
+           width = 10, height = 3.4 * ceiling(length(deps) / 3), dpi = 250)
   }
 }
 
@@ -195,45 +205,59 @@ write.csv(df_admin_all, paste0(ai_dir, "spatial_shap_admin1_summary.csv"), row.n
 message("Generating multi-region spatial maps...")
 used_features <- intersect(names(feature_palette), unique(df_shap_loc$dominant_feature_winning_class))
 
-map_panels <- function(fill_layer, scale_layer) {
-  lapply(REGIONS, function(r) {
-    dat <- load_region_data(r)
-    reg_df <- df_shap_loc %>% filter(region == r)
-    p <- ggplot() + fill_layer(reg_df)
-    if (!is.null(dat$admin0)) p <- p + geom_sf(data = dat$admin0, fill = NA, color = "black", linewidth = 0.4)
-    p + coord_sf(crs = 4326) + scale_layer + theme_void(base_size = 11) + labs(subtitle = r) +
-      theme(plot.subtitle = element_text(face = "bold", hjust = 0.5, margin = margin(b = 4)))
-  })
+# Cells and outlines as displayed (small islands dropped; display_admin() in manuscript_figures.R)
+map_data <- lapply(stats::setNames(REGIONS, REGIONS), function(r) {
+  disp <- display_admin(load_region_data(r))
+  d <- df_shap_loc[df_shap_loc$region == r, ]
+  pts <- sf::st_as_sf(d, coords = c("x", "y"), crs = 4326)
+  list(df = d[lengths(sf::st_intersects(pts, sf::st_transform(disp$land, 4326))) > 0, ], admin0 = disp$admin0)
+})
+# Width/height ratio of a region's map in longitude-latitude coordinates (as coord_sf draws them)
+map_aspect <- function(r) {
+  b <- sf::st_bbox(map_data[[r]]$admin0)
+  unname((b$xmax - b$xmin) * cos(mean(c(b$ymin, b$ymax)) * pi / 180) / (b$ymax - b$ymin))
 }
 
-save_map <- function(panels, title_text, out_path) {
-  combined <- wrap_plots(panels, ncol = 2) +
-    plot_layout(guides = "collect") +
-    plot_annotation(
-      caption = CHINA_NOTE,
-      theme = theme(plot.title = element_text(face = "bold", size = 14, hjust = 0.5), legend.position = "bottom")
-    )
-  ggsave(out_path, plot = combined, width = 12, height = 9, dpi = 300)
+map_panel <- function(r, fill_layer, scale_layer) {
+  m <- map_data[[r]]
+  ggplot() + fill_layer(m$df) +
+    geom_sf(data = m$admin0, fill = NA, color = "black", linewidth = 0.3) +
+    coord_sf(crs = 4326, expand = FALSE) + scale_layer + theme_void(base_size = 11) + labs(subtitle = r) +
+    theme(plot.subtitle = element_text(face = "bold", hjust = 0.5, margin = margin(b = 4)),
+          legend.position = "none", plot.margin = margin(4, 8, 4, 8))
+}
+
+# Two rows (US, Europe; China, India). Every map has the same height and a width set by its aspect
+# ratio, so the regions are drawn at comparable scales; one legend below.
+save_map <- function(fill_layer, scale_layer, guide, out_path, legend_height = 0.9) {
+  rows <- list(c("US", "Europe"), c("China", "India"))
+  asp <- lapply(rows, function(rr) vapply(rr, map_aspect, numeric(1)))
+  row_plots <- lapply(seq_along(rows), function(i) {
+    wrap_plots(lapply(rows[[i]], map_panel, fill_layer, scale_layer), nrow = 1, widths = asp[[i]])
+  })
+  leg <- cowplot::get_legend(map_panel("US", fill_layer, scale_layer) + guide +
+    theme(legend.position = "bottom", legend.title.position = "top", legend.title = element_text(hjust = 0.5)))
+  row_h <- MAP_HEIGHT + 0.35 # map plus panel title
+  combined <- wrap_elements(row_plots[[1]]) / wrap_elements(row_plots[[2]]) / wrap_elements(leg) +
+    plot_layout(heights = c(row_h, row_h, legend_height))
+  width <- MAP_HEIGHT * max(vapply(asp, sum, numeric(1))) + 0.6
+  ggsave(out_path, plot = combined, width = width, height = 2 * row_h + legend_height, dpi = 300, bg = "white")
   message("Saved map: ", out_path)
 }
 
 save_map(
-  map_panels(
-    function(d) geom_tile(data = d, aes(x = x, y = y, fill = dominant_feature_winning_class), show.legend = TRUE),
-    scale_fill_manual(name = "Dominant SHAP predictor", values = feature_palette, limits = used_features,
-                      labels = feature_labels[used_features], drop = FALSE, na.value = "grey80")
-  ),
-  "Dominant spatial driver of the optimal technology (regional SHAP models)",
+  function(d) geom_tile(data = d, aes(x = x, y = y, fill = dominant_feature_winning_class), show.legend = TRUE),
+  scale_fill_manual(name = "Dominant SHAP predictor", values = feature_palette, limits = used_features,
+                    labels = feature_labels[used_features], drop = FALSE, na.value = "grey80"),
+  guides(fill = guide_legend(nrow = 3, byrow = TRUE)),
   file.path(OUT_DIR, "map_dominant_shap_feature.png")
 )
 
 save_map(
-  map_panels(
-    function(d) geom_tile(data = d, aes(x = x, y = y, fill = abs(max_shap_value_winning_class))),
-    scale_fill_viridis_c(name = "|SHAP value|", option = "inferno", direction = 1,
-                         limits = c(0, max(abs(df_shap_loc$max_shap_value_winning_class), na.rm = TRUE))) # one shared legend
-  ),
-  "Magnitude of the dominant spatial driver (regional SHAP models)",
+  function(d) geom_tile(data = d, aes(x = x, y = y, fill = abs(max_shap_value_winning_class))),
+  scale_fill_viridis_c(name = "|SHAP value| (log-odds)", option = "inferno", direction = 1,
+                       limits = c(0, max(abs(df_shap_loc$max_shap_value_winning_class), na.rm = TRUE))), # one shared scale
+  guides(fill = guide_colourbar(direction = "horizontal", barwidth = unit(8, "cm"), barheight = unit(0.35, "cm"))),
   file.path(OUT_DIR, "map_max_shap_magnitude.png")
 )
 

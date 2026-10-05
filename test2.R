@@ -1,0 +1,5 @@
+library(kableExtra)
+tab <- data.frame(A=1:2)
+k <- kbl(tab, format="latex", escape=FALSE)
+k <- pack_rows(k, "CO\\textsubscript{2} Transport \\& Storage", 1, 2, escape=TRUE)
+print(k)

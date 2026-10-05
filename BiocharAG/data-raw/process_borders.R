@@ -71,6 +71,11 @@ regions <- list(
     China = list(
         prefix = "china",
         filter = "China",
+        # Mainland China: the World Bank boundary of China includes Taiwan (Admin 1 "Taiwan Sheng"),
+        # and the "China" name filter also matches Hong Kong and Macau. The model's China data
+        # (prices, fertilizer, grid) are for mainland China, so all three are excluded.
+        exclude_iso = c("HKG", "MAC"),
+        erase_adm1 = "Taiwan Sheng",
         template = file.path(gis_proc, "china_biomass.tif")
     ),
     Europe = list(
@@ -100,6 +105,12 @@ for (r_name in names(regions)) {
     message("Filtering Admin 0...")
     sub_a0 <- filter_by_name(v_a0, reg$filter)
     if (!is.null(reg$exclude_iso)) sub_a0 <- sub_a0[!(sub_a0$ISO_A3 %in% reg$exclude_iso), ]
+    if (!is.null(reg$erase_adm1)) {
+        # Erase Admin 1 units from the national polygon, with a 10 km margin so that no coastal slivers
+        # remain where the Admin 0 and Admin 1 coastlines differ
+        erase_v <- v_a1[v_a1$NAM_1 %in% reg$erase_adm1, ]
+        sub_a0 <- terra::erase(sub_a0, terra::buffer(erase_v, 10000))
+    }
     
     message("Cropping Admin 0 to Bounding Box...")
     # Wrap in tryCatch as cropping can occasionally fail if geometries are invalid
@@ -120,6 +131,7 @@ for (r_name in names(regions)) {
     message("Filtering Admin 1...")
     sub_a1 <- filter_by_name(v_a1, reg$filter)
     if (!is.null(reg$exclude_iso)) sub_a1 <- sub_a1[!(sub_a1$ISO_A3 %in% reg$exclude_iso), ]
+    if (!is.null(reg$erase_adm1)) sub_a1 <- sub_a1[!(sub_a1$NAM_1 %in% reg$erase_adm1), ]
     
     message("Cropping Admin 1 to Bounding Box...")
     crop_a1 <- tryCatch({

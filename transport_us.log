@@ -1,0 +1,49 @@
+terra 1.9.50
+Linking to GEOS 3.14.1, GDAL 3.12.2, PROJ 9.7.1; sf_use_s2() is TRUE
+
+Attaching package: ‘dplyr’
+
+The following objects are masked from ‘package:terra’:
+
+    intersect, union
+
+The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+Spherical geometry (s2) switched off
+[   0.1 s] 
+=== Transport layers (route/cost decoupled) for: North America ===
+[   0.2 s] Sinks: 9 onshore saline, 4 onshore EOR, 1 offshore.
+|---------|---------|---------|---------|=========================================                                          |---------|---------|---------|---------|=========================================                                          [  18.5 s] No dem_path: using geodata::elevation_global() for elevation and land/sea mask.
+[  19.5 s] Evaluating terrain functions at native slope resolution and averaging to routing grid...
+|---------|---------|---------|---------|=========================================                                          |---------|---------|---------|---------|=========================================                                          |---------|---------|---------|---------|=========================================                                          [ 143.9 s] Loading cached protected-area tiers: ../GIS/processed/us_wdpa_tiers.gpkg
+[ 148.9 s] Assembling F_cost and F_route...
+[ 152.7 s]   Routing class 'onsal' to 9 target cells...
+[ 157.7 s]     route tree vs costDist: median rel. diff 1.6e-03, 99th pct 5.3e-03
+[ 159.4 s]   Routing class 'oneor' to 4 target cells...
+[ 164.5 s]     route tree vs costDist: median rel. diff 1.7e-03, 99th pct 5.0e-03
+[ 165.8 s] Offshore sinks: locating coastal cells and computing sea distances...
+[ 167.8 s]   set 'sal': 19972 coastal cells, 9003 with sea access to an offshore sink
+[ 167.8 s]   Routing class 'offship' to 9003 target cells...
+[ 173.0 s]     route integral + offset vs Dijkstra: max rel. diff 1.3e-14
+[ 174.4 s]   Routing class 'offpipe' to 9003 target cells...
+[ 176.8 s]     route integral + offset vs Dijkstra: max rel. diff 1.3e-14
+[ 178.1 s] Saved: ../GIS/processed/us_transport_layers.tif
+[ 178.2 s] Diagnostics over biomass cells (median / p95 / max):
+                       median     p95     max
+onsal_len_km           550.04 1122.63 1700.80
+onsal_costlen_km       564.33 1159.09 1778.10
+onsal_terrain_mult       1.02    1.09    1.23
+onsal_detour             1.06    1.14    1.99
+onsal_hrel_max_m       317.41 1489.30 2788.89
+offship_len_km        1467.42 2917.43 3610.05
+offship_sea_km         125.33  871.59 4205.35
+offpipe_len_km        1604.97 2982.52 3620.39
+offpipe_sea_km          85.33  126.82 4051.21
+onsal_routing_premium    1.01    1.03    1.20
+TOTAL 3.0 min

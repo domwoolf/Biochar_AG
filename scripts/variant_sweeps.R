@@ -22,11 +22,11 @@ source("scripts/manuscript_figures.R") # load_all, TECH_COLORS, results_dir, out
 REGIONS <- c("US", "China", "Europe", "India")
 C_PRICES <- seq(0, 250, by = 1)
 VARIANTS <- list(
-  "Default (125 MWth)" = list(),
-  "50 MWth plants" = list(plant_mw_th = 50),
-  "250 MWth plants" = list(plant_mw_th = 250),
+  "Default (125 MW\u209c\u2095)" = list(),
+  "50 MW\u209c\u2095 plants" = list(plant_mw_th = 50),
+  "250 MW\u209c\u2095 plants" = list(plant_mw_th = 250),
   "Dedicated pipelines" = list(early_adoption = TRUE),
-  "CO2-EOR allowed" = list(allow_eor = TRUE)
+  "CO\u2082-EOR allowed" = list(allow_eor = TRUE)
 )
 var_dir <- paste0(results_dir, "variants/")
 dir.create(var_dir, showWarnings = FALSE, recursive = TRUE)
@@ -69,7 +69,7 @@ p <- ggplot(res, aes(x = Price, y = Abatement, fill = Technology)) +
   scale_fill_manual(values = TECH_COLORS, limits = c("BES", "BECCS", "BEBCS")) +
   facet_grid(Region ~ Variant, scales = "free_y") +
   theme_minimal(base_size = 11) +
-  labs(x = "Carbon price ($/t CO2)", y = "Abatement (Mt CO2e/yr)", fill = "Technology") +
+  labs(x = paste0("Carbon price (", U_CPRICE, ")"), y = paste0("Abatement (", U_ABATE, ")"), fill = "Technology") +
   theme(legend.position = "bottom", strip.text = element_text(face = "bold"),
         strip.background = element_rect(fill = "grey90", color = NA), plot.title = element_blank())
 ggsave(paste0(out_dir, "Variants_MACC.png"), p, width = 13, height = 9, dpi = 300, bg = "white")
