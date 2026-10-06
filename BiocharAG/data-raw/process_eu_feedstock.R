@@ -9,7 +9,7 @@
 # Storage is not included; the model adds `feedstock_storage_cost` in calculate_regional_feedstock_cost().
 # Rows with no country name set a default for unpriced countries in a World Bank region (e.g.
 # "N. Africa and M.E." -> MENA: Algeria, Morocco, Tunisia, Syria). Values for Kosovo (as Serbia/Croatia),
-# Cyprus (as Greece), Turkiye and North Africa/Middle East (lowest class) are author judgements (issue #102).
+# Cyprus (as Greece) and Türkiye (middle class; Turkish fodder-market straw prices of 1,500-1,750 TL/t in 2023, about 65-76 US$/Mg in 2024 USD rule out the lowest class) are author judgements; North Africa/Middle East defaults lie outside the study region (issue #102).
 # Cells still without a price are NA and use the model's European default.
 #
 # Usage (from BiocharAG/): Rscript data-raw/process_eu_feedstock.R
