@@ -221,7 +221,7 @@
 spatially heterogeneous due to localized technoeconomic and biophysical
 constraints}
 \author{}
-\date{2026-10-05}
+\date{2026-10-06}
 
 \begin{document}
 \maketitle
@@ -307,7 +307,7 @@ application.
 rates and carbon
 prices}\label{capital-intensive-pathways-are-highly-sensitive-to-discount-rates-and-carbon-prices}
 
-Figure~\ref{fig-evap-usa} to Figure~\ref{fig-evap-china} illustrate the
+Figure~\ref{fig-evap} and Figure~\ref{fig-si-evap-social} illustrate the
 core vulnerability of CDR pathways to capital lock-out. Because both
 BECCS (heavy upfront infrastructure) and BEBCS (deferred agronomic
 value) are highly sensitive to the cost of capital, high discount rates
@@ -342,7 +342,7 @@ attractive option.
 and a long-term solution for specific agro-ecological
 zones}\label{biochar-provides-a-mid-price-transition-technology-option-and-a-long-term-solution-for-specific-agro-ecological-zones}
 
-Figure~\ref{fig-evap-china} provides a counterpoint to the US results.
+Figure~\ref{fig-evap} (China) provides a counterpoint to the US results.
 It shows how soils with strong production constraints that can be
 alleviated by biochar can create a persistent competitive advantage for
 biochar, particularly when combined with large distances to
@@ -557,41 +557,53 @@ emissions}\label{biomass-transport-costs-and-emissions}
 High resolution rasters of available crop residue biomass were derived
 from the sustainably harvestable crop residues of Karan et al.
 (\citeproc{ref-karan2023}{\emph{10}}), which exclude the fraction that
-must be retained to avoid soil degradation, minus the fraction used as
-livestock fodder and bedding, estimated for each world region from the
-stover feed use of (\citeproc{ref-herrero2013}{\emph{11}}). The supply
-modelled here therefore does not divert residues from these uses. The
-average transport distance for biomass was calculated from this using
-focal statistics based on the annual biomass requirement for the
-conversion facility. The required annual biomass mass (\(M_{req}\)) is
-determined by the target thermal capacity, the capacity factor, and the
-biomass lower heating value (LHV). Collection distances were computed
-for a reference capacity factor of 0.70 and a series of plant sizes;
-each technology uses the distance for the plant size with the same
-annual biomass demand at its own capacity factor, interpolated in the
-square root of plant size. A spatial focal sum algorithm was applied to
-aggregate the surrounding biomass over a discrete series of expanding
-radii (from 5 km up to 500 km). The required collection radius was then
-calculated via quadratic interpolation between these radial bins. All
-domains were uniformly projected and resampled to the 0.1 degree
-(\(\sim 10\text{ km}\)) equal-area grid prior to executing the focal sum
-algorithms to ensure methodological consistency. Assuming a circular
-catchment geometry, the average straight-line collection distance is
-approximated as two-thirds of the interpolated bounding radius
-(i.e.~assuming homogeneous distribution within the catchment area). The
-average straight-line distance was multiplied by a tortuosity factor of
-1.3 to calculate the effective road transport
-distance.(\citeproc{ref-sultana2014}{\emph{13}}) Biomass logistical
+must be retained to avoid soil degradation, minus the fraction fed to
+livestock, estimated for each world region as the stover feed use of
+(\citeproc{ref-herrero2013}{\emph{11}}) divided by the region's residue
+production. This regional fraction is apportioned among residue types by
+palatability. Rice straw is poorly digestible and, where rice and wheat
+are grown together, is largely burned rather than fed (7\% of rice straw
+is fed in Punjab, against 45\% of wheat straw
+(\citeproc{ref-kumar2015}{\emph{13}})), so it carries a weight of 0.2
+relative to other residues; rice husk, a milling residue, carries a
+weight of zero. The weighted fractions are scaled so that each region's
+livestock use is unchanged, with no residue type losing more than its
+harvestable fraction. In South Asia, where livestock use 28\% of residue
+production, this assigns all harvestable wheat, maize and other cereal
+residue to livestock, so the residue available in India is almost
+entirely rice straw and husk. The supply modelled here therefore does
+not divert residues from livestock feed; bedding is not represented
+separately. The average transport distance for biomass was calculated
+from this using focal statistics based on the annual biomass requirement
+for the conversion facility. The required annual biomass mass
+(\(M_{req}\)) is determined by the target thermal capacity, the capacity
+factor, and the biomass lower heating value (LHV). Collection distances
+were computed for a reference capacity factor of 0.70 and a series of
+plant sizes; each technology uses the distance for the plant size with
+the same annual biomass demand at its own capacity factor, interpolated
+in the square root of plant size. A spatial focal sum algorithm was
+applied to aggregate the surrounding biomass over a discrete series of
+expanding radii (from 5 km up to 500 km). The required collection radius
+was then calculated via quadratic interpolation between these radial
+bins. All domains were uniformly projected and resampled to the 0.1
+degree (\(\sim 10\text{ km}\)) equal-area grid prior to executing the
+focal sum algorithms to ensure methodological consistency. Assuming a
+circular catchment geometry, the average straight-line collection
+distance is approximated as two-thirds of the interpolated bounding
+radius (i.e.~assuming homogeneous distribution within the catchment
+area). The average straight-line distance was multiplied by a tortuosity
+factor of 1.3 to calculate the effective road transport
+distance.(\citeproc{ref-sultana2014}{\emph{14}}) Biomass logistical
 costs were modeled using a fixed material handling and loading cost and
 a variable trucking cost applied to the effective road distance. The
 loading and handling cost is 6.27 US\$ Mg\textsuperscript{-1} (4.59 US\$
 Mg\textsuperscript{-1} dry matter in 2012 USD, escalated to 2024 USD
-with the US consumer price index) (\citeproc{ref-beach2012}{\emph{14}}).
+with the US consumer price index) (\citeproc{ref-beach2012}{\emph{15}}).
 The variable cost of 0.19 US\$ Mg\textsuperscript{-1}
 km\textsuperscript{-1} (0.12 US\$ Mg\textsuperscript{-1}
 km\textsuperscript{-1} for straw and stover in 2006 USD, escalated to
 2024 USD with the US consumer price index) is the truck
-distance-variable cost of (\citeproc{ref-searcy2007}{\emph{15}}), which
+distance-variable cost of (\citeproc{ref-searcy2007}{\emph{16}}), which
 is expressed per kilometre of one-way distance and includes the empty
 return trip. Each grid cell contributes only its own biomass to the
 regional totals, so a grid cell represents a share of a plant rather
@@ -607,7 +619,7 @@ smaller plants, because haulage costs are small relative to the
 economies of scale in capital costs. Because the preferred technology is
 spatially coherent at the scale of a catchment, \(f\) averages
 0.89--1.00 across the carbon prices and discount rates of
-Figure~\ref{fig-evap-usa}--Figure~\ref{fig-evap-china}, which would
+Figure~\ref{fig-evap} and Figure~\ref{fig-si-evap-social}, which would
 raise haulage costs by less than 0.5 US\$ Mg\textsuperscript{-1} on
 average. The assumption fails for small, isolated patches of one
 technology within another, for which there is too little biomass of that
@@ -619,14 +631,14 @@ Haulage costs vary with terrain and road access, which the flat
 per-kilometre rate does not capture. For every candidate plant location
 and plant size, travel from each field in the collection area to the
 plant was routed as the least-time path on the global motorised friction
-surface of (\citeproc{ref-weiss2020}{\emph{16}}), at 30 arc-seconds.
+surface of (\citeproc{ref-weiss2020}{\emph{17}}), at 30 arc-seconds.
 Biomass-weighted over the collection area, this gives the travel time
 and road-path length per kilometre of straight-line distance, and the
 cumulative climb on the loaded and empty legs. The variable trucking
 cost was divided into time-based costs (driver wages and benefits, truck
 finance, insurance; 64\%), fuel (24\%) and other distance-based costs
 (repairs, tyres, tolls; 12\%), following
-(\citeproc{ref-atri2024}{\emph{17}}). The time-based share scales with
+(\citeproc{ref-atri2024}{\emph{18}}). The time-based share scales with
 travel time, fuel with road distance and climb, and the remainder with
 road distance. Climb fuel is the energy to lift the loaded and empty
 truck over the cumulative ascent of each leg; descents are not credited,
@@ -640,10 +652,10 @@ returned to the fields as a backhaul in the feedstock trucks, which run
 year-round from field-edge storage, so only its loading and handling
 cost is charged. Field application (spreading and incorporation) is
 costed per hectare at the biochar application rate
-(\citeproc{ref-woolf2016optimal}{\emph{18}}), and the diesel used by the
+(\citeproc{ref-woolf2016optimal}{\emph{19}}), and the diesel used by the
 tractor (17.5 L ha\textsuperscript{-1}, the median of published
 estimates for spreading and incorporation
-(\citeproc{ref-roberts2010}{\emph{19}}--\citeproc{ref-cheng2025}{\emph{22}}))
+(\citeproc{ref-roberts2010}{\emph{20}}--\citeproc{ref-cheng2025}{\emph{23}}))
 is counted as an emission. Scope three transportation emissions
 associated with feedstock procurement were estimated using a heavy-duty
 diesel transport emissions factor applied to the effective distance,
@@ -659,18 +671,22 @@ additional capital expenditures (CAPEX) and operating expenditure
 (OPEX), for example through deployment of Circulating Fluidized Bed
 (CFB) boilers. This fuel quality penalty is modelled, relative to a
 wood-chip fired bioenergy plant, as an increase in base CAPEX for the
-combustion technologies (BES and BECCS) of 25\% for high-ash feedstocks
-(ash above 5\%) or 10\% for medium-ash feedstocks (2--5\%), and a
-reduction in electrical conversion efficiency of 10\% or 5\%
-respectively (\citeproc{ref-dea2026}{\emph{23}}). O\&M costs are not
-penalised separately: they are charged as a fraction of CAPEX, which
-already carries the penalty, and straw-fired plants have the same ratio
-of O\&M to investment cost as wood-fired plants
-(\citeproc{ref-dea2020}{\emph{24}}). The fouling, slagging and corrosion
+combustion technologies (BES and BECCS) of 10\% for medium-ash
+feedstocks (2--10\% ash, such as wheat straw and maize stover) or 25\%
+for high-ash feedstocks (above 10\%, such as rice straw and husk), and a
+reduction in electrical conversion efficiency of 5\% or 10\%
+respectively (\citeproc{ref-dea2026}{\emph{24}}). The medium-ash premium
+matches the 9\% higher cost of straw-fired than wood-chip CHP plants per
+MW of fuel input in Danish technology data
+(\citeproc{ref-dea2020}{\emph{25}}). O\&M costs are not penalised
+separately: they are charged as a fraction of CAPEX, which already
+carries the penalty, and straw-fired plants have the same ratio of O\&M
+to investment cost as wood-fired plants
+(\citeproc{ref-dea2020}{\emph{25}}). The fouling, slagging and corrosion
 risks of high-ash, high-alkali residues are reviewed by
-(\citeproc{ref-baxter1998}{\emph{25}}),
-(\citeproc{ref-garcuxeda2017}{\emph{26}}) and
-(\citeproc{ref-luan2025a}{\emph{27}}).
+(\citeproc{ref-baxter1998}{\emph{26}}),
+(\citeproc{ref-garcuxeda2017}{\emph{27}}) and
+(\citeproc{ref-luan2025a}{\emph{28}}).
 
 \subsubsection{Regional pricing
 structures}\label{regional-pricing-structures}
@@ -691,7 +707,7 @@ estimate would be.
   US\$ Mg\textsuperscript{-1} in 2024 USD: in the Billion-Ton Update,
   about 80\% of the primary crop residue supply is profitable to collect
   at a farm-gate price of US\$45 per dry ton and 90\% at US\$50
-  (\citeproc{ref-perlack2011}{\emph{28}}). The Billion-Ton prices are
+  (\citeproc{ref-perlack2011}{\emph{29}}). The Billion-Ton prices are
   uniform across the country because the underlying POLYSYS runs apply a
   single national price, raised until a large and reliable supply is
   offered. The farm-gate price comprises the harvest cost and a grower
@@ -699,7 +715,7 @@ estimate would be.
   residue, so no separate nutrient-replacement charge is added.
 \item
   \textbf{Europe:} road-side costs of cereal straw from the S2Biom atlas
-  (\citeproc{ref-dees2017s2biom}{\emph{29}}), which maps them at NUTS-3
+  (\citeproc{ref-dees2017s2biom}{\emph{30}}), which maps them at NUTS-3
   level by activity-based costing, aggregated to country level in three
   cost classes: €20 Mg\textsuperscript{-1} dry matter (2012 EUR) for
   eastern Europe, Poland and the Baltic states; €37.5 for most of
@@ -714,14 +730,14 @@ estimate would be.
 \item
   \textbf{China:} the field-side cost of collecting corn straw estimated
   with the StrawFeed supply-chain model for Nongan county, Jilin
-  (\citeproc{ref-wang2022strawfeed}{\emph{30}}): raking, baling and
+  (\citeproc{ref-wang2022strawfeed}{\emph{31}}): raking, baling and
   loading cost ¥99.6 Mg\textsuperscript{-1} (2019), or 17.7 US\$
   Mg\textsuperscript{-1} in 2024 USD, excluding the ¥72.5
   Mg\textsuperscript{-1} for transport to the plant. Like the European
   and Indian values, this is a cost and excludes the margins of farmers
   and brokers; power plants in Northeast China pay about ¥300
   Mg\textsuperscript{-1} delivered
-  (\citeproc{ref-wang2022strawfeed}{\emph{30}}), and ¥200--300
+  (\citeproc{ref-wang2022strawfeed}{\emph{31}}), and ¥200--300
   Mg\textsuperscript{-1} at the plant gate in other major producing
   provinces.
 \item
@@ -730,32 +746,32 @@ estimate would be.
   and is otherwise burned in the field, is priced at 34 US\$
   Mg\textsuperscript{-1} on a dry basis, the cost of baled straw at the
   field side estimated for bioenergy supply chains in Haryana
-  (\citeproc{ref-sokhansanj2023}{\emph{31}}). The Monte Carlo analysis
+  (\citeproc{ref-sokhansanj2023}{\emph{32}}). The Monte Carlo analysis
   samples it between about 12 US\$ Mg\textsuperscript{-1}, reflecting
   the low value of paddy straw where it is burned
-  (\citeproc{ref-erenstein2011}{\emph{32}}), and about 50 US\$
+  (\citeproc{ref-erenstein2011}{\emph{33}}), and about 50 US\$
   Mg\textsuperscript{-1}, the price of straw traded as fodder
-  (\citeproc{ref-duncan2020}{\emph{33}},
-  \citeproc{ref-lopes2023}{\emph{34}}). Wheat straw, which is valued as
+  (\citeproc{ref-duncan2020}{\emph{34}},
+  \citeproc{ref-lopes2023}{\emph{35}}). Wheat straw, which is valued as
   fodder, is not used as a feedstock.
 \end{itemize}
 
 Year-round operation also requires interim storage of residues harvested
 within a few weeks. Published storage costs vary widely, from about 3 to
 42 US\$ Mg\textsuperscript{-1} (2024 USD): 3--11 for US farm-scale
-storage (\citeproc{ref-beach2012}{\emph{14}},
-\citeproc{ref-becerra2022}{\emph{35}},
-\citeproc{ref-brechbill2008}{\emph{36}}), 18 for on-farm and 31 for
+storage (\citeproc{ref-beach2012}{\emph{15}},
+\citeproc{ref-becerra2022}{\emph{36}},
+\citeproc{ref-brechbill2008}{\emph{37}}), 18 for on-farm and 31 for
 purpose-built storage in the United Kingdom
-(\citeproc{ref-shackley2011}{\emph{37}}), 34 for storage and handling
-(\citeproc{ref-kung2013}{\emph{38}}), and about 42 for six months'
+(\citeproc{ref-shackley2011}{\emph{38}}), 34 for storage and handling
+(\citeproc{ref-kung2013}{\emph{39}}), and about 42 for six months'
 storage of German straw, where storage is 36.4\% of the total supply
-cost (\citeproc{ref-karras2024}{\emph{39}}). We add 15 US\$
+cost (\citeproc{ref-karras2024}{\emph{40}}). We add 15 US\$
 Mg\textsuperscript{-1} for the United States and Europe, sampled from 3
 to 42 in the Monte Carlo analysis, and scale it by the regional haulage
 cost factor for China and India (11 and 10 US\$ Mg\textsuperscript{-1}),
 consistent with storage accounting for 20--30\% of the delivered cost of
-paddy straw in India (\citeproc{ref-ceew2021exsitu}{\emph{40}}).
+paddy straw in India (\citeproc{ref-ceew2021exsitu}{\emph{41}}).
 
 \subsection{Technology pathways and
 thermodynamics}\label{technology-pathways-and-thermodynamics}
@@ -776,25 +792,25 @@ returned to the atmosphere.
 
 The technoeconomic parameters for this modern combustion archetype
 assume a net electrical efficiency of 30\%
-(\citeproc{ref-dea2026}{\emph{23}}). Capital expenditures (CAPEX) are
+(\citeproc{ref-dea2026}{\emph{24}}). Capital expenditures (CAPEX) are
 specified regionally per kW of net electrical capacity for a 50
 MW\textsubscript{e} wood-fired reference plant
 (Table~\ref{tbl-parameters}), and scale non-linearly with plant capacity
 via a standard 0.7 scaling factor. The reference CAPEX (2024 USD) is
 4,700 US\$ kW\textsubscript{e}\textsuperscript{-1} for the United
 States, from the EIA's 50 MW biomass plant
-(\citeproc{ref-eia2026}{\emph{41}}), and 4,300 US\$
+(\citeproc{ref-eia2026}{\emph{42}}), and 4,300 US\$
 kW\textsubscript{e}\textsuperscript{-1} for Europe, from Danish
 technology data for a 132 MW\textsubscript{th} straw-fired plant scaled
 to 50 MW\textsubscript{e} and adjusted to a wood-fired equivalent by the
-Danish straw-to-wood cost ratio (\citeproc{ref-dea2020}{\emph{24}}). For
+Danish straw-to-wood cost ratio (\citeproc{ref-dea2020}{\emph{25}}). For
 China and India, where far more biomass plants have been built recently,
 it is the average installed cost of bioenergy plants commissioned in
 2024, 2,200 and 1,900 US\$ kW\textsubscript{e}\textsuperscript{-1}
-(\citeproc{ref-irena2025}{\emph{42}}); India's regulatory benchmark for
+(\citeproc{ref-irena2025}{\emph{43}}); India's regulatory benchmark for
 rice-straw plants is lower still, about 925 US\$
 kW\textsubscript{e}\textsuperscript{-1}
-(\citeproc{ref-cerc2024}{\emph{43}}). For costing, plant capacity is
+(\citeproc{ref-cerc2024}{\emph{44}}). For costing, plant capacity is
 defined as the thermal input multiplied by a fixed reference net
 efficiency (\texttt{bes\_capex\_ref\_eff}), rather than by the realised
 efficiency. Equipment cost is therefore set by the size of the boiler
@@ -810,13 +826,13 @@ adjustment). The 4\% value is consistent with the EIA reference 50 MW
 biomass plant (fixed O\&M of 141.5 US\$ kW\textsuperscript{-1}
 yr\textsuperscript{-1} plus variable O\&M of 5.44 US\$
 MWh\textsuperscript{-1}, about 3.5\% of CAPEX per year at a 70\%
-capacity factor) (\citeproc{ref-eia2023}{\emph{44}}), with IRENA's range
+capacity factor) (\citeproc{ref-eia2023}{\emph{45}}), with IRENA's range
 for stoker and fluidized-bed biomass boilers (fixed O\&M of 3.2--4.2\%
 of CAPEX per year plus 3.8--4.7 US\$ MWh\textsuperscript{-1})
-(\citeproc{ref-irena2012}{\emph{45}}), and with Danish technology data
+(\citeproc{ref-irena2012}{\emph{46}}), and with Danish technology data
 for 80 MW\textsubscript{th} biomass CHP plants (4.4\% per year for straw
 and 4.6\% for wood pellets, fixed and variable combined)
-(\citeproc{ref-dea2020}{\emph{24}}). Capital costs are annualized over
+(\citeproc{ref-dea2020}{\emph{25}}). Capital costs are annualized over
 the plant lifetime at the regional discount rate using the capital
 recovery factor, so that all costs and revenues are expressed as
 levelized annual values per megagram of feedstock; because O\&M is a
@@ -824,22 +840,22 @@ constant annual cost, discounting it over the plant lifetime and
 re-annualizing at the same rate returns the annual value. Total
 electrical output is derived directly from the biomass lower heating
 value (LHV, \(18.6\text{ GJ Mg}^{-1}\) for dry, ash-free feedstock
-(\citeproc{ref-phyllis2}{\emph{46}})) and the plant's capacity factor.
+(\citeproc{ref-phyllis2}{\emph{47}})) and the plant's capacity factor.
 Technology data give an availability of 91\% for biomass plants
-(\citeproc{ref-dea2026}{\emph{23}}), but this accounts only for planned
+(\citeproc{ref-dea2026}{\emph{24}}), but this accounts only for planned
 and unplanned outages, not for operation below full output, which
 depends on how each technology is dispatched. Capacity factors are
 therefore specified per technology (ranges sampled in the Monte Carlo
 analysis). Historical capacity factors of biomass power plants, such as
 0.54--0.61 for US wood-fired plants over the past decade
-(\citeproc{ref-eia2026epm}{\emph{47}}) and 0.50--0.64 for Drax's biomass
-units in 2023--2024 (\citeproc{ref-drax2025}{\emph{48}}), reflect
+(\citeproc{ref-eia2026epm}{\emph{48}}) and 0.50--0.64 for Drax's biomass
+units in 2023--2024 (\citeproc{ref-drax2025}{\emph{49}}), reflect
 dispatch in grids with low or no carbon prices and are a poor guide to
 operation in decarbonising grids. Models that optimise capacity and
 hourly dispatch together under carbon constraints find two roles for
 biomass power: firm, base-load low-carbon supply
-(\citeproc{ref-daggash2019}{\emph{49}},
-\citeproc{ref-prado2023}{\emph{50}}), favoured at high
+(\citeproc{ref-daggash2019}{\emph{50}},
+\citeproc{ref-prado2023}{\emph{51}}), favoured at high
 CO\textsubscript{2} charges where other sources of flexibility are ample
 (\citeproc{ref-ahlstrom2022}{\emph{8}}), and flexible supply in hours of
 high residual load in systems dominated by wind and solar
@@ -851,7 +867,7 @@ higher net value: base load at a capacity factor of 0.85 (range
 plant that follows prices sells in high-price hours, its realised price
 exceeds the time-averaged wholesale price. We estimated this ratio from
 hourly day-ahead prices in 24--31 European markets over 2015--2025
-(\citeproc{ref-ember2026hourly}{\emph{51}}), for a plant that runs the
+(\citeproc{ref-ember2026hourly}{\emph{52}}), for a plant that runs the
 highest-priced hours of each day among its available hours (availability
 0.91), with perfect foresight and no start-up or minimum-load
 constraints. The median ratio across markets in 2024--2025 was 1.05 at a
@@ -862,13 +878,13 @@ generator is bounded by grid storage: prices in discharge hours cannot
 persistently exceed the charging price divided by the round-trip
 efficiency plus the levelised cost of storage, which at 65 US\$
 MWh\textsuperscript{-1} for utility-scale batteries
-(\citeproc{ref-ember2025battery}{\emph{52}}) gives about 1.34 times the
+(\citeproc{ref-ember2025battery}{\emph{53}}) gives about 1.34 times the
 average European price (and about 1.9 at the US costs of
-(\citeproc{ref-lazard2025}{\emph{53}})). Batteries do not shift energy
+(\citeproc{ref-lazard2025}{\emph{54}})). Batteries do not shift energy
 between seasons or across multi-day lulls in wind, whereas stored
 biomass can, and models of decarbonised systems show a wider spread of
 prices with more hours at both very low and high prices
-(\citeproc{ref-geis2025}{\emph{54}}). The ratios are therefore 1.05
+(\citeproc{ref-geis2025}{\emph{55}}). The ratios are therefore 1.05
 (range 1.02--1.08) for base load and 1.30 (range 1.15--1.45) for
 flexible operation, applied in all regions; they are derived from
 European markets and are an assumption elsewhere. Abatement per megagram
@@ -879,8 +895,8 @@ driven towards base-load operation by its higher capital cost, by
 removal revenue earned per megagram of CO\textsubscript{2} captured and
 by the need to keep the capture plant, dense-phase pipeline and
 injection in steady operation (\citeproc{ref-johansson2019}{\emph{6}},
-\citeproc{ref-prado2023}{\emph{50}}); it takes 0.85, the design capacity
-factor of CCS power plants (\citeproc{ref-petranova2020}{\emph{55}}),
+\citeproc{ref-prado2023}{\emph{51}}); it takes 0.85, the design capacity
+factor of CCS power plants (\citeproc{ref-petranova2020}{\emph{56}}),
 with a range of 0.60--0.90 whose lower end reflects operation of about
 3,900 full-load hours where scarce biomass is directed to high-price
 hours (\citeproc{ref-lehtveer2021}{\emph{7}}). Electricity is a small
@@ -888,22 +904,54 @@ share of BEBCS revenue, so its operation is limited by the availability
 of the pyrolysis unit and the continuity of biomass supply rather than
 by dispatch; it takes 0.80 (range 0.70--0.85), below the 90\% on-stream
 factor of nth-plant pyrolysis designs
-(\citeproc{ref-dutta2015}{\emph{56}}) to allow for interruptions of
+(\citeproc{ref-dutta2015}{\emph{57}}) to allow for interruptions of
 feedstock supply.
 
 When ash recycling is enabled (the default; \texttt{ash\_recycling},
-Table~\ref{tbl-parameters}), the bottom and fly ash from BES and BECCS
-combustion is returned to cropland and credited with its liming value,
-where soil pH is below the target pH, and its phosphorus fertilizer
-value, using the same substitution prices and availability factor as
-biochar (see Biochar agronomic valuation). Phosphorus is largely
-retained in the ash, whereas nitrogen and most of the potassium are
-volatilized during combustion and are not credited. The default ash
-liming (calcium carbonate equivalent) and phosphorus contents are set so
-that, at the default feedstock ash content, the ash and the biochar
-derived from the same feedstock return equal liming and phosphorus value
-per megagram of feedstock, so that the pathways differ only in the
-nitrogen, potassium and soil physical benefits retained by biochar.
+Table~\ref{tbl-parameters}), the bottom ash from BES and BECCS
+combustion is returned to cropland, as at Danish straw-fired power
+plants, and credited with its liming value, where soil pH is below the
+target pH, and its phosphorus and potassium fertilizer value, at the
+same prices and availability factors as biochar (see Biochar agronomic
+valuation). The fly ash, which concentrates heavy metals, is landfilled
+by default; because nearly all straw ash in Denmark is used as
+fertilizer or soil improver (\citeproc{ref-lamers2018}{\emph{58}}), the
+share of fly ash returned with the bottom ash is sampled from 0 to 1 in
+the Monte Carlo analysis. The liming, P and K values of ash and biochar
+follow from a single mass and charge balance of the residue's mineral
+fraction (Ca, Mg, K, Na, P, Cl and S; see Spatial input data).
+Acid-neutralizing capacity (ANC) is the charge balance 2Ca + 2Mg + K +
+Na − Cl − 2S − P, in moles of charge expressed as CaCO\textsubscript{3}
+equivalent: base cations balanced by weak-acid anions (carbonate, oxide,
+silicate and organic anions) neutralize soil acidity, whereas those
+balanced by chloride or sulfate do not; phosphate counts as one
+equivalent because
+H\textsubscript{2}PO\textsubscript{4}\textsuperscript{−} is the dominant
+species at soil pH, and silica carries no alkalinity. Biochar produced
+at about 500 °C retains all of the Ca, Mg, K, Na and P, 45\% of the Cl
+and 40\% of the S, the remainder being released as HCl and sulfur gases
+(\citeproc{ref-saleh2014}{\emph{59}},
+\citeproc{ref-knudsen2004}{\emph{60}}). In combustion, chlorine and
+sulfur leave the fuel bed as KCl and
+K\textsubscript{2}SO\textsubscript{4}, which make up most of the fly ash
+of straw-fired grate boilers (53\% KCl and 29\%
+K\textsubscript{2}SO\textsubscript{4} at Avedøre
+(\citeproc{ref-thomsen2006}{\emph{61}})). The model assigns 90\% of the
+Cl and 50\% of the S to the fly ash, together with the potassium they
+bind and 5\% of the P, so the fly ash has negligible ANC and holds
+38--48\% of the feedstock K; the bottom ash retains the Ca, Mg and Na
+and the remaining K and P. These assumptions give fly ash 15--18\% of
+the ash mass for wheat and maize residues and 8--9\% for rice residues,
+consistent with the 80--90\% share of bottom ash reported for grate
+firing of straw (\citeproc{ref-lamers2018}{\emph{58}}). Per megagram of
+feedstock, biochar therefore carries 13--16\% more ANC than the bottom
+ash and 1.6--1.9 times its potassium. The bottom ash is returned to the
+fields in the same way as biochar: loading and handling are charged per
+megagram, and spreading cost and tractor diesel per hectare at 5 Mg ash
+ha\textsuperscript{-1}, the maximum allowed for straw ash in Denmark
+(\citeproc{ref-bioash2019}{\emph{62}}). The cost of landfilling the fly
+ash, below 1.5 US\$ Mg\textsuperscript{-1} of feedstock, is part of
+plant O\&M.
 
 \subsubsection{Bioenergy with carbon capture and storage
 (BECCS)}\label{bioenergy-with-carbon-capture-and-storage-beccs}
@@ -915,24 +963,24 @@ regeneration and CO\textsubscript{2} compression requirements.
 Consequently, the net electrical conversion efficiency drops below the
 BES baseline by an efficiency penalty of 8 percentage points (range
 5--13), at a capture rate of 90\% (range 85--95\%)
-(\citeproc{ref-ieaghg2009}{\emph{57}}). Consistent with costing BECCS as
+(\citeproc{ref-ieaghg2009}{\emph{63}}). Consistent with costing BECCS as
 a mature technology, the central value reflects recent post-combustion
 amine capture: reviews place the penalty for pulverised-coal plants at
 7.7--11.9 percentage points, and the Boundary Dam 3 unit lost about 8
-points with capture (\citeproc{ref-herzog2016}{\emph{58}}); present
+points with capture (\citeproc{ref-herzog2016}{\emph{64}}); present
 technology loses about 10.8 points, falling to 7.2 with improved
 solvents, compression and heat integration
-(\citeproc{ref-tramosljika2021}{\emph{59}}). The lower bound reflects
+(\citeproc{ref-tramosljika2021}{\emph{65}}). The lower bound reflects
 projected future penalties of 5.25--6.25 points
-(\citeproc{ref-li2024ccs}{\emph{60}}) and the upper bound the 12.8--15.9
+(\citeproc{ref-li2024ccs}{\emph{66}}) and the upper bound the 12.8--15.9
 points estimated with 2009 amine technology for dedicated biomass plants
-(\citeproc{ref-ieaghg2009}{\emph{57}}).
+(\citeproc{ref-ieaghg2009}{\emph{63}}).
 
 The capture process is parameterized with a 90\% capture efficiency
 rate. The total volume of captured CO\textsubscript{2} routed to
 geological storage is calculated stoichiometrically based on the carbon
 fraction of the incoming biomass feed (default 48\% C
-(\citeproc{ref-phyllis2}{\emph{46}})), converted to CO\textsubscript{2}
+(\citeproc{ref-phyllis2}{\emph{47}})), converted to CO\textsubscript{2}
 mass equivalents using the 44/12 molar ratio. The additional
 infrastructure (capture unit, CO\textsubscript{2} compression and
 flue-gas cleaning) is represented as a premium on total CAPEX relative
@@ -942,11 +990,11 @@ default premium is based on the IEAGHG techno-economic evaluation of
 dedicated biomass-fired power plants with post-combustion amine capture,
 in which capture raised total investment by 38--40\% for 75
 MW\textsubscript{e} bubbling and 250 MW\textsubscript{e} circulating
-fluidized bed plants (\citeproc{ref-ieaghg2009}{\emph{57}}). Because net
+fluidized bed plants (\citeproc{ref-ieaghg2009}{\emph{63}}). Because net
 output fell simultaneously, the corresponding increase in specific
 capital cost was 114--126\% per net kW\textsubscript{e}, consistent with
 the 45--130\% range reported across biomass CCS technologies by
-(\citeproc{ref-bhave2017}{\emph{61}}). Expressing the premium on a
+(\citeproc{ref-bhave2017}{\emph{67}}). Expressing the premium on a
 thermal-input basis keeps it independent of the efficiency penalty.
 Annual O\&M is the same fraction of CAPEX as for the other technologies
 (Table~\ref{tbl-parameters}).
@@ -967,13 +1015,13 @@ China, the Cambay Basin in India and the Permian Basin in the United
 States) serve as saline sinks as well as EOR sites. They are listed with
 their locations and types in the model repository. Basin locations and
 storage types follow the OGCI CO\textsubscript{2} Storage Resource
-Catalogue (\citeproc{ref-ogci2024csrc}{\emph{62}}) and, for the United
+Catalogue (\citeproc{ref-ogci2024csrc}{\emph{68}}) and, for the United
 States, the USGS national assessment of geologic CO\textsubscript{2}
-storage resources (\citeproc{ref-usgs2013co2}{\emph{63}}); basins added
+storage resources (\citeproc{ref-usgs2013co2}{\emph{69}}); basins added
 for coverage are located at operating or planned storage projects (for
 example Porthos, Northern Lights, Greensand, Ravenna CCS, HyNet and
 Bayou Bend) listed in the Global CCS Institute's CO2RE facilities
-database (\citeproc{ref-gccsi2025co2re}{\emph{64}}). Four
+database (\citeproc{ref-gccsi2025co2re}{\emph{70}}). Four
 transport-and-storage classes are evaluated for every grid cell:
 pipeline to an onshore saline site; pipeline to an EOR site (only when
 EOR is allowed, which is not the default); pipeline and ship to an
@@ -989,7 +1037,7 @@ grid (0.02° for the United States, 0.01° elsewhere). Two surfaces are
 used, one to choose each route and one to cost it, so that the routing
 can avoid difficult terrain without that avoidance being charged as
 extra pipeline length. Slope from the 250 m Geomorpho90m dataset
-(\citeproc{ref-amatulli2020}{\emph{65}}) is converted, per 250 m pixel,
+(\citeproc{ref-amatulli2020}{\emph{71}}) is converted, per 250 m pixel,
 into a construction-cost multiplier \(F_{cost}(\theta)\). This
 multiplier is piecewise linear in slope \(\theta\): 1.0 at 0°, 1.05 at
 5°, 1.2 at 10°, 1.6 at 17°, 2.3 at 25°, 3.2 at 35° and 4.0 at 45°. The
@@ -1000,7 +1048,7 @@ planning-risk premium for steep ground,
 with \(r_{max} = 2\), capped at 25.
 
 Protected areas from the World Database on Protected Areas
-(\citeproc{ref-wdpa2026}{\emph{66}}) are tiered. Strictly protected
+(\citeproc{ref-wdpa2026}{\emph{72}}) are tiered. Strictly protected
 areas (IUCN categories Ia, Ib and II, and natural World Heritage sites)
 are barriers. Other designated terrestrial protected areas can be
 crossed at a construction-cost premium of 25\% and a routing premium of
@@ -1060,7 +1108,7 @@ scaled to the source's share of its mass flow. The reference cost is
 US\$50 million per 100 km for a 1 Tg yr\textsuperscript{-1} pipeline,
 scaled by the regional CAPEX factor. This lies within the range given by
 the diameter-based cost function of
-(\citeproc{ref-solomon2024}{\emph{67}}) (2.16 € per m per mm of
+(\citeproc{ref-solomon2024}{\emph{73}}) (2.16 € per m per mm of
 diameter, 2024 euros) for the 200--250 mm pipeline needed to carry 1 Tg
 yr\textsuperscript{-1} of dense-phase CO\textsubscript{2} at typical
 velocities, 0.43--0.54 million € (0.47--0.58 million US\$) per km.
@@ -1069,7 +1117,7 @@ over the 25-year plant lifetime at the regional discount rate. Routes
 that climb require booster pumping to restore the pressure lost in
 lifting dense-phase CO\textsubscript{2}. Pumps are sized for the lift
 beyond a 1 MPa design margin, with pump CAPEX following
-(\citeproc{ref-mccollum2006}{\emph{68}}), and their electricity is
+(\citeproc{ref-mccollum2006}{\emph{74}}), and their electricity is
 charged at the regional electricity price.
 
 \subsubsection{Maritime shipping and subsea
@@ -1086,7 +1134,7 @@ from there to the sink, routed on a 0.02--0.04° grid with land
 impassable. Liquefaction costs 24.5 US\$ Mg\textsuperscript{-1}
 CO\textsubscript{2}, from the 21.1--21.3 US\$ Mg\textsuperscript{-1}
 (2021) of the least-cost liquefaction processes for ship transport at 15
-bar (\citeproc{ref-chen2021liquefaction}{\emph{69}}), and the fixed cost
+bar (\citeproc{ref-chen2021liquefaction}{\emph{75}}), and the fixed cost
 of ships, buffer storage and terminals is 15 US\$ Mg\textsuperscript{-1}
 (both scaled by the regional CAPEX factor); the voyage costs 0.010 US\$
 Mg\textsuperscript{-1} km\textsuperscript{-1}. The fixed and voyage
@@ -1094,10 +1142,10 @@ costs are the intercept and slope of the ship transport cost (excluding
 liquefaction) of a 2.5 Tg yr\textsuperscript{-1} point-to-point chain,
 8.2 € Mg\textsuperscript{-1} at 180 km rising to 14.5 €
 Mg\textsuperscript{-1} at 1,500 km in 2009 euros
-(\citeproc{ref-zep2011transport}{\emph{70}}), converted to 2024 US
+(\citeproc{ref-zep2011transport}{\emph{76}}), converted to 2024 US
 dollars. For subsea pipelines, the subsea section carries 1.5 times the
 onshore CAPEX per km, within the 1.4--1.7 range for offshore relative to
-onshore pipelines (\citeproc{ref-vito2026emis}{\emph{71}}).
+onshore pipelines (\citeproc{ref-vito2026emis}{\emph{77}}).
 
 Every coastal cell is a candidate port or landfall. The land route and
 the port are chosen together, by a multi-source least-cost search in
@@ -1111,7 +1159,7 @@ Emissions from CO\textsubscript{2} transport are deducted from the BECCS
 abatement. For shipping, these are the emissions from liquefaction,
 loading and the voyage, about 2.5\% of the CO\textsubscript{2} carried
 over 200 km and about 18\% over 12,000 km
-(\citeproc{ref-albaroudi2021}{\emph{72}}). For pipelines, they are the
+(\citeproc{ref-albaroudi2021}{\emph{78}}). For pipelines, they are the
 emissions from the booster pumping electricity, at the displaced grid
 intensity.
 
@@ -1134,19 +1182,19 @@ offshore (2024 USD) for reservoirs with open boundary conditions, rising
 to 5--33 and 8--50 US\$ Mg\textsuperscript{-1} for moderate-quality
 closed reservoirs, and up to 58 and 147 US\$ Mg\textsuperscript{-1} for
 the least favourable closed reservoirs
-(\citeproc{ref-gccsi2025}{\emph{73}}). These ranges are consistent with
+(\citeproc{ref-gccsi2025}{\emph{79}}). These ranges are consistent with
 earlier estimates for European saline aquifers of €2--12
 Mg\textsuperscript{-1} onshore and €6--20 Mg\textsuperscript{-1}
-offshore (\citeproc{ref-zep2011}{\emph{74}}). Because boundary
+offshore (\citeproc{ref-zep2011}{\emph{80}}). Because boundary
 conditions, which depend on the geology, are the main driver of storage
-cost (\citeproc{ref-gccsi2025}{\emph{73}}), storage sites are assigned a
+cost (\citeproc{ref-gccsi2025}{\emph{79}}), storage sites are assigned a
 site-specific cost where the evidence allows. For onshore saline
 formations in the United States, the cost is the first-year break-even
 price of the cheapest formation in the sink's state with at least 1 Pg
 of prospective storage resource (in the basin, where no formation in the
 state qualifies), from a formation-by-formation model that accounts for
 pressure build-up and interference
-(\citeproc{ref-netl2024scom}{\emph{75}}), escalated from 2023 to 2024
+(\citeproc{ref-netl2024scom}{\emph{81}}), escalated from 2023 to 2024
 USD. These range from 6.4 US\$ Mg\textsuperscript{-1} (Frio Formation,
 Gulf Coast) to 22.5 and 24.7 US\$ Mg\textsuperscript{-1} in the
 Denver-Julesburg and Appalachian basins. Elsewhere, saline formations
@@ -1161,7 +1209,7 @@ not closed aquifers in this sense, because they start below their
 original pressure; the six depleted fields among the sinks take 16.2
 US\$ Mg\textsuperscript{-1}, the mean of ZEP's offshore cases with and
 without re-usable wells (€6 and €10 Mg\textsuperscript{-1} in 2009)
-(\citeproc{ref-zep2011}{\emph{74}}) escalated to 2024 USD. Sinks without
+(\citeproc{ref-zep2011}{\emph{80}}) escalated to 2024 USD. Sinks without
 sufficient evidence, including all those in China and India, take the
 default onshore or offshore values. Site-specific costs are scaled by a
 common factor sampled from 0.5 to 1.75 in the Monte Carlo analysis
@@ -1191,18 +1239,18 @@ determined dynamically as a function of the peak pyrolysis temperature
 for non-condensable gases hydrogen (\(H_2\)), carbon monoxide (\(CO\)),
 methane (\(CH_4\)), and ethylene (\(C_2H_4\)) are calculated based on
 temperature-dependent reaction kinetics
-(\citeproc{ref-woolf2014}{\emph{76}}). To close the mass balance, the
+(\citeproc{ref-woolf2014}{\emph{82}}). To close the mass balance, the
 unaccounted elemental fractions (\(U_c, U_h, U_o\)) are
 stoichiometrically partitioned into bio-oil, water (\(H_2O\)), and
 carbon dioxide (CO\textsubscript{2}). Bio-oil C and H mass fractions are
 set at 1.25 and 1.26 times those of the feedstock
 (e.g.~\(62.5\%\text{ C}\) and \(7.56\%\text{ H}\) for a feedstock with
 50\% C and 6\% H), allowing the final product distribution to be solved
-analytically (\citeproc{ref-woolf2014}{\emph{76}}). The default peak
+analytically (\citeproc{ref-woolf2014}{\emph{82}}). The default peak
 pyrolysis temperature of 500 °C is a modelling assumption representing
 the medium-temperature class (450--600 °C) of
-(\citeproc{ref-woolf2021greenhouse}{\emph{77}}) and the IPCC inventory
-guidance (\citeproc{ref-ipcc2019biochar}{\emph{78}}); it is sampled
+(\citeproc{ref-woolf2021greenhouse}{\emph{83}}) and the IPCC inventory
+guidance (\citeproc{ref-ipcc2019biochar}{\emph{84}}); it is sampled
 ±10\% in the Monte Carlo analysis. All yields and energy flows are
 expressed per megagram of dry, ash-free feedstock, with feedstock ash
 reporting to the biochar.
@@ -1225,13 +1273,13 @@ products on an HHV basis avoids double-counting that latent heat.
 Process heat is supplied by combusting the syngas and bio-oil vapours in
 a process heater (80\% efficiency, HHV basis), and the plant's parasitic
 electricity demand (0.07 GJ\textsubscript{e} per Mg feed) is met from
-the same fuel (\citeproc{ref-woolf2014}{\emph{76}}). If the syngas and
+the same fuel (\citeproc{ref-woolf2014}{\emph{82}}). If the syngas and
 bio-oil are insufficient to meet these loads, a portion of the biochar
 is oxidized to close the energy balance, proportionally reducing the
 final carbon sequestration yield. The remaining fuel, converted to a
 lower heating value basis, is used to generate electricity in a
 dedicated power block (35\% net electrical efficiency, LHV basis
-(\citeproc{ref-woolf2014}{\emph{76}})), whose capital cost is sized on
+(\citeproc{ref-woolf2014}{\emph{82}})), whose capital cost is sized on
 its actual fuel input using the same reference-plant scaling as the
 combustion pathways. A power block is not always worthwhile: where
 electricity prices are low or the displaced grid intensity is small, its
@@ -1246,16 +1294,16 @@ The pyrolysis unit CAPEX is 335 US\$ per Mg yr\textsuperscript{-1} of
 feed capacity in the United States (2024 USD), for the feed of a 50
 MW\textsubscript{e} reference plant, from NREL's nth-plant estimate for
 a 2,000 Mg day\textsuperscript{-1} (dry basis) slow pyrolysis plant
-(\citeproc{ref-yadav2026}{\emph{79}}) scaled to the reference size with
+(\citeproc{ref-yadav2026}{\emph{85}}) scaled to the reference size with
 an exponent of 0.7. The power block, which burns the pyrolysis vapours
 and gases and raises steam for a condensing turbine, costs 3,250 US\$
 kW\textsubscript{e}\textsuperscript{-1} in the United States. This lies
 between the cost of a steam cycle alone in NREL's pyrolysis designs,
 about 2,650 US\$ kW\textsubscript{e}\textsuperscript{-1}
-(\citeproc{ref-dutta2015}{\emph{56}}), and that of a complete 50 MW
+(\citeproc{ref-dutta2015}{\emph{57}}), and that of a complete 50 MW
 biomass power plant, which also includes solid-fuel handling (4,700 US\$
 kW\textsubscript{e}\textsuperscript{-1};
-(\citeproc{ref-eia2026}{\emph{41}})). Both costs are scaled to other
+(\citeproc{ref-eia2026}{\emph{42}})). Both costs are scaled to other
 regions by the capital cost location factor (see Regional cost
 adjustment).
 
@@ -1275,7 +1323,7 @@ the net carbon dioxide removal (CDR) of the BEBCS pathway, the model
 calculates the permanent carbon fraction (\(F_{perm}\)) that remains
 stabilized in the soil after a 100-year time horizon. This fraction is
 derived using the multi-pool decay methodology established by
-(\citeproc{ref-woolf2021greenhouse}{\emph{77}}).
+(\citeproc{ref-woolf2021greenhouse}{\emph{83}}).
 
 The baseline degradation rates of the biochar's labile and recalcitrant
 carbon pools are fitted to either the peak pyrolysis temperature
@@ -1306,16 +1354,16 @@ mass equivalents.
 soil can suppress nitrous oxide (N\textsubscript{2}O) emissions from
 nitrogen fertilizer. From field trials with biochar additions exceeding
 10 Mg C ha\textsuperscript{-1},
-(\citeproc{ref-woolf2021greenhouse}{\emph{77}}) estimated a 23\%
+(\citeproc{ref-woolf2021greenhouse}{\emph{83}}) estimated a 23\%
 reduction in N\textsubscript{2}O emissions (95\% confidence interval
 5--41\%). The model credits this fractional reduction (\(R_{N_2O}\))
 against direct fertilizer-induced N\textsubscript{2}O emissions on land
 receiving biochar at that application rate (\(A_{bc}\)), where direct
 emissions are the regional mineral N application rate (\(N_{app}\))
 multiplied by the IPCC Tier 1 emission factor (\(EF_1\))
-(\citeproc{ref-ipcc2019}{\emph{80}}). Because significant effects have
+(\citeproc{ref-ipcc2019}{\emph{86}}). Because significant effects have
 only been demonstrated in the first year after application
-(\citeproc{ref-woolf2021greenhouse}{\emph{77}}), the reduction is
+(\citeproc{ref-woolf2021greenhouse}{\emph{83}}), the reduction is
 assumed to persist for a short period (\(t_{N_2O}\)), with a long upper
 tail in the Monte Carlo analysis to reflect the uncertainty. The credit
 per megagram of feedstock is:
@@ -1324,7 +1372,7 @@ per megagram of feedstock is:
 
 where \(C_{bc}\) is the biochar carbon yield (Mg C per Mg feedstock),
 \(GWP_{N_2O}\) is the 100-year global warming potential of
-N\textsubscript{2}O (\citeproc{ref-forster2021}{\emph{81}}), and
+N\textsubscript{2}O (\citeproc{ref-forster2021}{\emph{87}}), and
 parameter values are given in Table~\ref{tbl-parameters}. Because the
 effect is short-lived and spread over the large area to which biochar is
 applied, this credit is small relative to the carbon stored in the
@@ -1348,27 +1396,31 @@ agricultural inputs it offsets:
 \item
   \textbf{Liming Equivalence (}\(Value_{lime}\)): The model spatially
   evaluates the native soil pH against a neutral agricultural target (pH
-  6.5). If the soil is acidic, the biochar's Calcium Carbonate
-  Equivalent (CCE, default 15\%) is credited against the cost of the
-  agricultural lime it displaces. Because substitution also avoids
-  hauling and spreading the lime, this cost includes transport and
-  application. It is the median of published values, each converted to a
-  calcium carbonate equivalent of 100\% and escalated to 2024 US
+  6.5). If the soil is acidic, the biochar's acid-neutralizing capacity,
+  calculated from the mineral composition of the feedstock (17--36 kg
+  CaCO\textsubscript{3}-eq Mg\textsuperscript{-1} of feedstock,
+  equivalent to a calcium carbonate equivalent of 5--8\% of the biochar;
+  see Bioenergy (BES) for the charge balance), is credited against the
+  cost of the agricultural lime it displaces. Because substitution also
+  avoids hauling and spreading the lime, this cost includes transport
+  and application. It is the median of published values, each converted
+  to a calcium carbonate equivalent of 100\% and escalated to 2024 US
   dollars: 59 US\$ Mg\textsuperscript{-1}, ranging from 31 US\$
   Mg\textsuperscript{-1} for lime delivered to Brazilian pastures,
-  excluding spreading (\citeproc{ref-latawiec2019}{\emph{82}}), through
+  excluding spreading (\citeproc{ref-latawiec2019}{\emph{88}}), through
   52 US\$ Mg\textsuperscript{-1} in Oklahoma
-  (\citeproc{ref-mills2020lime}{\emph{83}}) and 59--110 US\$
+  (\citeproc{ref-mills2020lime}{\emph{89}}) and 59--110 US\$
   Mg\textsuperscript{-1} near to and far from a quarry in Oklahoma
-  (\citeproc{ref-cho2020lime}{\emph{84}}), to 85 US\$
+  (\citeproc{ref-cho2020lime}{\emph{90}}), to 85 US\$
   Mg\textsuperscript{-1} spread in North Carolina
-  (\citeproc{ref-woods2026}{\emph{85}}). The range is sampled in the
+  (\citeproc{ref-woods2026}{\emph{91}}). The range is sampled in the
   Monte Carlo analysis. If the regional soil is already alkaline, the
   liming value is strictly zero.
 \item
-  \textbf{Nutrient Substitution (}\(Value_{nutrients}\)): The available
-  nitrogen (N), phosphorus (P), and potassium (K) fractions within the
-  biochar are credited against prevailing regional fertilizer costs.
+  \textbf{Nutrient Substitution (}\(Value_{nutrients}\)): The biochar
+  retains all of the phosphorus (P) and potassium (K) of the feedstock
+  and half of its nitrogen (N), from the regional feedstock composition;
+  the plant-available fractions are credited against fertilizer costs.
   Nutrients are valued at the world market prices of standard commercial
   fertilizers: urea for N (1.06 US\$ kg\textsuperscript{-1} N), triple
   superphosphate for P (1.27 US\$ kg\textsuperscript{-1}
@@ -1376,7 +1428,7 @@ agricultural inputs it offsets:
   (0.86 US\$ kg\textsuperscript{-1} K\textsubscript{2}O). These are
   averages of the World Bank's annual prices for 2021--2025, each
   escalated to 2024 USD
-  (\citeproc{ref-worldbank2026pinksheet}{\emph{86}}). The same prices
+  (\citeproc{ref-worldbank2026pinksheet}{\emph{92}}). The same prices
   are used in every region: retail subsidies (as in India) and export
   controls (as in China) move farm-gate prices away from world prices,
   but they transfer value rather than change the economic value of the
@@ -1402,7 +1454,7 @@ agricultural inputs it offsets:
   of biochar carbon in soils with a CEC of 5 cmol\textsubscript{c}
   kg\textsuperscript{-1} or less. It is derived from the mean crop-yield
   benefit of 30 US\$ Mg\textsuperscript{-1} C yr\textsuperscript{-1} in
-  (\citeproc{ref-woolf2016optimal}{\emph{18}}) (average 2008--2013
+  (\citeproc{ref-woolf2016optimal}{\emph{19}}) (average 2008--2013
   prices), of which about half is attributable to CEC and half to pH
   (the latter credited separately as the liming value), escalated to
   2024 USD. The benefit falls linearly with increasing CEC to zero at 30
@@ -1467,7 +1519,7 @@ dynamically by applying a heavy-duty diesel transport emissions factor
 (\(0.0001\text{ Mg CO}_2\text{e}\) per \(\text{Mg}\cdot\text{km}\), the
 well-to-wheel default for a 34--40 Mg articulated diesel truck at
 average load, including empty running
-(\citeproc{ref-glec2024}{\emph{87}})) to the effective biomass
+(\citeproc{ref-glec2024}{\emph{93}})) to the effective biomass
 collection distance.
 
 \subsubsection{Residue removal
@@ -1478,7 +1530,7 @@ gas balances that are common to all pathways, relative to a
 counterfactual in which residues remain in the field. First, retained
 residues add to soil organic carbon (SOC); residue retention increases
 SOC stocks by around 10\% relative to removal
-(\citeproc{ref-bolinder2020}{\emph{88}}). Retained residues also add
+(\citeproc{ref-bolinder2020}{\emph{94}}). Retained residues also add
 nitrogen to the soil and increase soil N\textsubscript{2}O emissions.
 Process-based simulations across more than 400 million hectares of
 cropland found that, through to 2100, the SOC gain and the
@@ -1495,12 +1547,12 @@ non-CO\textsubscript{2} emissions from open burning (CO\textsubscript{2}
 from burning is biogenic and is not counted). These are estimated with
 the IPCC Tier 1 emission factors for methane and nitrous oxide from
 burning agricultural residues and the associated combustion factor
-(\citeproc{ref-ipcc2006}{\emph{89}}), applied to the share of the
+(\citeproc{ref-ipcc2006}{\emph{95}}), applied to the share of the
 available residue in each grid cell that would otherwise be burned
 (\(f_{burn}\)). The burnt mass is estimated from the burnt share of
 cereal residue production in each 0.5° cell (2017--2021 mean) of a
 global cereal residue dataset that combines satellite fire observations
-with residue production (\citeproc{ref-smerald2023}{\emph{90}}),
+with residue production (\citeproc{ref-smerald2023}{\emph{96}}),
 multiplied by the cereal field residue production underlying the residue
 supply (\citeproc{ref-karan2023}{\emph{10}}); \(f_{burn}\) is this mass
 divided by the available residue, both averaged to the model grid, and
@@ -1511,14 +1563,14 @@ satellite fire products under-detect small field fires, so the estimate
 is conservative; a multiplier sampled from 0.5 to 1.5 represents this
 uncertainty in the Monte Carlo analysis. The biomass-weighted mean of
 \(f_{burn}\) is 2\% in the United States, 6\% in Europe, 3\% in China
-and 14\% in India, and burning is concentrated in Punjab and Haryana in
+and 13\% in India, and burning is concentrated in Punjab and Haryana in
 India, Ukraine and the Balkans in Europe, and north-eastern China:
 
 \[A_{residue} = f_{burn} \cdot CF \cdot \left(EF_{CH_4} \cdot GWP_{CH_4} + EF_{N_2O} \cdot GWP_{N_2O}\right) \cdot 10^{-3} - P_{soil}\]
 
 where \(CF\) is the combustion factor, \(EF\) the emission factors (g
 kg\textsuperscript{-1} dry matter), and \(GWP\) the 100-year global
-warming potentials (\citeproc{ref-forster2021}{\emph{81}}); parameter
+warming potentials (\citeproc{ref-forster2021}{\emph{87}}); parameter
 values are given in Table~\ref{tbl-parameters}. Because the same term
 applies to every pathway, it does not change which technology is
 preferred in a grid cell, but it changes the absolute net abatement and
@@ -1539,7 +1591,7 @@ price-response curve calibrated to integrated assessment scenarios.
 \textbf{Empirical anchor.} New bioenergy capacity is assumed to displace
 the technology mix currently expanding on each grid. Using monthly
 national and US state electricity generation data
-(\citeproc{ref-ember2025}{\emph{91}}), the sources with positive net
+(\citeproc{ref-ember2025}{\emph{97}}), the sources with positive net
 generation growth (\(\Delta G_i > 0\)) between 2019 and 2024 are
 identified, and the build-margin intensity is their growth-weighted
 mean:
@@ -1547,7 +1599,7 @@ mean:
 \[MEF_{emp} = \frac{\sum_i \Delta G_{i} \cdot CI_{i}}{\sum_i \Delta G_{i}}\]
 
 where \(CI_i\) is the IPCC median life-cycle greenhouse gas intensity of
-source \(i\) (\citeproc{ref-schlomer2014}{\emph{92}}): coal (820 g
+source \(i\) (\citeproc{ref-schlomer2014}{\emph{98}}): coal (820 g
 CO\textsubscript{2}e kWh\textsuperscript{-1}), natural gas (490), solar
 (48), geothermal (38), hydro (24), nuclear (12) and wind (11.5).
 Bioenergy generation is assigned zero intensity, because bioenergy
@@ -1575,14 +1627,14 @@ embedded in the empirical anchor. Prices below today's level imply a
 more carbon-intensive margin than observed, capped at the intensity of
 coal. \(MEF_{min}\) = 20 g CO\textsubscript{2}e kWh\textsuperscript{-1}
 is the residual life-cycle intensity of a decarbonized grid
-(\citeproc{ref-pehl2017}{\emph{93}}). The midpoint price \(P_{50}\) and
+(\citeproc{ref-pehl2017}{\emph{99}}). The midpoint price \(P_{50}\) and
 steepness \(k\) were fitted for each region to the NGFS Phase 5
 scenarios (seven scenarios; GCAM 6.0 and MESSAGEix-GLOBIOM 2.0)
-(\citeproc{ref-ngfs2026}{\emph{94}}), by robust least squares with equal
-model weights. GCAM reports the United States, India and the European
-Union as native regions. For MESSAGEix-GLOBIOM, whose native regions are
-larger aggregates, the NGFS country-level downscaled results for the
-United States, India and the EU-27 were used, with coal and gas
+(\citeproc{ref-ngfs2026}{\emph{100}}), by robust least squares with
+equal model weights. GCAM reports the United States, India and the
+European Union as native regions. For MESSAGEix-GLOBIOM, whose native
+regions are larger aggregates, the NGFS country-level downscaled results
+for the United States, India and the EU-27 were used, with coal and gas
 generation divided into unabated and CCS shares according to the parent
 region. For each model, the fleet-average intensity of electricity
 generation at each five-year step was normalized by that model's own
@@ -1618,52 +1670,61 @@ within each region. O\&M is charged at the same fraction of CAPEX in
 every region, so its absolute level follows regional CAPEX. The fraction
 does not fall where labour is cheaper: India's regulated O\&M allowance
 for biomass plants is 7.8\% of the regulated CAPEX per year
-(\citeproc{ref-cerc2024}{\emph{43}}), compared with about 4\% in the
-United States and Europe (\citeproc{ref-dea2020}{\emph{24}},
-\citeproc{ref-eia2026}{\emph{41}}). Biomass haulage costs are scaled by
+(\citeproc{ref-cerc2024}{\emph{44}}), compared with about 4\% in the
+United States and Europe (\citeproc{ref-dea2020}{\emph{25}},
+\citeproc{ref-eia2026}{\emph{42}}). Biomass haulage costs are scaled by
 a regional road-freight cost factor (Table~\ref{tbl-parameters}).
 
 \subsection{Spatial input data}\label{spatial-input-data}
 
 Crop residue availability is the sustainably harvestable residue of
 (\citeproc{ref-karan2023}{\emph{10}}) (net of residues retained for soil
-protection), minus the regional fraction used as livestock fodder and
-bedding (\citeproc{ref-herrero2013}{\emph{11}}). Feedstock composition
-is representative of cereal straws, corn stover and rice straw in the
-Phyllis2 database (\citeproc{ref-phyllis2}{\emph{46}}): 48\% carbon and
-a lower heating value of 18.6 GJ Mg\textsuperscript{-1} on a dry,
-ash-free basis, with ash 5\% of dry mass in the United States and
-Europe, where wheat straw and corn stover predominate, and 15\% in China
-and India, where rice straw makes up a large share. Soil pH and cation
-exchange capacity (0--5 cm) are from SoilGrids 2.0
-(\citeproc{ref-poggio2021}{\emph{95}}) and mean annual soil temperature
+protection), minus the fraction fed to livestock
+(\citeproc{ref-herrero2013}{\emph{11}}) (see Biomass feedstock sourcing
+and logistics). Feedstock composition is representative of cereal
+straws, corn stover and rice straw in the Phyllis2 database
+(\citeproc{ref-phyllis2}{\emph{47}}): 48\% carbon and a lower heating
+value of 18.6 GJ Mg\textsuperscript{-1} on a dry, ash-free basis. The
+ash and mineral contents are the residue-weighted means of the cereal
+residue available in each region, using the median composition of each
+residue type in Phyllis2 (wheat, barley and other small-grain straws,
+maize stover and cob, rice straw and husk, sorghum and millet stalks;
+cereals are 74--85\% of the harvestable residue in each region). Ash is
+5.3\% of dry mass in the United States, where maize stover predominates,
+5.8\% in Europe, 12.8\% in China and 18.6\% in India, where rice straw
+and husk make up 56\% and 99\% of the available cereal residue.
+Potassium contents are 8.0, 8.7, 12.7 and 16.3 kg Mg\textsuperscript{-1}
+of dry matter in the four regions (Table~\ref{tbl-parameters}). Soil pH
+and cation exchange capacity (0--5 cm) are from SoilGrids 2.0
+(\citeproc{ref-poggio2021}{\emph{101}}) and mean annual soil temperature
 (0--5 cm) from the global soil bioclimatic maps of
-(\citeproc{ref-lembrechts2022}{\emph{96}}). Electricity is valued at the
-wholesale price a generator receives, rather than at retail tariffs,
+(\citeproc{ref-lembrechts2022}{\emph{102}}). Electricity is valued at
+the wholesale price a generator receives, rather than at retail tariffs,
 whose regional differences largely reflect taxes, network charges and
 cross-subsidies. Prices are averages over 2024--2025, excluding the
 anomalous prices of the 2022 European gas crisis and its aftermath in
 2023. For the United States, each state takes the price at the wholesale
 trading hub of the market that serves most of it (11 hubs)
-(\citeproc{ref-eia2026steo}{\emph{97}}). For Europe, prices are national
-day-ahead market prices (\citeproc{ref-ember2026price}{\emph{98}}), with
-those of Türkiye (\citeproc{ref-epias2026}{\emph{99}}) and Ukraine
-(\citeproc{ref-marketoperator2026}{\emph{100}}) from their market
+(\citeproc{ref-eia2026steo}{\emph{103}}). For Europe, prices are
+national day-ahead market prices
+(\citeproc{ref-ember2026price}{\emph{104}}), with those of Türkiye
+(\citeproc{ref-epias2026}{\emph{105}}) and Ukraine
+(\citeproc{ref-marketoperator2026}{\emph{106}}) from their market
 operators; small markets without published prices take a neighbouring
 market's price. Belarus, which has no wholesale market, takes its
-industrial tariff (\citeproc{ref-climatescope2021}{\emph{101}})
+industrial tariff (\citeproc{ref-climatescope2021}{\emph{107}})
 multiplied by the ratio of wholesale to industrial prices in the United
 States (median across states in 2024, 0.42)
-(\citeproc{ref-eia2026steo}{\emph{97}},
-\citeproc{ref-eia2025epa}{\emph{102}}). For China, the price is the
+(\citeproc{ref-eia2026steo}{\emph{103}},
+\citeproc{ref-eia2025epa}{\emph{108}}). For China, the price is the
 provincial benchmark on-grid tariff for coal-fired power
-(\citeproc{ref-ndrc2019}{\emph{103}}), which is also the reference price
+(\citeproc{ref-ndrc2019}{\emph{109}}), which is also the reference price
 for renewable generators, excluding value-added tax. For India, it is
 the average price on the day-ahead market of the Indian Energy Exchange
-in 2024-25 (\citeproc{ref-cerc2025stm}{\emph{104}}), a single national
+in 2024-25 (\citeproc{ref-cerc2025stm}{\emph{110}}), a single national
 value because the market rarely separates into regional prices. Each
 year's price is converted at that year's average exchange rate
-(\citeproc{ref-worldbank2026fx}{\emph{105}}) and escalated to 2024 US
+(\citeproc{ref-worldbank2026fx}{\emph{111}}) and escalated to 2024 US
 dollars. The biomass-weighted mean prices are 40 US\$
 MWh\textsuperscript{-1} for the United States, 96 for Europe, 47 for
 China and 49 for India. Grid carbon intensities are described under Grid
@@ -1679,16 +1740,16 @@ ash) minus costs. The costs are annualized CAPEX, O\&M, feedstock and
 haulage, and, for BECCS, CO\textsubscript{2} transport and storage.
 CAPEX is annualized with the capital recovery factor at the regional
 discount rate over the technology lifetime (25 years for BES and BECCS
-(\citeproc{ref-dea2026}{\emph{23}}); 20 years for the pyrolysis unit and
+(\citeproc{ref-dea2026}{\emph{24}}); 20 years for the pyrolysis unit and
 25 years for its power block
-(\citeproc{ref-woolf2016optimal}{\emph{18}})). The regional discount
+(\citeproc{ref-woolf2016optimal}{\emph{19}})). The regional discount
 rates are real, after-tax costs of capital for bioenergy projects: 5.6\%
 for the United States, 6.8\% for Europe, 6.2\% for China and 7.1\% for
 India. They are the nominal costs of capital in US dollars projected for
-2030 by (\citeproc{ref-hatton2025}{\emph{106}}), converted to real terms
+2030 by (\citeproc{ref-hatton2025}{\emph{112}}), converted to real terms
 with an expected inflation rate of 2.5\%. We use after-tax rates, as is
 usual in techno-economic assessment. Grossing them up to pre-tax rates
-at statutory corporate tax rates (\citeproc{ref-enache2024}{\emph{107}})
+at statutory corporate tax rates (\citeproc{ref-enache2024}{\emph{113}})
 would add 3--4 percentage points, but would overstate the effective tax
 burden, which depreciation allowances reduce. Real rates are required
 because all cash flows, including the carbon price, are expressed in
@@ -1713,21 +1774,20 @@ curves assign each grid cell, at each carbon price, to the technology
 with the highest net value if that value is non-negative, and sum the
 biomass, area and abatement of the assigned cells.
 
-\subsection{Uncertainty and sensitivity
-analyses}\label{uncertainty-and-sensitivity-analyses}
+\subsection{Statistical methods}\label{statistical-methods}
 
 Parameter uncertainty was propagated by Monte Carlo simulation, with
 5,000 draws per region. Each parameter with an uncertainty range was
 sampled from a PERT or uniform distribution, with the central values,
-distributions and bounds listed in Table~\ref{tbl-si-mc} (see
-Statistical methods), and correlated parameters were sampled jointly
-through a Gaussian copula. The uncertainty of the grid displacement
-curve was represented by sampling one of its 1,000 bootstrap draws in
-each iteration. The drivers of each technology's net value were
-identified by fitting gradient-boosted regression trees {[}XGBoost;
-(\citeproc{ref-chen2016xgboost}{\emph{108}}){]} to the Monte Carlo
+distributions and bounds listed in Table~\ref{tbl-si-mc}, and correlated
+parameters were sampled jointly through a Gaussian copula. The
+uncertainty of the grid displacement curve was represented by sampling
+one of its 1,000 bootstrap draws in each iteration. The drivers of each
+technology's net value were identified by fitting gradient-boosted
+regression trees {[}XGBoost;
+(\citeproc{ref-chen2016xgboost}{\emph{114}}){]} to the Monte Carlo
 results and computing SHAP values
-(\citeproc{ref-lundberg2017}{\emph{109}}). The same method was applied
+(\citeproc{ref-lundberg2017}{\emph{115}}). The same method was applied
 across grid cells, to the choice of preferred technology, to identify
 its spatial drivers. Structural assumptions that the Monte Carlo
 analysis holds fixed were tested with the same carbon-price sweep as the
@@ -1748,26 +1808,13 @@ MW\textsubscript{th} is large compared with typical biomass plants but
 not exceptional, and the size variants show the sensitivity of the
 results to this assumption.
 
-\subsection{Statistical methods}\label{statistical-methods}
-
-Table~\ref{tbl-si-mc} lists every sampled parameter with its central
-value, distribution and bounds. The table is generated directly from the
-model's canonical parameter file
-(\texttt{BiocharAG/inst/extdata/parameters.csv}), so it always matches
-the values used in the simulations. Ranges marked ``× central'' are
-multipliers of the central value (which may differ by region); other
-ranges are in the parameter's units. Where a bound differs by region it
-is shown in parentheses. For spatially explicit inputs (for example the
-electricity price), the relative range is applied as a multiplier on the
-spatial layer.
-
 To identify which spatial inputs determine the optimal technology in
 each grid cell, we fitted a surrogate classifier to the spatial
 sensitivity results (scenario CP100\_MW250: carbon price 100 US\$
 Mg\textsuperscript{-1} CO\textsubscript{2}e, plant size 250
 MW\textsubscript{th}) and attributed its predictions to the inputs with
 SHAP (SHapley Additive exPlanations) values
-(\citeproc{ref-chen2016xgboost}{\emph{108}}). The classifier is a
+(\citeproc{ref-chen2016xgboost}{\emph{114}}). The classifier is a
 gradient-boosted tree ensemble (XGBoost; multi-class soft-probability
 objective, maximum depth 6, learning rate 0.05, 120 rounds) that
 predicts the technology with the highest net value (BES, BECCS or BEBCS)
@@ -1829,14 +1876,18 @@ Parameter & Description & USA/Default & Europe & China & India & Units \\
 \texttt{avail\_k} & First-year potassium availability & 0.8 &  &  &  & fraction \\ 
 \texttt{avail\_n} & First-year nitrogen availability & 0.1 &  &  &  & fraction \\ 
 \texttt{avail\_p} & First-year phosphorus availability & 0.5 &  &  &  & fraction \\ 
+\texttt{bc\_cl\_retention} & Fraction of feedstock chlorine retained in biochar & 0.45 &  &  &  & fraction \\ 
+\texttt{bc\_s\_retention} & Fraction of feedstock sulphur retained in biochar & 0.4 &  &  &  & fraction \\ 
+\texttt{bc\_n\_retention} & Fraction of feedstock nitrogen retained in biochar & 0.5 &  &  &  & fraction \\ 
+\texttt{ash\_cl\_fly} & Fraction of feedstock chlorine captured in combustion fly ash (as KCl) & 0.9 &  &  &  & fraction \\ 
+\texttt{ash\_s\_fly} & Fraction of feedstock sulphur captured in combustion fly ash (as K2SO4) & 0.5 &  &  &  & fraction \\ 
+\texttt{ash\_s\_bottom} & Fraction of feedstock sulphur retained in bottom ash (as sulphate) & 0.1 &  &  &  & fraction \\ 
+\texttt{ash\_p\_fly} & Fraction of feedstock phosphorus reporting to fly ash & 0.05 &  &  &  & fraction \\ 
+\texttt{fly\_ash\_recycled} & Fraction of combustion fly ash returned to cropland & 0 &  &  &  & fraction \\ 
+\texttt{ash\_app\_rate} & Application rate of combustion ash to cropland & 5 &  &  &  & Mg ha\textsuperscript{-1} \\ 
+\texttt{lime\_effectiveness} & Effective share of the acid-neutralising capacity of biochar and ash & 1 &  &  &  & fraction \\ 
 \texttt{bc\_ag\_value} & Biochar agronomic value & 0 &  &  &  & US\$ Mg\textsuperscript{-1} \\ 
-\texttt{bc\_cce} & Calcium Carbonate Equivalent & 0.15 &  &  &  & fraction \\ 
 \texttt{bc\_cec\_value} & Annual crop-yield benefit of biochar from raising soil CEC, at CEC \textless{}= 5 cmol/kg, falling linearly to 0 at CEC \textgreater{}= 30; valued as a perpetuity, annual value / (discount rate + biochar C decay rate) & 21.1 &  &  &  & US\$ Mg\textsuperscript{-1} biochar C yr\textsuperscript{-1} (2024 USD) \\ 
-\texttt{ash\_cce} & Calcium carbonate equivalent of recycled combustion ash & 0.85 &  &  &  & fraction \\ 
-\texttt{ash\_p\_content} & Phosphorus content of recycled combustion ash (elemental P) & 0.012 &  &  &  & fraction \\ 
-\texttt{bc\_k\_content} & Biochar potassium content (elemental K) & 0.005 &  &  &  & fraction \\ 
-\texttt{bc\_n\_content} & Biochar Nitrogen content & 0.005 &  &  &  & fraction \\ 
-\texttt{bc\_p\_content} & Biochar phosphorus content (elemental P) & 0.002 &  &  &  & fraction \\ 
 \texttt{bc\_price} & Biochar price & 100 &  &  &  & US\$ Mg\textsuperscript{-1} biochar \\ 
 \texttt{bc\_stab\_factor} & Biochar stability factor & 4.6 &  &  &  & factor \\ 
 \texttt{n\_app\_rate} & Mineral N fertiliser application rate on cropland & 60 & 74 & 198 & 118 & kg N ha\textsuperscript{-1} yr\textsuperscript{-1} \\ 
@@ -1869,10 +1920,18 @@ Parameter & Description & USA/Default & Europe & China & India & Units \\
 \midrule\addlinespace[2.5pt]
 \multicolumn{7}{l}{Feedstock \& Logistics} \\[2.5pt] 
 \midrule\addlinespace[2.5pt]
-\texttt{bm\_ash} & Biomass ash mass fraction & 0.05 & 0.05 & 0.15 & 0.15 & fraction \\ 
+\texttt{bm\_ash} & Biomass ash mass fraction & 0.0528 & 0.0576 & 0.128 & 0.186 & fraction \\ 
+\texttt{bm\_ca} & Calcium content of the feedstock (residue-weighted cereal mix) & 2.42 & 2.88 & 2.42 & 2.3 & kg Mg\textsuperscript{-1} dry matter \\ 
+\texttt{bm\_mg} & Magnesium content of the feedstock & 0.791 & 0.719 & 1.3 & 1.73 & kg Mg\textsuperscript{-1} dry matter \\ 
+\texttt{bm\_k} & Potassium content of the feedstock & 8.01 & 8.71 & 12.7 & 16.3 & kg Mg\textsuperscript{-1} dry matter \\ 
+\texttt{bm\_na} & Sodium content of the feedstock & 0.138 & 0.203 & 0.582 & 0.943 & kg Mg\textsuperscript{-1} dry matter \\ 
+\texttt{bm\_p} & Phosphorus content of the feedstock & 1.09 & 0.882 & 1.12 & 1.15 & kg Mg\textsuperscript{-1} dry matter \\ 
+\texttt{bm\_n} & Nitrogen content of the feedstock & 6.06 & 6.24 & 7.31 & 8.28 & kg Mg\textsuperscript{-1} dry matter \\ 
+\texttt{bm\_cl} & Chlorine content of the feedstock & 2.38 & 2.88 & 3.83 & 4.99 & kg Mg\textsuperscript{-1} dry matter \\ 
+\texttt{bm\_s} & Sulphur content of the feedstock & 0.694 & 1.07 & 0.906 & 1.01 & kg Mg\textsuperscript{-1} dry matter \\ 
 \texttt{bm\_c} & Biomass carbon mass fraction & 0.48 &  &  &  & fraction \\ 
 \texttt{residue\_soil\_ghg\_penalty} & Net soil GHG penalty of removing residues (forgone SOC minus avoided soil N2O) & 0 &  &  &  & Mg CO\textsubscript{2}e Mg\textsuperscript{-1} feed \\ 
-\texttt{residue\_burn\_fraction} & Share of removed residues that would otherwise be burned in the field (regional fallback where residue\_burn\_map is absent) & 0.02 & 0.06 & 0.03 & 0.14 & fraction \\ 
+\texttt{residue\_burn\_fraction} & Share of removed residues that would otherwise be burned in the field (regional fallback where residue\_burn\_map is absent) & 0.02 & 0.06 & 0.03 & 0.13 & fraction \\ 
 \texttt{residue\_burn\_factor} & Multiplier on the cell-level burnt share (residue\_burn\_map) & 1 &  &  &  & ratio \\ 
 \texttt{residue\_burn\_cf} & Combustion factor for field burning of residues & 0.8 &  &  &  & fraction \\ 
 \texttt{residue\_burn\_ch4\_ef} & CH4 emission factor for field burning of residues & 2.7 &  &  &  & g CH\textsubscript{4} kg\textsuperscript{-1} dry matter \\ 
@@ -1966,8 +2025,8 @@ technology option. The penultimate row shows the technology with the
 lowest break-even price, and the final row shows that price. The lowest
 break-even technology is the first to become profitable as the carbon
 price rises; it is not necessarily the technology with the highest NPV
-at a given carbon price (see Figure~\ref{fig-evap-usa} to
-Figure~\ref{fig-evap-china}).}
+at a given carbon price (see Figure~\ref{fig-evap} and
+Figure~\ref{fig-si-evap-social}).}
 
 \end{figure}%
 
@@ -1975,51 +2034,15 @@ Figure~\ref{fig-evap-china}).}
 
 \centering{
 
-\includegraphics[width=1\linewidth,height=\textheight,keepaspectratio]{results/figures/US_Evaporation_Maps.png}
+\includegraphics[width=1\linewidth,height=\textheight,keepaspectratio]{results/figures/Evaporation_Grid_market.png}
 
 }
 
-\caption{\label{fig-evap-usa}Optimal technology as a function of carbon
-price and discount rate (USA).}
-
-\end{figure}%
-
-\begin{figure}
-
-\centering{
-
-\includegraphics[width=1\linewidth,height=\textheight,keepaspectratio]{results/figures/Europe_Evaporation_Maps.png}
-
-}
-
-\caption{\label{fig-evap-eur}Optimal technology as a function of carbon
-price and discount rate (Europe).}
-
-\end{figure}%
-
-\begin{figure}
-
-\centering{
-
-\includegraphics[width=1\linewidth,height=\textheight,keepaspectratio]{results/figures/India_Evaporation_Maps.png}
-
-}
-
-\caption{\label{fig-evap-india}Optimal technology as a function of
-carbon price and discount rate (India).}
-
-\end{figure}%
-
-\begin{figure}
-
-\centering{
-
-\includegraphics[width=1\linewidth,height=\textheight,keepaspectratio]{results/figures/China_Evaporation_Maps.png}
-
-}
-
-\caption{\label{fig-evap-china}Optimal technology as a function of
-carbon price and discount rate (Mainland China).}
+\caption{\label{fig-evap}Optimal technology by carbon price (rows) and
+region (columns) at the regional market discount rates. Saturated
+colours: the technology with the highest net present value (NPV), where
+that NPV is positive; pale colours: the least unprofitable technology
+where no technology has a positive NPV. Maps show Mainland China.}
 
 \end{figure}%
 
@@ -2162,8 +2185,16 @@ systems}. \emph{Proceedings of the National Academy of Sciences}
 \CSLRightInline{R. J. Hijmans, \emph{Terra: Spatial Data Analysis}
 (2025; \url{https://CRAN.R-project.org/package=terra}).}
 
-\bibitem[\citeproctext]{ref-sultana2014}
+\bibitem[\citeproctext]{ref-kumar2015}
 \CSLLeftMargin{13. }%
+\CSLRightInline{P. Kumar, S. Kumar, L. Joshi,
+\emph{\href{https://doi.org/10.1007/978-81-322-2014-5}{Socioeconomic and
+Environmental Implications of Agricultural Residue Burning: A Case Study
+of {Punjab}, {India}}} (Springer India, New Delhi,
+2015)\emph{SpringerBriefs in environmental science}.}
+
+\bibitem[\citeproctext]{ref-sultana2014}
+\CSLLeftMargin{14. }%
 \CSLRightInline{A. Sultana, A. Kumar,
 \href{https://doi.org/10.1016/j.apenergy.2013.12.036}{Development of
 tortuosity factor for assessment of lignocellulosic biomass delivery
@@ -2171,7 +2202,7 @@ cost to a biorefinery}. \emph{Applied Energy} \textbf{119}, 288--295
 (2014).}
 
 \bibitem[\citeproctext]{ref-beach2012}
-\CSLLeftMargin{14. }%
+\CSLLeftMargin{15. }%
 \CSLRightInline{R. H. Beach, Y. W. Zhang, B. A. McCarl,
 \href{https://doi.org/10.1142/S2010007812500121}{Modeling bioenergy,
 land use, and {GHG} emissions with {FASOMGHG}: Model overview and
@@ -2179,14 +2210,14 @@ analysis of storage cost implications}. \emph{Climate Change Economics}
 \textbf{3}, 1250012 (2012).}
 
 \bibitem[\citeproctext]{ref-searcy2007}
-\CSLLeftMargin{15. }%
+\CSLLeftMargin{16. }%
 \CSLRightInline{E. Searcy, P. Flynn, E. Ghafoori, A. Kumar,
 \href{https://doi.org/10.1007/s12010-007-9085-8}{The relative cost of
 biomass energy transport}. \emph{Applied Biochemistry and Biotechnology}
 \textbf{137--140}, 639--652 (2007).}
 
 \bibitem[\citeproctext]{ref-weiss2020}
-\CSLLeftMargin{16. }%
+\CSLLeftMargin{17. }%
 \CSLRightInline{D. J. Weiss, A. Nelson, C. A. Vargas-Ruiz, K. Gligorić,
 S. Bavadekar, E. Gabrilovich, A. Bertozzi-Villa, J. Rozier, H. S.
 Gibson, T. Shekel, C. Kamath, A. Lieber, K. Schulman, Y. Shao, V.
@@ -2198,20 +2229,20 @@ time to healthcare facilities}. \emph{Nature Medicine} \textbf{26},
 1835--1838 (2020).}
 
 \bibitem[\citeproctext]{ref-atri2024}
-\CSLLeftMargin{17. }%
+\CSLLeftMargin{18. }%
 \CSLRightInline{A. Leslie, D. Murray, {``An analysis of the operational
 costs of trucking: 2024 update''} (American Transportation Research
 Institute, Arlington, VA, 2024).}
 
 \bibitem[\citeproctext]{ref-woolf2016optimal}
-\CSLLeftMargin{18. }%
+\CSLLeftMargin{19. }%
 \CSLRightInline{D. Woolf, J. Lehmann, D. R. Lee,
 \href{https://doi.org/10.1038/ncomms13160}{Optimal bioenergy power
 generation for climate change mitigation with or without carbon
 sequestration}. \emph{Nature Communications} \textbf{7}, 13160 (2016).}
 
 \bibitem[\citeproctext]{ref-roberts2010}
-\CSLLeftMargin{19. }%
+\CSLLeftMargin{20. }%
 \CSLRightInline{K. G. Roberts, B. A. Gloy, S. Joseph, N. R. Scott, J.
 Lehmann, \href{https://doi.org/10.1021/es902266r}{Life cycle assessment
 of biochar systems: Estimating the energetic, economic, and climate
@@ -2219,7 +2250,7 @@ change potential}. \emph{Environmental Science \& Technology}
 \textbf{44}, 827--833 (2010).}
 
 \bibitem[\citeproctext]{ref-pujolpereira2016}
-\CSLLeftMargin{20. }%
+\CSLLeftMargin{21. }%
 \CSLRightInline{E. I. Pujol Pereira, E. C. Suddick, J. Six,
 \href{https://doi.org/10.1371/journal.pone.0150837}{Carbon abatement and
 emissions associated with the gasification of walnut shells for
@@ -2227,7 +2258,7 @@ bioenergy and biochar production}. \emph{PLOS ONE} \textbf{11}, e0150837
 (2016).}
 
 \bibitem[\citeproctext]{ref-leppakoski2021}
-\CSLLeftMargin{21. }%
+\CSLLeftMargin{22. }%
 \CSLRightInline{L. Leppäkoski, M. P. Marttila, V. Uusitalo, J. Levänen,
 V. Halonen, M. H. Mikkilä,
 \href{https://doi.org/10.3390/su131810097}{Assessing the carbon
@@ -2235,7 +2266,7 @@ footprint of biochar from willow grown on marginal lands in {Finland}}.
 \emph{Sustainability} \textbf{13}, 10097 (2021).}
 
 \bibitem[\citeproctext]{ref-cheng2025}
-\CSLLeftMargin{22. }%
+\CSLLeftMargin{23. }%
 \CSLRightInline{P.-C. Cheng, M.-S. Lin, C.-Y. Huang, S.-F. Cheng, Y.-C.
 Lin, \href{https://doi.org/10.1016/j.jenvman.2025.126956}{Adaptation and
 carbon reduction for petroleum contaminated soil remediation in response
@@ -2244,20 +2275,20 @@ biochar}. \emph{Journal of Environmental Management} \textbf{393},
 126956 (2025).}
 
 \bibitem[\citeproctext]{ref-dea2026}
-\CSLLeftMargin{23. }%
+\CSLLeftMargin{24. }%
 \CSLRightInline{Danish Energy Agency and Energinet, {``Technology data
 for electricity and district heating production''} (Danish Energy
 Agency, Copenhagen, 2026); \url{https://ens.dk/media/8614/download}.}
 
 \bibitem[\citeproctext]{ref-dea2020}
-\CSLLeftMargin{24. }%
+\CSLLeftMargin{25. }%
 \CSLRightInline{Danish Energy Agency, {``Technology data for generation
 of electricity and district heating''} (Danish Energy Agency; Energinet,
 Copenhagen, 2020);
 \url{https://ens.dk/sites/ens.dk/files/Statistik/technology_data_catalogue_for_el_and_dh_-_0009.pdf}.}
 
 \bibitem[\citeproctext]{ref-baxter1998}
-\CSLLeftMargin{25. }%
+\CSLLeftMargin{26. }%
 \CSLRightInline{L. L. Baxter, T. R. Miles, T. R. Miles, B. M. Jenkins,
 T. Milne, D. Dayton, R. W. Bryers, L. L. Oden,
 \href{https://doi.org/10.1016/S0378-3820(97)00060-X}{The behavior of
@@ -2266,28 +2297,28 @@ experiences}. \emph{Fuel Processing Technology} \textbf{54}, 47--78
 (1998).}
 
 \bibitem[\citeproctext]{ref-garcuxeda2017}
-\CSLLeftMargin{26. }%
+\CSLLeftMargin{27. }%
 \CSLRightInline{R. García, C. Pizarro, A. G. Lavín, J. L. Bueno,
 \href{https://doi.org/10.1016/j.fuel.2017.01.063}{Biomass sources for
 thermal conversion. Techno-economical overview}. \emph{Fuel}
 \textbf{195}, 182--189 (2017).}
 
 \bibitem[\citeproctext]{ref-luan2025a}
-\CSLLeftMargin{27. }%
+\CSLLeftMargin{28. }%
 \CSLRightInline{J. Luan, Q. Wang, D. Shao, B. Cui, P. Han, Q. He,
 \href{https://doi.org/10.3389/fenrg.2025.1634354}{Research progress on
 influencing factors and control methods of slagging in biomass
 combustion}. \emph{Frontiers in Energy Research} \textbf{13} (2025).}
 
 \bibitem[\citeproctext]{ref-perlack2011}
-\CSLLeftMargin{28. }%
+\CSLLeftMargin{29. }%
 \CSLRightInline{U.S. Department of Energy, {``U.s. Billion-ton update:
 Biomass supply for a bioenergy and bioproducts industry''}
 (ORNL/TM--2011/224, Oak Ridge National Laboratory, Oak Ridge, TN,
 2011).}
 
 \bibitem[\citeproctext]{ref-dees2017s2biom}
-\CSLLeftMargin{29. }%
+\CSLLeftMargin{30. }%
 \CSLRightInline{M. Dees, B. Elbersen, J. Fitzgerald, M. Vis, others,
 {``Atlas with regional cost supply biomass potentials for {EU} 28,
 {Western Balkan} countries, {Moldavia}, {Turkey} and {Ukraine}''}
@@ -2295,7 +2326,7 @@ Biomass supply for a bioenergy and bioproducts industry''}
 \url{https://www.s2biom.eu/images/Publications/D1.8_S2Biom_Atlas_of_regional_cost_supply_biomass_potential_Final.pdf}.}
 
 \bibitem[\citeproctext]{ref-wang2022strawfeed}
-\CSLLeftMargin{30. }%
+\CSLLeftMargin{31. }%
 \CSLRightInline{S. Wang, C. Yin, J. Jiao, X. Yang, B. Shi, A. Richel,
 \href{https://doi.org/10.1016/j.resconrec.2022.106439}{{StrawFeed}
 model: An integrated model of straw feedstock supply chain for bioenergy
@@ -2303,7 +2334,7 @@ in {China}}. \emph{Resources, Conservation and Recycling} \textbf{185},
 106439 (2022).}
 
 \bibitem[\citeproctext]{ref-sokhansanj2023}
-\CSLLeftMargin{31. }%
+\CSLLeftMargin{32. }%
 \CSLRightInline{S. Sokhansanj, Y. K. Yadav, A. Lau, Yadvika, K. Verma,
 N. Karwasra, \href{https://doi.org/10.4236/jsbs.2023.132004}{Advanced
 strategies to mobilize crop residue to replace coal in {India}}.
@@ -2311,7 +2342,7 @@ strategies to mobilize crop residue to replace coal in {India}}.
 (2023).}
 
 \bibitem[\citeproctext]{ref-erenstein2011}
-\CSLLeftMargin{32. }%
+\CSLLeftMargin{33. }%
 \CSLRightInline{O. Erenstein,
 \href{https://doi.org/10.1016/j.agsy.2010.09.005}{Cropping systems and
 crop residue management in the {Trans-Gangetic Plains}: Issues and
@@ -2319,48 +2350,48 @@ challenges for conservation agriculture from village surveys}.
 \emph{Agricultural Systems} \textbf{104}, 54--62 (2011).}
 
 \bibitem[\citeproctext]{ref-duncan2020}
-\CSLLeftMargin{33. }%
+\CSLLeftMargin{34. }%
 \CSLRightInline{A. J. Duncan, A. Samaddar, M. Blümmel,
 \href{https://doi.org/10.1016/j.fcr.2019.107680}{Rice and wheat straw
 fodder trading in {India}: Possible lessons for rice and wheat
 improvement}. \emph{Field Crops Research} \textbf{246}, 107680 (2020).}
 
 \bibitem[\citeproctext]{ref-lopes2023}
-\CSLLeftMargin{34. }%
+\CSLLeftMargin{35. }%
 \CSLRightInline{A. A. Lopes, D. Tasneem, A. Viriyavipart,
 \href{https://doi.org/10.1371/journal.pone.0296059}{Determinants of
 wheat residue burning: Evidence from {India}}. \emph{PLOS ONE}
 \textbf{18}, e0296059 (2023).}
 
 \bibitem[\citeproctext]{ref-becerra2022}
-\CSLLeftMargin{35. }%
+\CSLLeftMargin{36. }%
 \CSLRightInline{L. A. Becerra-Pérez, L. Rincón, J. A. Posada-Duque,
 \href{https://doi.org/10.3390/en15124480}{Logistics and costs of
 agricultural residues for cellulosic ethanol production}.
 \emph{Energies} \textbf{15}, 4480 (2022).}
 
 \bibitem[\citeproctext]{ref-brechbill2008}
-\CSLLeftMargin{36. }%
+\CSLLeftMargin{37. }%
 \CSLRightInline{S. C. Brechbill, W. E. Tyner, {``The economics of
 renewable energy: Corn stover and switchgrass''} (ID--404--W, Purdue
 University, Purdue Extension, West Lafayette, IN, 2008).}
 
 \bibitem[\citeproctext]{ref-shackley2011}
-\CSLLeftMargin{37. }%
+\CSLLeftMargin{38. }%
 \CSLRightInline{S. Shackley, J. Hammond, J. Gaunt, R. Ibarrola,
 \href{https://doi.org/10.4155/cmt.11.22}{The feasibility and costs of
 biochar deployment in the {UK}}. \emph{Carbon Management} \textbf{2},
 335--356 (2011).}
 
 \bibitem[\citeproctext]{ref-kung2013}
-\CSLLeftMargin{38. }%
+\CSLLeftMargin{39. }%
 \CSLRightInline{C.-C. Kung, B. A. McCarl, X. Cao,
 \href{https://doi.org/10.1016/j.enpol.2013.05.029}{Economics of
 pyrolysis-based energy production and biochar utilization: A case study
 in {Taiwan}}. \emph{Energy Policy} \textbf{60}, 317--323 (2013).}
 
 \bibitem[\citeproctext]{ref-karras2024}
-\CSLLeftMargin{39. }%
+\CSLLeftMargin{40. }%
 \CSLRightInline{T. Karras, D. Thrän,
 \href{https://doi.org/10.1007/s12649-024-02528-x}{The costs of straw in
 {Germany}: Development of regional straw supply costs between 2010 and
@@ -2368,35 +2399,35 @@ in {Taiwan}}. \emph{Energy Policy} \textbf{60}, 317--323 (2013).}
 (2024).}
 
 \bibitem[\citeproctext]{ref-ceew2021exsitu}
-\CSLLeftMargin{40. }%
+\CSLLeftMargin{41. }%
 \CSLRightInline{Council on Energy, Environment and Water, {``Is ex situ
 crop residue management a scalable solution to stubble burning?''}
 (CEEW, New Delhi, 2021);
 \url{https://www.ceew.in/publications/ex-situ-crop-residue-management-scalable-solution-for-paddy-stubble-burning}.}
 
 \bibitem[\citeproctext]{ref-eia2026}
-\CSLLeftMargin{41. }%
+\CSLLeftMargin{42. }%
 \CSLRightInline{U.S. Energy Information Administration, {``Assumptions
 to the annual energy outlook 2026: Electricity market module''} (U.S.
 Energy Information Administration, Washington, DC, 2026);
 \url{https://www.eia.gov/outlooks/aeo/assumptions/pdf/EMM_Assumptions.pdf}.}
 
 \bibitem[\citeproctext]{ref-irena2025}
-\CSLLeftMargin{42. }%
+\CSLLeftMargin{43. }%
 \CSLRightInline{International Renewable Energy Agency, {``Renewable
 power generation costs in 2024''} (International Renewable Energy
 Agency, Abu Dhabi, 2025);
 \url{https://www.irena.org/Publications/2025/Jun/Renewable-Power-Generation-Costs-in-2024}.}
 
 \bibitem[\citeproctext]{ref-cerc2024}
-\CSLLeftMargin{43. }%
+\CSLLeftMargin{44. }%
 \CSLRightInline{Central Electricity Regulatory Commission, Central
 electricity regulatory commission (terms and conditions for tariff
 determination from renewable energy sources) regulations, 2024 (2024).
 \url{https://cercind.gov.in/regulations/189-Noti.pdf}.}
 
 \bibitem[\citeproctext]{ref-eia2023}
-\CSLLeftMargin{44. }%
+\CSLLeftMargin{45. }%
 \CSLRightInline{U.S. Energy Information Administration, {``Cost and
 performance characteristics of new generating technologies, annual
 energy outlook 2023''} (U.S. Energy Information Administration,
@@ -2404,21 +2435,21 @@ Washington, DC, 2023);
 \url{https://www.eia.gov/outlooks/aeo/assumptions/pdf/elec_cost_perf.pdf}.}
 
 \bibitem[\citeproctext]{ref-irena2012}
-\CSLLeftMargin{45. }%
+\CSLLeftMargin{46. }%
 \CSLRightInline{IRENA, {``Renewable energy technologies: Cost analysis
 series. Biomass for power generation''} (International Renewable Energy
 Agency, Abu Dhabi, 2012);
 \url{https://www.irena.org/-/media/Files/IRENA/Agency/Publication/2012/RE_Technologies_Cost_Analysis-BIOMASS.pdf}.}
 
 \bibitem[\citeproctext]{ref-phyllis2}
-\CSLLeftMargin{46. }%
+\CSLLeftMargin{47. }%
 \CSLRightInline{TNO Biobased and Circular Technologies, Phyllis2:
 Database for the physico-chemical composition of (treated)
 lignocellulosic biomass, micro- and macroalgae, various feedstocks for
 biogas production and biochar (2026). \url{https://phyllis.nl/}.}
 
 \bibitem[\citeproctext]{ref-eia2026epm}
-\CSLLeftMargin{47. }%
+\CSLLeftMargin{48. }%
 \CSLRightInline{U.S. Energy Information Administration, {``Electric
 power monthly, table 6.07.b: Capacity factors for utility scale
 generators primarily using non-fossil fuels''} (U.S. Energy Information
@@ -2426,12 +2457,12 @@ Administration, Washington, DC, 2026);
 \url{https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_6_07_b}.}
 
 \bibitem[\citeproctext]{ref-drax2025}
-\CSLLeftMargin{48. }%
+\CSLLeftMargin{49. }%
 \CSLRightInline{Drax Group plc, 2024 full year results (2025).
 \url{https://www.drax.com/wp-content/uploads/2025/02/Drax-2024-FYR-Presentation.pdf}.}
 
 \bibitem[\citeproctext]{ref-daggash2019}
-\CSLLeftMargin{49. }%
+\CSLLeftMargin{50. }%
 \CSLRightInline{H. A. Daggash, C. F. Heuberger, N. Mac Dowell,
 \href{https://doi.org/10.1016/j.ijggc.2018.12.019}{The role and value of
 negative emissions technologies in decarbonising the {UK} energy
@@ -2439,37 +2470,37 @@ system}. \emph{International Journal of Greenhouse Gas Control}
 \textbf{81}, 181--198 (2019).}
 
 \bibitem[\citeproctext]{ref-prado2023}
-\CSLLeftMargin{50. }%
+\CSLLeftMargin{51. }%
 \CSLRightInline{A. Prado, S. Chiquier, M. Fajardy, N. Mac Dowell,
 \href{https://doi.org/10.1016/j.isci.2023.106303}{Assessing the impact
 of carbon dioxide removal on the power system}. \emph{iScience}
 \textbf{26}, 106303 (2023).}
 
 \bibitem[\citeproctext]{ref-ember2026hourly}
-\CSLLeftMargin{51. }%
+\CSLLeftMargin{52. }%
 \CSLRightInline{Ember, European wholesale electricity price data: Hourly
 day-ahead prices (2026).
 \url{https://ember-energy.org/data/european-wholesale-electricity-price-data/}.}
 
 \bibitem[\citeproctext]{ref-ember2025battery}
-\CSLLeftMargin{52. }%
+\CSLLeftMargin{53. }%
 \CSLRightInline{Ember, How cheap is battery storage? (2025).
 \url{https://ember-energy.org/latest-insights/how-cheap-is-battery-storage/}.}
 
 \bibitem[\citeproctext]{ref-lazard2025}
-\CSLLeftMargin{53. }%
+\CSLLeftMargin{54. }%
 \CSLRightInline{Lazard, {``Levelized cost of energy+ (LCOE+)''} (Lazard,
 New York, 2025);
 \url{https://www.lazard.com/media/5tlbhyla/lazards-lcoeplus-june-2025-_vf.pdf}.}
 
 \bibitem[\citeproctext]{ref-geis2025}
-\CSLLeftMargin{54. }%
+\CSLLeftMargin{55. }%
 \CSLRightInline{J. Geis, F. Neumann, M. Lindner, P. Härtel, T. Brown,
 Price formation in a highly-renewable, sector-coupled energy system
 (2025). \url{https://arxiv.org/abs/2509.10092}.}
 
 \bibitem[\citeproctext]{ref-petranova2020}
-\CSLLeftMargin{55. }%
+\CSLLeftMargin{56. }%
 \CSLRightInline{Petra Nova Parish Holdings LLC, {``{W.A. Parish}
 post-combustion {CO2} capture and sequestration demonstration project:
 Final scientific/technical report''} (OSTI 1608572, U.S. Department of
@@ -2477,7 +2508,7 @@ Energy, Office of Scientific; Technical Information, 2020);
 \url{https://www.osti.gov/servlets/purl/1608572/}.}
 
 \bibitem[\citeproctext]{ref-dutta2015}
-\CSLLeftMargin{56. }%
+\CSLLeftMargin{57. }%
 \CSLRightInline{A. Dutta, A. Sahir, E. Tan, D. Humbird, L. J.
 Snowden-Swan, P. Meyer, J. Ross, D. Sexton, R. Yap, J. Lukas, {``Process
 design and economics for the conversion of lignocellulosic biomass to
@@ -2487,14 +2518,54 @@ PNNL--23823, National Renewable Energy Laboratory; Pacific Northwest
 National Laboratory, Golden, CO, 2015);
 \url{https://www.pnnl.gov/main/publications/external/technical_reports/PNNL-23823.pdf}.}
 
+\bibitem[\citeproctext]{ref-lamers2018}
+\CSLLeftMargin{58. }%
+\CSLRightInline{F. Lamers, M. Cremers, D. Matschegg, C. Schmidl, K.
+Hannam, P. Hazlett, S. Madrali, B. Primdal Dam, R. Roberto, R. Mager, K.
+Davidsson, N. Bech, H.-J. Feuerborn, A. Saraber, {``Options for
+increased use of ash from biomass combustion and co-firing''}
+(Deliverable D7, IEA Bioenergy Task 32, 2018);
+\url{https://www.ieabioenergy.com/wp-content/uploads/2019/02/IEA-Bioenergy-Ash-management-report-revision-5-november.pdf}.}
+
+\bibitem[\citeproctext]{ref-saleh2014}
+\CSLLeftMargin{59. }%
+\CSLRightInline{S. B. Saleh, J. P. Flensborg, T. K. Shoulaifar, Z.
+Sárossy, B. B. Hansen, H. Egsgaard, N. DeMartini, P. A. Jensen, P.
+Glarborg, K. Dam-Johansen,
+\href{https://doi.org/10.1021/ef4021262}{Release of chlorine and sulfur
+during biomass torrefaction and pyrolysis}. \emph{Energy \& Fuels}
+\textbf{28}, 3738--3746 (2014).}
+
+\bibitem[\citeproctext]{ref-knudsen2004}
+\CSLLeftMargin{60. }%
+\CSLRightInline{J. N. Knudsen, P. A. Jensen, K. Dam-Johansen,
+\href{https://doi.org/10.1021/ef049944q}{Transformation and release to
+the gas phase of {Cl}, {K}, and {S} during combustion of annual
+biomass}. \emph{Energy \& Fuels} \textbf{18}, 1385--1399 (2004).}
+
+\bibitem[\citeproctext]{ref-thomsen2006}
+\CSLLeftMargin{61. }%
+\CSLRightInline{K. Thomsen, J. P. Jensen, P. Simonsen, B. Sander,
+{``Reuse of alkali from bio fly ash (alkaligenanvendelse fra
+bioflyveaske)''} (NEI--DK--4834, Institut for Kemiteknik, Technical
+University of Denmark; Energi E2; Elsam Engineering, 2006);
+\url{https://www.osti.gov/etdeweb/biblio/20881741}.}
+
+\bibitem[\citeproctext]{ref-bioash2019}
+\CSLLeftMargin{62. }%
+\CSLRightInline{Miljø- og Fødevareministeriet, Bekendtg{ø}relse om
+anvendelse af bioaske til jordbrugsform{å}l (bioaskebekendtg{ø}relsen),
+{BEK} nr 732 af 09/07/2019 (2019).
+\url{https://www.retsinformation.dk/eli/lta/2019/732}.}
+
 \bibitem[\citeproctext]{ref-ieaghg2009}
-\CSLLeftMargin{57. }%
+\CSLLeftMargin{63. }%
 \CSLRightInline{IEAGHG, {``Biomass {CCS} study''} (2009/9, IEA
 Greenhouse Gas R\&D Programme, Cheltenham, UK, 2009);
 \url{https://publications.ieaghg.org/docs/General_Docs/Reports/2009-9.pdf}.}
 
 \bibitem[\citeproctext]{ref-herzog2016}
-\CSLLeftMargin{58. }%
+\CSLLeftMargin{64. }%
 \CSLRightInline{H. J. Herzog, E. S. Rubin, G. T. Rochelle,
 \href{https://doi.org/10.1021/acs.est.6b00169}{Comment on {``reassessing
 the efficiency penalty from carbon capture in coal-fired power
@@ -2502,7 +2573,7 @@ plants''}}. \emph{Environmental Science \& Technology} \textbf{50},
 6112--6113 (2016).}
 
 \bibitem[\citeproctext]{ref-tramosljika2021}
-\CSLLeftMargin{59. }%
+\CSLLeftMargin{65. }%
 \CSLRightInline{B. Tramošljika, P. Blecich, I. Bonefačić, V. Glažar,
 \href{https://doi.org/10.3390/su13020801}{Advanced ultra-supercritical
 coal-fired power plant with post-combustion carbon capture: Analysis of
@@ -2510,7 +2581,7 @@ electricity penalty and {CO2} emission reduction}. \emph{Sustainability}
 \textbf{13}, 801 (2021).}
 
 \bibitem[\citeproctext]{ref-li2024ccs}
-\CSLLeftMargin{60. }%
+\CSLLeftMargin{66. }%
 \CSLRightInline{S. Li, L. Gao, S. He, D. Yang, C. Wang, Y. Zheng,
 \href{https://doi.org/10.1016/j.fmre.2022.05.027}{Carbon capture in
 power sector of {China} towards carbon neutrality and its comparison to
@@ -2518,7 +2589,7 @@ renewable power}. \emph{Fundamental Research} \textbf{4}, 916--925
 (2024).}
 
 \bibitem[\citeproctext]{ref-bhave2017}
-\CSLLeftMargin{61. }%
+\CSLLeftMargin{67. }%
 \CSLRightInline{A. Bhave, R. H. S. Taylor, P. Fennell, W. R. Livingston,
 N. Shah, N. Mac Dowell, J. Dennis, M. Kraft, M. Pourkashanian, M. Insa,
 J. Jones, N. Burdett, A. Bauen, C. Beal, A. Smallbone, J. Akroyd,
@@ -2528,46 +2599,46 @@ technologies to meet 2050 {CO2} targets}. \emph{Applied Energy}
 \textbf{190}, 481--489 (2017).}
 
 \bibitem[\citeproctext]{ref-ogci2024csrc}
-\CSLLeftMargin{62. }%
+\CSLLeftMargin{68. }%
 \CSLRightInline{Oil and Gas Climate Initiative, {``{CO2} storage
 resource catalogue, cycle 4 report: Global summary''} (Oil; Gas Climate
 Initiative, 2024);
 \url{https://www.ogci.com/wp-content/uploads/2024/07/CSRC_Cycle_4_Main-Report_July_2024.pdf}.}
 
 \bibitem[\citeproctext]{ref-usgs2013co2}
-\CSLLeftMargin{63. }%
+\CSLLeftMargin{69. }%
 \CSLRightInline{U.S. Geological Survey Geologic Carbon Dioxide Storage
 Resources Assessment Team, {``National assessment of geologic carbon
 dioxide storage resources: results''} (Circular 1386, U.S. Geological
 Survey, 2013); \url{https://doi.org/10.3133/cir1386}.}
 
 \bibitem[\citeproctext]{ref-gccsi2025co2re}
-\CSLLeftMargin{64. }%
+\CSLLeftMargin{70. }%
 \CSLRightInline{Global CCS Institute, {CO2RE} facilities database
 (2025). \url{https://co2re.co/FacilityData}.}
 
 \bibitem[\citeproctext]{ref-amatulli2020}
-\CSLLeftMargin{65. }%
+\CSLLeftMargin{71. }%
 \CSLRightInline{G. Amatulli, D. McInerney, T. Sethi, P. Strobl, S.
 Domisch, \href{https://doi.org/10.1038/s41597-020-0479-6}{Geomorpho90m,
 empirical evaluation and accuracy assessment of global high-resolution
 geomorphometric layers}. \emph{Scientific Data} \textbf{7}, 162 (2020).}
 
 \bibitem[\citeproctext]{ref-wdpa2026}
-\CSLLeftMargin{66. }%
+\CSLLeftMargin{72. }%
 \CSLRightInline{UNEP-WCMC and IUCN, Protected planet: The world database
 on protected areas ({WDPA}), june 2026 (2026).
 \url{https://www.protectedplanet.net}.}
 
 \bibitem[\citeproctext]{ref-solomon2024}
-\CSLLeftMargin{67. }%
+\CSLLeftMargin{73. }%
 \CSLRightInline{M. D. Solomon, M. Scheffler, W. Heineken, M. Ashkavand,
 T. Birth-Reichert, \href{https://doi.org/10.3390/en17122911}{Pipeline
 infrastructure for {CO2} transport: Cost analysis and design
 optimization}. \emph{Energies} \textbf{17}, 2911 (2024).}
 
 \bibitem[\citeproctext]{ref-mccollum2006}
-\CSLLeftMargin{68. }%
+\CSLLeftMargin{74. }%
 \CSLRightInline{D. L. McCollum, J. M. Ogden, {``Techno-economic models
 for carbon dioxide compression, transport, and storage \& correlations
 for estimating carbon dioxide density and viscosity''}
@@ -2575,14 +2646,14 @@ for estimating carbon dioxide density and viscosity''}
 California, Davis, 2006).}
 
 \bibitem[\citeproctext]{ref-chen2021liquefaction}
-\CSLLeftMargin{69. }%
+\CSLLeftMargin{75. }%
 \CSLRightInline{F. Chen, T. Morosuk,
 \href{https://doi.org/10.3390/en14217174}{Exergetic and economic
 evaluation of {CO2} liquefaction processes}. \emph{Energies}
 \textbf{14}, 7174 (2021).}
 
 \bibitem[\citeproctext]{ref-zep2011transport}
-\CSLLeftMargin{70. }%
+\CSLLeftMargin{76. }%
 \CSLRightInline{European Technology Platform for Zero Emission Fossil
 Fuel Power Plants (ZEP), {``The costs of {CO2} transport:
 Post-demonstration {CCS} in the {EU}''} (European Technology Platform
@@ -2590,13 +2661,13 @@ for Zero Emission Fossil Fuel Power Plants, Brussels, 2011);
 \url{https://zeroemissionsplatform.eu/publication/the-costs-of-co2-transport/}.}
 
 \bibitem[\citeproctext]{ref-vito2026emis}
-\CSLLeftMargin{71. }%
+\CSLLeftMargin{77. }%
 \CSLRightInline{VITO, Pipeline transport ({MAPiT CCU} technology sheet)
 (2026).
 \url{https://emis.vito.be/nl/tools/mapitccu/technologies/pipeline-transport}.}
 
 \bibitem[\citeproctext]{ref-albaroudi2021}
-\CSLLeftMargin{72. }%
+\CSLLeftMargin{78. }%
 \CSLRightInline{H. Al Baroudi, A. Awoyomi, K. Patchigolla, K.
 Jonnalagadda, E. J. Anthony,
 \href{https://doi.org/10.1016/j.apenergy.2021.116510}{A review of
@@ -2605,13 +2676,13 @@ capture, utilisation and storage}. \emph{Applied Energy} \textbf{287},
 116510 (2021).}
 
 \bibitem[\citeproctext]{ref-gccsi2025}
-\CSLLeftMargin{73. }%
+\CSLLeftMargin{79. }%
 \CSLRightInline{Global CCS Institute, {``Cost of {CO}2 storage''}
 (Thought Leadership Report, Global CCS Institute, 2025);
 \url{https://www.globalccsinstitute.com/wp-content/uploads/2025/12/Cost-of-CO2-Storage-1225.pdf}.}
 
 \bibitem[\citeproctext]{ref-zep2011}
-\CSLLeftMargin{74. }%
+\CSLLeftMargin{80. }%
 \CSLRightInline{European Technology Platform for Zero Emission Fossil
 Fuel Power Plants (ZEP), {``The costs of {CO}2 storage:
 Post-demonstration {CCS} in the {EU}''} (Zero Emissions Platform,
@@ -2619,14 +2690,14 @@ Brussels, 2011);
 \url{https://zeroemissionsplatform.eu/publication/the-costs-of-co2-storage/}.}
 
 \bibitem[\citeproctext]{ref-netl2024scom}
-\CSLLeftMargin{75. }%
+\CSLLeftMargin{81. }%
 \CSLRightInline{D. Morgan, T. Warner, A. Sheriff, C. Y. Shih, D. Vikara,
 K. Bello, T. Vactor, M. Mark-Moser, G. Liu, L. Cunha, {FECM/NETL CO2}
 saline storage cost model ({CO2\_S\_COM}) 2024 (v4) (2024).
 \url{https://doi.org/10.18141/2483796}.}
 
 \bibitem[\citeproctext]{ref-woolf2014}
-\CSLLeftMargin{76. }%
+\CSLLeftMargin{82. }%
 \CSLRightInline{D. Woolf, J. Lehmann, E. M. Fisher, L. T. Angenent,
 \href{https://doi.org/10.1021/es500474q}{Biofuels from pyrolysis in
 perspective: Trade-offs between energy yields and soil-carbon
@@ -2634,7 +2705,7 @@ additions}. \emph{Environmental Science \& Technology} \textbf{48},
 64926499 (2014).}
 
 \bibitem[\citeproctext]{ref-woolf2021greenhouse}
-\CSLLeftMargin{77. }%
+\CSLLeftMargin{83. }%
 \CSLRightInline{D. Woolf, J. Lehmann, S. Ogle, A. W. Kishimoto-Mo, B.
 McConkey, J. Baldock,
 \href{https://doi.org/10.1021/acs.est.1c02425}{Greenhouse gas inventory
@@ -2642,7 +2713,7 @@ model for biochar additions to soil}. \emph{Environmental Science \&
 Technology} \textbf{55}, 14795--14805 (2021).}
 
 \bibitem[\citeproctext]{ref-ipcc2019biochar}
-\CSLLeftMargin{78. }%
+\CSLLeftMargin{84. }%
 \CSLRightInline{IPCC, {``Appendix 4: Method for estimating the change in
 mineral soil organic carbon stocks from biochar amendments: Basis for
 future methodological development''} in \emph{2019 Refinement to the
@@ -2651,7 +2722,7 @@ future methodological development''} in \emph{2019 Refinement to the
 2019).}
 
 \bibitem[\citeproctext]{ref-yadav2026}
-\CSLLeftMargin{79. }%
+\CSLLeftMargin{85. }%
 \CSLRightInline{G. Yadav, P. Lamers,
 \href{https://doi.org/10.1021/acs.energyfuels.5c05655}{Process
 feasibility analysis of waste biomass valorization to biochar and
@@ -2659,7 +2730,7 @@ bio-oil via slow and fast pyrolysis}. \emph{Energy \& Fuels}
 \textbf{40}, 4670--4682 (2026).}
 
 \bibitem[\citeproctext]{ref-ipcc2019}
-\CSLLeftMargin{80. }%
+\CSLLeftMargin{86. }%
 \CSLRightInline{K. Hergoualc'h, H. Akiyama, M. Bernoux, N. Chirinda, A.
 del Prado, Å. Kasimir, J. D. MacDonald, S. M. Ogle, K. Regina, T. J. van
 der Weerden, {``{N2O} emissions from managed soils, and {CO2} emissions
@@ -2669,7 +2740,7 @@ Agriculture, Forestry and Other Land Use} (IPCC, Geneva, Switzerland,
 2019).}
 
 \bibitem[\citeproctext]{ref-forster2021}
-\CSLLeftMargin{81. }%
+\CSLLeftMargin{87. }%
 \CSLRightInline{P. Forster, T. Storelvmo, K. Armour, W. Collins, J.-L.
 Dufresne, D. Frame, D. J. Lunt, T. Mauritsen, M. D. Palmer, M. Watanabe,
 M. Wild, H. Zhang,
@@ -2681,7 +2752,7 @@ Change} (Cambridge University Press, Cambridge, UK; New York, NY, USA,
 2021), pp. 923--1054.}
 
 \bibitem[\citeproctext]{ref-latawiec2019}
-\CSLLeftMargin{82. }%
+\CSLLeftMargin{88. }%
 \CSLRightInline{A. E. Latawiec, B. B. N. Strassburg, A. B. Junqueira, E.
 Araujo, L. F. D. de Moraes, H. A. N. Pinto, A. Castro, M. Rangel, G. A.
 Malaguti, A. F. Rodrigues, L. G. Barioni, E. H. Novotny, G. Cornelissen,
@@ -2692,21 +2763,21 @@ cost-benefit analysis}. \emph{Scientific Reports} \textbf{9}, 11993
 (2019).}
 
 \bibitem[\citeproctext]{ref-mills2020lime}
-\CSLLeftMargin{83. }%
+\CSLLeftMargin{89. }%
 \CSLRightInline{B. E. Mills, B. W. Brorsen, D. B. Arnall,
 \href{https://doi.org/10.1007/s11119-019-09674-6}{The profitability of
 variable rate lime in wheat}. \emph{Precision Agriculture} \textbf{21},
 369--386 (2020).}
 
 \bibitem[\citeproctext]{ref-cho2020lime}
-\CSLLeftMargin{84. }%
+\CSLLeftMargin{90. }%
 \CSLRightInline{W. Cho, B. W. Brorsen, D. B. Arnall,
 \href{https://doi.org/10.1002/agg2.20071}{Banding of phosphorus as an
 alternative to lime for wheat in acid soil}. \emph{Agrosystems,
 Geosciences \& Environment} \textbf{3}, e20071 (2020).}
 
 \bibitem[\citeproctext]{ref-woods2026}
-\CSLLeftMargin{85. }%
+\CSLLeftMargin{91. }%
 \CSLRightInline{E. Woods, A. Trlica, P. Berlin, S. Bloszies, A. Woodley,
 R. Cook, W. J. Sagues,
 \href{https://doi.org/10.1039/d5su00814j}{Alkaline mineral residues from
@@ -2714,20 +2785,20 @@ pulp mills as a sustainable and economical alternative to lime
 fertilizers}. \emph{RSC Sustainability} \textbf{4}, 2308--2320 (2026).}
 
 \bibitem[\citeproctext]{ref-worldbank2026pinksheet}
-\CSLLeftMargin{86. }%
+\CSLLeftMargin{92. }%
 \CSLRightInline{World Bank, World bank commodity price data (the pink
 sheet): Annual prices (2026).
 \url{https://www.worldbank.org/en/research/commodity-markets}.}
 
 \bibitem[\citeproctext]{ref-glec2024}
-\CSLLeftMargin{87. }%
+\CSLLeftMargin{93. }%
 \CSLRightInline{Smart Freight Centre, {``Global logistics emissions
 council framework for logistics emissions accounting and reporting,
 version 3.1''} (Smart Freight Centre, Amsterdam, 2024);
 \url{https://smart-freight-centre-media.s3.amazonaws.com/documents/GLEC_FRAMEWORK_v3_UPDATED_04_12_24.pdf}.}
 
 \bibitem[\citeproctext]{ref-bolinder2020}
-\CSLLeftMargin{88. }%
+\CSLLeftMargin{94. }%
 \CSLRightInline{M. A. Bolinder, F. Crotty, A. Elsen, M. Frac, T.
 Kismányoky, J. Lipiec, M. Tits, Z. Tóth, T. Kätterer,
 \href{https://doi.org/10.1007/s11027-020-09916-3}{The effect of crop
@@ -2737,7 +2808,7 @@ organic carbon changes in agroecosystems: A synthesis of reviews}.
 \textbf{25}, 929--952 (2020).}
 
 \bibitem[\citeproctext]{ref-ipcc2006}
-\CSLLeftMargin{89. }%
+\CSLLeftMargin{95. }%
 \CSLRightInline{H. Aalde, P. Gonzalez, M. Gytarsky, T. Krug, W. A. Kurz,
 S. Ogle, J. Raison, D. Schoene, N. H. Ravindranath, N. G. Elhassan, L.
 S. Heath, N. Higuchi, S. Kainja, M. Matsumoto, M. J. S. Sánchez, Z.
@@ -2747,19 +2818,19 @@ Gas Inventories, Volume 4: Agriculture, Forestry and Other Land Use}
 (IGES, Hayama, Japan, 2006).}
 
 \bibitem[\citeproctext]{ref-smerald2023}
-\CSLLeftMargin{90. }%
+\CSLLeftMargin{96. }%
 \CSLRightInline{A. Smerald, J. Rahimi, C. Scheer,
 \href{https://doi.org/10.1038/s41597-023-02587-0}{A global dataset for
 the production and usage of cereal residues in the period 1997--2021}.
 \emph{Scientific Data} \textbf{10}, 685 (2023).}
 
 \bibitem[\citeproctext]{ref-ember2025}
-\CSLLeftMargin{91. }%
+\CSLLeftMargin{97. }%
 \CSLRightInline{Ember, Monthly electricity data (2025).
 \url{https://ember-energy.org/data/monthly-electricity-data/}.}
 
 \bibitem[\citeproctext]{ref-schlomer2014}
-\CSLLeftMargin{92. }%
+\CSLLeftMargin{98. }%
 \CSLRightInline{S. Schlömer, T. Bruckner, L. Fulton, E. Hertwich, A.
 McKinnon, D. Perczyk, J. Roy, R. Schaeffer, R. Sims, P. Smith, R. Wiser,
 {``Annex {III}: Technology-specific cost and performance parameters''}
@@ -2769,7 +2840,7 @@ Intergovernmental Panel on Climate Change} (Cambridge University Press,
 Cambridge, UK; New York, NY, 2014).}
 
 \bibitem[\citeproctext]{ref-pehl2017}
-\CSLLeftMargin{93. }%
+\CSLLeftMargin{99. }%
 \CSLRightInline{M. Pehl, A. Arvesen, F. Humpenöder, A. Popp, E. G.
 Hertwich, G. Luderer,
 \href{https://doi.org/10.1038/s41560-017-0032-9}{Understanding future
@@ -2778,13 +2849,13 @@ assessment and integrated energy modelling}. \emph{Nature Energy}
 \textbf{2}, 939--945 (2017).}
 
 \bibitem[\citeproctext]{ref-ngfs2026}
-\CSLLeftMargin{94. }%
+\CSLLeftMargin{100. }%
 \CSLRightInline{O. Richters, E. Kriegler, C. Bertram, R. Cui, J.
 Edmonds, others, {NGFS} climate scenarios data set, phase 5, version
 5.1, Zenodo (2026); \url{https://doi.org/10.5281/zenodo.17901363}.}
 
 \bibitem[\citeproctext]{ref-poggio2021}
-\CSLLeftMargin{95. }%
+\CSLLeftMargin{101. }%
 \CSLRightInline{L. Poggio, L. M. de Sousa, N. H. Batjes, G. B. M.
 Heuvelink, B. Kempen, E. Ribeiro, D. Rossiter,
 \href{https://doi.org/10.5194/soil-7-217-2021}{{SoilGrids} 2.0:
@@ -2792,7 +2863,7 @@ Producing soil information for the globe with quantified spatial
 uncertainty}. \emph{SOIL} \textbf{7}, 217--240 (2021).}
 
 \bibitem[\citeproctext]{ref-lembrechts2022}
-\CSLLeftMargin{96. }%
+\CSLLeftMargin{102. }%
 \CSLRightInline{J. J. Lembrechts, J. van den Hoogen, J. Aalto, M. B.
 Ashcroft, P. De Frenne, J. Kemppinen, M. Kopecký, M. Luoto, I. M. D.
 Maclean, T. W. Crowther, J. J. Bailey, S. Haesen, D. H. Klinges, P.
@@ -2875,40 +2946,40 @@ of soil temperature}. \emph{Global Change Biology} \textbf{28},
 3110--3144 (2022).}
 
 \bibitem[\citeproctext]{ref-eia2026steo}
-\CSLLeftMargin{97. }%
+\CSLLeftMargin{103. }%
 \CSLRightInline{U.S. Energy Information Administration, {``Short-term
 energy outlook, september 2026''} (U.S. Energy Information
 Administration, Washington, DC, 2026);
 \url{https://www.eia.gov/outlooks/steo/}.}
 
 \bibitem[\citeproctext]{ref-ember2026price}
-\CSLLeftMargin{98. }%
+\CSLLeftMargin{104. }%
 \CSLRightInline{Ember, European wholesale electricity price data (2026).
 \url{https://ember-energy.org/data/european-wholesale-electricity-price-data/}.}
 
 \bibitem[\citeproctext]{ref-epias2026}
-\CSLLeftMargin{99. }%
+\CSLLeftMargin{105. }%
 \CSLRightInline{Energy Exchange Istanbul (EPİAŞ), Day-ahead market
 clearing price (PTF) (2026). \url{https://seffaflik.epias.com.tr/}.}
 
 \bibitem[\citeproctext]{ref-marketoperator2026}
-\CSLLeftMargin{100. }%
+\CSLLeftMargin{106. }%
 \CSLRightInline{JSC Market Operator (Ukraine), Day-ahead market results:
 BASE price index (2026). \url{https://www.oree.com.ua/}.}
 
 \bibitem[\citeproctext]{ref-climatescope2021}
-\CSLLeftMargin{101. }%
+\CSLLeftMargin{107. }%
 \CSLRightInline{BloombergNEF, Climatescope 2021: belarus (2021).
 \url{https://2021.global-climatescope.org/markets/by/}.}
 
 \bibitem[\citeproctext]{ref-eia2025epa}
-\CSLLeftMargin{102. }%
+\CSLLeftMargin{108. }%
 \CSLRightInline{U.S. Energy Information Administration, {``Electric
 power annual 2024''} (U.S. Energy Information Administration,
 Washington, DC, 2025); \url{https://www.eia.gov/electricity/annual/}.}
 
 \bibitem[\citeproctext]{ref-ndrc2019}
-\CSLLeftMargin{103. }%
+\CSLLeftMargin{109. }%
 \CSLRightInline{National Development and Reform Commission, Guiding
 opinions on deepening the reform of the on-grid tariff formation
 mechanism for coal-fired power generation (fa gai jia ge gui {[}2019{]}
@@ -2916,33 +2987,33 @@ no. 1658) (2019).
 \url{https://zfxxgk.ndrc.gov.cn/web/iteminfo.jsp?id=16530}.}
 
 \bibitem[\citeproctext]{ref-cerc2025stm}
-\CSLLeftMargin{104. }%
+\CSLLeftMargin{110. }%
 \CSLRightInline{Central Electricity Regulatory Commission, {``Report on
 short-term power market in india: 2024-25''} (Central Electricity
 Regulatory Commission, Economics Division, New Delhi, 2025);
 \url{https://www.cercind.gov.in/2025/market_monitoring/Annual-Report-2024-25.pdf}.}
 
 \bibitem[\citeproctext]{ref-worldbank2026fx}
-\CSLLeftMargin{105. }%
+\CSLLeftMargin{111. }%
 \CSLRightInline{World Bank, Official exchange rate (LCU per US\$, period
 average), indicator PA.NUS.FCRF (2026).
 \url{https://data.worldbank.org/indicator/PA.NUS.FCRF}.}
 
 \bibitem[\citeproctext]{ref-hatton2025}
-\CSLLeftMargin{106. }%
+\CSLLeftMargin{112. }%
 \CSLRightInline{L. Hatton, I. Staffell, M. Jansen, G. Oluleye, A.
 Hawkes, \href{https://doi.org/10.1038/s41597-025-06177-0}{Historical and
 future projected costs of capital for ten energy technologies across 176
 countries}. \emph{Scientific Data} \textbf{12}, 1912 (2025).}
 
 \bibitem[\citeproctext]{ref-enache2024}
-\CSLLeftMargin{107. }%
+\CSLLeftMargin{113. }%
 \CSLRightInline{C. Enache, Corporate tax rates around the world, 2024
 (2024).
 \url{https://taxfoundation.org/data/all/global/corporate-tax-rates-by-country-2024/}.}
 
 \bibitem[\citeproctext]{ref-chen2016xgboost}
-\CSLLeftMargin{108. }%
+\CSLLeftMargin{114. }%
 \CSLRightInline{T. Chen, C. Guestrin,
 {``\href{https://doi.org/10.1145/2939672.2939785}{{XGBoost}: A scalable
 tree boosting system}''} in \emph{Proceedings of the 22nd ACM SIGKDD
@@ -2950,7 +3021,7 @@ International Conference on Knowledge Discovery and Data Mining} (2016),
 pp. 785--794.}
 
 \bibitem[\citeproctext]{ref-lundberg2017}
-\CSLLeftMargin{109. }%
+\CSLLeftMargin{115. }%
 \CSLRightInline{S. M. Lundberg, S.-I. Lee, {``A unified approach to
 interpreting model predictions''} in \emph{Advances in Neural
 Information Processing Systems 30} (2017), pp. 4765--4774.}
@@ -2979,8 +3050,12 @@ status or territorial claim.
 \begin{longtable}[t]{>{\raggedright\arraybackslash}p{3.3cm}>{\raggedright\arraybackslash}p{4.1cm}>{\raggedright\arraybackslash}p{2.1cm}>{\raggedright\arraybackslash}p{2.2cm}>{\raggedright\arraybackslash}p{0.9cm}>{\raggedright\arraybackslash}p{2.6cm}}
 
 \caption{\label{tbl-si-mc}Parameters sampled in the Monte Carlo
-analysis: central values (by region where they differ), distribution and
-range. Generated from BiocharAG/inst/extdata/parameters.csv.}
+analysis, including central values (by region where they differ),
+distribution and range. Ranges marked ``× central'' are multipliers of
+the central value; other ranges are in the parameter's units. Where a
+bound differs by region it is shown in parentheses. For spatially
+explicit inputs, the relative range is applied as a multiplier on the
+spatial layer.}
 
 \tabularnewline
 
@@ -2999,15 +3074,15 @@ Parameter & Description & Units & Central & Dist. & Range\\
 \endlastfoot
 \addlinespace[0.3em]
 \multicolumn{6}{l}{\textbf{Biochar \& Agronomic}}\\
-\hspace{1em}\ttfamily{ash\_cce} & Calcium carbonate equivalent of recycled combustion ash & fraction & 0.85 & Pert & 0.4–1\\
-\hspace{1em}\ttfamily{ash\_p\_content} & Phosphorus content of recycled combustion ash (elemental P) & fraction & 0.012 & Pert & 0.5–2 × central\\
-\hspace{1em}\ttfamily{bc\_cce} & Calcium Carbonate Equivalent & fraction & 0.15 & Pert & 0.05–0.3\\
+\hspace{1em}\ttfamily{ash\_cl\_fly} & Fraction of feedstock chlorine captured in combustion fly ash (as KCl) & fraction & 0.9 & Pert & 0.7–1\\
+\hspace{1em}\ttfamily{ash\_s\_fly} & Fraction of feedstock sulphur captured in combustion fly ash (as K2SO4) & fraction & 0.5 & Pert & 0.3–0.7\\
 \hspace{1em}\ttfamily{bc\_cec\_value} & Annual crop-yield benefit of biochar from raising soil CEC, at CEC <= 5 cmol/kg, falling linearly to 0 at CEC >= 30; valued as a perpetuity, annual value / (discount rate + biochar C decay rate) & US\$ Mg\textsuperscript{-1} biochar C yr\textsuperscript{-1} (2024 USD) & 21.1 & Pert & 0.5–1.5 × central\\
+\hspace{1em}\ttfamily{bc\_cl\_retention} & Fraction of feedstock chlorine retained in biochar & fraction & 0.45 & Pert & 0.3–0.7\\
 \hspace{1em}\ttfamily{bc\_field\_cost} & Biochar field application cost (spreading and incorporation) & US\$ ha\textsuperscript{-1} (2024 USD) & 116 & Pert & 0–233\\
 \hspace{1em}\ttfamily{bc\_field\_diesel} & Tractor diesel use for biochar spreading and incorporation & L ha\textsuperscript{-1} & 17.5 & Pert & 13–30\\
-\hspace{1em}\ttfamily{bc\_k\_content} & Biochar potassium content (elemental K) & fraction & 0.005 & Pert & 0.5–2 × central\\
-\hspace{1em}\ttfamily{bc\_n\_content} & Biochar Nitrogen content & fraction & 0.005 & Pert & 0.5–2 × central\\
-\hspace{1em}\ttfamily{bc\_p\_content} & Biochar phosphorus content (elemental P) & fraction & 0.002 & Pert & 0.5–2 × central\\
+\hspace{1em}\ttfamily{bc\_n\_retention} & Fraction of feedstock nitrogen retained in biochar & fraction & 0.5 & Pert & 0.3–0.7\\
+\hspace{1em}\ttfamily{bc\_s\_retention} & Fraction of feedstock sulphur retained in biochar & fraction & 0.4 & Pert & 0.3–0.6\\
+\hspace{1em}\ttfamily{fly\_ash\_recycled} & Fraction of combustion fly ash returned to cropland & fraction & 0 & Uniform & 0–1\\
 \hspace{1em}\ttfamily{n2o\_ef} & Direct N2O emission factor for fertiliser N & kg N\textsubscript{2}O-N kg\textsuperscript{-1} N & 0.01 & Pert & 0.001–0.018\\
 \hspace{1em}\ttfamily{n2o\_reduction} & Fractional reduction in soil N2O emissions after biochar application & fraction & 0.23 & Pert & 0.05–0.41\\
 \hspace{1em}\ttfamily{n2o\_years} & Duration of biochar N2O reduction & years & 2 & Pert & 1–15\\
@@ -3026,10 +3101,18 @@ Parameter & Description & Units & Central & Dist. & Range\\
 \hspace{1em}\ttfamily{storage\_cost\_factor} & Multiplier on site-specific CO2 storage costs (classified sinks in co2\_sinks) & ratio & 1 & Pert & 0.5–1.75\\
 \addlinespace[0.3em]
 \multicolumn{6}{l}{\textbf{Feedstock \& Logistics}}\\
-\hspace{1em}\ttfamily{bm\_ash} & Biomass ash mass fraction & fraction & US 0.05; Europe 0.05; China 0.15; India 0.15 & Pert & 0.6–1.6 × central\\
+\hspace{1em}\ttfamily{bm\_ash} & Biomass ash mass fraction & fraction & US 0.0528; Europe 0.0576; China 0.128; India 0.186 & Pert & 0.6–1.6 × central\\
 \hspace{1em}\ttfamily{bm\_c} & Biomass carbon mass fraction & fraction & 0.48 & Pert & 0.92–1.04 × central\\
+\hspace{1em}\ttfamily{bm\_ca} & Calcium content of the feedstock (residue-weighted cereal mix) & kg Mg\textsuperscript{-1} dry matter & US 2.42; Europe 2.88; China 2.42; India 2.3 & Pert & 0.7–1.3 × central\\
+\hspace{1em}\ttfamily{bm\_cl} & Chlorine content of the feedstock & kg Mg\textsuperscript{-1} dry matter & US 2.38; Europe 2.88; China 3.83; India 4.99 & Pert & 0.6–1.4 × central\\
 \hspace{1em}\ttfamily{bm\_h2o} & Biomass moisture content & fraction & 0.1 & Pert & 0.08–0.2\\
+\hspace{1em}\ttfamily{bm\_k} & Potassium content of the feedstock & kg Mg\textsuperscript{-1} dry matter & US 8.01; Europe 8.71; China 12.7; India 16.3 & Pert & 0.7–1.3 × central\\
 \hspace{1em}\ttfamily{bm\_lhv} & Biomass lower heating value (dry ash-free) & GJ Mg\textsuperscript{-1} (dry, ash-free) & 18.6 & Pert & 0.95–1.05 × central\\
+\hspace{1em}\ttfamily{bm\_mg} & Magnesium content of the feedstock & kg Mg\textsuperscript{-1} dry matter & US 0.791; Europe 0.719; China 1.3; India 1.73 & Pert & 0.7–1.3 × central\\
+\hspace{1em}\ttfamily{bm\_n} & Nitrogen content of the feedstock & kg Mg\textsuperscript{-1} dry matter & US 6.06; Europe 6.24; China 7.31; India 8.28 & Pert & 0.8–1.2 × central\\
+\hspace{1em}\ttfamily{bm\_na} & Sodium content of the feedstock & kg Mg\textsuperscript{-1} dry matter & US 0.138; Europe 0.203; China 0.582; India 0.943 & Pert & 0.7–1.3 × central\\
+\hspace{1em}\ttfamily{bm\_p} & Phosphorus content of the feedstock & kg Mg\textsuperscript{-1} dry matter & US 1.09; Europe 0.882; China 1.12; India 1.15 & Pert & 0.7–1.3 × central\\
+\hspace{1em}\ttfamily{bm\_s} & Sulphur content of the feedstock & kg Mg\textsuperscript{-1} dry matter & US 0.694; Europe 1.07; China 0.906; India 1.01 & Pert & 0.6–1.4 × central\\
 \hspace{1em}\ttfamily{bm\_transport\_fixed} & Fixed loading/handling cost & US\$ Mg\textsuperscript{-1} (2024 USD) & 6.27 & Pert & 0.7–1.5 × central\\
 \hspace{1em}\ttfamily{bm\_transport\_var} & Variable trucking cost per km of one-way haul (includes the empty return) & US\$ Mg\textsuperscript{-1} km\textsuperscript{-1} (2024 USD) & 0.19 & Pert & 0.7–1.5 × central\\
 \hspace{1em}\ttfamily{feedstock\_storage\_cost} & Interim storage of seasonally harvested residues for year-round supply (about six months), US/EU basis; scaled by haulage\_location\_factor & US\$ Mg\textsuperscript{-1} (2024 USD) & 15 & Pert & 3–42\\
@@ -3088,22 +3171,36 @@ Input & Global & US & Europe & China & India \\
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-Electricity price & 26.4 & 0.3 & 11.2 & 6.5 & -- \\
-Feedstock cost & 16.0 & -- & 0.2 & -- & -- \\
-CO\textsubscript{2} route length & 16.0 & 21.9 & 32.9 & 31.4 & 56.9 \\
-Soil CEC & 13.8 & 21.4 & 13.3 & 27.9 & 36.9 \\
-Grid carbon intensity & 10.1 & 0.1 & 20.9 & -- & -- \\
-Soil temperature & 9.1 & 21.9 & 14.0 & 9.9 & 2.9 \\
-CO\textsubscript{2} storage cost & 6.4 & 30.5 & 3.7 & 19.0 & 0.0 \\
-Biomass density & 1.0 & 2.4 & 1.2 & 1.4 & 0.4 \\
-Soil pH & 0.8 & 1.6 & 0.7 & 3.8 & 2.8 \\
-Offshore CO\textsubscript{2} sink & 0.3 & 0.0 & 1.9 & 0.2 & 0.1 \\
-Training accuracy & 99.0 & 100.0 & 99.6 & 99.2 & 99.9 \\
+Electricity price & 22.0 & 0.0 & 15.2 & 5.6 & -- \\
+CO\textsubscript{2} route length & 18.3 & 20.0 & 35.3 & 32.3 & 44.2 \\
+Soil CEC & 16.9 & 21.4 & 11.4 & 36.4 & 48.5 \\
+Grid carbon intensity & 15.3 & 0.0 & 23.4 & -- & -- \\
+Soil temperature & 9.7 & 23.5 & 6.6 & 8.2 & 1.7 \\
+Feedstock cost & 9.1 & -- & 0.3 & -- & -- \\
+CO\textsubscript{2} storage cost & 5.8 & 30.1 & 2.8 & 13.8 & 0.0 \\
+Soil pH & 1.5 & 3.5 & 1.0 & 1.2 & 1.2 \\
+Biomass density & 1.2 & 1.5 & 1.9 & 2.4 & 0.5 \\
+Offshore CO\textsubscript{2} sink & 0.3 & 0.0 & 2.1 & 0.2 & 3.9 \\
+Training accuracy & 99.3 & 100.0 & 99.8 & 99.3 & 99.9 \\
 
 \end{longtable}
 
 \subsection*{Supplementary figures}\label{supplementary-figures}
 \addcontentsline{toc}{subsection}{Supplementary figures}
+
+\begin{figure}
+
+\centering{
+
+\includegraphics[width=1\linewidth,height=\textheight,keepaspectratio]{results/figures/Evaporation_Grid_social.png}
+
+}
+
+\caption{\label{fig-si-evap-social}Optimal technology by carbon price
+(rows) and region (columns) at a 2\% social discount rate (cf.
+Figure~\ref{fig-evap}, at the regional market rates).}
+
+\end{figure}%
 
 \begin{figure}
 
