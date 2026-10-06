@@ -51,7 +51,7 @@ regions <- list(
 # 3. Load Global Datasets
 # ==============================================================================
 # Biomass (Mg C / yr per pixel)
-bm_global_path <- file.path(gis_proc, "res_avail.tif") # Karan et al. (2023) available residues, data-raw/karan_residues/biochar_from_residues_v2.0.R
+bm_global_path <- file.path(gis_proc, "res_avail.tif") # Karan et al. (2023) available residues, data-raw/karan_residues/biochar_from_residues_v2.1.R
 if (!file.exists(bm_global_path)) stop("Global biomass map not found: ", bm_global_path)
 message("Loading Global Biomass...")
 r_bm_global <- terra::rast(bm_global_path)

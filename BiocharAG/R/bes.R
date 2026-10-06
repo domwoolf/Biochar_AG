@@ -98,8 +98,10 @@ calculate_bes_mode <- function(params) {
     # --- 3. Logistics Cost & Transport Emissions ---
     logistics <- biomass_logistics(params)
     effective_dist <- logistics$effective_dist
-    logistics_cost <- logistics$cost
-    transport_emissions_co2e <- logistics$emissions
+    # Bottom ash returns to the fields as a backhaul, handled and spread like biochar (ash_return())
+    ash_ret <- ash_return(params)
+    logistics_cost <- logistics$cost + ash_ret$cost
+    transport_emissions_co2e <- logistics$emissions + ash_ret$emissions
 
     feedstock_cost <- if (!is.null(params$feedstock_cost)) params$feedstock_cost else 0
     total_cost <- capex_per_mg + opex_per_mg + logistics_cost + feedstock_cost
@@ -112,7 +114,7 @@ calculate_bes_mode <- function(params) {
     tot_c_abatement <- c_displaced - transport_emissions_co2e + residue_counterfactual_ghg(params)
     abatement_value <- tot_c_abatement * c_price
 
-    ash_value <- calculate_ash_value(params) # Recycled combustion ash (lime + P)
+    ash_value <- calculate_ash_value(params) # Recycled bottom ash (lime, P and K)
     total_revenue <- energy_revenue + ash_value + abatement_value
     net_value <- total_revenue - total_cost
 
@@ -139,6 +141,7 @@ calculate_bes_mode <- function(params) {
       co2_transport_cost_mg = 0,
       co2_transport_distance_km = NA,
       biomass_transport_distance_km = effective_dist,
+      ash_return_cost_mg = ash_ret$cost, # included in biomass_cost_mg
       energy_revenue_mg = energy_revenue,
       abatement_revenue_mg = abatement_value,
       agronomic_revenue_mg = ash_value,

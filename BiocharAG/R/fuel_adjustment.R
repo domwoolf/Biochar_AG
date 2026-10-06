@@ -17,14 +17,15 @@ adjust_costs_for_fuel <- function(params) {
     capex_mult <- 1.0
     eff_mult <- 1.0
 
-    # Thresholds based on Literature (Wood < 1-2%, Straw > 5-10%)
-    if (ash > 0.05) {
-        # High Ash Regime (Straw, Corn Stover)
-        # Significant fouling, slagging risk. Requires Fluidized Bed (CFB).
+    # Wood chips < 2% ash; wheat straw and maize stover 5-7%; rice straw and husk 18-20% (Phyllis2).
+    # Straw-fired CHP costs 9% more than wood-chip CHP per MW of fuel input (Danish Energy Agency 2020),
+    # so cereal straw takes the medium tier; the high tier is for silica-rich, high-ash residues.
+    if (ash > 0.10) {
+        # High ash (rice straw and husk): severe slagging and fouling risk
         capex_mult <- 1.25
         eff_mult <- 0.90
     } else if (ash > 0.02) {
-        # Medium Ash (Bark, Forest Residues with dirt)
+        # Medium ash (cereal straw, maize stover)
         capex_mult <- 1.10
         eff_mult <- 0.95
     }
