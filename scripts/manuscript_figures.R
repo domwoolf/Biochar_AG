@@ -244,6 +244,77 @@ generate_fig_evaporation <- function(
   out_plot
 }
 
+################ Figure: Evaporation grid (regions x carbon price) ################
+# Optimal technology in each cell, regions in columns and carbon prices in rows, at one discount rate
+# per figure: the regional market rates (main text) and the 2% social rate (SI). Panels in a row have
+# equal heights and widths set by each region's aspect ratio. Saturated colours where the best
+# technology has a positive NPV; low saturation where even the best loses money.
+generate_fig_evaporation_grid <- function(save_map = TRUE, scenario = "default", c_prices = seq(0, 250, 50),
+                                          regions = c("US", "Europe", "China", "India")) {
+  message("Generating Figure: evaporation grid...")
+  techs <- names(TECH_COLORS); neg <- paste0(techs, " (NPV \u2264 0)"); lv <- as.vector(rbind(neg, techs))
+  fills <- stats::setNames(c(TECH_COLORS, desaturate_color(TECH_COLORS)), c(techs, neg))[lv]
+  D <- list(); A <- list()
+  for (r in regions) {
+    dat <- load_region_data(r); disp <- display_admin(dat); A[[r]] <- disp$admin0
+    p0 <- set_scenario(scenarios[[scenario]], region = r); p0$region <- r
+    for (k in c("market", "social")) for (cp in c_prices) {
+      p <- p0; p$c_price <- cp; if (k == "social") p$discount_rate <- 0.02
+      res <- run_scenario(dat$template, dat$layers, p, vec = dat$vec)
+      mx <- terra::rast(dat$template, nlyrs = 1, vals = NA)
+      mx[dat$vec$active_indices] <- do.call(pmax, c(as.data.frame(res$vec_res$net), na.rm = TRUE))
+      bm <- dat$template * terra::cellSize(dat$template, unit = "km") # Mg per cell
+      d <- terra::as.data.frame(mask_display(c(res$opt, mx, bm), disp), xy = TRUE, na.rm = TRUE)
+      names(d)[3:5] <- c("opt", "npv", "biomass")
+      D[[length(D) + 1]] <- data.frame(d, region = r, dr = k, cp = cp)
+    }
+  }
+  D <- dplyr::bind_rows(D)
+  D$tech <- factor(ifelse(D$npv > 0, techs[D$opt], neg[D$opt]), levels = lv)
+  asp <- sapply(regions, function(r) {
+    b <- sf::st_bbox(A[[r]]); unname((b$xmax - b$xmin) * cos(mean(c(b$ymin, b$ymax)) * pi / 180) / (b$ymax - b$ymin))
+  })
+  panel <- function(dd, r, price, top, left) {
+    p <- ggplot() + geom_tile(data = dd[dd$region == r & dd$cp == price, ], aes(x = .data$x, y = .data$y, fill = .data$tech), show.legend = TRUE) +
+      geom_sf(data = A[[r]], fill = NA, color = "black", linewidth = 0.2) + coord_sf(crs = 4326, expand = FALSE) +
+      scale_fill_manual(values = fills, limits = lv, drop = FALSE, name = "Technology") + theme_void(base_size = 9) +
+      theme(legend.position = "none", plot.margin = margin(1, 2, 1, 2), plot.title = element_text(hjust = 0.5, size = 9, face = "bold"),
+            axis.title.y = if (left) element_text(angle = 90, face = "bold", size = 9) else element_blank())
+    if (top) p <- p + ggtitle(r)
+    if (left) p <- p + labs(y = paste0(price, " US$ Mg\u207b\u00b9 CO\u2082e"))
+    p
+  }
+  for (k in c("market", "social")) {
+    dd <- D[D$dr == k, ]
+    leg <- cowplot::get_legend(panel(dd, regions[1], c_prices[1], FALSE, FALSE) + guides(fill = guide_legend(nrow = 2, byrow = FALSE)) +
+      theme(legend.position = "bottom", legend.title.position = "left"))
+    grid <- patchwork::wrap_plots(unlist(lapply(c_prices, function(cp) lapply(regions, function(r) panel(dd, r, cp, cp == c_prices[1], r == regions[1]))), recursive = FALSE),
+      ncol = length(regions), widths = asp)
+    out <- grid / patchwork::wrap_elements(leg) + patchwork::plot_layout(heights = c(1, 0.06))
+    if (save_map) ggsave_with_scenario(paste0(out_dir, "Evaporation_Grid_", k, ".png"), out, scenario = scenario, width = 7.5, height = 9, dpi = 300)
+  }
+  # AI summary: biomass and area shares by technology (and whether its NPV is positive), plus the
+  # majority technology of each admin-1 unit, by region, discount rate and carbon price
+  D$viable <- D$npv > 0; D$technology <- techs[D$opt]
+  sm <- dplyr::summarise(dplyr::group_by(D, region, dr, cp, technology, viable), cells = dplyr::n(), biomass_Mg = sum(biomass), .groups = "drop")
+  sm <- dplyr::mutate(dplyr::group_by(sm, region, dr, cp), biomass_share = biomass_Mg / sum(biomass_Mg), cell_share = cells / sum(cells))
+  write.csv(sm, paste0(ai_dir, "evaporation_grid_summary_", scenario, ".csv"), row.names = FALSE)
+  adm <- dplyr::bind_rows(lapply(regions, function(r) {
+    a1 <- display_admin(load_region_data(r))$admin1
+    if (is.null(a1)) return(NULL)
+    dr_ <- D[D$region == r, ]
+    pts <- sf::st_as_sf(dr_, coords = c("x", "y"), crs = 4326)
+    j <- sf::st_join(pts, sf::st_as_sf(a1)[, c("NAM_0", "NAM_1")])
+    j <- sf::st_drop_geometry(j)
+    j$tv <- ifelse(j$viable, j$technology, paste0(j$technology, " (NPV<=0)"))
+    dplyr::summarise(dplyr::group_by(j, region, dr, cp, NAM_0, NAM_1),
+      majority = names(which.max(tapply(biomass, tv, sum))),
+      majority_biomass_share = max(tapply(biomass, tv, sum)) / sum(biomass), .groups = "drop")
+  }))
+  write.csv(adm, paste0(ai_dir, "evaporation_grid_admin1_", scenario, ".csv"), row.names = FALSE)
+  invisible(D)
+}
+
 ################ Figure: Regional MACC ################
 generate_fig_macc <- function(save_map = FALSE, save_ai_data = FALSE, scenario = "default") {
   message("Generating Figure: Regional MACC (12-panel)...")
@@ -636,6 +707,7 @@ run_all_manuscript_figures <- function(save_map = TRUE, save_ai_data = TRUE) { #
       dat <- load_region_data(r)
       generate_fig_evaporation(dat, r, save_map, save_ai_data = save_ai_data, scenario = scenario_name)
     }
+    generate_fig_evaporation_grid(save_map, scenario = scenario_name)
     generate_fig_macc(save_map, save_ai_data = save_ai_data, scenario = scenario_name)
     generate_fig_breakeven_cprice(save_map, save_ai_data = save_ai_data, scenario = scenario_name)
     message(paste0("All figures generated successfully for scenario: ", scenario_name, "\n"))
