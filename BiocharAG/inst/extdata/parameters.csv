@@ -139,5 +139,5 @@ feedstock_cost,Feedstock purchase cost,US$ Mg^-1^,0,none,,,,,Spatial & Environme
 soil_cec,Cation Exchange Capacity,cmol~c~ kg^-1^,20,none,,,,,Spatial & Environmental,parameter,20,20,20,20
 soil_ph,Native topsoil pH,pH,,none,,,,,Spatial & Environmental,parameter,,,,
 soil_temp,Mean annual soil temperature,°C,14.9,none,,,,,Spatial & Environmental,parameter,14.9,14.9,14.9,14.9
-tortuosity,Road tortuosity factor,ratio,1.3,none,,,,,Spatial & Environmental,parameter,1.3,1.3,1.3,1.3
+tortuosity,Ratio of road-path to straight-line haul distance,ratio,1.184,none,,,,"Biomass-weighted mean circuity of least-time truck routes from fields to plant on the Weiss et al. (2020) motorized friction surface, for 125 MWth plants (data-raw/generate_logistics_layers.R, <region>_haul_factors_norm.csv); varies by no more than 3% between 50 and 250 MWth. Sets the regional level of road distance; the haul_kd layers redistribute it within the region.",Spatial & Environmental,parameter,1.184,1.232,1.496,1.322
 plant_mw_th,Target plant thermal capacity,MW~th~,125,none,,,,,Technology & Thermodynamics,parameter,125,125,125,125

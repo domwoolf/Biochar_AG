@@ -165,6 +165,7 @@ for (r in regions) {
   # Dynamically pull regional parameters
   params_regional <- BiocharAG::set_scenario(scenario = overrides, region = r)
   params_regional$region <- r
+  tort <- if (!is.null(params_regional$tortuosity)) params_regional$tortuosity else 1.3 # regional routed circuity
 
   message("  Running competitive vectorized spatial TEA...")
   res_bes <- evaluate_tech_vectorized(BiocharAG::calculate_bes, "BES", params_regional, spatial_layers, cell_area_vals, r)
