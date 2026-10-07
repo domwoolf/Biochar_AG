@@ -267,19 +267,23 @@ The capacity factor depends both on plant availability, which is 91% for biomass
 
 ### Bioenergy with carbon capture and storage (BECCS)
 
-The BECCS pathway augments the standard combustion baseline with a post-combustion carbon capture unit. The addition of this unit imposes a significant parasitic energy penalty, primarily driven by solvent regeneration and CO~2~ compression requirements. Consequently, the net electrical conversion efficiency drops below the BES baseline by an efficiency penalty of 8 percentage points (range 5–13), at a capture rate of 90% (range 85–95%) [@ieaghg2009]. Consistent with costing BECCS as a mature technology, the central value reflects recent post-combustion amine capture: reviews place the penalty for pulverised-coal plants at 7.7–11.9 percentage points, and the Boundary Dam 3 unit lost about 8 points with capture [@herzog2016]; present technology loses about 10.8 points, falling to 7.2 with improved solvents, compression and heat integration [@tramosljika2021]. The lower bound reflects projected future penalties of 5.25–6.25 points [@li2024ccs] and the upper bound the 12.8–15.9 points estimated with 2009 amine technology for dedicated biomass plants [@ieaghg2009].
+BECCS adds post-combustion CO~2~ capture to the BES plant. Capture reduces net electrical efficiency, mainly to provide heat for solvent or sorbent regeneration and power to compress the CO~2~. We assume an efficiency penalty of 8 percentage points at a capture rate of 90% [@ieaghg2009], drawn from studies of current amine capture, consistent with costing BECCS as a mature technology. Reviews place the penalty for pulverized-coal plants at 7.7–11.9 percentage points, and the Boundary Dam 3 unit lost about 8 points with capture [@herzog2016]. Present technology loses about 10.8 points, falling to 7.2 with improved solvents, compression and heat integration [@tramosljika2021]. The Monte Carlo range extends from projected future penalties of 5.25–6.25 points [@li2024ccs] to the 12.8–15.9 points estimated with 2009 amine technology for dedicated biomass plants [@ieaghg2009].
 
-BECCS is assumed to operate at base load, at the design capacity factor of CCS power plants, 0.85 [@petranova2020], because of its high capital cost and the need for steady operation of capture, pipeline and injection [@johansson2019; @prado2023] (Supplementary Text S1).
+The CO~2~ captured per megagram of feedstock is
 
-The capture process is parameterized with a 90% capture efficiency rate. The total volume of captured CO~2~ routed to geological storage is calculated stoichiometrically based on the carbon fraction of the incoming biomass feed (default 48% C [@phyllis2]), converted to CO~2~ mass equivalents using the 44/12 molar ratio. The additional infrastructure (capture unit, CO~2~ compression and flue-gas cleaning) is represented as a premium on total CAPEX relative to a BES plant of the same thermal input (`beccs_capex_premium`, @tbl-parameters). The default premium is based on the IEAGHG techno-economic evaluation of dedicated biomass-fired power plants with post-combustion amine capture, in which capture raised total investment by 38--40% for 75 MW~e~ bubbling and 250 MW~e~ circulating fluidized bed plants [@ieaghg2009]. Because net output fell simultaneously, the corresponding increase in specific capital cost was 114--126% per net kW~e~, consistent with the 45--130% range reported across biomass CCS technologies by @bhave2017. Expressing the premium on a thermal-input basis keeps it independent of the efficiency penalty. Annual O&M is the same fraction of CAPEX as for the other technologies (@tbl-parameters).
+$$M_{\mathrm{c}} = \tfrac{44}{12}\, f_{\mathrm{C}}\, \chi,$$ {#eq-capture}
 
-## Carbon transport and geological storage
+where $f_{\mathrm{C}}$ is the carbon mass fraction of the dry, ash-free feedstock [@phyllis2] and $\chi$ the capture rate. Capture, compression and flue-gas cleaning add a premium to the capital cost of a BES plant of the same biomass input (@tbl-parameters). The premium follows the IEAGHG evaluation of dedicated biomass power plants with post-combustion amine capture, in which capture raised total investment by 38–40% for a 75 MW~e~ bubbling fluidized-bed plant and a 250 MW~e~ circulating fluidized-bed plant [@ieaghg2009]. Because net output fell at the same time, specific capital cost per net kW~e~ rose by 114–126%, within the 45–130% range reported across biomass CCS technologies [@bhave2017]. Expressing the premium per unit of biomass input keeps it independent of the efficiency penalty. O&M costs are the same fraction of capital cost as for BES.
 
-### Storage sites and sink choice
+BECCS is assumed to operate at base load, at the design capacity factor of power plants with carbon capture [@petranova2020], because of its high capital cost and the need for steady operation of capture, pipeline and injection [@johansson2019; @prado2023] (Supplementary Text S1).
+
+#### Carbon transport and geological storage
+
+##### Storage sites and sink choice
 
 Geological storage is represented by 45 storage basins across the four regions (onshore saline formations, onshore oil fields suitable for CO~2~-enhanced oil recovery (EOR), and offshore saline formations and depleted fields). Saline storage and EOR are flagged separately, so that petroleum basins with substantial saline storage resource (for example the Ordos, Songliao, Tarim and Junggar basins in China, the Cambay Basin in India and the Permian Basin in the United States) serve as saline sinks as well as EOR sites. They are listed with their locations and types in the model repository. Basin locations and storage types follow the OGCI CO~2~ Storage Resource Catalogue [@ogci2024csrc] and, for the United States, the USGS national assessment of geologic CO~2~ storage resources [@usgs2013co2]; basins added for coverage are located at operating or planned storage projects (for example Porthos, Northern Lights, Greensand, Ravenna CCS, HyNet and Bayou Bend) listed in the Global CCS Institute's CO2RE facilities database [@gccsi2025co2re]. Four transport-and-storage classes are evaluated for every grid cell: pipeline to an onshore saline site; pipeline to an EOR site (only when EOR is allowed, which is not the default); pipeline and ship to an offshore site; and pipeline, including a subsea section, to an offshore site. For each cell and plant size, the model selects the class with the lowest combined transport and storage cost for that plant's CO~2~ flow.
 
-### Pipeline routing
+##### Pipeline routing
 
 Pipeline routes are computed on a grid ten times finer than the model grid (0.02° for the United States, 0.01° elsewhere). Two surfaces are used, one to choose each route and one to cost it, so that the routing can avoid difficult terrain without that avoidance being charged as extra pipeline length. Slope from the 250 m Geomorpho90m dataset [@amatulli2020] is converted, per 250 m pixel, into a construction-cost multiplier $F_{cost}(\theta)$. This multiplier is piecewise linear in slope $\theta$: 1.0 at 0°, 1.05 at 5°, 1.2 at 10°, 1.6 at 17°, 2.3 at 25°, 3.2 at 35° and 4.0 at 45°. The per-pixel values are then averaged to the routing grid, with additive premiums above 2,500 m altitude. <!-- TODO (reference required): terrain and altitude construction-cost multipliers. --> The routing surface adds a planning-risk premium for steep ground, $F_{route} = F_{cost}\,[1 + r_{max}\,\mathrm{logistic}((\theta - 20^\circ)/3^\circ)]$ with $r_{max} = 2$, capped at 25.
 
@@ -287,7 +291,7 @@ Protected areas from the World Database on Protected Areas [@wdpa2026] are tiere
 
 Least-cost paths on $F_{route}$ from every cell to the nearest target were computed with terra [@hijmans2025terra]. The resulting route tree was then traced to measure, for each route, its physical length $L$, the line integral of $F_{cost}$ along the route, and the highest point of the route above the source. Pipeline cost is charged on the physical length multiplied by the route-average construction-cost multiplier (the line integral of $F_{cost}$ divided by $L$). No further tortuosity factor is applied. In a robustness test, setting $r_{max}$ between 0 and 2 changed the optimal technology in less than 0.4% of grid cells.
 
-### Hub-and-spoke pipeline modality
+##### Hub-and-spoke pipeline modality
 
 Standard length-invariant TEA cost functions for CO~2~ pipelines adequately model regional networks but underestimate the capital and energy burdens of long-distance transport, which requires intermediate booster compression to overcome frictional pressure drops. Pipeline CAPEX is therefore calculated with a piecewise-linear hub-and-spoke model:
 
@@ -307,7 +311,7 @@ C_{base} \cdot (700 - 50) + (C_{base} \cdot P_{booster}) \cdot (L - 700) & \text
 
 Here $L$ is the physical route length (km), $m$ is the route-average construction-cost multiplier (applied to the feeder leg as well), and $C_{base}$ is the unit-length cost of the efficient-scale trunkline, scaled to the source's share of its mass flow. The reference cost is US\$50 million per 100 km for a 1 Tg yr^-1^ pipeline, scaled by the regional CAPEX factor. This lies within the range given by the diameter-based cost function of @solomon2024 (2.16 € per m per mm of diameter, 2024 euros) for the 200–250 mm pipeline needed to carry 1 Tg yr^-1^ of dense-phase CO~2~ at typical velocities, 0.43–0.54 million € (0.47–0.58 million US\$) per km. Annual pipeline O&M is 4% of CAPEX, and pipeline CAPEX is annualized over the 25-year plant lifetime at the regional discount rate. <!-- TODO (reference required): scaling exponent, trunk scale, booster threshold and penalty, O&M fraction. --> Routes that climb require booster pumping to restore the pressure lost in lifting dense-phase CO~2~. Pumps are sized for the lift beyond a 1 MPa design margin, with pump CAPEX following @mccollum2006, and their electricity is charged at the regional electricity price.
 
-### Maritime shipping and subsea pipelines
+##### Maritime shipping and subsea pipelines
 
 CO~2~ destined for offshore sinks is either shipped or carried by pipeline to the sink:
 
@@ -319,11 +323,11 @@ Every coastal cell is a candidate port or landfall. The land route and the port 
 
 Emissions from CO~2~ transport are deducted from the BECCS abatement. For shipping, these are the emissions from liquefaction, loading and the voyage, about 2.5% of the CO~2~ carried over 200 km and about 18% over 12,000 km [@albaroudi2021]. For pipelines, they are the emissions from the booster pumping electricity, at the displaced grid intensity.
 
-### CO~2~ injection
+##### CO~2~ injection
 
 CO~2~ injection and storage (injection wells and operations, and measurement, monitoring and verification) is costed separately from both the capture plant and CO~2~ transport, as a fixed cost per megagram of CO~2~ injected, with separate values for onshore and offshore storage sites (`ccs_storage_cost` and `cost_offshore_storage`, @tbl-parameters). The defaults, 10 US\$ Mg^-1^ CO~2~ onshore (range 2–33) and 20 US\$ Mg^-1^ CO~2~ offshore (range 5–50), follow a recent lifecycle assessment of storage costs from exploration to 50 years of post-closure monitoring. That assessment gives 2–15 US\$ Mg^-1^ onshore and 5–31 US\$ Mg^-1^ offshore (2024 USD) for reservoirs with open boundary conditions, rising to 5–33 and 8–50 US\$ Mg^-1^ for moderate-quality closed reservoirs, and up to 58 and 147 US\$ Mg^-1^ for the least favourable closed reservoirs [@gccsi2025]. These ranges are consistent with earlier estimates for European saline aquifers of €2–12 Mg^-1^ onshore and €6–20 Mg^-1^ offshore [@zep2011]. Because boundary conditions, which depend on the geology, are the main driver of storage cost [@gccsi2025], storage sites are assigned a site-specific cost where the evidence allows. For onshore saline formations in the United States, the cost is the first-year break-even price of the cheapest formation in the sink's state with at least 1 Pg of prospective storage resource (in the basin, where no formation in the state qualifies), from a formation-by-formation model that accounts for pressure build-up and interference [@netl2024scom], escalated from 2023 to 2024 USD. These range from 6.4 US\$ Mg^-1^ (Frio Formation, Gulf Coast) to 22.5 and 24.7 US\$ Mg^-1^ in the Denver-Julesburg and Appalachian basins. Elsewhere, saline formations are classed as open where they are regionally extensive and well connected (the Utsira and Johansen formations of the northern North Sea, the Dogger aquifer of the Paris Basin and the Miocene sands of the Gulf of Mexico shelf), and as closed where they are compartmentalised (the Buntsandstein of the North German Basin), and take the midpoint of the corresponding range above (open: 8.5 US\$ Mg^-1^ onshore and 18 offshore; closed: 19 onshore). Depleted oil and gas fields are not closed aquifers in this sense, because they start below their original pressure; the six depleted fields among the sinks take 16.2 US\$ Mg^-1^, the mean of ZEP's offshore cases with and without re-usable wells (€6 and €10 Mg^-1^ in 2009) [@zep2011] escalated to 2024 USD. Sinks without sufficient evidence, including all those in China and India, take the default onshore or offshore values. Site-specific costs are scaled by a common factor sampled from 0.5 to 1.75 in the Monte Carlo analysis (`storage_cost_factor`). The applicable cost follows the sink reached by the route chosen for each grid cell (see Storage sites and sink choice). Because storage costs differ between sinks, the route search starts each sink at its storage cost, expressed as an equivalent length of flat onshore trunk pipeline at 0.05 US\$ Mg^-1^ km^-1^ (for example, 160 km for 8 US\$ Mg^-1^), so that a farther sink with cheaper storage can be chosen. Injection costs are applied to the mass of CO~2~ captured, in addition to the transport cost and the capture plant's own CAPEX and O&M.
 
-## Bioenergy with biochar storage (BEBCS)
+### Bioenergy with biochar storage (BEBCS)
 
 Unlike the fully oxidative pathways, the BEBCS pathway relies on thermochemical pyrolysis, producing a solid, recalcitrant carbon matrix (biochar) alongside volatile syngas and bio-oil. The model employs a mass and energy balance approach constrained by elemental conservation of Carbon, Hydrogen, and Oxygen (C, H, O). BEBCS is assumed to operate at a capacity factor of 0.80, below the 90% on-stream factor of nth-plant pyrolysis designs [@dutta2015], to allow for interruptions of feedstock supply (Supplementary Text S1).
 
@@ -333,11 +337,11 @@ The net usable energy flux for the BEBCS pathway is calculated from an explicit 
 
 The pyrolysis unit CAPEX is 335 US\$ per Mg yr^-1^ of feed capacity in the United States (2024 USD), for the feed of a 50 MW~e~ reference plant, from NREL's nth-plant estimate for a 2,000 Mg day^-1^ (dry basis) slow pyrolysis plant [@yadav2026] scaled to the reference size with an exponent of 0.7. The power block, which burns the pyrolysis vapours and gases and raises steam for a condensing turbine, costs 3,250 US\$ kW~e~^-1^ in the United States. This lies between the cost of a steam cycle alone in NREL's pyrolysis designs, about 2,650 US\$ kW~e~^-1^ [@dutta2015], and that of a complete 50 MW biomass power plant, which also includes solid-fuel handling (4,700 US\$ kW~e~^-1^; @eia2026). Both costs are scaled to other regions by the capital cost location factor (see Regional cost adjustment).
 
-### Biochar permanence
+#### Biochar permanence
 
 The Bioenergy with Biochar Storage (BEBCS) pathway diverts a fraction of the original biomass carbon into a recalcitrant solid matrix. While physical disposal methods such as the landfilling of biochar represent a highly effective method to provide highly stable carbon storage, this framework strictly evaluates soil application to quantify the cascading agronomic co-benefits and regional substitution values. Consequently, the carbon retention within the soil matrix is finite and must be modeled dynamically based on localized biogeochemical conditions.
 
-#### Biochar carbon permanence ($F_{perm}$)
+##### Biochar carbon permanence ($F_{perm}$)
 
 To accurately quantify the net carbon dioxide removal (CDR) of the BEBCS pathway, the model calculates the permanent carbon fraction ($F_{perm}$) that remains stabilized in the soil after a 100-year time horizon. This fraction is derived using the multi-pool decay methodology established by @woolf2021greenhouse.
 
@@ -349,7 +353,7 @@ $$C_{seq} = Yield_{bc} \cdot C_{content} \cdot F_{perm} \cdot \left(\frac{44}{12
 
 where $Yield_{bc}$ is the mass fraction of biochar produced, $C_{content}$ is the carbon mass fraction of the biochar, and the $44/12$ ratio converts the elemental carbon to CO~2~ mass equivalents.
 
-#### Soil N~2~O emission reduction
+##### Soil N~2~O emission reduction
 
 Biochar additions to soil can suppress nitrous oxide (N~2~O) emissions from nitrogen fertilizer. From field trials with biochar additions exceeding 10 Mg C ha^-1^, @woolf2021greenhouse estimated a 23% reduction in N~2~O emissions (95% confidence interval 5--41%). The model credits this fractional reduction ($R_{N_2O}$) against direct fertilizer-induced N~2~O emissions on land receiving biochar at that application rate ($A_{bc}$), where direct emissions are the regional mineral N application rate ($N_{app}$) multiplied by the IPCC Tier 1 emission factor ($EF_1$) [@ipcc2019]. Because significant effects have only been demonstrated in the first year after application [@woolf2021greenhouse], the reduction is assumed to persist for a short period ($t_{N_2O}$), with a long upper tail in the Monte Carlo analysis to reflect the uncertainty. The credit per megagram of feedstock is:
 
@@ -357,7 +361,7 @@ $$A_{N_2O} = \frac{N_{app} \cdot EF_1 \cdot R_{N_2O} \cdot t_{N_2O} \cdot C_{bc}
 
 where $C_{bc}$ is the biochar carbon yield (Mg C per Mg feedstock), $GWP_{N_2O}$ is the 100-year global warming potential of N~2~O [@forster2021], and parameter values are given in @tbl-parameters. Because the effect is short-lived and spread over the large area to which biochar is applied, this credit is small relative to the carbon stored in the biochar.
 
-### Biochar agronomic valuation
+#### Biochar agronomic valuation
 
 Previous spatial models frequently value biochar using a static, exogenous global market price. To better reflect real-world agricultural economics, C-SCAPE endogenously determines the economic credit of biochar through a mechanistic substitution valuation. This assumes that the shadow price of biochar is equal to the cost of the conventional agricultural inputs it offsets:
 
@@ -369,7 +373,7 @@ $$Value_{ag} = Value_{lime} + Value_{nutrients} + Value_{physical}$$
 
 Liming and nutrient values are one-off credits per megagram of biochar applied. The CEC of biochar increases rather than declines as it ages in soil, through oxidation and functionalization of its surfaces, so the physical benefit is treated as persisting for as long as the biochar carbon remains. Its present value is the annual benefit divided by the sum of the regional discount rate and the decay rate of biochar carbon, the latter being the mean rate implied by the 100-year permanence factor ($k = -\ln F_{perm}/100$; see Biochar permanence).
 
-## Residue minerals and ash return
+### Residue minerals and ash return
 
 The liming, P and K values of biochar and combustion ash follow from one mass and charge balance of the residue's mineral fraction (Ca, Mg, K, Na, P, Cl and S; see Spatial input data). The acid-neutralizing capacity of a residue is
 
