@@ -115,3 +115,17 @@ Avoid bulleted or numbered lists and bold run-in labels ("**The Feeder Leg:**") 
 - [ ] No banned words; American spelling; unit and currency conventions followed.
 - [ ] All citations exist in `references.bib`; missing sources marked TODO.
 - [ ] Downstream numbers and claims checked; stale ones fixed or flagged in the reply.
+## 10. Additional rules from review (October 2026)
+
+- **Mark modeling assumptions as assumptions.** Write "is assumed to be" or "is assumed to" for what the model assumes rather than describes ("Bottom ash is assumed to be returned to cropland"; "BECCS is assumed to operate at base load").
+- **Do not claim a technology the model does not represent.** If parameters come from studies of one process but the model is generic, say so: "BECCS adds post-combustion CO~2~ capture… heat for solvent or sorbent regeneration", with values "drawn from studies of amine capture", not "BECCS uses amine capture".
+- **Build paragraphs incrementally.** Each sentence adds one piece to the picture. Define a quantity before qualifying it, and give the reason for a choice before its consequence (e.g. availability, then dispatch, then historical values, then operating modes).
+- **Use precise technical vocabulary** where it reduces ambiguity ("combusts", not "burns"; "biomass input equivalent to 125 MW~th~ on a lower-heating-value basis for dry, ash-free feedstock", not "thermal input"). Define field-specific jargon at first use for a multidisciplinary audience.
+- **Do not repeat parameter-table values in Methods.** Define the quantity and refer to @tbl-parameters, so text and model cannot drift apart. Keep a value in the text only if it is the subject of a literature argument, is derived, or is hard-coded and absent from the table.
+- **No configuration language, even indirectly.** Not "the model can run in either mode", but "Results are reported both without and with EOR sites as sinks".
+- **Headings** must not contain puffery ("Hub-and-spoke pipeline modality" → "Pipeline network architecture"). Fourth-level headings run in to the following paragraph (runin-headings.lua).
+- **Long derivations go to Supplementary Text,** numbered sequentially (Text S1, S2, …) in a `## Supplementary Text {.unnumbered}` section placed before the supplementary tables. Methods keeps the value, its principal source and a pointer "(Supplementary Text S_)".
+- **Place each topic where it belongs:** annualization and discounting in Economic evaluation; each technology's capacity factor in its own subsection; shared material (e.g. residue minerals and ash) in its own subsection after the technologies that use it.
+- **Mechanics:** separate Pandoc citation keys with semicolons (`[@a; @b]`); add "respectively" after paired values; give quoted original values in SI units too ("1,500–1,750 TL Mg^-1^", not "per tonne").
+- **Do not add a new causal claim** (e.g. why an option is excluded) without checking the model and asking.
+- **Revision workflow:** revise one section at a time. Verify each factual statement against the code and `parameters.csv` before rewriting. Diff all numbers and citation keys across the whole document before and after, and account for every dropped number in the reply. List downstream statements that may be stale. Commit one section at a time, after sign-off.
