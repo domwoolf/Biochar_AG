@@ -48,6 +48,7 @@ Avoid bulleted or numbered lists and bold run-in labels ("**The Feeder Leg:**") 
 - Be specific and quantitative. Replace an adjective with the number that justifies it.
 - Do not hedge with generic qualifiers; state the uncertainty quantitatively or not at all.
 - Be terse rather than wordy, without sacrificing accuracy.
+- Use precise technical vocabulary where it reduces ambiguity or improves accuracy without becoming hard to follow for a multidisciplinary audience.  E.g. "combusts", rather than "burns".  Where domain specific jargon that is not well understood outside of a specific field is needed to achieve a balance of precision and brevity, then define such terms at first use.  
 
 **Banned or restricted words** (delete, or replace with the specific claim): robust(ly), dynamically, seamlessly, leverage, utilize (use "use"), cascading, holistic, novel, state-of-the-art, cutting-edge, critical(ly), crucial, fundamentally, highly (as an intensifier), strictly, aggressively, comprehensive, framework (once, to name C-SCAPE, is enough), "in order to", "it is important to note", "plays a key role".
 
