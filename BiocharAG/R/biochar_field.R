@@ -161,7 +161,7 @@ biochar_field_table <- function(params, y_bc, bc_stability) {
   b <- ci * q_h * vals(y_bc)
   cec <- fill(params[["soil_cec", exact = TRUE]], 20)
   a10 <- pmax(0, pv("bc_yield_b0", 0.3607) + pv("bc_yield_bcec", -0.1008) * log(pmax(cec, 0.1)))
-  k <- -log(pmax(vals(bc_stability), 1e-6)) / 100 + pv("bc_yield_decay", 0)
+  k <- -log(pmax(vals(bc_stability), 1e-6)) / 100 + pv("bc_yield_decay", 0.1)
   val_ha <- ci * fill(params[["crop_value", exact = TRUE]], pv("crop_value_default", 1500))
   n_dir <- pv("n_app_rate", 68) * pv("n2o_ef", 0.01)
   doses <- bc_dose_options(params)
