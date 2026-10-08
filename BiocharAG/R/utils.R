@@ -94,7 +94,7 @@ load_region_data <- function(region_name, gis_path = NULL, transport_version = c
   p_base <- prefix_map[[region_name]][["base"]]
   p_dist <- prefix_map[[region_name]][["dist"]]
 
-  bm <- terra::rast(file.path(gis_path, paste0(p_base, "_biomass.tif"))) # Spatial density of available biomass (Mg/km2) [Source: Karan et al. (2023)]
+  bm <- terra::rast(file.path(gis_path, paste0(p_base, "_biomass.tif"))) # Available residue (Mg dry ash-free km-2 yr-1) [Source: Karan et al. (2023)]
   st <- terra::rast(file.path(gis_path, paste0(p_base, "_soil_temp.tif"))) # Soil temperature (degrees C) [Source: WorldClim/SBIO1]
   ep <- terra::rast(file.path(gis_path, paste0(p_base, "_elec_price.tif"))) # Wholesale electricity price ($/MWh) [Source: EIA/Eurostat/NDRC/CERC]
   # CO2 transport: v2 route layers (physical length, terrain multiplier, lift, per sink class) take
@@ -180,6 +180,13 @@ load_region_data <- function(region_name, gis_path = NULL, transport_version = c
         layers[[paste0(cls, "_storage_cost")]] <- terra::classify(tl[[idx_nm]], cbind(seq_along(sink_cost), sink_cost), others = NA)
       }
     }
+  }
+
+  # Harvested-area fraction of the residue crops and value of field-crop production per harvested
+  # hectare (2024 US$); built by data-raw/process_crop_layers.R (biochar field-application model)
+  for (nm in c("harv_frac", "crop_value")) {
+    f <- file.path(gis_path, paste0(p_base, "_", nm, ".tif"))
+    if (file.exists(f)) layers[[nm]] <- terra::rast(f)
   }
 
   # Share of available residue otherwise burned in the field (0-1); built by
@@ -351,13 +358,16 @@ transport_layer_names <- function(version = c("all", "v1", "v2")) {
 #' Auxiliary Spatial Layer Names
 #'
 #' Spatial layers passed straight through to the parameter list when present: feedstock cost inputs
-#' (`cn_weather_risk`, `eu_feedstock_usd`, `us_base_cost`) and the share of available residue that
-#' would otherwise be burned (`residue_burn_map`, issue #31).
+#' (`cn_weather_risk`, `eu_feedstock_usd`, `us_base_cost`), the share of available residue that
+#' would otherwise be burned (`residue_burn_map`, issue #31), and the inputs of the biochar
+#' field-application model: residue density, harvested-area fraction and crop value per harvested
+#' hectare (`biomass_density`, `harv_frac`, `crop_value`).
 #'
 #' @return Character vector of layer names.
 #' @export
 aux_layer_names <- function() {
-  c("cn_weather_risk", "eu_feedstock_usd", "us_base_cost", "residue_burn_map")
+  c("cn_weather_risk", "eu_feedstock_usd", "us_base_cost", "residue_burn_map", "biomass_density", "harv_frac",
+    "crop_value")
 }
 
 transport_v2_layer_names <- function() {
@@ -429,10 +439,11 @@ location_factor <- function(params, type) {
 #' location factor. Per-km costs include the empty return trip.
 #'
 #' @param params Parameter list.
-#' @param mass Mg hauled per Mg feed (1 for feedstock; biochar yield for biochar return).
+#' @param mass Mg hauled per Mg dry, ash-free feed (default: the dry matter of the feed, the basis of the
+#'   haulage costs; issue #114).
 #' @return A list with `effective_dist` (km), `cost` ($/Mg feed) and `emissions` (Mg CO2e/Mg feed).
 #' @keywords internal
-biomass_logistics <- function(params, mass = 1) {
+biomass_logistics <- function(params, mass = dm_per_daf(params)) {
   pv <- function(n, d) if (!is.null(params[[n, exact = TRUE]])) params[[n, exact = TRUE]] else d
   avg_dist <- if (!is.null(params$avg_dist)) params$avg_dist else (2 / 3) * pv("collection_radius", 50)
   effective_dist <- avg_dist * pv("tortuosity", 1.3)
@@ -452,6 +463,19 @@ biomass_logistics <- function(params, mass = 1) {
       location_factor(params, "haulage"),
     emissions = mass * effective_dist * kd * g * pv("transport_emissions_factor", 0.0001)
   )
+}
+
+#' Dry Matter per Unit Dry, Ash-Free Feedstock
+#'
+#' Feedstock prices, storage and haulage costs are quoted per Mg of dry matter, whereas the conversion
+#' models work per Mg of dry, ash-free (daf) feedstock (issue #114).
+#'
+#' @param params Parameter list (`bm_ash`, dry basis).
+#' @return Mg dry matter per Mg daf.
+#' @export
+dm_per_daf <- function(params) {
+  ash <- if (!is.null(params[["bm_ash", exact = TRUE]])) params[["bm_ash", exact = TRUE]] else 0.05
+  1 / (1 - ash)
 }
 
 #' Attach Size-Specific Collection Distance and Haulage Factors
@@ -523,6 +547,25 @@ tech_capacity_factor <- function(params, tech) {
   if (is.null(v)) 0.70 else v
 }
 
+#' Share of Removed Residue Otherwise Burned in the Field
+#'
+#' The cell-level `residue_burn_map` times `residue_burn_factor` (capped at 1), or the regional
+#' `residue_burn_fraction` where the map is absent or NA.
+#'
+#' @param params Parameter list.
+#' @return Fraction (0-1), scalar, vector or raster.
+#' @keywords internal
+residue_burn_share <- function(params) {
+  pv <- function(n, d) if (!is.null(params[[n, exact = TRUE]])) params[[n, exact = TRUE]] else d
+  f_burn <- pv("residue_burn_fraction", 0)
+  burn_map <- params[["residue_burn_map", exact = TRUE]]
+  if (!is.null(burn_map)) {
+    f_map <- pmin_raster(burn_map * pv("residue_burn_factor", 1), 1)
+    f_burn <- if (inherits(f_map, "SpatRaster")) terra::ifel(is.na(f_map), f_burn, f_map) else ifelse(is.na(f_map), f_burn, f_map)
+  }
+  f_burn
+}
+
 #' Counterfactual Residue GHG Effects of Removal
 #'
 #' GHG effects common to all pathways when crop residue is removed for energy: a net soil GHG penalty
@@ -541,12 +584,7 @@ residue_counterfactual_ghg <- function(params) {
   soil_ghg_penalty <- pv("residue_soil_ghg_penalty", 0) # Mg CO2e / Mg feed removed
   # Spatial share (residue_burn_map) scaled by the sampled residue_burn_factor, capped at 1; the
   # regional residue_burn_fraction applies where the map is absent or NA
-  f_burn <- pv("residue_burn_fraction", 0)
-  burn_map <- params[["residue_burn_map", exact = TRUE]]
-  if (!is.null(burn_map)) {
-    f_map <- pmin_raster(burn_map * pv("residue_burn_factor", 1), 1)
-    f_burn <- if (inherits(f_map, "SpatRaster")) terra::ifel(is.na(f_map), f_burn, f_map) else ifelse(is.na(f_map), f_burn, f_map)
-  }
+  f_burn <- residue_burn_share(params)
   burn_ghg <- f_burn * pv("residue_burn_cf", 0.8) *
     (pv("residue_burn_ch4_ef", 2.7) * pv("gwp_ch4", 27) + pv("residue_burn_n2o_ef", 0.07) * pv("gwp_n2o", 273)) / 1000
   burn_ghg - soil_ghg_penalty

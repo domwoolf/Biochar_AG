@@ -244,12 +244,14 @@ run_spatial_tea <- function(template_raster, params, spatial_layers = list(),
 #' Calculate Regional Feedstock Cost
 #'
 #' Field-side (farm-gate or road-side) purchase price of crop residues plus interim storage, in 2024 USD
-#' per Mg. Haulage from field to plant is costed separately (`biomass_logistics()`), so delivered or
+#' per Mg dry, ash-free feedstock (prices are quoted per Mg dry matter and converted with
+#' `dm_per_daf()`; issue #114). Haulage from field to plant is costed separately (`biomass_logistics()`), so delivered or
 #' plant-gate prices are not used here (issues #52, #53, #101). Sources and conversions:
 #' - **US:** US DOE (2011) Billion-Ton Update (Perlack & Stokes): about 90% of the primary crop residue
 #'   supply is profitable at a farm-gate price of $50 per dry short ton (2011 USD assumed) = $55.1/Mg x
-#'   1.395 (CPI-U) = 76.9. The farm-gate price includes the grower payment for nutrient removal, so no
-#'   separate nutrient charge is added.
+#'   1.395 (CPI-U) = 76.9. The farm-gate price includes a grower payment for the nutrients removed (about
+#'   $26 per dry ton for stover, Tables 4.2-4.3); it is excluded, because nutrient removal is charged in
+#'   every region (`residue_removal_charge()`): `us_base_cost` = (50 - 26) x 1.538 = 37.
 #' - **Europe:** S2Biom road-side costs of cereal straw (Dees et al. 2017) aggregated to country level
 #'   (EUR 20 / 37.5 / 62.5 per t dm, 2012 EUR; layer `eu_feedstock_usd` from data-raw/process_eu_feedstock.R)
 #'   x 1.285 USD/EUR (2012) x 1.366 (CPI-U) = 35.1 / 65.8 / 109.7. Cells without a country value, and runs
@@ -274,7 +276,9 @@ calculate_regional_feedstock_cost <- function(region, params) {
     cost_usd <- 0
 
     if (region %in% c("US", "USA")) {
-        cost_usd <- if (!is.null(params$us_base_cost)) params$us_base_cost else 76.9
+        # Billion-Ton farm-gate price excluding the grower's nutrient payment (nutrient removal is charged
+        # separately in every region; residue_removal_charge())
+        cost_usd <- if (!is.null(params$us_base_cost)) params$us_base_cost else 37
     } else if (region %in% c("EU", "Europe")) {
         # Country-level S2Biom costs (layer eu_feedstock_usd, 2024 USD/Mg dm) where available; elsewhere
         # the default road-side cost of EUR 40/t dm (2012 EUR)
@@ -296,7 +300,8 @@ calculate_regional_feedstock_cost <- function(region, params) {
     }
 
     storage <- if (!is.null(params$feedstock_storage_cost)) params$feedstock_storage_cost else 15
-    cost_usd + storage * location_factor(params, "haulage")
+    # Prices and storage costs are per Mg dry matter; the model works per Mg dry, ash-free feed (#114)
+    (cost_usd + storage * location_factor(params, "haulage")) * dm_per_daf(params)
 }
 
 # nolint end

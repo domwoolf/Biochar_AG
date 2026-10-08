@@ -1,0 +1,27 @@
+Test values (US$ or Mg CO2e per Mg dry ash-free feedstock); r=0.062, T=20, H=100, p=0.30, k_y=0,
+R=0.20, N2O half-life 3 yr, B_min=2.5, c_pass=25 US$/ha (placeholder), b0=0.3607, b_cec=-0.1008
+
+A: acid, low CEC, double-cropped (S China-like)
+  D=annual  D_eff= 2.43 cohorts= 1  V_yield= 86.04  V_spread= 3.09  A_N2O=0.0606  E_diesel=0.0058
+  D=   2.5  D_eff= 4.86 cohorts= 2  V_yield= 85.11  V_spread= 1.54  A_N2O=0.0534  E_diesel=0.0029
+  D=     5  D_eff= 7.29 cohorts= 3  V_yield= 84.01  V_spread= 1.03  A_N2O=0.0472  E_diesel=0.0019
+  D=    10  D_eff=12.15 cohorts= 5  V_yield= 81.68  V_spread= 0.62  A_N2O=0.0376  E_diesel=0.0012
+  D=    20  D_eff=21.87 cohorts= 9  V_yield= 76.71  V_spread= 0.34  A_N2O=0.0255  E_diesel=0.0006
+  D=5: V_yield k_y=0 84.01 | half-life 3 yr 46.98 | p=0.50 107.59
+
+B: neutral, mid CEC (US Corn Belt-like)
+  D=annual  D_eff= 1.18 cohorts= 1  V_yield= 29.41  V_spread= 6.36  A_N2O=0.0209  E_diesel=0.0119
+  D=   2.5  D_eff= 3.54 cohorts= 3  V_yield= 29.06  V_spread= 2.12  A_N2O=0.0304  E_diesel=0.0040
+  D=     5  D_eff= 5.90 cohorts= 5  V_yield= 28.22  V_spread= 1.27  A_N2O=0.0242  E_diesel=0.0024
+  D=    10  D_eff=10.62 cohorts= 9  V_yield= 26.43  V_spread= 0.71  A_N2O=0.0164  E_diesel=0.0013
+  D=    20  D_eff=20.06 cohorts=17  V_yield= 23.08  V_spread= 0.37  A_N2O=0.0093  E_diesel=0.0007
+  D=5: V_yield k_y=0 28.22 | half-life 3 yr 15.29 | p=0.50 30.77
+
+C: low supply, low CEC (India-like)
+  D=annual  D_eff= 0.42 cohorts= 1  V_yield=206.01  V_spread=16.67  A_N2O=0.0087  E_diesel=0.0313
+  D=   2.5  D_eff= 2.52 cohorts= 6  V_yield=205.65  V_spread= 2.78  A_N2O=0.0256  E_diesel=0.0052
+  D=     5  D_eff= 5.04 cohorts=12  V_yield=185.91  V_spread= 1.39  A_N2O=0.0151  E_diesel=0.0026
+  D=    10  D_eff=10.08 cohorts=24  V_yield=144.58  V_spread= 0.69  A_N2O=0.0078  E_diesel=0.0013
+  D=    20  D_eff=20.16 cohorts=48  V_yield= 90.36  V_spread= 0.35  A_N2O=0.0039  E_diesel=0.0007
+  D=5: V_yield k_y=0 185.91 | half-life 3 yr 71.26 | p=0.50 170.30
+

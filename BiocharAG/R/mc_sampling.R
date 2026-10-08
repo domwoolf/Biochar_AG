@@ -76,7 +76,8 @@ mc_bound_value <- function(x, region = NULL) {
 #' Sample Monte Carlo Parameters with Rank Correlation
 #'
 #' Draws correlated uniforms via a Gaussian copula and maps them through each parameter's
-#' marginal (PERT or uniform), so marginals are exact and bounded.
+#' marginal (PERT, uniform or normal), so marginals are exact. PERT and uniform marginals are bounded;
+#' for a normal marginal, `min` and `max` are its 5th and 95th percentiles.
 #'
 #' @param dist_table Output of [mc_distribution_table()].
 #' @param n Number of draws.
@@ -109,6 +110,9 @@ sample_mc_parameters <- function(dist_table, n, correlations = NULL) {
     switch(d$distribution,
       pert = qpert(u[, j], d$min, d$mode, d$max),
       uniform = d$min + (d$max - d$min) * u[, j],
+      # Normal: min and max are the 5th and 95th percentiles; with normal marginals the Gaussian copula
+      # gives exactly a multivariate normal (e.g. correlated regression coefficients)
+      normal = stats::qnorm(u[, j], mean = d$mode, sd = (d$max - d$min) / (2 * stats::qnorm(0.95))),
       stop("Unsupported distribution '", d$distribution, "' for ", d$name)
     )
   })

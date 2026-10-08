@@ -1,0 +1,137 @@
+<!--
+Draft replacement passages for BiomassTEA.qmd. Each block is headed by an HTML comment
+saying where it goes and what it replaces. Remove these comments when pasting.
+-->
+
+<!-- ===================================================================================== -->
+<!-- 1. "Biomass transport costs and emissions": replaces the paragraph beginning
+        "Biochar returns to the fields as a backhaul…" -->
+
+Biochar is assumed to return to the cropland that supplied the residue, as a backhaul in the feedstock trucks, which run year-round from field-edge storage. Its transport is therefore charged only the loading and handling cost. Its application to the fields is described under Biochar field application.
+
+<!-- ===================================================================================== -->
+<!-- 2. "Feedstock prices and storage": replaces the US sentence of the first paragraph,
+        the US row of tbl-feedstock-price, and the paragraph after the table. -->
+
+Feedstock is priced at the field side (farm gate or road side); haulage to the plant is costed separately (see Biomass transport costs and emissions). For Europe, China and India, the prices are collection costs that exclude the margins of farmers and intermediaries. For the United States, where no comparable national cost estimate exists, the price is a farm-gate price that includes a grower premium, and is therefore somewhat higher than a cost-only estimate (@tbl-feedstock-price). The nutrients removed with the residue are charged separately in every region (see Residue minerals and ash return).
+
+| Region | Basis | Original value | 2024 US\$ Mg^-1^ | Source |
+|:---|:---|:---|---:|:---|
+| United States | Farm-gate price of crop residues, excluding the payment for nutrients removed | <!-- TODO: original value, US\$ per dry short ton (2011) --> | 37 | @perlack2011 |
+
+In the Billion-Ton Update, about 80% of the primary crop residue supply in the United States is profitable to collect at a farm-gate price of US\$45 per dry short ton, and 90% at US\$50 [@perlack2011]. The price is uniform across the country because the underlying POLYSYS model applies a single national price, raised until a large and reliable supply is offered. It comprises the harvest cost, a grower premium and a payment that compensates the grower for the nutrients removed with the residue. We exclude the nutrient payment, because nutrient removal is charged explicitly and on the same basis in all four regions.
+
+<!-- ===================================================================================== -->
+<!-- 3. New fourth-level subsection under "Pyrogenic carbon capture and storage (PyCCS)",
+        after "Biochar carbon storage" and before "Soil N2O emissions". -->
+
+#### Biochar field application
+
+The biochar produced from the residue of a grid cell is applied to the cropland of that cell. Its amount per hectare of cropland is
+
+$$b = \kappa\, q_{\mathrm{h}}\, Y_{\mathrm{bc}},$$ {#eq-bc-supply}
+
+where $b$ is the biochar available per hectare of cropland (Mg ha^-1^ yr^-1^), $\kappa$ the cropping intensity (harvests per year), $q_{\mathrm{h}}$ the available residue per hectare of harvested area (Mg ha^-1^ yr^-1^, dry, ash-free; see Residue supply) and $Y_{\mathrm{bc}}$ the biochar yield (Mg Mg^-1^ of feedstock). Residue supply is expressed per hectare of harvested area, the basis of the crop-specific residue data [@karan2023]. The cropping intensity converts it to physical cropland, on which biochar accumulates. The feedstock supplied per hectare of cropland is $m = b / Y_{\mathrm{bc}}$ (Mg ha^-1^ yr^-1^).
+
+The biochar is applied to the cropland in rotating cohorts. For a dose $D$ per application (Mg ha^-1^), the cropland is divided into $\nu = \lceil D/b \rceil$ cohorts of equal area. Each cohort receives $D_{\mathrm{e}} = \nu\, b$ every $\nu$ years during the plant lifetime, $t_{\mathrm{L}}$. A dose at or below $b$ corresponds to annual application to all cropland. Larger doses need fewer field operations per megagram of biochar, but deliver less yield benefit per megagram, because the yield response is concave in dose (see Biochar agronomic valuation). We evaluated five application strategies: annual application to all cropland, and rotating application at 2.5, 5, 10 and 20 Mg ha^-1^. At each carbon price, the strategy with the highest net value is used. Doses are expressed as mass of biochar, the basis of the field trials from which the yield and N~2~O responses were derived.
+
+Biochar is assumed to remain where it is applied, and successive applications to the same land are assumed to act as one application of their cumulative amount. The effective biochar stock of cohort $j$ in year $t$ is
+
+$$B_{j,t} = \sum_{i:\, t_i \le \min(t,\, t_{\mathrm{L}})} D_{\mathrm{e}}\, e^{-(k + k_{\mathrm{y}})(t - t_i)},$$ {#eq-bc-stock}
+
+where $B_{j,t}$ is in Mg ha^-1^, $t_i$ are the application years of the cohort, $k = -\ln F_{\mathrm{perm}}/100$ is the mean decay rate of biochar carbon implied by the 100-year permanence factor (see Biochar carbon storage), and $k_{\mathrm{y}}$ is an additional rate of decline of the agronomic effect (yr^-1^; see Biochar agronomic valuation). The stock outlasts the plant, so its effects are evaluated over a horizon $t_{\mathrm{H}}$ of 100 years.
+
+Each application is a spreading pass followed by incorporation into the soil. Incorporation can coincide with existing tillage or with fertilizer banding, so a fraction $\sigma$ of its cost is charged (@tbl-si-mc). The cost per hectare and pass is
+
+$$c_{\mathrm{s}} = c_{\mathrm{sp}} + \sigma\, c_{\mathrm{inc}},$$ {#eq-spread}
+
+where $c_{\mathrm{sp}}$ and $c_{\mathrm{inc}}$ are the costs of spreading and of incorporation (US\$ ha^-1^). Each hectare receives $1/\nu$ passes per year. The tractor diesel for spreading and incorporation together, 17.5 L ha^-1^, is the median of published estimates [@roberts2010; @pujolpereira2016; @leppakoski2021; @cheng2025]. <!-- TODO (reference required): split of diesel use and cost between spreading and incorporation --> Its emissions are deducted from the net abatement.
+
+<!-- ===================================================================================== -->
+<!-- 4. Replaces "Soil N2O emissions" in full. -->
+
+#### Soil N~2~O emissions
+
+Biochar additions reduce direct emissions of nitrous oxide (N~2~O) from fertilized soils. We estimated the reduction from field trials by multilevel random-effects meta-analysis of the data compiled by @xu2021 <!-- TODO (reference required): add Xu et al. 2021, Soil Tillage Res. 213, 105125, to references.bib --> (Supplementary Text S3). The mean reduction, $R_{\mathrm{N_2O}}$, is 20% (90% confidence interval 11–29%; 36 studies). It did not vary detectably with dose between 2.2 and 72 Mg ha^-1^. Any application at or above the lowest dose tested, $D_{\mathrm{N}}$ = 2.2 Mg ha^-1^, is therefore assumed to give the full reduction, and smaller doses a reduction proportional to dose.
+
+Too few trials extend beyond one year to show whether the reduction declines as biochar ages (6 studies). We assume that it declines exponentially after each application, with a half-life $t_{1/2}$ sampled over a wide range in the Monte Carlo analysis (@tbl-si-mc), and that the next application to the same land restores it. The avoided emissions per megagram of feedstock are
+
+$$A_{\mathrm{N_2O}} = \frac{\kappa\, N_{\mathrm{app}}\, \mathit{EF}_1\, R_{\mathrm{N_2O}}\, \min\!\left(1, D_{\mathrm{e}}/D_{\mathrm{N}}\right)}{m\, t_{\mathrm{L}}} \sum_{t=1}^{t_{\mathrm{H}}} \bar{\phi}_t \cdot \frac{44}{28} \cdot \mathrm{GWP}_{\mathrm{N_2O}} \cdot 10^{-3},$$ {#eq-n2o}
+
+where $A_{\mathrm{N_2O}}$ is in Mg CO~2~e Mg^-1^, $N_{\mathrm{app}}$ is the regional mineral N application rate (kg N ha^-1^ yr^-1^ per hectare of harvested area) <!-- TODO: confirm that the regional N rate is per harvested hectare; if it is per hectare of cropland, delete κ from @eq-n2o -->, $\mathit{EF}_1$ the IPCC Tier 1 direct emission factor (kg N~2~O-N kg^-1^ N) [@ipcc2019], and $\bar{\phi}_t$ the mean over cohorts of $e^{-\lambda (t - t_j)}$, with $t_j$ the latest application year of cohort $j$ up to year $t$ and $\lambda = \ln 2 / t_{1/2}$. Cohorts not yet treated contribute zero. The factor 44/28 converts N~2~O-N to N~2~O, $\mathrm{GWP}_{\mathrm{N_2O}}$ is the 100-year global warming potential of N~2~O [@forster2021], and 10^-3^ converts kilograms to megagrams. Avoided emissions are summed without discounting, as for biochar carbon storage, and attributed to the feedstock processed over the plant lifetime.
+
+<!-- ===================================================================================== -->
+<!-- 5. Replaces "Biochar agronomic valuation" in full. -->
+
+#### Biochar agronomic valuation
+
+The agronomic value of biochar per megagram of feedstock is
+
+$$V_{\mathrm{ag}} = V_{\mathrm{lime}} + V_{\mathrm{nut}} + V_{\mathrm{CEC}} - V_{\mathrm{s}},$$ {#eq-vag}
+
+where $V_{\mathrm{lime}}$ is the liming value, $V_{\mathrm{nut}}$ the nutrient value, $V_{\mathrm{CEC}}$ the value of the crop yield increase from raising the cation exchange capacity (CEC) of the soil, and $V_{\mathrm{s}}$ the cost of field application (all US\$ Mg^-1^ of feedstock). Agricultural lime and mineral fertilizer substitute for biochar as a pH amendment and as a nutrient source, so $V_{\mathrm{lime}}$ and $V_{\mathrm{nut}}$ are the costs of the inputs that biochar displaces. Biochar also raises the CEC of soils, improving their retention and supply of nutrients and water. Fertilizer is not a substitute for CEC but a complementary input: a soil with low CEC retains and supplies nutrients poorly and responds poorly to fertilizer, so raising its CEC lifts the whole fertilizer response curve, including the economically optimal application rate. $V_{\mathrm{CEC}}$ is therefore valued as a yield increase rather than as a displaced input. The nutrients and alkalinity removed with the residue are charged to all pathways (see Residue minerals and ash return).
+
+Where soil pH is below the target pH (@tbl-parameters), the acid-neutralizing capacity of the biochar (@eq-anc) is credited at the cost of agricultural lime; elsewhere the liming value is zero. Across the four regions, this capacity is 17–36 kg CaCO~3~-eq Mg^-1^ of feedstock, a calcium carbonate equivalent of 5–8% of the biochar. Because substituting biochar for lime also avoids hauling and spreading the lime, the lime cost includes transport and application. It is the median of published values, each converted to a calcium carbonate equivalent of 100% and escalated to 2024 USD. These values range from 31 US\$ Mg^-1^ for lime delivered to Brazilian pastures, excluding spreading [@latawiec2019], through 52 US\$ Mg^-1^ in Oklahoma [@mills2020lime] and 59–110 US\$ Mg^-1^ near to and far from a quarry in Oklahoma [@cho2020lime], to 85 US\$ Mg^-1^ spread in North Carolina [@woods2026]. The Monte Carlo analysis samples this range.
+
+The biochar retains all of the P and K of the feedstock (see Residue minerals and ash return). P and K are credited at their total content. Whether they are returned in biochar, in ash or in retained residue, they remain in the soil and become available to crops over the following years; the nutrients removed with the residue are valued on the same basis. Biochar N is held mainly in heterocyclic aromatic structures and is assumed to have no fertilizer value. P and K are valued at the world market prices of triple superphosphate and potassium chloride, respectively, averaged over the World Bank's annual prices for 2021–2025 and escalated to 2024 USD [@worldbank2026pinksheet]. Elemental P and K are converted to their oxide equivalents (×2.29 for P~2~O~5~ and ×1.20 for K~2~O) before pricing. We use the same prices in every region. Retail subsidies (as in India) and export controls (as in China) move farm-gate prices away from world prices, but they transfer value rather than change the economic value of the fertilizer displaced.
+
+The yield response to biochar was derived from a meta-analysis of field trials that combines the data of @woolf2016optimal, @xu2021 and @zhang2023 <!-- TODO (reference required): add Zhang et al. 2023, Sci. Total Environ. 905, 167290, to references.bib --> (Supplementary Text S3). The response increases with the biochar stock as a power function and decreases in magnitude with soil CEC. The relative yield increase of cohort $j$ in year $t$ is
+
+$$\frac{\Delta y_{j,t}}{y} = e^{\alpha\, g(B_{j,t})} - 1, \qquad \alpha = \max\!\left(0,\ \beta_0 + \beta_{\mathrm{C}} \ln \mathrm{CEC}\right),$$ {#eq-yield-response}
+
+$$g(B) = \begin{cases} (B/B_{\mathrm{r}})^{\gamma}, & B \ge B_{\mathrm{min}} \\ (B_{\mathrm{min}}/B_{\mathrm{r}})^{\gamma}\, B / B_{\mathrm{min}}, & B < B_{\mathrm{min}}, \end{cases}$$ {#eq-dose-shape}
+
+where $\Delta y_{j,t}/y$ is the fractional increase in crop yield, $\alpha$ the natural logarithm of the ratio of yields with and without biochar at the reference stock $B_{\mathrm{r}}$ = 10 Mg ha^-1^, CEC the soil CEC (cmol~c~ kg^-1^), $\beta_0$ and $\beta_{\mathrm{C}}$ fitted coefficients, $\gamma$ the dose exponent, and $B_{\mathrm{min}}$ the smallest stock to which the power function is applied (@tbl-parameters). Below $B_{\mathrm{min}}$, $g$ increases linearly from zero. Few trials tested doses this small, and extending the power function to them would imply an unbounded yield benefit per megagram as the dose approaches zero. The exponent $\gamma$ is that fitted to trials on soils with a pH of 6.5 or above, where liming does not contribute to the response. The acid-soil component of the response is excluded from $\alpha$, because it is credited as the liming value. The response falls to zero at a CEC of about 36 cmol~c~ kg^-1^.
+
+The yield increase is valued at $v_{\mathrm{c}}$, the value of crop production per hectare of harvested area, at production-weighted international prices of the major field crops (see Spatial input data). We do not assume that biochar goes to high-value horticultural crops. They occupy too little land to absorb biochar at the scale modeled here and are rarely grown on the resource-poor soils where the response is largest. The yield value per megagram of feedstock follows from @eq-ag-level, with the annual benefit per hectare of cropland $x_t = \kappa\, v_{\mathrm{c}}$ multiplied by the mean of $\Delta y_{j,t}/y$ over cohorts. The cost of field application, $V_{\mathrm{s}}$, follows from the same equation with $x_t = c_{\mathrm{s}}/\nu$ during the plant lifetime and zero after it.
+
+The CEC of biochar increases rather than declines as it ages in soil, through oxidation and functionalization of its surfaces. <!-- TODO (reference required): increase of biochar CEC with aging --> We therefore assume that the yield effect lasts as long as the biochar carbon remains ($k_{\mathrm{y}}$ = 0 in @eq-bc-stock). Field trials are too short to test this assumption. In 70 series of repeated measurements from 23 studies, with a median follow-up of 1 year, the change of the yield response with time did not differ significantly from zero (Supplementary Text S3). The Monte Carlo analysis samples $k_{\mathrm{y}}$ from zero to rates that halve the effect within a few years (@tbl-si-mc).
+
+<!-- ===================================================================================== -->
+<!-- 6. "Residue minerals and ash return": keep the first three paragraphs (ANC equation and
+        the partition of minerals in pyrolysis and combustion). Replace the final paragraph
+        ("The bottom ash from BE and BECCS…") with the two paragraphs below. -->
+
+All pathways are compared against the same counterfactual, in which the residue remains in the field or is combusted there (see Residue removal counterfactual). Each pathway is therefore charged for the nutrients and alkalinity that the counterfactual would have returned to the soil, and credited for those it returns in biochar or ash. The charge per megagram of feedstock is
+
+$$C_{\mathrm{rem}} = (1 - f_{\mathrm{burn}})\, f_{\mathrm{N}}\, w_{\mathrm{N}}\, p_{\mathrm{N}} + w_{\mathrm{P}}\, p_{\mathrm{P}} + w_{\mathrm{K}}\, p_{\mathrm{K}} + \delta\, A_{\mathrm{res}}\, p_{\mathrm{lime}},$$ {#eq-removal}
+
+where $C_{\mathrm{rem}}$ is in US\$ Mg^-1^, $w_{\mathrm{N}}$, $w_{\mathrm{P}}$ and $w_{\mathrm{K}}$ are the N, P and K contents of the residue (kg Mg^-1^; @tbl-parameters), $p_{\mathrm{N}}$, $p_{\mathrm{P}}$ and $p_{\mathrm{K}}$ their prices (US\$ kg^-1^), $f_{\mathrm{N}}$ the fertilizer replacement value of residue N (fraction), $A_{\mathrm{res}}$ the acid-neutralizing capacity of the residue (@eq-anc, kg CaCO~3~-eq Mg^-1^), $p_{\mathrm{lime}}$ the lime cost (US\$ kg^-1^), and $\delta$ is 1 where soil pH is below the target pH and 0 elsewhere. Prices are those used for the nutrient and liming credits (see Biochar agronomic valuation), with N priced as urea. P, K and alkalinity are charged in full, because residues combusted in the field also return them in their ash. N is charged only on the share of residue that would have been retained, because it is lost when residues are combusted in the field. Retained residue N mineralizes slowly, and decomposing straw immobilizes part of the mineral N in the soil, so its fertilizer replacement value is a fraction of its N content (@tbl-si-mc). <!-- TODO (reference required): fertilizer replacement value of retained cereal residue N --> The charge is the same for every pathway, so it does not change which technology is preferred, but it raises the cost of all of them.
+
+Relative to the counterfactual, biochar returns all of the P and K and more alkalinity than the residue, because part of its Cl and S is volatilized in pyrolysis. The bottom ash from BE and BECCS is assumed to be returned to cropland, as at Danish straw-fired power plants. It is credited for its liming value where soil pH is below the target pH, and for its P and K at the same prices and on the same total-content basis as biochar. It is returned to the fields in the same way as biochar (see Biomass transport costs and emissions), at 5 Mg ha^-1^, the maximum allowed for straw ash in Denmark [@bioash2019]. Fly ash, which concentrates heavy metals, is assumed to be landfilled, so combustion loses the K, Cl and S that the fly ash holds. Because nearly all straw ash in Denmark is used as fertilizer or soil improver [@lamers2018], the share of fly ash returned to cropland is sampled from 0 to 1 in the Monte Carlo analysis. The cost of landfilling fly ash, below 1.5 US\$ Mg^-1^ of feedstock, is part of plant O&M.
+
+<!-- ===================================================================================== -->
+<!-- 7. "Spatial input data": add after the sentence on SoilGrids. -->
+
+Cropping intensity, the ratio of harvested area to physical cropland, is a regional value (@tbl-parameters) derived from national harvested and cropland areas. <!-- TODO (reference required): FAOSTAT harvested area and cropland area, and the years used --> The value of crop production per hectare of harvested area, $v_{\mathrm{c}}$, is the production of the major field crops in each grid cell, valued at production-weighted international prices, divided by their harvested area. <!-- TODO (reference required): crop production layer (MapSPAM) and the source and years of the international prices -->
+
+<!-- ===================================================================================== -->
+<!-- 8. "Economic evaluation and technology selection": add after the sentence ending
+        "…levelized annual values per megagram of feedstock." -->
+
+The agronomic effects of biochar and the cost of applying it accrue over the horizon $t_{\mathrm{H}}$ (see Biochar field application), which extends beyond the plant lifetime because biochar remains in the soil after the plant closes. They are discounted over this horizon and annualized over the plant lifetime:
+
+$$V_x = \frac{\mathrm{CRF}(r, t_{\mathrm{L}})}{m} \sum_{t=1}^{t_{\mathrm{H}}} \frac{x_t}{(1+r)^t},$$ {#eq-ag-level}
+
+where $V_x$ is the levelized value per megagram of feedstock (US\$ Mg^-1^), $x_t$ the benefit or cost per hectare of cropland in year $t$ (US\$ ha^-1^ yr^-1^), $m$ the feedstock supplied per hectare of cropland (Mg ha^-1^ yr^-1^), $\mathrm{CRF}(r, t_{\mathrm{L}})$ the capital recovery factor and $r$ the regional discount rate.
+
+<!-- ===================================================================================== -->
+<!-- 9. New Supplementary Text, after Text S2. -->
+
+### Text S3. Meta-analysis of biochar field trials {.unnumbered}
+
+We combined three compilations of field and pot trials that report crop yields with and without biochar: the data underlying the yield model of @woolf2016optimal, @xu2021 and @zhang2023. @xu2021 also report N~2~O emissions. The effect size is the natural logarithm of the ratio of the treatment and control means (log response ratio, lnRR), with its sampling variance calculated from the reported standard deviations and replicate numbers where available.
+
+Three corrections were made before analysis. First, in @xu2021, treatments that combine biochar with another input, such as N fertilizer or manure, are compared with the same control as biochar alone in 27 of the 33 studies that report both. These contrasts include the effect of the input itself: their mean lnRR was 0.24–0.38, against 0.15 for biochar alone. We retained such a contrast only where its control differed from that of biochar alone, and otherwise calculated it against the treatment with the input alone (94 contrasts). For the same reason, three studies in @zhang2023 whose control yield did not vary with the N rate were excluded. The data of @woolf2016optimal use controls with the same fertilization as the biochar treatment. <!-- TODO: confirm --> Second, 15 studies appear in more than one compilation. They were matched on first author, year, dose and site, and retained once. Third, four studies that @woolf2016optimal coded as pot trials, and one column experiment, are labeled as field trials in @xu2021; we recoded them. Pot trials were excluded from all analyses, because their response to dose differs from that of field trials.
+
+The shape of the yield response to dose was estimated within experiments, defined as sets of treatments that differ only in biochar dose (same study, site, crop, year, fertilization and biochar). For experiment $e$ and dose $D$, $\mathrm{lnRR}_{e,D} = \alpha_e (D/B_{\mathrm{r}})^{\gamma}$, with a separate magnitude $\alpha_e$ for each experiment. Differences between sites therefore do not affect $\gamma$, which is identified only by dose contrasts within experiments. The model was fitted by weighted least squares, with weights equal to the inverse of the sampling variance plus the residual variance between observations. Confidence intervals were obtained by bootstrap resampling of studies. Across 251 field experiments from 115 studies, $\gamma$ was 0.50 (90% confidence interval 0.29–0.66). It was 0.30 (0.16–0.46) on soils with a pH of 6.5 or above (100 experiments, 50 studies) and 0.64 (0.38–0.77) on soils below pH 6.0 (99 experiments, 41 studies), where the response includes a liming effect that is close to linear in dose. A saturating exponential fitted the data less well than the power function, and the response relative to that at 10–20 Mg ha^-1^ continued to increase above 40 Mg ha^-1^ (@fig-si-dose-response, panel a).
+
+The magnitude of the response was modeled from all 1,264 field observations (191 studies). Each observation was normalized to the reference stock with the exponent of its soil pH class (0.30 at pH ≥ 6.5, 0.64 below 6.0, 0.50 between), giving $\alpha_i = \mathrm{lnRR}_i\, (B_{\mathrm{r}}/D_i)^{\gamma}$. We fitted multilevel meta-regressions with a random effect for each study and compared them with boosted regression trees and random forests by tenfold cross-validation in which whole studies were held out. The models predicted between-study variation only modestly. On the 51 studies that report both soil pH and CEC (434 observations), the share of the variance in study means explained by held-out predictions was 0.20 for a meta-regression on pH and CEC, 0.25 for boosted trees on pH and CEC, and 0.32 for a random forest on all covariates. Cross-validation that ignored the grouping of observations by study gave 0.38, which overstates predictive skill. Because the differences between methods are small relative to their uncertainty and global maps of pH and CEC are available, we used the meta-regression:
+
+$$\alpha = \beta_0 + \beta_{\mathrm{A}} \max(0,\, 6.5 - \mathrm{pH}) + \beta_{\mathrm{C}} \ln \mathrm{CEC},$$
+
+with $\beta_0$ = 0.361 (standard error 0.076), $\beta_{\mathrm{A}}$ = 0.070 (0.029) and $\beta_{\mathrm{C}}$ = −0.101 (0.025). Across the 10th to 90th percentiles of the observations, the pH term changes $\alpha$ by 0.15 and the CEC term by 0.24, consistent with the comparable importance of pH and CEC in @woolf2016optimal. In soils with pH of 6.5 or above alone (19 studies), $\beta_{\mathrm{C}}$ was −0.049 (0.042), so the CEC effect is identified mainly in acid soils, where low CEC and low pH occur together. This estimate is the lower bound of the Monte Carlo range. C-SCAPE uses $\beta_0$ and $\beta_{\mathrm{C}}$ (@eq-yield-response), sampled jointly from their estimated covariance.
+
+For N~2~O, 99 contrasts of biochar combined with another input were excluded because their controls lacked that input, and 7 duplicated rows were removed. The remaining 160 observations from 36 studies gave a mean lnRR of −0.224 (standard error 0.068) in a multilevel random-effects model with study and observation random effects, a reduction of 20% (90% confidence interval 11–29%). The log-dose slope was 0.001 (0.052) across studies, and dose contrasts within 44 experiments from 20 studies showed no trend (median difference 0.00). The reduction did not differ significantly between trials of less than and more than one year, but only 25 observations from 6 studies exceed one year.
+
+Persistence of the yield response was examined in 70 series of the same treatment observed in two or more years (23 studies; median follow-up 1 year, maximum 5 years). We fitted $\mathrm{lnRR}_{s,t} = \alpha_s e^{-k_{\mathrm{y}} t}$, with a separate magnitude $\alpha_s$ for each series and $t$ the time since the first observation. The estimated $k_{\mathrm{y}}$ was 0.14 yr^-1^ (90% confidence interval −0.43 to 0.31), so neither persistence nor decline can be excluded. <!-- TODO: name the software used for the meta-analysis, with citation -->

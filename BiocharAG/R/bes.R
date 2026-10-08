@@ -104,7 +104,8 @@ calculate_bes_mode <- function(params) {
     transport_emissions_co2e <- logistics$emissions + ash_ret$emissions
 
     feedstock_cost <- if (!is.null(params$feedstock_cost)) params$feedstock_cost else 0
-    total_cost <- capex_per_mg + opex_per_mg + logistics_cost + feedstock_cost
+    removal_charge <- residue_removal_charge(params) # nutrients and alkalinity removed with the residue
+    total_cost <- capex_per_mg + opex_per_mg + logistics_cost + feedstock_cost + removal_charge
 
     # 4. Revenue & Value
     energy_revenue <- energy_prod * elec_price
@@ -142,6 +143,7 @@ calculate_bes_mode <- function(params) {
       co2_transport_distance_km = NA,
       biomass_transport_distance_km = effective_dist,
       ash_return_cost_mg = ash_ret$cost, # included in biomass_cost_mg
+      removal_charge_mg = removal_charge, # included in total_cost
       energy_revenue_mg = energy_revenue,
       abatement_revenue_mg = abatement_value,
       agronomic_revenue_mg = ash_value,

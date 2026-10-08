@@ -9,3 +9,4 @@ bm_ash,bm_c,-0.6,Ash dilutes organic carbon
 bm_transport_fixed,bm_transport_var,0.5,Common labour and fuel cost drivers
 bes_capital_cost,py_cc,0.5,Shared construction and equipment cost drivers
 py_cc,bebcs_power_capital_cost,0.4,Shared construction and equipment cost drivers
+bc_yield_b0,bc_yield_bcec,-0.870,Joint sampling of the yield amplitude coefficients (covariance of the meta-regression; docs/biochar_agronomy_handover)

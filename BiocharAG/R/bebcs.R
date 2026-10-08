@@ -155,42 +155,31 @@ calculate_bebcs_mode <- function(params) {
     # handling are charged.
     bc_haul_cost <- if (isFALSE(as.logical(params$bc_return_haul))) 0 else
       bc_yield * (if (!is.null(params$bm_transport_fixed)) params$bm_transport_fixed else 6.27) * location_factor(params, "haulage")
-    # Field application: spreading and incorporation, per ha at the biochar application rate
-    # (bc_app_rate_c Mg C/ha / biochar C content = Mg biochar/ha); tractor diesel emissions
-    bc_rate_mg_ha <- (if (!is.null(params$bc_app_rate_c)) params$bc_app_rate_c else 10) / bc_c_content
-    bc_field_cost_ha <- if (!is.null(params$bc_field_cost)) params$bc_field_cost else 116
-    bc_field_cost <- bc_yield * bc_field_cost_ha / bc_rate_mg_ha * location_factor(params, "haulage")
-    bc_field_diesel <- if (!is.null(params$bc_field_diesel)) params$bc_field_diesel else 17.5
-    bc_field_emissions <- bc_yield / bc_rate_mg_ha * bc_field_diesel * 2.68e-3 # Mg CO2 / Mg feed (2.68 kg CO2/L)
+    # Field application on the cell's own cropland: dose strategy with the highest net value at this carbon
+    # price (yield response, spreading passes, soil N2O; biochar_field_table())
+    field <- choose_bc_dose(biochar_field_table(params, bc_yield, bc_stability), c_price)
+    bc_field_cost <- field$v_spread
+    bc_field_emissions <- field$e_diesel
     logistics_cost <- logistics$cost + bc_haul_cost + bc_field_cost
     transport_emissions_co2e <- logistics$emissions + bc_field_emissions
+    removal_charge <- residue_removal_charge(params) # nutrients and alkalinity removed with the residue
 
     feedstock_cost <- if (!is.null(params$feedstock_cost)) params$feedstock_cost else 0
-    total_cost <- annual_capex_py + annual_capex_power + annual_om + logistics_cost + feedstock_cost
+    total_cost <- annual_capex_py + annual_capex_power + annual_om + logistics_cost + feedstock_cost + removal_charge
 
     # 4. Abatement & Value
     # Explicit conversion to CO2e
     molar_ratio_c <- if (!is.null(params$molar_ratio_co2_c)) molar_ratio_co2_c else (44 / 12)
     co2e_sequestered <- bc_yield * bc_c_content * bc_stability * molar_ratio_c
     c_displaced <- energy_output * c_intensity
-    # Soil N2O reduction (Woolf et al. 2021): fractional reduction in fertiliser-induced N2O on fields
-    # receiving bc_app_rate_c Mg biochar C/ha, lasting n2o_years; credited per Mg biochar C applied
-    n2o_ef <- if (!is.null(params$n2o_ef)) params$n2o_ef else 0.01
-    n2o_reduction <- if (!is.null(params$n2o_reduction)) params$n2o_reduction else 0.23
-    n2o_years <- if (!is.null(params$n2o_years)) params$n2o_years else 2
-    n_app <- if (!is.null(params$n_app_rate)) params$n_app_rate else 68
-    bc_app_rate_c <- if (!is.null(params$bc_app_rate_c)) params$bc_app_rate_c else 10
-    gwp_n2o <- if (!is.null(params$gwp_n2o)) params$gwp_n2o else 273
-    n2o_n_avoided_kg <- n_app * n2o_ef * n2o_reduction * n2o_years * phys$bc_c_yield / bc_app_rate_c
-    soil_ghg_abatement <- n2o_n_avoided_kg * (44 / 28) * gwp_n2o / 1000 # Mg CO2e / Mg feed
+    soil_ghg_abatement <- field$a_n2o # avoided soil N2O, Mg CO2e / Mg feed
 
     tot_c_abatement <- co2e_sequestered + c_displaced + soil_ghg_abatement - transport_emissions_co2e +
       residue_counterfactual_ghg(params)
     abatement_value <- tot_c_abatement * c_price
 
-    bc_val_res <- calculate_biochar_value(params, bc_yield, bc_c_content,
-      bc_decay_rate = -log(pmax_raster(bc_stability, 1e-6)) / 100) # mean decay rate implied by 100-yr Fperm
-    biochar_economic_value <- bc_val_res$value_usd_per_mg_feedstock
+    bc_val_res <- calculate_biochar_value(params, bc_yield) # liming and P, K returned
+    biochar_economic_value <- bc_val_res$value_usd_per_mg_feedstock + field$v_yield
 
     total_revenue <- energy_revenue + biochar_economic_value + abatement_value
     net_value <- total_revenue - total_cost
@@ -222,6 +211,13 @@ calculate_bebcs_mode <- function(params) {
       biomass_cost_mg = biomass_cost,
       biochar_haul_cost_mg = bc_haul_cost, # included in biomass_cost_mg
       biochar_field_cost_mg = bc_field_cost, # included in biomass_cost_mg
+      removal_charge_mg = removal_charge, # included in total_cost
+      bc_yield_value_mg = field$v_yield, # included in agronomic_revenue_mg
+      bc_mineral_value_mg = bc_val_res$value_usd_per_mg_feedstock, # liming, P and K; in agronomic_revenue_mg
+      soil_n2o_abatement = soil_ghg_abatement, # included in tot_c_abatement
+      bc_dose = field$dose, # dose option (Mg biochar/ha; 0 = annual application)
+      bc_dose_eff = field$d_eff, # biochar per application (Mg/ha)
+      bc_cohorts = field$cohorts,
       co2_transport_cost_mg = 0,
       co2_transport_distance_km = NA,
       biomass_transport_distance_km = effective_dist,

@@ -6,18 +6,13 @@
 #'
 #' @param params List of parameters including `bc_valuation_method`, `bc_price`, `bc_ag_value`, etc.
 #' @param bc_yield Numeric. Biochar yield fraction (Mg Biochar / Mg Feedstock).
-#' @param bc_c_content Biochar carbon content (Mg C / Mg biochar), used to convert the soil physical
-#'   benefit (`bc_cec_value`, per Mg biochar C) to a value per Mg biochar. Defaults to
-#'   `params$bc_c_content`, else 0.75.
-#' @param bc_decay_rate Decay rate of biochar carbon (1/yr), used in the perpetuity for the soil
-#'   physical benefit. Defaults to `params$bc_decay_rate`, else 0.003.
 #'
 #' @return A list containing:
 #' \item{value_usd_per_mg_feedstock}{Total economic value per Mg of biomass feedstock.}
 #' \item{method_used}{Character string indicating the method ("market_price" or "ag_value").}
 #' \item{detail}{Intermediate values (e.g. unit price per Mg char).}
 #' @export
-calculate_biochar_value <- function(params, bc_yield, bc_c_content = NULL, bc_decay_rate = NULL) {
+calculate_biochar_value <- function(params, bc_yield) {
     method <- if (!is.null(params$bc_valuation_method)) params$bc_valuation_method else "ag_value"
 
     # Initialize
@@ -46,45 +41,16 @@ calculate_biochar_value <- function(params, bc_yield, bc_c_content = NULL, bc_de
     } else if (method == "advanced_mechanistic") {
         # Method C: Mechanistic Substitution Model (Advanced)
 
-        # 1-2. Liming and nutrient value from the residue's mineral fraction, per Mg feed (charge balance;
-        # see residue_minerals()). Liming is credited only where soil pH is below target_ph.
+        # Liming and nutrient value of the minerals the biochar returns, per Mg feed (charge balance; see
+        # residue_minerals()). Liming is credited only where soil pH is below target_ph; P and K at total
+        # content; biochar N has no fertiliser value. The crop yield response, spreading and soil N2O are in
+        # the field-application model (biochar_field_table()); the charge for nutrients removed with the
+        # residue is in residue_removal_charge().
         m <- residue_minerals(params)
-        soil_ph <- if (!is.null(params$soil_ph)) params$soil_ph else 6.5
-        target_ph <- if (!is.null(params$target_ph)) params$target_ph else 6.5
-        price_lime <- if (!is.null(params$price_lime)) params$price_lime else 59
-        lime_eff <- if (!is.null(params$lime_effectiveness)) params$lime_effectiveness else 1
-        v_lime_feed <- ifelse_raster(soil_ph < target_ph, lime_eff * m$anc_bc / 1000 * price_lime, 0)
-        v_nut_feed <- nutrient_value(params, n = m$n_bc, p = m$p_bc, k = m$k_bc)
-
-        # 3. Physical/CEC Value (Yield Efficiency)
-        soil_cec <- if (!is.null(params$soil_cec)) params$soil_cec else 20
-        # Annual yield benefit from raising soil CEC, proportional to the CEC deficit: the full value
-        # bc_cec_value ($/Mg biochar C/yr; Woolf et al. 2016) at CEC <= 5 cmol/kg (sands), falling linearly
-        # to 0 at CEC >= 30. Valued as a yield increment, not a substitute input: higher CEC raises the
-        # whole fertilizer response curve.
-        cec_value <- if (!is.null(params$bc_cec_value)) params$bc_cec_value else 21.1
-        bc_c <- if (!is.null(bc_c_content)) bc_c_content else if (!is.null(params$bc_c_content)) params$bc_c_content else 0.75
-        cec_frac <- pmin_raster(pmax_raster((30 - soil_cec) / 25, 0), 1)
-        cec_val_annual <- cec_value * bc_c * cec_frac # $/Mg biochar/yr
-
-        # Biochar CEC rises with ageing (surface oxidation), so the benefit is treated as a perpetuity that
-        # lasts as long as the biochar carbon: present value = annual value / (discount rate + decay rate)
-        dr <- if (!is.null(params$discount_rate)) params$discount_rate else 0.1
-        k <- if (!is.null(bc_decay_rate)) bc_decay_rate else if (!is.null(params$bc_decay_rate)) params$bc_decay_rate else 0.003
-        v_phys_per_mg_char <- cec_val_annual / (dr + k)
-
-        # Total
-        val_per_mg_feedstock <- v_lime_feed + v_nut_feed + bc_yield * v_phys_per_mg_char
-
-        # Components per Mg biochar (liming, nutrients, soil physical) and per Mg feed
-        detail <- list(
-            v_lime = v_lime_feed / bc_yield,
-            v_nut = v_nut_feed / bc_yield,
-            v_phys = v_phys_per_mg_char,
-            v_lime_feed = v_lime_feed,
-            v_nut_feed = v_nut_feed,
-            type = "Mechanistic Substitutes"
-        )
+        v_lime_feed <- lime_value(params, m$anc_bc)
+        v_nut_feed <- nutrient_value(params, p = m$p_bc, k = m$k_bc)
+        val_per_mg_feedstock <- v_lime_feed + v_nut_feed
+        detail <- list(v_lime_feed = v_lime_feed, v_nut_feed = v_nut_feed, type = "Mechanistic Substitutes")
     }
 
     list(
@@ -109,7 +75,7 @@ calculate_biochar_value <- function(params, bc_yield, bc_c_content = NULL, bc_de
 #'
 #' - Biochar retains all Ca, Mg, K, Na and P, the fractions `bc_cl_retention` and `bc_s_retention` of
 #'   Cl and S (the rest leaves as HCl and sulphur gases, raising the char's ANC) and `bc_n_retention`
-#'   of N.
+#'   of N (biochar N is held in heterocyclic structures and is given no fertiliser value).
 #' - Combustion: fly ash is KCl and K2SO4 carrying the fractions `ash_cl_fly` and `ash_s_fly` of Cl and
 #'   S with the K they bind, the fraction `ash_p_fly` of P, and 18% calcium phosphate and insoluble
 #'   matter (Avedøre straw fly ash), so it has negligible ANC. Bottom ash keeps Ca, Mg, Na, the
@@ -117,8 +83,9 @@ calculate_biochar_value <- function(params, bc_yield, bc_c_content = NULL, bc_de
 #'   flue gas.
 #'
 #' @param params Parameter list.
-#' @return List per Mg daf feed: `anc_bc`, `anc_ba` (kg CaCO3-eq, biochar and bottom ash), `k_bc`,
-#'   `k_ba`, `k_fly`, `p_bc`, `p_ba`, `p_fly`, `n_bc` (kg) and `ash_bottom`, `ash_fly` (Mg).
+#' @return List per Mg daf feed: `anc_bc`, `anc_ba`, `anc_res` (kg CaCO3-eq: biochar, bottom ash and the
+#'   residue itself), `k_bc`, `k_ba`, `k_fly`, `p_bc`, `p_ba`, `p_fly`, `n_res`, `p_res`, `k_res` (kg) and
+#'   `ash_bottom`, `ash_fly` (Mg).
 #' @export
 residue_minerals <- function(params) {
     pv <- function(n, d) if (!is.null(params[[n, exact = TRUE]])) params[[n, exact = TRUE]] else d
@@ -143,22 +110,57 @@ residue_minerals <- function(params) {
     ash_fly <- (cl_fly * 74.551 / 35.453 + s_fly * 174.26 / 32.06) / 0.82 / 1000 # Mg / Mg daf
     ash_bottom <- pmax(ash * daf - ash_fly, 0)
 
-    list(anc_bc = anc_bc, anc_ba = anc_ba, k_bc = k, k_ba = k_ba, k_fly = k_fly, p_bc = p, p_ba = p_ba,
-         p_fly = p_fly, n_bc = pv("bc_n_retention", 0.5) * n, ash_bottom = ash_bottom, ash_fly = ash_fly)
+    anc_res <- base + k * f_k - cl * f_cl - s * f_s - p * f_p # the residue itself (all Cl and S present)
+
+    list(anc_bc = anc_bc, anc_ba = anc_ba, anc_res = anc_res, k_bc = k, k_ba = k_ba, k_fly = k_fly, p_bc = p,
+         p_ba = p_ba, p_fly = p_fly, n_res = n, p_res = p, k_res = k, ash_bottom = ash_bottom, ash_fly = ash_fly)
 }
 
 #' Fertiliser Substitution Value of N, P and K
 #'
-#' @param params Parameter list (`price_n`, `price_p`, `price_k` per kg N, P2O5 and K2O; `avail_n`,
-#'   `avail_p`, `avail_k`).
-#' @param n,p,k Elemental N, P and K returned to cropland (kg per Mg feed).
+#' Nutrients are valued at their total content: P and K returned in residue, biochar or ash remain in the
+#' soil and become available over the following years, so the removal charge and the return credits are
+#' on the same basis (docs/biochar_agronomy_handover/AGRONOMY_SPEC.md, section 3). N is priced as urea;
+#' callers apply any fertiliser-replacement fraction.
+#'
+#' @param params Parameter list (`price_n`, `price_p`, `price_k` per kg N, P2O5 and K2O).
+#' @param n,p,k Elemental N, P and K (kg per Mg feed).
 #' @return Value in $/Mg feed.
 #' @keywords internal
 nutrient_value <- function(params, n = 0, p = 0, k = 0) {
     pv <- function(nm, d) if (!is.null(params[[nm, exact = TRUE]])) params[[nm, exact = TRUE]] else d
-    n * pv("avail_n", 0.1) * pv("price_n", 1.06) +
-        p * P_TO_P2O5 * pv("avail_p", 0.5) * pv("price_p", 1.27) +
-        k * K_TO_K2O * pv("avail_k", 0.8) * pv("price_k", 0.86)
+    n * pv("price_n", 1.06) + p * P_TO_P2O5 * pv("price_p", 1.27) + k * K_TO_K2O * pv("price_k", 0.86)
+}
+
+#' Liming Value of an Acid-Neutralising Capacity
+#'
+#' Credited at the lime price (per Mg CaCO3-eq, delivered and spread) where soil pH is below `target_ph`.
+#'
+#' @param params Parameter list.
+#' @param anc Acid-neutralising capacity (kg CaCO3-eq per Mg feed).
+#' @return Value in $/Mg feed.
+#' @keywords internal
+lime_value <- function(params, anc) {
+    pv <- function(nm, d) if (!is.null(params[[nm, exact = TRUE]])) params[[nm, exact = TRUE]] else d
+    soil_ph <- pv("soil_ph", 6.5)
+    ifelse_raster(soil_ph < pv("target_ph", 6.5), pv("lime_effectiveness", 1) * anc / 1000 * pv("price_lime", 59), 0)
+}
+
+#' Charge for the Nutrients and Alkalinity Removed with the Residue
+#'
+#' Common to all pathways: the counterfactual leaves the residue in the field or burns it there, returning
+#' its P, K and alkalinity (in the ash, if burned) and, for the retained share, N at its fertiliser
+#' replacement value `n_fert_replacement`. Each pathway is credited separately for what it returns in
+#' biochar or ash.
+#'
+#' @param params Parameter list.
+#' @return Cost in $/Mg dry ash-free feed.
+#' @export
+residue_removal_charge <- function(params) {
+    pv <- function(nm, d) if (!is.null(params[[nm, exact = TRUE]])) params[[nm, exact = TRUE]] else d
+    m <- residue_minerals(params)
+    f_n <- (1 - residue_burn_share(params)) * pv("n_fert_replacement", 0.2)
+    nutrient_value(params, n = f_n * m$n_res, p = m$p_res, k = m$k_res) + lime_value(params, m$anc_res)
 }
 
 #' Agronomic Value of Recycled Combustion Ash
@@ -167,7 +169,9 @@ nutrient_value <- function(params, n = 0, p = 0, k = 0) {
 #' agricultural lime (only where soil pH is below `target_ph`) and for P and K fertiliser, from the
 #' mineral partition in [residue_minerals()]. Fly ash is landfilled; the fraction `fly_ash_recycled`
 #' (default 0) is returned with the bottom ash and credited for its K and P (its ANC is negligible).
-#' N is lost in combustion. The cost of returning the ash is in [ash_return()].
+#' P and K are credited at total content (see [nutrient_value()]). N is lost in combustion. The cost of
+#' returning the ash is in [ash_return()]; the charge for the nutrients removed with the residue is in
+#' [residue_removal_charge()].
 #'
 #' @param params Parameter list.
 #' @return Value in $/Mg feed (0 when ash is not recycled).
@@ -178,21 +182,16 @@ calculate_ash_value <- function(params) {
         return(0)
     }
     m <- residue_minerals(params)
-    soil_ph <- if (!is.null(params$soil_ph)) params$soil_ph else 6.5
-    target_ph <- if (!is.null(params$target_ph)) params$target_ph else 6.5
-    price_lime <- if (!is.null(params$price_lime)) params$price_lime else 59
-    lime_eff <- if (!is.null(params$lime_effectiveness)) params$lime_effectiveness else 1
     rho <- if (!is.null(params$fly_ash_recycled)) params$fly_ash_recycled else 0
-    v_lime <- ifelse_raster(soil_ph < target_ph, lime_eff * m$anc_ba / 1000 * price_lime, 0)
-    v_lime + nutrient_value(params, p = m$p_ba + rho * m$p_fly, k = m$k_ba + rho * m$k_fly)
+    lime_value(params, m$anc_ba) + nutrient_value(params, p = m$p_ba + rho * m$p_fly, k = m$k_ba + rho * m$k_fly)
 }
 
 #' Cost and Emissions of Returning Combustion Ash to Cropland
 #'
 #' Bottom ash (plus the recycled fraction of fly ash) returns to the fields as a backhaul in the
 #' feedstock trucks, as biochar does: loading and handling are charged per Mg (`bm_transport_fixed`),
-#' and spreading per hectare (`bc_field_cost`, tractor diesel `bc_field_diesel`) at the ash application
-#' rate `ash_app_rate` (Mg/ha).
+#' and one spreading and incorporation pass per hectare ([bc_pass_cost()], [bc_pass_diesel()]) at the ash
+#' application rate `ash_app_rate` (Mg/ha).
 #'
 #' @param params Parameter list.
 #' @return List with `cost` ($/Mg feed), `emissions` (Mg CO2e/Mg feed) and `mass` (Mg ash/Mg feed).
@@ -207,8 +206,8 @@ ash_return <- function(params) {
     mass <- m$ash_bottom + pv("fly_ash_recycled", 0) * m$ash_fly
     rate <- pv("ash_app_rate", 5)
     haul <- if (isFALSE(as.logical(params$bc_return_haul))) 0 else mass * pv("bm_transport_fixed", 6.27)
-    list(cost = (haul + mass / rate * pv("bc_field_cost", 116)) * location_factor(params, "haulage"),
-         emissions = mass / rate * pv("bc_field_diesel", 17.5) * 2.68e-3, mass = mass)
+    list(cost = haul * location_factor(params, "haulage") + mass / rate * bc_pass_cost(params),
+         emissions = mass / rate * bc_pass_diesel(params) * 2.68e-3, mass = mass)
 }
 
 # Mass conversion from elemental nutrient to fertiliser oxide basis (fertiliser prices are quoted

@@ -14,6 +14,9 @@ params_csv <- "../inst/extdata/parameters.csv"
 
 if (!dir.exists(gis_proc)) dir.create(gis_proc, recursive = TRUE)
 
+# Steps to run; set `steps` before sourcing to rerun a subset (e.g. steps <- "biomass")
+if (!exists("steps")) steps <- c("biomass", "soil", "temp")
+
 message("Loading regional parameters from: ", params_csv)
 params_df <- read.csv(params_csv, stringsAsFactors = FALSE)
 
@@ -90,16 +93,20 @@ for (r_name in names(regions)) {
     # --------------------------------------------------------------------------
     # A. Biomass Processing
     # --------------------------------------------------------------------------
+    if (!"biomass" %in% steps) {
+        r_bm_final <- terra::rast(file.path(gis_proc, paste0(prefix, "_biomass.tif")))
+        r_template <- r_bm_final
+    } else {
     message("  Processing Biomass...")
     r_bm_crop <- terra::crop(r_bm_global, e_box)
     
-    # Step 1: Convert Mg C -> Mg Moist Biomass
-    # Moist Mass = (Mg C / bm_c) / (1 - bm_h2o - bm_ash)
-    r_bm_moist <- (r_bm_crop / bm_c) / (1 - bm_h2o - bm_ash)
+    # Step 1: Convert Mg C -> Mg dry, ash-free (daf) biomass. bm_c is on a daf basis, and every per-Mg
+    # quantity in the model is per Mg daf feed (issue #114).
+    r_bm_daf <- r_bm_crop / bm_c
     
-    # Step 2: Convert to Density at Native Resolution (Mg / km2)
-    native_area_km2 <- terra::cellSize(r_bm_moist, unit = "km")
-    r_bm_density <- r_bm_moist / native_area_km2
+    # Step 2: Convert to Density at Native Resolution (Mg daf / km2)
+    native_area_km2 <- terra::cellSize(r_bm_daf, unit = "km")
+    r_bm_density <- r_bm_daf / native_area_km2
     
     # Step 3: Create Target Template and Resample
     r_template <- terra::rast(e_box, res = target_res)
@@ -111,6 +118,7 @@ for (r_name in names(regions)) {
     out_bm <- file.path(gis_proc, paste0(prefix, "_biomass.tif"))
     terra::writeRaster(r_bm_final, out_bm, overwrite = TRUE)
     message("    Saved: ", out_bm)
+    }
     
     # --------------------------------------------------------------------------
     # B. SoilGrids (CEC, pH)
@@ -127,13 +135,17 @@ for (r_name in names(regions)) {
         message("    Saved: ", out_p)
     }
     
-    process_sg(r_cec_raw, "soil_cec", 0.1)
-    process_sg(r_ph_raw, "soil_ph", 0.1)
+    if ("soil" %in% steps) {
+        process_sg(r_cec_raw, "soil_cec", 0.1)
+        process_sg(r_ph_raw, "soil_ph", 0.1)
+    }
     
     # --------------------------------------------------------------------------
     # C. Soil Temperature
     # --------------------------------------------------------------------------
-    if (!is.null(r_temp_global)) {
+    if (!"temp" %in% steps) {
+        # skipped
+    } else if (!is.null(r_temp_global)) {
         message("  Processing Soil Temperature...")
         r_temp_proj <- terra::project(r_temp_global, r_template, method = "average")
         r_temp_proj <- terra::mask(r_temp_proj, r_bm_final)
