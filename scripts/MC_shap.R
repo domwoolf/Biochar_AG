@@ -7,6 +7,9 @@ library(xgboost)
 library(shapviz)
 library(ggplot2)
 
+# Display names of the technologies in plot titles (data and file names keep the internal codes)
+tech_display <- function(x) c(BES = "BE", BECCS = "BECCS", BEBCS = "PyCCS")[[x]]
+
 plot_sensitivity_evolution <- function(
   data_path = "results/mc_analysis_results.csv",
   technology_name = "BECCS",
@@ -150,7 +153,7 @@ plot_sensitivity_evolution <- function(
     labs(
       title = paste0(
         "Evolution of Parameter Sensitivity vs. Carbon Price (R Port)\n",
-        technology_name, " in ", region_name, " (DR=", if (is.null(discount_rate)) "regional" else paste0(discount_rate * 100, "%"), ")"
+        tech_display(technology_name), " in ", region_name, " (DR=", if (is.null(discount_rate)) "regional" else paste0(discount_rate * 100, "%"), ")"
       ),
       x = "Carbon Price ($/tCO2e)",
       y = "Mean Absolute SHAP Value (Impact on NPV)",
@@ -185,7 +188,7 @@ plot_sensitivity_evolution <- function(
       labs(
         title = paste0(
           "SHAP Beeswarm Plot (Carbon Price = $", target_c_price, ")\n",
-          technology_name, " in ", region_name
+          tech_display(technology_name), " in ", region_name
         )
       ) +
       theme(plot.title = element_blank()) # no titles in figures: captions describe them
@@ -209,7 +212,7 @@ plot_sensitivity_evolution <- function(
           labs(
             title = paste0(
               "SHAP Dependence Plot for ", feat, " (Carbon Price = $", target_c_price, ")\n",
-              technology_name, " in ", region_name
+              tech_display(technology_name), " in ", region_name
             )
           ) +
           theme(plot.title = element_blank()) # no titles in figures: captions describe them
@@ -308,7 +311,7 @@ plot_global_beeswarm <- function(
     labs(
       title = paste0(
         "Global SHAP Beeswarm Plot (Carbon Price = $", target_c_price, ")\n",
-        technology_name, " - All Regions Aggregated (DR=", if (is.null(discount_rate)) "regional" else paste0(discount_rate * 100, "%"), ")"
+        tech_display(technology_name), " - All Regions Aggregated (DR=", if (is.null(discount_rate)) "regional" else paste0(discount_rate * 100, "%"), ")"
       )
     ) +
     theme(plot.title = element_blank()) # no titles in figures: captions describe them

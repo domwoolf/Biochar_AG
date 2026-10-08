@@ -30,6 +30,12 @@ TECH_COLORS <- c(
   "BECCS" = "#d62728", # Red
   "BEBCS" = "#2ca02c" # Green
 )
+# Display names of the technologies; data, columns and files keep the internal codes
+TECH_LABELS <- c(BES = "BE", BECCS = "BECCS", BEBCS = "PyCCS")
+tech_label <- function(x) {
+  for (k in names(TECH_LABELS)) x <- gsub(paste0("\\b", k, "\\b"), TECH_LABELS[[k]], x)
+  x
+}
 
 # Low-saturation version of a colour (same hue), used for cells where no technology has a positive NPV
 desaturate_color <- function(col, sat = 0.3, val = 0.97) {
@@ -178,7 +184,7 @@ generate_fig_evaporation <- function(
     }
     plt +
       coord_sf(crs = 4326) +
-      scale_fill_manual(values = fill_values, limits = names(fill_values), drop = FALSE) +
+      scale_fill_manual(values = fill_values, limits = names(fill_values), labels = tech_label, drop = FALSE) +
       guides(fill = guide_legend(nrow = 2, byrow = FALSE)) +
       facet_grid(cp_label ~ dr_label) +
       theme_void(base_size = 14) +
@@ -277,7 +283,7 @@ generate_fig_evaporation_grid <- function(save_map = TRUE, scenario = "default",
   panel <- function(dd, r, price, top, left) {
     p <- ggplot() + geom_tile(data = dd[dd$region == r & dd$cp == price, ], aes(x = .data$x, y = .data$y, fill = .data$tech), show.legend = TRUE) +
       geom_sf(data = A[[r]], fill = NA, color = "black", linewidth = 0.2) + coord_sf(crs = 4326, expand = FALSE) +
-      scale_fill_manual(values = fills, limits = lv, drop = FALSE, name = "Technology") + theme_void(base_size = 9) +
+      scale_fill_manual(values = fills, limits = lv, labels = tech_label, drop = FALSE, name = "Technology") + theme_void(base_size = 9) +
       theme(legend.position = "none", plot.margin = margin(1, 2, 1, 2), plot.title = element_text(hjust = 0.5, size = 9, face = "bold"),
             axis.title.y = if (left) element_text(angle = 90, face = "bold", size = 9) else element_blank())
     if (top) p <- p + ggtitle(r)
@@ -414,7 +420,7 @@ generate_fig_macc <- function(save_map = FALSE, save_ai_data = FALSE, scenario =
       ggplot(combined_macc[combined_macc$Metric == metric_labels[[metric]], ],
              aes(x = Price, y = Value, fill = Technology)) +
         geom_area(alpha = 0.9, color = "black", linewidth = 0.2) +
-        scale_fill_manual(values = TECH_COLORS, limits = c("BES", "BECCS", "BEBCS")) +
+        scale_fill_manual(values = TECH_COLORS, limits = c("BES", "BECCS", "BEBCS"), labels = tech_label) +
         facet_wrap(~Region, ncol = 2, scales = "free_y") +
         theme_minimal(base_size = 14) +
         labs(x = paste0("Carbon price (", U_CPRICE, ")"), y = y_lab, fill = "Technology") +
@@ -459,7 +465,7 @@ generate_fig_breakeven_cprice <- function(save_map = FALSE,
   # Rows definitions
   techs <- c("BES", "BECCS", "BEBCS", "Best_Tech", "Best_C")
   row_labels <- c(
-    "BES" = "Bioenergy", "BECCS" = "BECCS", "BEBCS" = "Biochar",
+    "BES" = "BE", "BECCS" = "BECCS", "BEBCS" = "PyCCS",
     "Best_Tech" = "Lowest\nbreak-even\ntech.", "Best_C" = "Lowest\nbreak-even\nprice"
   )
 
@@ -605,6 +611,7 @@ generate_fig_breakeven_cprice <- function(save_map = FALSE,
         p <- p + scale_fill_manual(
           values = TECH_COLORS,
           limits = c("BES", "BECCS", "BEBCS"),
+          labels = tech_label,
           na.translate = FALSE,
           drop = FALSE
         )
@@ -648,7 +655,7 @@ generate_fig_breakeven_cprice <- function(save_map = FALSE,
   # Generate isolated legends using cowplot
   p_leg_cat <- ggplot(data.frame(x = 1, y = 1, Tech = factor(c("BES", "BECCS", "BEBCS"), levels = c("BES", "BECCS", "BEBCS"))), aes(x, y, fill = Tech)) +
     geom_tile() +
-    scale_fill_manual(values = TECH_COLORS, name = "Technology") +
+    scale_fill_manual(values = TECH_COLORS, labels = tech_label, name = "Technology") +
     theme_void() +
     theme(legend.position = "bottom", legend.title = element_text(vjust = 0.8), legend.margin = margin(t = 0, b = 0))
 

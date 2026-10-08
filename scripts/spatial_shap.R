@@ -119,7 +119,7 @@ for (m in models) {
   # Beeswarm: one panel per class
   bees <- lapply(m$classes, function(cl) {
     sv_importance(m$shp[[cl]][idx, ], kind = "beeswarm", max_display = length(m$features)) +
-      theme_bw(base_size = 10) + labs(title = cl, x = "SHAP value (log-odds)")
+      theme_bw(base_size = 10) + labs(title = tech_label(cl), x = "SHAP value (log-odds)")
   })
   p_bee <- wrap_plots(bees, nrow = 1) +
     plot_layout(guides = "collect") # the panels share one feature-value colour bar; no title (see caption)

@@ -66,7 +66,7 @@ write.csv(res, paste0(var_dir, "variant_macc_data.csv"), row.names = FALSE)
 # Supplementary figure: abatement by technology against carbon price, regions x variants
 p <- ggplot(res, aes(x = Price, y = Abatement, fill = Technology)) +
   geom_area(alpha = 0.9, color = "black", linewidth = 0.15) +
-  scale_fill_manual(values = TECH_COLORS, limits = c("BES", "BECCS", "BEBCS")) +
+  scale_fill_manual(values = TECH_COLORS, limits = c("BES", "BECCS", "BEBCS"), labels = tech_label) +
   facet_grid(Region ~ Variant, scales = "free_y") +
   theme_minimal(base_size = 11) +
   labs(x = paste0("Carbon price (", U_CPRICE, ")"), y = paste0("Abatement (", U_ABATE, ")"), fill = "Technology") +
