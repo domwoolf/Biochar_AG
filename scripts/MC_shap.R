@@ -125,7 +125,11 @@ plot_sensitivity_evolution <- function(
   }
 
   if (length(importance_list) == 0) {
-    stop("Error: No data populated in sensitivity tracker. Verify scenario filters.")
+    # Too few runs in which this technology is best (e.g. a quick Monte Carlo run): skip, as the global
+    # beeswarm does, so that the render continues
+    message(sprintf("Skipping sensitivity evolution for %s in %s: fewer than 30 runs at every carbon price",
+                    technology_name, region_name))
+    return(invisible(NULL))
   }
 
   # Combine importance data
