@@ -4,12 +4,13 @@
 \alias{biomass_logistics}
 \title{Biomass Collection Logistics}
 \usage{
-biomass_logistics(params, mass = 1)
+biomass_logistics(params, mass = dm_per_daf(params))
 }
 \arguments{
 \item{params}{Parameter list.}
 
-\item{mass}{Mg hauled per Mg feed (1 for feedstock; biochar yield for biochar return).}
+\item{mass}{Mg hauled per Mg dry, ash-free feed (default: the dry matter of the feed, the basis of the
+haulage costs; issue #114).}
 }
 \value{
 A list with \code{effective_dist} (km), \code{cost} ($/Mg feed) and \code{emissions} (Mg CO2e/Mg feed).
@@ -22,7 +23,7 @@ capital, insurance: \code{haul_time_share}), fuel (\code{haul_fuel_share}) and o
 (repairs, tyres, tolls). Where terrain / road-network factors from \code{data-raw/generate_logistics_layers.R}
 are supplied (\code{haul_kt} travel time, \code{haul_kd} road distance, \code{haul_g} climb fuel; each normalised to
 a regional mean of 1), the time share scales with \code{haul_kt}, fuel with \code{haul_kd * haul_g} and other
-distance costs with \code{haul_kd}. Emissions scale with fuel. Costs are scaled by the regional haulage
-location factor. Per-km costs include the empty return trip.
+distance costs with \code{haul_kd}. Emissions scale with fuel. Per-km costs are scaled by the regional haulage
+factor and loading and handling by the farm-operations factor (\code{\link[=regional_haulage_factors]{regional_haulage_factors()}}). Per-km costs include the empty return trip.
 }
 \keyword{internal}

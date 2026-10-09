@@ -20,5 +20,7 @@ A data frame with columns \code{name}, \code{distribution}, \code{min}, \code{mo
 \description{
 Resolves the sampling bounds in \code{parameters.csv} against central (typically regional)
 values. \code{dist_bounds = "relative"} bounds are multipliers on the central value, so each
-region gets its own distribution; \code{"absolute"} bounds are used as given.
+region gets its own distribution; \code{"absolute"} bounds are used as given. A \code{dist_min} or
+\code{dist_max} cell may add regional overrides after the default, separated by semicolons
+(e.g. \verb{0.85;India=0.5}); the region is taken from \code{central$region}.
 }

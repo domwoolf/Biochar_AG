@@ -10,8 +10,12 @@ calculate_bebcs(params)
 \item{params}{A list of parameters.}
 }
 \value{
-A list of calculated metrics for BEBCS.
+A list of calculated metrics for BEBCS; under "flex", \code{bebcs_mode} (1 = power, 2 = none).
 }
 \description{
-Calculate Biochar-Energy (BEBCS) Metrics
+\code{bebcs_energy_mode} selects how the surplus pyrolysis vapours and gases are used: "power" (power block),
+"none" (no energy co-product: the surplus is flared, with no energy block, revenue or grid credit),
+"heat" (heat-only block; sensitivity scenario, issue #106) or "flex" (default): "power" and "none"
+are both evaluated and each cell takes the one with the higher net value at the current carbon price.
+Heat is not part of "flex", because year-round heat demand is niche and opportunistic.
 }

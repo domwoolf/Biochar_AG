@@ -2,19 +2,46 @@
 % Please edit documentation in R/spatial_tea.R
 \name{calculate_regional_feedstock_cost}
 \alias{calculate_regional_feedstock_cost}
-\title{Calculate Spatially Explicit Feedstock Cost}
+\title{Calculate Regional Feedstock Cost}
 \usage{
 calculate_regional_feedstock_cost(region, params)
 }
 \arguments{
-\item{region}{Character string: "US", "EU", "India", or "China".}
+\item{region}{Character string: "US", "EU"/"Europe", "India", or "China".}
 
-\item{params}{List of parameters including base prices, distances, and local flags.}
+\item{params}{List of parameters; optional overrides \code{us_base_cost} ($/Mg, 2024 USD), \code{eu_base_eur}
+(EUR/t dm, 2012 EUR; fallback), \code{eu_feedstock_usd} (layer, USD/Mg), \code{cn_base_cny} (CNY/t, 2019), \code{cn_weather_risk}, \code{india_feedstock_cost} ($/Mg,
+2024 USD), \code{feedstock_storage_cost} (scaled by the farm-operations factor).}
 }
 \value{
-Delivered feedstock cost in USD/Mg.
+Field-side feedstock cost including storage, USD/Mg (2024 USD).
 }
 \description{
-Implements regional pricing logic for crop residues based on spatial shadow pricing.
-Converts regional currencies to a normalized USD/Mg value for NPV calculations.
+Field-side (farm-gate or road-side) purchase price of crop residues plus interim storage, in 2024 USD
+per Mg dry, ash-free feedstock (prices are quoted per Mg dry matter and converted with
+\code{dm_per_daf()}; issue #114). Haulage from field to plant is costed separately (\code{biomass_logistics()}), so delivered or
+plant-gate prices are not used here (issues #52, #53, #101). Sources and conversions:
+\itemize{
+\item \strong{US:} US DOE (2011) Billion-Ton Update (Perlack & Stokes): about 90\% of the primary crop residue
+supply is profitable at a farm-gate price of $50 per dry short ton (2011 USD assumed) = $55.1/Mg x
+1.395 (CPI-U) = 76.9. The farm-gate price includes a grower payment for the nutrients removed (about
+$26 per dry ton for stover, Tables 4.2-4.3); it is excluded, because nutrient removal is charged in
+every region (\code{residue_removal_charge()}): \code{us_base_cost} = (50 - 26) x 1.538 = 37.
+\item \strong{Europe:} S2Biom road-side costs of cereal straw (Dees et al. 2017) aggregated to country level
+(EUR 20 / 37.5 / 62.5 per t dm, 2012 EUR; layer \code{eu_feedstock_usd} from data-raw/process_eu_feedstock.R)
+x 1.285 USD/EUR (2012) x 1.366 (CPI-U) = 35.1 / 65.8 / 109.7. Cells without a country value, and runs
+without the layer, use EUR 40/t dm = 70.2. S2Biom straw costs include fertilization to replace the
+nutrients removed; \code{eu_nutrient_deduction} (EUR 12.1/t dm, 2012: N, P and K of the European straw at
+World Bank 2012 prices) is subtracted, because nutrient removal is charged separately.
+\item \strong{China:} field-side supply cost from the StrawFeed model (Wang et al. 2022; Nongan, Jilin, 2018-19):
+raking 1.0 + baling 84.3 + loading 14.3 = CNY 99.6/t (excluding transport, CNY 72.5/t), / 6.908 CNY/USD
+(2019) x 1.227 (CPI-U) = 17.7 per t of air-dried straw (accepted at <= 17\% moisture), / (1 - bm_h2o)
+= 19.7 per Mg dry matter. Cost basis (no farmer or broker margin), consistent with the S2Biom
+(Europe) and Sokhansanj et al. (India) costs. Optional weather risk multiplier x1.13 (Wang et al. 2022).
+\item \strong{India:} \code{india_feedstock_cost} = 34 $/Mg: baled paddy straw at the field side, dry basis (Sokhansanj
+et al. 2023, $33.14/t dm, 2023 USD), sampled 12-50 (paddy straw value where burned, Erenstein 2011, to
+fodder-market straw prices, Duncan et al. 2020; Lopes et al. 2023).
+\item \strong{Storage (all regions):} \code{feedstock_storage_cost} ($/Mg, US/EU basis, about six months) scaled by
+the farm-operations cost factor (labor, machinery and diesel; \code{\link[=regional_haulage_factors]{regional_haulage_factors()}}).
+}
 }

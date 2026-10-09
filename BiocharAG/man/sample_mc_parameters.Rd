@@ -19,5 +19,6 @@ A data frame with one column per parameter and \code{n} rows.
 }
 \description{
 Draws correlated uniforms via a Gaussian copula and maps them through each parameter's
-marginal (PERT or uniform), so marginals are exact and bounded.
+marginal (PERT, uniform or normal), so marginals are exact. PERT and uniform marginals are bounded;
+for a normal marginal, \code{min} and \code{max} are its 5th and 95th percentiles.
 }

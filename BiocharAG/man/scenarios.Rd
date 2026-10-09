@@ -5,7 +5,7 @@
 \alias{scenarios}
 \title{Regionalized Scenarios}
 \format{
-An object of class \code{list} of length 12.
+An object of class \code{list} of length 16.
 }
 \usage{
 scenarios

@@ -19,5 +19,6 @@ CH4 and N2O from open field burning that is avoided for the regional share of re
 burned (a gain). CO2 from burning is biogenic and not counted. The soil GHG penalty defaults to zero:
 McClelland et al. (2025) found that the SOC gain and the N2O increase from retaining residues
 approximately cancel through 2100 in all regions studied except the Brazilian Cerrado.
+The burnt share is the cell-level \code{residue_burn_map} (times \code{residue_burn_factor}) where available.
 }
 \keyword{internal}

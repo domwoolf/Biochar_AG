@@ -16,9 +16,9 @@
 #   g_<sz>   fuel grade factor = (1 + climb fuel / flat-road fuel) / regional mean
 #            climb fuel = m g (ascent - descent_recovery x descent) / (engine eff x diesel LHV) per leg
 # kt, kd and g are normalised within each region because the regional level of
-# haulage cost (road quality, speeds, wages) is already in haulage_location_factor,
-# which is based on market road-freight rates, and the base fuel rate already reflects
-# typical rolling terrain. They redistribute cost within a
+# haulage cost is set by regional_haulage_factors(): labor, truck and diesel cost ratios,
+# with the regional mean speed (haul_speed_ratio) and grade fuel factor (haul_grade_ratio)
+# taken from the *_haul_factors_norm.csv written here, relative to the US. They redistribute cost within a
 # region, from well-connected flat areas to rugged or poorly connected ones.
 #
 # The plant is placed at the fastest (lowest-friction) sub-cell of its template

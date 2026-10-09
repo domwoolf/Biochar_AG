@@ -7,15 +7,17 @@
 calculate_ash_value(params)
 }
 \arguments{
-\item{params}{Parameter list (\code{ash_recycling}, \code{bm_ash}, \code{ash_cce}, \code{ash_p_content}, \code{avail_p},
-\code{price_lime}, \code{price_p}, \code{soil_ph}, \code{target_ph}).}
+\item{params}{Parameter list.}
 }
 \value{
-Value in $/Mg feedstock (0 when ash is not recycled).
+Value in $/Mg feed (0 when ash is not recycled).
 }
 \description{
-Value of returning BES/BECCS bottom and fly ash to cropland (when \code{ash_recycling} is TRUE), by
-substitution for agricultural lime (only where soil pH is below \code{target_ph}) and phosphorus
-fertiliser. P is largely retained in the ash; N and most K are volatilised in combustion, so they
-are not credited.
+Value of returning BES/BECCS bottom ash to cropland (when \code{ash_recycling} is TRUE): substitution for
+agricultural lime (only where soil pH is below \code{target_ph}) and for P and K fertiliser, from the
+mineral partition in \code{\link[=residue_minerals]{residue_minerals()}}. Fly ash is landfilled; the fraction \code{fly_ash_recycled}
+(default 0) is returned with the bottom ash and credited for its K and P (its ANC is negligible).
+P and K are credited at total content (see \code{\link[=nutrient_value]{nutrient_value()}}). N is lost in combustion. The cost of
+returning the ash is in \code{\link[=ash_return]{ash_return()}}; the charge for the nutrients removed with the residue is in
+\code{\link[=residue_removal_charge]{residue_removal_charge()}}.
 }

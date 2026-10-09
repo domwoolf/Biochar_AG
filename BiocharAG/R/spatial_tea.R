@@ -267,12 +267,12 @@ run_spatial_tea <- function(template_raster, params, spatial_layers = list(),
 #'   et al. 2023, $33.14/t dm, 2023 USD), sampled 12-50 (paddy straw value where burned, Erenstein 2011, to
 #'   fodder-market straw prices, Duncan et al. 2020; Lopes et al. 2023).
 #' - **Storage (all regions):** `feedstock_storage_cost` ($/Mg, US/EU basis, about six months) scaled by
-#'   `haulage_location_factor` (labour and equipment), see `parameters.csv`.
+#'   the farm-operations cost factor (labor, machinery and diesel; [regional_haulage_factors()]).
 #'
 #' @param region Character string: "US", "EU"/"Europe", "India", or "China".
 #' @param params List of parameters; optional overrides `us_base_cost` ($/Mg, 2024 USD), `eu_base_eur`
 #'   (EUR/t dm, 2012 EUR; fallback), `eu_feedstock_usd` (layer, USD/Mg), `cn_base_cny` (CNY/t, 2019), `cn_weather_risk`, `india_feedstock_cost` ($/Mg,
-#'   2024 USD), `feedstock_storage_cost`, `haulage_location_factor`.
+#'   2024 USD), `feedstock_storage_cost` (scaled by the farm-operations factor).
 #' @return Field-side feedstock cost including storage, USD/Mg (2024 USD).
 #' @export
 calculate_regional_feedstock_cost <- function(region, params) {
@@ -311,7 +311,7 @@ calculate_regional_feedstock_cost <- function(region, params) {
 
     storage <- if (!is.null(params$feedstock_storage_cost)) params$feedstock_storage_cost else 15
     # Prices and storage costs are per Mg dry matter; the model works per Mg dry, ash-free feed (#114)
-    (cost_usd + storage * location_factor(params, "haulage")) * dm_per_daf(params)
+    (cost_usd + storage * location_factor(params, "farm")) * dm_per_daf(params)
 }
 
 # nolint end

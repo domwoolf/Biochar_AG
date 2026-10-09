@@ -10,7 +10,7 @@ calculate_bes(params)
 \item{params}{A list of parameters.}
 }
 \value{
-A list of calculated metrics for BES.
+A list of calculated metrics for BES, with \code{bes_mode} (1 = base load, 2 = flexible).
 }
 \description{
 Modernized logic (2024 Basis):
@@ -19,4 +19,15 @@ Modernized logic (2024 Basis):
 \item Calculates Levelized Cost of Electricity components (CAPEX/OPEX).
 \item Explicitly tracks Scope 3 transport emissions and road tortuosity.
 }
+}
+\details{
+BES is evaluated in two operating modes within the same run, and each cell takes the better one:
+base load (\code{capacity_factor_bes_base}, price \code{elec_price * bes_base_price_capture}) and flexible,
+load-following operation (\code{capacity_factor_bes_flex}, price \code{elec_price * bes_flex_price_capture}).
+The capture ratios (realised / time-averaged price) come from hourly day-ahead prices
+(data-raw/elec_prices/price_capture.R). Abatement per Mg is the same
+in both modes apart from small differences in haulage emissions, so the mode is chosen on net value
+excluding carbon revenue; the choice is then independent of the carbon price, which keeps
+\code{run_price_sweep()} exact. The allocation of biomass between modes also depends on the fleet mix and
+demand dynamics of each grid, which are not modelled.
 }

@@ -209,14 +209,14 @@ bc_dose_options <- function(params) {
 #' Cost and Diesel per Hectare and Pass of Spreading Biochar or Ash
 #'
 #' Spreading only: application is timed to precede tillage, which incorporates the biochar or ash at no
-#' extra cost. Cost scaled by the haulage location factor.
+#' extra cost. Cost scaled by the farm-operations location factor.
 #'
 #' @param params Parameter list.
 #' @return US$ ha-1 (`bc_pass_cost`) or L ha-1 (`bc_pass_diesel`).
 #' @keywords internal
 bc_pass_cost <- function(params) {
   pv <- function(n, d) if (!is.null(params[[n, exact = TRUE]])) params[[n, exact = TRUE]] else d
-  pv("bc_spread_cost", 81) * location_factor(params, "haulage")
+  pv("bc_spread_cost", 81) * location_factor(params, "farm")
 }
 
 #' @rdname bc_pass_cost

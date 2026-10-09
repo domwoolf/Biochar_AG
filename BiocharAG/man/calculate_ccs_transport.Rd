@@ -18,7 +18,9 @@ calculate_ccs_transport(
   terrain_mult = 1,
   terrain_share = 1,
   hrel_max_m = NULL,
-  elec_price = 0
+  elec_price = 0,
+  ship_costs = c(liquefaction = 24.5, terminal = 15, voyage = 0.01),
+  pipe_costs = pipeline_cost_params(list())
 )
 }
 \arguments{
@@ -40,7 +42,8 @@ distance (no shared trunkline). Default FALSE.}
 
 \item{dist_sea}{Sea voyage distance from the port to the offshore sink (km). Defaults to \code{distance}.}
 
-\item{capex_factor}{Regional CAPEX location factor (pipelines, pumps, liquefaction and terminals).}
+\item{capex_factor}{Regional CO2 transport CAPEX location factor (\code{ccs_transport_location_factor}: pipelines,
+pumps, liquefaction and terminals).}
 
 \item{om_factor}{Regional O&M location factor (pipeline and pump O&M fraction).}
 
@@ -51,6 +54,12 @@ distance (no shared trunkline). Default FALSE.}
 \item{hrel_max_m}{Highest point of the pipeline route above the source (m). NULL = no lift cost.}
 
 \item{elec_price}{Electricity price for booster pumping ($/MWh). Default 0.}
+
+\item{ship_costs}{Named ship transport costs (2024 USD): \code{liquefaction} and \code{terminal} ($/t, scaled by
+\code{capex_factor}) and \code{voyage} ($/t/km). Defaults from parameters.csv (\code{co2_liquefaction_cost},
+\code{co2_ship_terminal_cost}, \code{co2_ship_voyage_cost}).}
+
+\item{pipe_costs}{Named pipeline cost parameters from \code{\link[=pipeline_cost_params]{pipeline_cost_params()}}.}
 }
 \value{
 Transport cost ($/Mg CO2).
@@ -58,8 +67,8 @@ Transport cost ($/Mg CO2).
 \description{
 Onshore sinks are reached by pipeline. Offshore sinks are reached by ship: a pipeline leg from
 the source to the port, liquefaction and port terminal, and a sea voyage to the sink.
-Pipelines use a hub-and-spoke power-law cost model (ZEP-style): CAPEX scales with distance and
-with capacity^0.6.
+Pipelines use a hub-and-spoke power-law cost model: CAPEX scales with distance and with capacity to
+the power \code{pipe_costs[["scale"]]} (see \code{\link[=pipeline_cost_params]{pipeline_cost_params()}}).
 }
 \details{
 With route layers from \code{data-raw/process_transport_layers.R} (v2), \code{distance} and \code{dist_coast} are

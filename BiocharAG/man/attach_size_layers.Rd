@@ -18,5 +18,6 @@ The updated parameter list.
 }
 \description{
 Sets \code{avg_dist} from the \verb{dist_<sz>MWth} layer and, where present, \code{haul_kt}, \code{haul_kd} and
-\code{haul_g} from the \verb{haul_<kt|kd|g>_<sz>} layers (see \code{data-raw/generate_logistics_layers.R}).
+\code{haul_g} from the \verb{haul_<kt|kd|g>_<sz>} layers (see \code{data-raw/generate_logistics_layers.R}), and
+\verb{avg_dist_<BES_BASE|BES_FLEX|BECCS|BEBCS>} at each technology's capacity factor (see \code{size_distance()}).
 }

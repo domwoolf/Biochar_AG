@@ -9,12 +9,14 @@ location_factor(params, type)
 \arguments{
 \item{params}{Parameter list.}
 
-\item{type}{One of "capex", "om" or "haulage" (reads \verb{<type>_location_factor}).}
+\item{type}{One of "capex", "ccs_transport", "om", "haulage" or "farm".}
 }
 \value{
 The regional multiplier (1 if not set).
 }
 \description{
-Regional Cost Location Factor
+\code{"capex"}, \code{"ccs_transport"} and \code{"om"} read \verb{<type>_location_factor}. \code{"haulage"} (per-km trucking)
+and \code{"farm"} (loading and handling, storage, field spreading) are built from regional cost ratios
+relative to the US (issue #12; see \code{\link[=regional_haulage_factors]{regional_haulage_factors()}}).
 }
 \keyword{internal}

@@ -154,7 +154,7 @@ calculate_bebcs_mode <- function(params) {
     # field-edge storage and whose empty return leg is already in the per-km cost: only loading and
     # handling are charged.
     bc_haul_cost <- if (isFALSE(as.logical(params$bc_return_haul))) 0 else
-      bc_yield * (if (!is.null(params$bm_transport_fixed)) params$bm_transport_fixed else 6.27) * location_factor(params, "haulage")
+      bc_yield * (if (!is.null(params$bm_transport_fixed)) params$bm_transport_fixed else 6.27) * location_factor(params, "farm")
     # Field application on the cell's own cropland: dose strategy with the highest net value at this carbon
     # price (yield response, spreading passes, soil N2O; biochar_field_table())
     field_tab <- biochar_field_table(params, bc_yield, bc_stability)
