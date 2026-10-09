@@ -21,7 +21,8 @@
 #'   distance (no shared trunkline). Default FALSE.
 #' @param dist_coast Pipeline length from the source to the export port (km) for ship transport. Default 0.
 #' @param dist_sea Sea voyage distance from the port to the offshore sink (km). Defaults to `distance`.
-#' @param capex_factor Regional CAPEX location factor (pipelines, pumps, liquefaction and terminals).
+#' @param capex_factor Regional CO2 transport CAPEX location factor (`ccs_transport_location_factor`: pipelines,
+#'   pumps, liquefaction and terminals).
 #' @param om_factor Regional O&M location factor (pipeline and pump O&M fraction).
 #' @param terrain_mult Route-average pipeline construction-cost multiplier (>= 1; NA treated as 1).
 #' @param terrain_share Fraction of pipeline CAPEX that scales with terrain. Default 1.
@@ -148,7 +149,7 @@ co2_lift_cost <- function(co2_mass, hrel_max_m, annuity_fac, opex_factor, capex_
 #' Pipeline Cost Parameters
 #'
 #' Capital cost per km of a pipeline carrying 1 Mt CO2/yr (`co2_pipe_capex_km`, US$/km, scaled by the
-#' regional CAPEX location factor), the flow-scaling exponent (`co2_pipe_scale_exp`), the annual O&M
+#' regional CO2 transport location factor), the flow-scaling exponent (`co2_pipe_scale_exp`), the annual O&M
 #' fraction of CAPEX (`co2_pipe_om_frac`), the route length beyond which booster pumping raises the
 #' marginal CAPEX (`co2_pipe_booster_km`) and its multiplier (`co2_pipe_booster_mult`), the design flow of
 #' shared trunklines (`co2_trunk_flow`, Mg/yr) and the length of the dedicated feeder (`co2_feeder_km`).

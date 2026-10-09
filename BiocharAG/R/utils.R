@@ -433,7 +433,7 @@ plant_om_fraction <- function(params, specific = NULL) {
 #' Regional Cost Location Factor
 #'
 #' @param params Parameter list.
-#' @param type One of "capex", "om" or "haulage" (reads `<type>_location_factor`).
+#' @param type One of "capex", "ccs_transport", "om" or "haulage" (reads `<type>_location_factor`).
 #' @return The regional multiplier (1 if not set).
 #' @keywords internal
 location_factor <- function(params, type) {

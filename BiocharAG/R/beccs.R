@@ -75,7 +75,7 @@ calculate_beccs <- function(params) {
     annual_co2_total <- annual_biomass * co2_captured
 
     # --- CCS Transport & Storage Component ---
-    capex_loc <- location_factor(params, "capex")
+    capex_loc <- location_factor(params, "ccs_transport")
     om_loc <- location_factor(params, "om")
     base_cost_onshore_storage <- if (!is.null(params$ccs_storage_cost)) params$ccs_storage_cost else 10.0
     base_cost_offshore_storage <- if (!is.null(params$cost_offshore_storage)) cost_offshore_storage else 20.0
@@ -242,7 +242,7 @@ calculate_beccs <- function(params) {
     # 4. Plant Costs (CAPEX/OPEX)
     scaling_factor_val <- if (!is.null(params$scaling_factor)) scaling_factor else 0.7
     # Equivalent BES plant for the same thermal input, plus the capture/compression premium. bes_capital_cost
-    # is a local (regional) value, so the CAPEX location factor is not applied (it still scales CO2 transport).
+    # is a local (regional) value, so the CAPEX location factor is not applied.
     total_capex <- combustion_plant_capex(bes_capital_cost, plant_mw_th, bes_capex_ref_eff, scaling_factor_val) *
       (1 + beccs_capex_premium)
     annuity_fac <- calculate_annuity_factor(discount_rate, bes_life)
