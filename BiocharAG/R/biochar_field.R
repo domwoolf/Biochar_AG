@@ -208,22 +208,22 @@ bc_dose_options <- function(params) {
 
 #' Cost and Diesel per Hectare and Pass of Spreading and Incorporating Biochar or Ash
 #'
-#' Spreading plus the share `bc_incorp_share` of incorporation (which may coincide with existing tillage
-#' or fertiliser banding); cost scaled by the haulage location factor.
+#' Spreading plus the share `bc_incorp_share` of incorporation (0 by default: application is timed to
+#' precede tillage, which incorporates it); cost scaled by the haulage location factor.
 #'
 #' @param params Parameter list.
 #' @return US$ ha-1 (`bc_pass_cost`) or L ha-1 (`bc_pass_diesel`).
 #' @keywords internal
 bc_pass_cost <- function(params) {
   pv <- function(n, d) if (!is.null(params[[n, exact = TRUE]])) params[[n, exact = TRUE]] else d
-  (pv("bc_spread_cost", 58) + pv("bc_incorp_share", 0.5) * pv("bc_incorp_cost", 58)) * location_factor(params, "haulage")
+  (pv("bc_spread_cost", 81) + pv("bc_incorp_share", 0) * pv("bc_incorp_cost", 35)) * location_factor(params, "haulage")
 }
 
 #' @rdname bc_pass_cost
 #' @keywords internal
 bc_pass_diesel <- function(params) {
   pv <- function(n, d) if (!is.null(params[[n, exact = TRUE]])) params[[n, exact = TRUE]] else d
-  pv("bc_spread_diesel", 8.75) + pv("bc_incorp_share", 0.5) * pv("bc_incorp_diesel", 8.75)
+  pv("bc_spread_diesel", 12.25) + pv("bc_incorp_share", 0) * pv("bc_incorp_diesel", 5.25)
 }
 
 #' Choose the Dose Strategy with the Highest Net Value at a Carbon Price
