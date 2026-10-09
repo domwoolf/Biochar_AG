@@ -93,7 +93,7 @@ calculate_beccs <- function(params) {
         early_adoption = early_adoption, capex_factor = capex_loc, om_factor = om_loc,
         terrain_share = if (!is.null(params$co2_pipeline_terrain_share)) params$co2_pipeline_terrain_share else 1,
         elec_price = if (!is.null(params$elec_price)) params$elec_price else 0,
-        ship_costs = ship_costs
+        ship_costs = ship_costs, pipe_costs = pipeline_cost_params(params)
       )
       zero_na <- function(x) ifelse_raster(is.na(x), 0, x)
       # Storage cost of the sink each route reaches (issue #103), scaled by storage_cost_factor for
@@ -208,7 +208,8 @@ calculate_beccs <- function(params) {
         lifetime = bes_life,
         early_adoption = early_adoption,
         capex_factor = capex_loc,
-        om_factor = om_loc
+        om_factor = om_loc,
+        pipe_costs = pipeline_cost_params(params)
       )
       ts_cost_onshore_calc <- (cost_onshore_trans + base_cost_onshore_storage) * co2_captured
       ts_cost_onshore <- ifelse_raster(is.infinite(dist_onshore), Inf, ts_cost_onshore_calc)
@@ -224,7 +225,8 @@ calculate_beccs <- function(params) {
         dist_sea = dist_sea,
         capex_factor = capex_loc,
         om_factor = om_loc,
-        ship_costs = ship_costs
+        ship_costs = ship_costs,
+        pipe_costs = pipeline_cost_params(params)
       )
       ts_cost_offshore_calc <- (cost_offshore_trans + base_cost_offshore_storage) * co2_captured
       ts_cost_offshore <- ifelse_raster(is.infinite(dist_offshore), Inf, ts_cost_offshore_calc)

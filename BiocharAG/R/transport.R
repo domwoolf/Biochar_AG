@@ -2,8 +2,8 @@
 #'
 #' Onshore sinks are reached by pipeline. Offshore sinks are reached by ship: a pipeline leg from
 #' the source to the port, liquefaction and port terminal, and a sea voyage to the sink.
-#' Pipelines use a hub-and-spoke power-law cost model (ZEP-style): CAPEX scales with distance and
-#' with capacity^0.6.
+#' Pipelines use a hub-and-spoke power-law cost model: CAPEX scales with distance and with capacity to
+#' the power `pipe_costs[["scale"]]` (see [pipeline_cost_params()]).
 #'
 #' With route layers from `data-raw/process_transport_layers.R` (v2), `distance` and `dist_coast` are
 #' physical route lengths, terrain enters as a CAPEX multiplier (`terrain_mult`, the construction-cost
@@ -30,30 +30,30 @@
 #' @param ship_costs Named ship transport costs (2024 USD): `liquefaction` and `terminal` ($/t, scaled by
 #'   `capex_factor`) and `voyage` ($/t/km). Defaults from parameters.csv (`co2_liquefaction_cost`,
 #'   `co2_ship_terminal_cost`, `co2_ship_voyage_cost`).
+#' @param pipe_costs Named pipeline cost parameters from [pipeline_cost_params()].
 #' @return Transport cost ($/Mg CO2).
 #' @export
 calculate_ccs_transport <- function(co2_mass, distance, is_offshore = FALSE, discount_rate = 0.10, lifetime = 20,
                                     early_adoption = FALSE, dist_coast = NULL, dist_sea = NULL,
                                     capex_factor = 1, om_factor = 1, terrain_mult = 1, terrain_share = 1,
                                     hrel_max_m = NULL, elec_price = 0,
-                                    ship_costs = c(liquefaction = 24.5, terminal = 15, voyage = 0.010)) {
+                                    ship_costs = c(liquefaction = 24.5, terminal = 15, voyage = 0.010),
+                                    pipe_costs = pipeline_cost_params(list())) {
   safe_co2_mass <- pmax(co2_mass, 1e-6)
   annuity_fac <- (1 - (1 + discount_rate)^(-lifetime)) / discount_rate
-  opex_factor <- 0.04 * om_factor
+  opex_factor <- pipe_costs[["om"]] * om_factor
   tm <- ifelse_raster(is.na(terrain_mult), 1, terrain_mult)
   tm <- 1 + terrain_share * (pmax_raster(tm, 1) - 1)
 
   pipeline_cost <- function(dist) {
     ref_mass <- 1000000
     ref_dist <- 100
-    # 50 M$ per 100 km at 1 Mt/yr: within the 0.47-0.58 M$/km of the Solomon et al. (2024) diameter regression
-    # (2.1575 EUR/m per mm + 0.018, 2024 EUR) for the ~200-250 mm needed for 1 Mt/yr (issue #86)
-    base_capex_ref <- 50000000 * capex_factor
-    scale_factor <- 0.6
-    feeder_threshold_km <- 50
-    booster_threshold_km <- 700
-    booster_penalty <- 2.0
-    trunk_mass_flow <- pmax(safe_co2_mass, 3000000)
+    base_capex_ref <- pipe_costs[["capex_ref"]] * ref_dist * capex_factor # US$ per ref_dist km at 1 Mt/yr
+    scale_factor <- pipe_costs[["scale"]]
+    feeder_threshold_km <- pipe_costs[["feeder_km"]]
+    booster_threshold_km <- pipe_costs[["booster_km"]]
+    booster_penalty <- pipe_costs[["booster_mult"]]
+    trunk_mass_flow <- pmax(safe_co2_mass, pipe_costs[["trunk_flow"]])
 
     # Path A: hub-and-spoke (dedicated feeder, then a share of a regional trunkline)
     capex_f <- base_capex_ref * (feeder_threshold_km / ref_dist) * (safe_co2_mass / ref_mass)^scale_factor
@@ -143,4 +143,23 @@ co2_lift_cost <- function(co2_mass, hrel_max_m, annuity_fac, opex_factor, capex_
   capex <- (1.11e6 * pump_mw + 0.07e6 * n_stations) * cpi_2005 * capex_factor
   elec_mwh_per_t <- 1000 * dp_pa / (rho * pump_eff) / 3.6e9
   (capex / annuity_fac + capex * opex_factor) / co2_mass + elec_mwh_per_t * elec_price
+}
+
+#' Pipeline Cost Parameters
+#'
+#' Capital cost per km of a pipeline carrying 1 Mt CO2/yr (`co2_pipe_capex_km`, US$/km, scaled by the
+#' regional CAPEX location factor), the flow-scaling exponent (`co2_pipe_scale_exp`), the annual O&M
+#' fraction of CAPEX (`co2_pipe_om_frac`), the route length beyond which booster pumping raises the
+#' marginal CAPEX (`co2_pipe_booster_km`) and its multiplier (`co2_pipe_booster_mult`), the design flow of
+#' shared trunklines (`co2_trunk_flow`, Mg/yr) and the length of the dedicated feeder (`co2_feeder_km`).
+#' Sources in parameters.csv (issue #64).
+#'
+#' @param params Parameter list.
+#' @return Named numeric vector.
+#' @export
+pipeline_cost_params <- function(params) {
+  pv <- function(n, d) if (!is.null(params[[n, exact = TRUE]])) params[[n, exact = TRUE]] else d
+  c(capex_ref = pv("co2_pipe_capex_km", 5e5), scale = pv("co2_pipe_scale_exp", 0.5), om = pv("co2_pipe_om_frac", 0.04),
+    booster_km = pv("co2_pipe_booster_km", 700), booster_mult = pv("co2_pipe_booster_mult", 2),
+    trunk_flow = pv("co2_trunk_flow", 3e6), feeder_km = pv("co2_feeder_km", 50))
 }
