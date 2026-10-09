@@ -116,17 +116,10 @@ run_step("mc_analysis", 'source("scripts/mc_analysis.R")')
 run_step("mc_shap", 'source("scripts/MC_shap.R"); generate_evolution_plots(); generate_global_beeswarm_plots()')
 ```
 
-```{r pipeline-spatial-sensitivity}
-#| include: false
-#| cache: true
-#| cache.extra: !expr list(fp_model(), fp_hash("scripts/spatial_sensitivity.R"))
-run_step("spatial_sensitivity", 'source("scripts/spatial_sensitivity.R")')
-```
-
 ```{r pipeline-spatial-shap}
 #| include: false
 #| cache: true
-#| cache.extra: !expr list(fp_hash("scripts/spatial_shap.R", "scripts/manuscript_figures.R", "results/spatial_sensitivity_results.csv"))
+#| cache.extra: !expr list(fp_model(), fp_hash("scripts/spatial_shap.R"))
 run_step("spatial_shap", 'source("scripts/spatial_shap.R")')
 ```
 
@@ -144,7 +137,7 @@ It is, therefore, critical to understand where biochar could be the best use of 
 
 ## Biochar provides a mid-price transition technology option and a long-term solution for specific agro-ecological zones
 
-@fig-evap (China) provides a counterpoint to the US results. It shows how soils with strong production constraints that can be alleviated by biochar can create a persistent competitive advantage for biochar, particularly when combined with large distances to CO~2~ storage sites. PyCCS performs a central role as a transition technology that peaks at intermediate carbon prices that are high enough to make its carbon sequestration competitive with BE, but not so high that the more efficient CDR of BECCS per unit biomass outcompetes it (@fig-macc). Nonetheless, while BECCS ultimately becomes the optimal technology across the entire US spatial domain at high carbon prices, PyCCS remains the most viable pathway in southern China across almost all price and discount rate scenarios. This demonstrates that PyCCS is not merely a transition technology, but the optimal long-term pathway for specific agro-ecological zones. In Southern China, characterized by highly weathered, acidic soils, the biochar's liming and nutrient use efficiency benefits provide a substantial economic credit that buffers against high processing costs. The model scales physical yield efficiency gains inversely to the soil's native Cation Exchange Capacity (CEC), thus granting severe CEC deficits higher premiums. This is confirmed by the SHAP analysis (@fig-shap-dominant), which identifies soil CEC as the dominant spatial driver in this region.
+@fig-evap (China) provides a counterpoint to the US results. It shows how soils with strong production constraints that can be alleviated by biochar can create a persistent competitive advantage for biochar, particularly when combined with large distances to CO~2~ storage sites. PyCCS performs a central role as a transition technology that peaks at intermediate carbon prices that are high enough to make its carbon sequestration competitive with BE, but not so high that the more efficient CDR of BECCS per unit biomass outcompetes it (@fig-macc). Nonetheless, while BECCS ultimately becomes the optimal technology across the entire US spatial domain at high carbon prices, PyCCS remains the most viable pathway in southern China across almost all price and discount rate scenarios. This demonstrates that PyCCS is not merely a transition technology, but the optimal long-term pathway for specific agro-ecological zones. In Southern China, characterized by highly weathered, acidic soils, the biochar's liming and nutrient use efficiency benefits provide a substantial economic credit that buffers against high processing costs. The model scales physical yield efficiency gains inversely to the soil's native Cation Exchange Capacity (CEC), thus granting severe CEC deficits higher premiums. This is confirmed by the SHAP analysis (@fig-takeover-driver), which identifies soil CEC as a dominant spatial driver in this region.
 
 ## Regional policies hinder biochar competitiveness
 
@@ -473,11 +466,13 @@ The regional discount rates (@tbl-parameters) are real, after-tax costs of capit
 
 ## Statistical methods
 
-Parameter uncertainty was propagated by Monte Carlo simulation, with 5,000 draws per region. Each parameter with an uncertainty range was sampled from a PERT or uniform distribution, with the central values, distributions and bounds listed in @tbl-si-mc, and correlated parameters were sampled jointly through a Gaussian copula. The uncertainty of the grid displacement curve was represented by sampling one of its 1,000 bootstrap draws in each iteration. The drivers of each technology's net value were identified by fitting gradient-boosted regression trees [XGBoost; @chen2016xgboost] to the Monte Carlo results and computing SHAP values [@lundberg2017]. The same method was applied across grid cells, to the choice of preferred technology, to identify its spatial drivers. Structural assumptions that the Monte Carlo analysis holds fixed were tested with the same carbon-price sweep as the marginal abatement cost curves, at the regional discount rates: plant sizes of 50 and 250 MW~th~ either side of the default of 125 MW~th~, dedicated pipelines instead of shared trunklines (each plant builds its own pipeline over the full distance to the sink), and CO~2~-EOR allowed as a sink (@fig-si-variants). Plant size is treated as a design assumption rather than optimised. When the model chooses the size that maximises net value in each cell, it tends towards the largest size considered, because economies of scale outweigh the longer haulage, implying gigawatt-scale plants throughout agricultural landscapes. In practice, plant size is limited by constraints outside the model, such as the road traffic and nuisance of continuous truck deliveries and the capacity of local roads and grid connections, so the default of 125 MW~th~ is large compared with typical biomass plants but not exceptional, and the size variants show the sensitivity of the results to this assumption.
+Parameter uncertainty was propagated by Monte Carlo simulation, with 5,000 draws per region. Each parameter with an uncertainty range was sampled from a PERT, uniform or normal distribution, with the central values, distributions and bounds listed in @tbl-si-mc, and correlated parameters were sampled jointly through a Gaussian copula. The uncertainty of the grid displacement curve was represented by sampling one of its 1,000 bootstrap draws in each iteration. The drivers of each technology's net value were identified by fitting gradient-boosted regression trees [XGBoost; @chen2016xgboost] to the Monte Carlo results and computing SHAP values [@lundberg2017]. The same method was applied across grid cells to identify the spatial drivers of technology costs (see below). Structural assumptions that the Monte Carlo analysis holds fixed were tested with the same carbon-price sweep as the marginal abatement cost curves, at the regional discount rates: plant sizes of 50 and 250 MW~th~ either side of the default of 125 MW~th~, dedicated pipelines instead of shared trunklines (each plant builds its own pipeline over the full distance to the sink), and CO~2~-EOR allowed as a sink (@fig-si-variants). Plant size is treated as a design assumption rather than optimised. When the model chooses the size that maximises net value in each cell, it tends towards the largest size considered, because economies of scale outweigh the longer haulage, implying gigawatt-scale plants throughout agricultural landscapes. In practice, plant size is limited by constraints outside the model, such as the road traffic and nuisance of continuous truck deliveries and the capacity of local roads and grid connections, so the default of 125 MW~th~ is large compared with typical biomass plants but not exceptional, and the size variants show the sensitivity of the results to this assumption.
 
-To identify which spatial inputs determine the optimal technology in each grid cell, we fitted a surrogate classifier to the spatial sensitivity results (scenario CP100_MW250: carbon price 100 US\$ Mg^-1^ CO~2~e, plant size 250 MW~th~) and attributed its predictions to the inputs with SHAP (SHapley Additive exPlanations) values [@chen2016xgboost]. The classifier is a gradient-boosted tree ensemble (XGBoost; multi-class soft-probability objective, maximum depth 6, learning rate 0.05, 120 rounds) that predicts the technology with the highest net value (BE, BECCS or PyCCS) from ten cell-level inputs: biomass density, soil temperature, electricity price, field-side feedstock cost, the length of the CO~2~ route chosen by BECCS, whether that route ends at an offshore sink, the storage cost at that sink, soil pH, soil cation exchange capacity (CEC) and the displaced grid carbon intensity. SHAP values are in log-odds of each class.
+To identify the spatial inputs that make each technology cheap or expensive, and that determine where geological storage takes over from biochar, we fitted regression models to four quantities calculated for each grid cell from the carbon-price sweep at the default regional parameters. They are the break-even carbon prices of PyCCS and BECCS; the net value of BE without a carbon price, because BE abates too little for its break-even price to be informative; and the takeover price, the lowest carbon price at which BECCS has the highest non-negative net value. Each quantity was predicted by gradient-boosted regression trees [XGBoost; @chen2016xgboost] with a squared-error objective, a maximum depth of 6, a learning rate of 0.05 and 400 rounds. Each prediction was attributed to the inputs with SHAP (SHapley Additive exPlanations) values [@lundberg2017], in the units of the predicted quantity.
 
-Two kinds of model are fitted. A global model, fitted to all four regions together, shows which inputs distinguish the regions as well as cells within them. Because some inputs are constant within a region (for example, feedstock cost outside Europe and the electricity price in India), in the global model they partly act as labels for the region rather than as drivers of within-region variation. A separate model is therefore fitted for each region; inputs that are constant within the region are dropped. The regional models are used for the maps of the dominant driver (@fig-shap-dominant, @fig-shap-magnitude) and for the regional beeswarm and dependence plots (@fig-si-bee-global to @fig-si-bee-india and the dependence plots that follow them); @tbl-si-shap-importance gives the share of each input in the mean absolute SHAP value of each model. Beeswarm and dependence plots show a random sample of 20,000 cells per model; SHAP values were computed for all cells. In the dependence plots, points are coloured by the input with the strongest estimated interaction with the plotted input.
+Each model uses only the spatial inputs that enter the economics of the technologies it represents (@tbl-si-shap-importance). This prevents a cost from being attributed to a correlated input that the technology does not use, such as soil temperature, which correlates with the haulage cost multiplier in India (r = −0.63). The inputs common to all technologies are the collection distance of each technology at its capacity factor (see Biomass transport costs and emissions), the terrain and road-network multiplier of haulage cost, the field-side feedstock cost, the electricity price and soil pH, which sets the liming credit and the removal charge. The carbon-price-dependent quantities also use the displaced grid carbon intensity and the share of residue otherwise burned. PyCCS adds soil temperature, soil CEC, the biochar supply per hectare of cropland and the crop value per hectare; BECCS adds the length of its CO~2~ route, whether the route ends at an offshore sink, and the storage cost at that sink. The takeover price uses the inputs of both.
+
+A separate model was fitted for each region, because inputs that are constant within a region, such as feedstock cost outside Europe and the electricity price in India, would otherwise act as labels for the region. On a random 20% of cells held out from fitting, the models explained 96–100% of the variance of each quantity. Cells where a quantity is undefined (at most 2.4% in any region) were excluded. Dependence plots show a random sample of 20,000 cells per model; SHAP values were computed for all cells.
 
 ## Model parameters and data sources
 
@@ -588,9 +583,11 @@ gt(display_df, groupname_col = "Category") |>
 
 ![Marginal abatement cost curves: abatement potential of the technology with the highest non-negative net value in each grid cell, by region, as a function of the carbon price.](results/figures/MACC.png){#fig-macc width="100%"}
 
-![Dominant spatial driver of the optimal technology in each grid cell: the input with the largest absolute SHAP value for the cell's optimal technology, from surrogate classifiers fitted separately for each region (scenario CP100_MW250; see Supplementary Information).](results/spatial_shap/map_dominant_shap_feature.png){#fig-shap-dominant width="100%"}
+![Spatial drivers of technology costs and of the takeover of biochar by geological storage: share of the mean absolute SHAP value of each input in regional regression models of the break-even carbon prices of PyCCS and BECCS, the net value of BE without a carbon price, and the carbon price at which BECCS takes over. Inputs without a value are not used by that model; values below 5% are not labelled.](results/spatial_shap/shap_importance.png){#fig-shap-importance width=\"100%\"}
 
-![Magnitude (absolute SHAP value, log-odds) of the dominant spatial driver in each grid cell, from the regional surrogate classifiers.](results/spatial_shap/map_max_shap_magnitude.png){#fig-shap-magnitude width="100%"}
+![Carbon price at which BECCS becomes the technology with the highest non-negative net value in each grid cell, at the regional market discount rates. Cells in grey: BECCS does not take over below 500 US\$ Mg^-1^ CO~2~e.](results/spatial_shap/map_takeover_price.png){#fig-takeover-price width=\"100%\"}
+
+![Dominant driver of the BECCS takeover price (@fig-takeover-price) in each grid cell: the input with the largest absolute SHAP value in the regional regression models (@fig-shap-importance).](results/spatial_shap/map_takeover_driver.png){#fig-takeover-driver width=\"100%\"}
 
 # REFERENCES AND NOTES
 
@@ -726,23 +723,31 @@ k
 #| message: false
 #| warning: false
 #| label: tbl-si-shap-importance
-#| tbl-cap: "Share of mean absolute SHAP value (%, summed over classes) by input and model, and the training accuracy of each classifier. A dash marks an input that is constant within the region and was dropped from that region's model."
-imp <- read.csv("results/spatial_shap/shap_importance_by_model.csv")
-labs <- c(biomass_density = "Biomass density", soil_temp = "Soil temperature", elec_price = "Electricity price",
-  feedstock_cost = "Feedstock cost", co2_route_km = "CO~2~ route length", co2_offshore = "Offshore CO~2~ sink",
-  co2_storage_cost = "CO~2~ storage cost", soil_ph = "Soil pH", soil_cec = "Soil CEC",
-  ff_c_intensity = "Grid carbon intensity")
-models <- intersect(c("Global", "US", "Europe", "China", "India"), unique(imp$model))
-tab <- data.frame(Input = unname(labs))
-for (m in models) {
-  s <- imp[imp$model == m, ]
-  tab[[m]] <- ifelse(names(labs) %in% s$feature, sprintf("%.1f", s$share_pct[match(names(labs), s$feature)]), "–")
+#| tbl-cap: "Share of the mean absolute SHAP value (%) of each input in the regional regression models (@fig-shap-importance), and the share of variance each model explains in held-out cells. A dash marks an input that the model does not use or that is constant within the region."
+imp <- read.csv("results/spatial_shap/shap_importance.csv")
+targets <- c(be_PyCCS = "Break-even price, PyCCS", be_BECCS = "Break-even price, BECCS",
+  n0_BE = "Net value of BE at zero carbon price", takeover_BECCS = "BECCS takeover price")
+labs <- c(dist_BE_base = "Collection distance, BE (base load)", dist_BE_flex = "Collection distance, BE (flexible)",
+  dist_BECCS = "Collection distance, BECCS", dist_PyCCS = "Collection distance, PyCCS",
+  haul_mult = "Haulage cost multiplier", feedstock_cost = "Feedstock cost", elec_price = "Electricity price",
+  ff_c_intensity = "Grid carbon intensity", soil_ph = "Soil pH", burn_frac = "Share of residue burned",
+  soil_temp = "Soil temperature", soil_cec = "Soil CEC", bc_supply = "Biochar supply per hectare",
+  crop_value = "Crop value per hectare", co2_route_km = "CO~2~ route length", co2_offshore = "Offshore CO~2~ sink",
+  co2_storage_cost = "CO~2~ storage cost")
+regions <- c("US", "Europe", "China", "India")
+rows <- list()
+for (tg in names(targets)) {
+  s <- imp[imp$target == tg, ]
+  for (f in names(labs)[names(labs) %in% s$feature]) {
+    v <- vapply(regions, function(r) { x <- s$share_pct[s$region == r & s$feature == f]; if (length(x)) sprintf("%.1f", x) else "–" }, character(1))
+    rows[[length(rows) + 1]] <- c(targets[[tg]], labs[[f]], v)
+  }
+  r2 <- vapply(regions, function(r) { x <- s$holdout_r2[s$region == r]; if (length(x)) sprintf("%.3f", x[1]) else "–" }, character(1))
+  rows[[length(rows) + 1]] <- c(targets[[tg]], "Held-out R^2^", r2)
 }
-g <- suppressWarnings(as.numeric(tab$Global))
-tab <- tab[order(-ifelse(is.na(g), -1, g)), ] # by global importance
-acc <- vapply(models, function(m) sprintf("%.1f", imp$accuracy_pct[imp$model == m][1]), character(1))
-tab <- rbind(tab, c("Training accuracy", acc))
-knitr::kable(tab, format = "pipe", row.names = FALSE, align = c("l", rep("r", length(models)))) # pipe: Pandoc renders CO~2~
+tab <- as.data.frame(do.call(rbind, rows))
+names(tab) <- c("Quantity", "Input", regions)
+knitr::kable(tab, format = "pipe", row.names = FALSE, align = c("l", "l", rep("r", length(regions)))) # pipe: Pandoc renders CO~2~
 ```
 
 ## Supplementary figures {.unnumbered}
@@ -755,31 +760,20 @@ knitr::kable(tab, format = "pipe", row.names = FALSE, align = c("l", rep("r", le
 
 ![Sensitivity of the marginal abatement cost curves (@fig-macc) to structural assumptions: abatement of the technology with the highest non-negative net value in each grid cell, by region (rows), for the default (125 MW~th~ plants, shared CO~2~ trunklines, no CO~2~-EOR), plants of 50 and 250 MW~th~, dedicated pipelines from each plant to its sink, and CO~2~-EOR allowed as a sink (columns). Plant size is a design assumption; the size variants do not represent a recommended size, because local constraints on plant size, such as truck traffic, are outside the model.](results/figures/Variants_MACC.png){#fig-si-variants width="100%"}
 
-![SHAP values of each input for each optimal technology, global model (all regions). Each point is a grid cell; colour shows the input value (low to high).](results/spatial_shap/beeswarm_Global.png){#fig-si-bee-global width="100%"}
-
-![SHAP values by input, United States model.](results/spatial_shap/beeswarm_US.png){#fig-si-bee-us width="100%"}
-
-![SHAP values by input, Europe model.](results/spatial_shap/beeswarm_Europe.png){#fig-si-bee-europe width="100%"}
-
-![SHAP values by input, China model.](results/spatial_shap/beeswarm_China.png){#fig-si-bee-china width="100%"}
-
-![SHAP values by input, India model.](results/spatial_shap/beeswarm_India.png){#fig-si-bee-india width="100%"}
-
 ```{r}
 #| echo: false
 #| message: false
 #| warning: false
 #| results: asis
 dep <- list.files("results/spatial_shap", pattern = "^dependence_.*\\.png$")
-ord <- c("Global", "US", "Europe", "China", "India")
-key <- sub("^dependence_([^_]+)_(.*)\\.png$", "\\1|\\2", dep)
-dep <- dep[order(match(sub("\\|.*", "", key), ord), sub(".*\\|", "", key))]
-nm <- c(Global = "global model (all regions)", US = "United States model", Europe = "Europe model",
-  China = "China model", India = "India model")
-for (f in dep) {
-  parts <- strsplit(sub("\\.png$", "", sub("^dependence_", "", f)), "_")[[1]]
-  lab <- tolower(paste0("fig-si-dep-", parts[1], "-", parts[2]))
-  cat(sprintf("![SHAP dependence plots for %s, %s: SHAP value of each input against its value, coloured by the input with the strongest interaction.](results/spatial_shap/%s){#%s width=\"100%%\"}\n\n",
-    parts[2], nm[parts[1]], f, lab))
+targets <- c(be_PyCCS = "the break-even carbon price of PyCCS", be_BECCS = "the break-even carbon price of BECCS",
+  n0_BE = "the net value of BE without a carbon price", takeover_BECCS = "the carbon price at which BECCS takes over")
+regions <- c(US = "United States", Europe = "Europe", China = "China", India = "India")
+for (tg in names(targets)) for (r in names(regions)) {
+  f <- sprintf("dependence_%s_%s.png", tg, r)
+  if (!f %in% dep) next
+  lab <- tolower(gsub("_", "-", sprintf("fig-si-dep-%s-%s", tg, r)))
+  cat(sprintf("![SHAP dependence plots for %s, %s: SHAP value of each input, in the units of that quantity, against the input value, for inputs with at least 2%% of the mean absolute SHAP value.](results/spatial_shap/%s){#%s width=\"100%%\"}\n\n",
+    targets[[tg]], regions[[r]], f, lab))
 }
 ```

@@ -242,6 +242,45 @@ load_region_data <- function(region_name, gis_path = NULL, transport_version = c
   list(template = bm, layers = layers, admin0 = admin0, admin1 = admin1, vec = vec_data)
 }
 
+#' Parameter List with the Spatial Inputs of Each Grid Cell
+#'
+#' Combines a scenario parameter list with the pre-extracted cell vectors of `load_region_data()$vec`, as
+#' `run_scenario()` does: soil, price, grid-intensity, CO2 transport and auxiliary layers, the collection
+#' distance and haulage factors at the plant size, and the regional feedstock cost.
+#'
+#' @param params Scenario parameter list (with `region`).
+#' @param vec `load_region_data()$vec`.
+#' @return Parameter list whose spatial entries are vectors over the active cells.
+#' @export
+cell_params <- function(params, vec) {
+  spatial_layers <- vec[["layers", exact = TRUE]]
+  p <- params
+
+  if ("soil_temp" %in% names(spatial_layers)) p[["soil_temp"]] <- spatial_layers[["soil_temp", exact = TRUE]]
+  if ("elec_price" %in% names(spatial_layers)) {
+    p[["elec_price"]] <- spatial_layers[["elec_price", exact = TRUE]]
+  }
+  if ("soil_ph" %in% names(spatial_layers)) p[["soil_ph"]] <- spatial_layers[["soil_ph", exact = TRUE]]
+  if ("soil_cec" %in% names(spatial_layers)) p[["soil_cec"]] <- spatial_layers[["soil_cec", exact = TRUE]]
+  for (nm in intersect(transport_layer_names(), names(spatial_layers))) p[[nm]] <- spatial_layers[[nm, exact = TRUE]]
+  if (isTRUE(as.logical(p[["use_flat_ci", exact = TRUE]]))) {
+    p[["ff_c_intensity"]] <- if (!is.null(p[["flat_ci_tCO2_GJ", exact = TRUE]])) p[["flat_ci_tCO2_GJ", exact = TRUE]] else 12 / 3600
+  } else if ("ff_c_intensity" %in% names(spatial_layers)) {
+    p[["ff_c_intensity"]] <- spatial_layers[["ff_c_intensity", exact = TRUE]]
+  }
+
+  for (layer_name in aux_layer_names()) {
+    if (layer_name %in% names(spatial_layers)) p[[layer_name]] <- spatial_layers[[layer_name, exact = TRUE]]
+  }
+
+  sz <- if (!is.null(p[["plant_mw_th", exact = TRUE]])) resolve_plant_mw_th(p[["plant_mw_th", exact = TRUE]], "BES") else 50
+  p <- attach_size_layers(p, spatial_layers, sz)
+
+  feedstock_region <- if (!is.null(p[["region", exact = TRUE]])) p[["region", exact = TRUE]] else "US"
+  p[["feedstock_cost"]] <- calculate_regional_feedstock_cost(feedstock_region, p)
+  p
+}
+
 #' Run Scenario Spatial TEA
 #'
 #' Evaluates spatial TEA across BES, BECCS, and BEBCS for a scenario.
@@ -257,31 +296,7 @@ load_region_data <- function(region_name, gis_path = NULL, transport_version = c
 #' @export
 run_scenario <- function(template, layers, params, vec = NULL) {
   if (!is.null(vec) && is.list(vec) && !is.null(vec[["active_indices", exact = TRUE]])) {
-    spatial_layers <- vec[["layers", exact = TRUE]]
-    p <- params
-
-    if ("soil_temp" %in% names(spatial_layers)) p[["soil_temp"]] <- spatial_layers[["soil_temp", exact = TRUE]]
-    if ("elec_price" %in% names(spatial_layers)) {
-      p[["elec_price"]] <- spatial_layers[["elec_price", exact = TRUE]]
-    }
-    if ("soil_ph" %in% names(spatial_layers)) p[["soil_ph"]] <- spatial_layers[["soil_ph", exact = TRUE]]
-    if ("soil_cec" %in% names(spatial_layers)) p[["soil_cec"]] <- spatial_layers[["soil_cec", exact = TRUE]]
-    for (nm in intersect(transport_layer_names(), names(spatial_layers))) p[[nm]] <- spatial_layers[[nm, exact = TRUE]]
-    if (isTRUE(as.logical(p[["use_flat_ci", exact = TRUE]]))) {
-      p[["ff_c_intensity"]] <- if (!is.null(p[["flat_ci_tCO2_GJ", exact = TRUE]])) p[["flat_ci_tCO2_GJ", exact = TRUE]] else 12 / 3600
-    } else if ("ff_c_intensity" %in% names(spatial_layers)) {
-      p[["ff_c_intensity"]] <- spatial_layers[["ff_c_intensity", exact = TRUE]]
-    }
-
-    for (layer_name in aux_layer_names()) {
-      if (layer_name %in% names(spatial_layers)) p[[layer_name]] <- spatial_layers[[layer_name, exact = TRUE]]
-    }
-
-    sz <- if (!is.null(p[["plant_mw_th", exact = TRUE]])) resolve_plant_mw_th(p[["plant_mw_th", exact = TRUE]], "BES") else 50
-    p <- attach_size_layers(p, spatial_layers, sz)
-
-    feedstock_region <- if (!is.null(p[["region", exact = TRUE]])) p[["region", exact = TRUE]] else "US"
-    p[["feedstock_cost"]] <- calculate_regional_feedstock_cost(feedstock_region, p)
+    p <- cell_params(params, vec)
 
     res_bes <- calculate_bes(p)
     res_beccs <- calculate_beccs(p)

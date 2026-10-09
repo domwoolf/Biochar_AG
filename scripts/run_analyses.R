@@ -46,22 +46,14 @@ library(sf)
   generate_global_beeswarm_plots()
 }
 
-# 5) Spatial sensitivity Analysis
+# 5) Spatial SHAP (regression on break-even and takeover prices; issue #111)
 #    Generates:
-#    spatial_sensitivity_results.csv (economic and CO2 metrics for each grid cell)
-#    spatial_shap_values_by_location.csv (shap values for each grid cell)
-{
-  source("scripts/spatial_sensitivity.R")
-}
-
-# 6) Spatial SHAP
-#    Generates:
-#    maps of dominant SHAP feature by location
+#    importance, dependence and takeover-price maps (results/spatial_shap/)
 {
   source("scripts/spatial_shap.R")
 }
 
-# 7) Heat sensitivity (issue #106): optional; BEBCS heat mode is not part of the results (Discussion only)
+# 6) Heat sensitivity (issue #106): optional; BEBCS heat mode is not part of the results (Discussion only)
 #    BEBCS selling heat instead of power, where year-round heat demand exists (reported per cell only)
 #    Generates: results/heat_sensitivity/ (cell table, maps, distribution plot)
 # {

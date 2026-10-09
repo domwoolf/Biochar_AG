@@ -157,7 +157,8 @@ calculate_bebcs_mode <- function(params) {
       bc_yield * (if (!is.null(params$bm_transport_fixed)) params$bm_transport_fixed else 6.27) * location_factor(params, "haulage")
     # Field application on the cell's own cropland: dose strategy with the highest net value at this carbon
     # price (yield response, spreading passes, soil N2O; biochar_field_table())
-    field <- choose_bc_dose(biochar_field_table(params, bc_yield, bc_stability), c_price)
+    field_tab <- biochar_field_table(params, bc_yield, bc_stability)
+    field <- choose_bc_dose(field_tab, c_price)
     bc_field_cost <- field$v_spread
     bc_field_emissions <- field$e_diesel
     logistics_cost <- logistics$cost + bc_haul_cost + bc_field_cost
@@ -218,6 +219,7 @@ calculate_bebcs_mode <- function(params) {
       bc_dose = field$dose, # dose option (Mg biochar/ha; 0 = annual application)
       bc_dose_eff = field$d_eff, # biochar per application (Mg/ha)
       bc_cohorts = field$cohorts,
+      bc_supply_ha = field_tab$b, # biochar per hectare of cropland per year (Mg)
       co2_transport_cost_mg = 0,
       co2_transport_distance_km = NA,
       biomass_transport_distance_km = effective_dist,
