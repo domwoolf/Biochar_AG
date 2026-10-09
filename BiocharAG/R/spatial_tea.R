@@ -255,7 +255,9 @@ run_spatial_tea <- function(template_raster, params, spatial_layers = list(),
 #' - **Europe:** S2Biom road-side costs of cereal straw (Dees et al. 2017) aggregated to country level
 #'   (EUR 20 / 37.5 / 62.5 per t dm, 2012 EUR; layer `eu_feedstock_usd` from data-raw/process_eu_feedstock.R)
 #'   x 1.285 USD/EUR (2012) x 1.366 (CPI-U) = 35.1 / 65.8 / 109.7. Cells without a country value, and runs
-#'   without the layer, use EUR 40/t dm = 70.2.
+#'   without the layer, use EUR 40/t dm = 70.2. S2Biom straw costs include fertilization to replace the
+#'   nutrients removed; `eu_nutrient_deduction` (EUR 12.1/t dm, 2012: N, P and K of the European straw at
+#'   World Bank 2012 prices) is subtracted, because nutrient removal is charged separately.
 #' - **China:** field-side supply cost from the StrawFeed model (Wang et al. 2022; Nongan, Jilin, 2018-19):
 #'   raking 1.0 + baling 84.3 + loading 14.3 = CNY 99.6/t (excluding transport, CNY 72.5/t), / 6.908 CNY/USD
 #'   (2019) x 1.227 (CPI-U) = 17.7. Cost basis (no farmer or broker margin), consistent with the S2Biom
@@ -288,6 +290,10 @@ calculate_regional_feedstock_cost <- function(region, params) {
         if (!is.null(x)) {
             cost_usd <- if (inherits(x, "SpatRaster")) terra::ifel(is.na(x), cost_usd, x) else ifelse(is.na(x), cost_usd, x)
         }
+        # S2Biom straw costs include fertilizer to replace the nutrients removed; nutrient removal is charged
+        # separately (residue_removal_charge()), so it is subtracted (EUR/t dm, 2012)
+        deduct <- if (!is.null(params$eu_nutrient_deduction)) params$eu_nutrient_deduction else 12.1
+        cost_usd <- cost_usd - deduct * 1.285 * 1.366
     } else if (region == "India") {
         cost_usd <- if (!is.null(params$india_feedstock_cost)) params$india_feedstock_cost else 34
     } else if (region == "China") {
