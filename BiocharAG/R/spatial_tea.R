@@ -260,7 +260,8 @@ run_spatial_tea <- function(template_raster, params, spatial_layers = list(),
 #'   World Bank 2012 prices) is subtracted, because nutrient removal is charged separately.
 #' - **China:** field-side supply cost from the StrawFeed model (Wang et al. 2022; Nongan, Jilin, 2018-19):
 #'   raking 1.0 + baling 84.3 + loading 14.3 = CNY 99.6/t (excluding transport, CNY 72.5/t), / 6.908 CNY/USD
-#'   (2019) x 1.227 (CPI-U) = 17.7. Cost basis (no farmer or broker margin), consistent with the S2Biom
+#'   (2019) x 1.227 (CPI-U) = 17.7 per t of air-dried straw (accepted at <= 17% moisture), / (1 - bm_h2o)
+#'   = 19.7 per Mg dry matter. Cost basis (no farmer or broker margin), consistent with the S2Biom
 #'   (Europe) and Sokhansanj et al. (India) costs. Optional weather risk multiplier x1.13 (Wang et al. 2022).
 #' - **India:** `india_feedstock_cost` = 34 $/Mg: baled paddy straw at the field side, dry basis (Sokhansanj
 #'   et al. 2023, $33.14/t dm, 2023 USD), sampled 12-50 (paddy straw value where burned, Erenstein 2011, to
@@ -300,7 +301,10 @@ calculate_regional_feedstock_cost <- function(region, params) {
         base_cny <- if (!is.null(params$cn_base_cny)) params$cn_base_cny else 99.6 # CNY/t, 2019
         weather_risk_val <- if (!is.null(params$cn_weather_risk)) params$cn_weather_risk else FALSE
         weather_risk <- ifelse_raster(weather_risk_val, 1.13, 1.0)
-        cost_usd <- base_cny * weather_risk / 6.908 * 1.227
+        # StrawFeed costs are per tonne of air-dried straw (accepted at <= 17% moisture); converted to dry
+        # matter with the model's feedstock moisture
+        moist <- if (!is.null(params$bm_h2o)) params$bm_h2o else 0.1
+        cost_usd <- base_cny * weather_risk / 6.908 * 1.227 / (1 - moist)
     } else {
         stop("Region not supported: ", region, ". Use US, EU/Europe, India, or China.")
     }
