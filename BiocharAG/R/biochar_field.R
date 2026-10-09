@@ -20,7 +20,8 @@
 #'
 #' @param b Biochar supplied per physical hectare per year (Mg ha-1 yr-1; vector over cells).
 #' @param y_bc Biochar yield (Mg biochar per Mg dry ash-free feedstock).
-#' @param k Decay rate of the effective biochar stock (yr-1): carbon decay plus yield-effect decline.
+#' @param k Decay rate of the effective biochar stock (yr-1): carbon decay plus the decline of the yield
+#'   effect expressed as a stock decay (response decline rate / dose exponent).
 #' @param a10 Log response ratio of crop yield at the reference stock `B_r` (>= 0).
 #' @param val_ha Value of crop production per physical hectare (US$ ha-1 yr-1): cropping intensity x
 #'   value per harvested hectare.
@@ -135,7 +136,10 @@ biochar_field_effects <- function(b, y_bc, k, a10, val_ha, n_dir, doses = c(0, 2
 #' hectare (`biomass_density` / `harv_frac`, Mg dry ash-free ha-1 yr-1, capped at `max_residue_per_ha`
 #' where the residue and harvested-area maps disagree) and `CI` the cropping intensity. The yield
 #' amplitude is `a10 = max(0, bc_yield_b0 + bc_yield_bcec ln CEC)`; the crop value per physical hectare
-#' is `CI crop_value`. Direct N2O is `n_app_rate n2o_ef` (N use per hectare of cropland).
+#' is `CI crop_value`. Direct N2O is `n_app_rate n2o_ef` (N use per hectare of cropland). The stock decays
+#' at the biochar carbon decay rate `-ln(F_perm)/100` plus `bc_yield_decay / bc_dose_exponent`, so that a
+#' single application reproduces a yield response declining at `bc_yield_decay` (above `bc_yield_bmin`;
+#' below it the conversion over-states the decline).
 #'
 #' @param params Parameter list (with spatial layers as vectors or rasters).
 #' @param y_bc Biochar yield (Mg per Mg dry ash-free feedstock).
@@ -161,7 +165,9 @@ biochar_field_table <- function(params, y_bc, bc_stability) {
   b <- ci * q_h * vals(y_bc)
   cec <- fill(params[["soil_cec", exact = TRUE]], 20)
   a10 <- pmax(0, pv("bc_yield_b0", 0.3607) + pv("bc_yield_bcec", -0.1008) * log(pmax(cec, 0.1)))
-  k <- -log(pmax(vals(bc_stability), 1e-6)) / 100 + pv("bc_yield_decay", 0.1)
+  # bc_yield_decay is the decline rate of the yield RESPONSE (as estimated from repeated measurements); on
+  # the power-law dose response the effective stock must decay at that rate / dose exponent to give it
+  k <- -log(pmax(vals(bc_stability), 1e-6)) / 100 + pv("bc_yield_decay", 0.05) / pv("bc_dose_exponent", 0.30)
   val_ha <- ci * fill(params[["crop_value", exact = TRUE]], pv("crop_value_default", 1500))
   n_dir <- pv("n_app_rate", 68) * pv("n2o_ef", 0.01)
   doses <- bc_dose_options(params)
