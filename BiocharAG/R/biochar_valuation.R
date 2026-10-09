@@ -159,7 +159,7 @@ lime_value <- function(params, anc) {
 residue_removal_charge <- function(params) {
     pv <- function(nm, d) if (!is.null(params[[nm, exact = TRUE]])) params[[nm, exact = TRUE]] else d
     m <- residue_minerals(params)
-    f_n <- (1 - residue_burn_share(params)) * pv("n_fert_replacement", 0.2)
+    f_n <- (1 - residue_burn_share(params)) * pv("n_fert_replacement", 0)
     nutrient_value(params, n = f_n * m$n_res, p = m$p_res, k = m$k_res) + lime_value(params, m$anc_res)
 }
 
