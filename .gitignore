@@ -22,3 +22,5 @@ __pycache__/
 
 # Retired files (to be cleaned up)
 bak/
+BiocharAG/data-raw/ember_yearly_full_release_long_format.csv
+BiocharAG/data-raw/ember_us_yearly_full_release_long_format.csv

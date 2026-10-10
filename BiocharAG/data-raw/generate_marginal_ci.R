@@ -19,121 +19,87 @@ message("======================================================================"
 # ------------------------------------------------------------------------------
 # 1. Load Datasets
 # ------------------------------------------------------------------------------
-gen_path <- "BiocharAG/data-raw/generation-including-net-imports-monthly.csv"
+# Ember annual electricity data (long format): countries (yearly_full_release_long_format.csv, TWh) and
+# US states (us_yearly_full_release_long_format.csv, GWh), downloaded from
+# https://storage.googleapis.com/emb-prod-bkt-publicdata/public-downloads/ (June 2026 release).
+# The annual series cover 2019-2024 for all US states and for countries whose monthly series start later
+# (e.g. Moldova from May 2020, US states from January 2023); with the monthly file, a missing start year
+# counted the whole end-year generation as growth, so those anchors were average mixes, not build margins.
+gen_path <- "BiocharAG/data-raw/ember_yearly_full_release_long_format.csv"     # raw download (not tracked)
+us_path <- "BiocharAG/data-raw/ember_us_yearly_full_release_long_format.csv"   # raw download (not tracked)
+extract_path <- "BiocharAG/data-raw/ember_annual_generation_by_fuel.csv"       # tracked extract, 2015-2025
 avg_ci_path <- "BiocharAG/data-raw/carbon-intensity-electricity.csv"
-
-if (!file.exists(gen_path)) stop("Monthly generation dataset not found at: ", gen_path)
-if (!file.exists(avg_ci_path)) stop("Average carbon intensity dataset not found at: ", avg_ci_path)
-
-message("Loading monthly generation data...")
-df_gen <- read.csv(gen_path, check.names = FALSE, stringsAsFactors = FALSE)
-
-message("Loading average carbon intensity data...")
+if (!file.exists(avg_ci_path)) stop("Dataset not found: ", avg_ci_path)
 df_avg_ci <- read.csv(avg_ci_path, stringsAsFactors = FALSE)
 
-# Rename the first three columns of the generation dataset for easier access
-colnames(df_gen)[1] <- "Code"
-colnames(df_gen)[2] <- "Name"
-colnames(df_gen)[3] <- "Source"
-
-# ------------------------------------------------------------------------------
-# 2. Reshape and Melt Monthly Data
-# ------------------------------------------------------------------------------
-message("Melting monthly generation data into long format...")
-month_cols <- grep("^20", colnames(df_gen), value = TRUE)
-
-df_melt <- df_gen %>%
-  select(Code, Name, Source, all_of(month_cols)) %>%
-  pivot_longer(
-    cols = all_of(month_cols),
-    names_to = "Month",
-    values_to = "Generation"
+# Generation by fuel, TWh; Code = ISO 3166-1 alpha-3 for countries, "US-<state>" for US states. Rebuilt
+# from the raw Ember files when they are present; otherwise read from the tracked extract.
+if (file.exists(gen_path) && file.exists(us_path)) {
+  message("Loading Ember annual generation data (raw downloads) and writing the extract...")
+  gen_c <- read.csv(gen_path, check.names = FALSE, stringsAsFactors = FALSE)
+  gen_s <- read.csv(us_path, check.names = FALSE, stringsAsFactors = FALSE)
+  df_yr <- rbind(
+    gen_c %>%
+      filter(`Area type` == "Country or economy", Category == "Electricity generation", Subcategory == "Fuel",
+             Unit == "TWh") %>%
+      transmute(Code = `ISO 3 code`, Clean_Name = Area, Source = Variable, Year = as.character(Year), Generation = Value),
+    gen_s %>%
+      filter(`State type` == "state", Category == "Electricity generation", Subcategory == "Fuel", Unit == "GWh") %>%
+      transmute(Code = paste0("US-", `State code`), Clean_Name = State, Source = Variable, Year = as.character(Year),
+                Generation = Value / 1000)
   ) %>%
-  mutate(
-    Generation = as.numeric(Generation),
-    Year = substr(Month, 1, 4)
-  ) %>%
-  filter(!is.na(Generation))
-
-# ------------------------------------------------------------------------------
-# 3. Standardize Names and US State Mapping
-# ------------------------------------------------------------------------------
-message("Standardizing region and US state names...")
-
-us_state_map <- c(
-  "AL" = "Alabama", "AK" = "Alaska", "AZ" = "Arizona", "AR" = "Arkansas", "CA" = "California",
-  "CO" = "Colorado", "CT" = "Connecticut", "DE" = "Delaware", "FL" = "Florida", "GA" = "Georgia",
-  "HI" = "Hawaii", "ID" = "Idaho", "IL" = "Illinois", "IN" = "Indiana", "IA" = "Iowa",
-  "KS" = "Kansas", "KY" = "Kentucky", "LA" = "Louisiana", "ME" = "Maine", "MD" = "Maryland",
-  "MA" = "Massachusetts", "MI" = "Michigan", "MN" = "Minnesota", "MS" = "Mississippi", "MO" = "Missouri",
-  "MT" = "Montana", "NE" = "Nebraska", "NV" = "Nevada", "NH" = "New Hampshire", "NJ" = "New Jersey",
-  "NM" = "New Mexico", "NY" = "New York", "NC" = "North Carolina", "ND" = "North Dakota", "OH" = "Ohio",
-  "OK" = "Oklahoma", "OR" = "Oregon", "PA" = "Pennsylvania", "RI" = "Rhode Island", "SC" = "South Carolina",
-  "SD" = "South Dakota", "TN" = "Tennessee", "TX" = "Texas", "UT" = "Utah", "VT" = "Vermont",
-  "VA" = "Virginia", "WA" = "Washington", "WV" = "West Virginia", "WI" = "Wisconsin", "WY" = "Wyoming",
-  "DC" = "District of Columbia"
-)
-
-standardize_us_state <- function(code) {
-  suffix <- sub("US-", "", code)
-  if (suffix %in% names(us_state_map)) {
-    return(us_state_map[[suffix]])
-  }
-  return(code)
+    filter(!is.na(Generation), !is.na(Code), Code != "", as.integer(Year) >= 2015)
+  write.csv(df_yr, extract_path, row.names = FALSE)
+} else {
+  if (!file.exists(extract_path)) stop("Neither the raw Ember files nor ", extract_path, " were found.")
+  message("Loading Ember annual generation extract...")
+  df_yr <- read.csv(extract_path, stringsAsFactors = FALSE, colClasses = c(Year = "character"))
 }
 
-df_melt <- df_melt %>%
-  mutate(Clean_Name = case_when(
-    Name == "People's Republic of China" ~ "China",
-    Name == "Republic of China (Taiwan)" ~ "Taiwan",
-    Name == "Bosnia & Herzegovina" ~ "Bosnia and Herzegovina",
-    grepl("^Special region: US-", Name) ~ sapply(Code, standardize_us_state),
-    TRUE ~ Name
-  ))
-
 # ------------------------------------------------------------------------------
-# 4. Filter and Aggregate by Year
+# 2. Life-cycle intensities by fuel
 # ------------------------------------------------------------------------------
-# IPCC default values of lifecycle carbon intensity by generation type (gCO2eq / kWh).
-# Biomass is set to 0 (IPCC: 230): bioenergy emissions are accounted for explicitly in the TEA, and the
-# NGFS-calibrated MEF(P) curve (ngfs_mef_fit.py) uses the same convention, so the anchor and the curve
-# shape share one basis. Growing biomass generation still counts in the build-margin denominator.
+# IPCC median life-cycle intensities (gCO2eq/kWh; Schlomer et al. 2014). Bioenergy is set to 0 (IPCC: 230):
+# bioenergy emissions are accounted for explicitly in the TEA, and the NGFS-calibrated MEF(P) curve
+# (ngfs_mef_fit.py) uses the same convention, so the anchor and the curve shape share one basis. Growing
+# bioenergy generation still counts in the build-margin denominator. Ember's "Other Fossil" (mostly oil)
+# takes the oil value and "Other Renewables" (mostly geothermal) the geothermal value.
 ipcc_ci <- c(
-  coal = 820,
-  gas = 490,
-  biofuels = 0,
-  geothermal = 38,
-  hydro = 24,
-  nuclear = 12,
-  solar = 48,
-  wind = 11.5,
-  oil = 700
+  Coal = 820,
+  Gas = 490,
+  Bioenergy = 0,
+  `Other Renewables` = 38,
+  Hydro = 24,
+  Nuclear = 12,
+  Solar = 48,
+  Wind = 11.5,
+  `Other Fossil` = 700
 )
-
-message("Filtering primary mutually-exclusive sources and aggregating by year...")
-df_primary <- df_melt %>%
-  filter(Source %in% names(ipcc_ci))
-
-df_yr <- df_primary %>%
-  group_by(Code, Clean_Name, Source, Year) %>%
-  summarize(Generation = sum(Generation, na.rm = TRUE), .groups = "drop")
+df_yr <- df_yr %>% filter(Source %in% names(ipcc_ci))
 
 # ------------------------------------------------------------------------------
-# 5. Extract Recent 5-Year Window (2019 to 2024)
+# 3. Build margin over 2019-2024
 # ------------------------------------------------------------------------------
 start_year <- "2019"
 end_year <- "2024"
 message(sprintf("Calculating generation change (delta) between %s and %s...", start_year, end_year))
 
+# Only regions with generation data in both years get a build margin (others fall back to the average CI)
+has_both <- df_yr %>%
+  group_by(Code) %>%
+  summarize(ok = sum(Generation[Year == start_year], na.rm = TRUE) > 0 &
+              sum(Generation[Year == end_year], na.rm = TRUE) > 0, .groups = "drop") %>%
+  filter(ok) %>%
+  pull(Code)
+
 df_start <- df_yr %>%
-  filter(Year == start_year) %>%
+  filter(Year == start_year, Code %in% has_both) %>%
   select(Code, Clean_Name, Source, Gen_Start = Generation)
 
 df_end <- df_yr %>%
-  filter(Year == end_year) %>%
+  filter(Year == end_year, Code %in% has_both) %>%
   select(Code, Clean_Name, Source, Gen_End = Generation)
 
-# Calculate the change in generation (delta)
 df_delta <- full_join(df_start, df_end, by = c("Code", "Clean_Name", "Source")) %>%
   mutate(
     Gen_Start = replace_na(Gen_Start, 0),
@@ -141,13 +107,12 @@ df_delta <- full_join(df_start, df_end, by = c("Code", "Clean_Name", "Source")) 
     Delta_Gen = Gen_End - Gen_Start
   )
 
-# Isolate sources adding new capacity (Delta_Gen > 0)
+# Sources whose generation grew (Delta_Gen > 0) define the build margin
 df_growth <- df_delta %>%
   filter(Delta_Gen > 0) %>%
   mutate(CI = ipcc_ci[Source]) %>%
   mutate(Emissions_Added = Delta_Gen * CI)
 
-# Aggregate by country/state to find the weighted marginal CI
 df_marginal <- df_growth %>%
   group_by(Code, Clean_Name) %>%
   summarize(
@@ -158,7 +123,7 @@ df_marginal <- df_growth %>%
   mutate(Marginal_CI = Total_Emissions_Added / Total_Delta_Gen)
 
 # ------------------------------------------------------------------------------
-# 6. Process Average Grid Carbon Intensity Fallback
+# 4. Average grid carbon intensity (fallback)
 # ------------------------------------------------------------------------------
 message("Processing average grid carbon intensity fallback layer...")
 df_avg_latest <- df_avg_ci %>%
@@ -174,24 +139,17 @@ df_avg_latest <- df_avg_ci %>%
   ))
 
 # ------------------------------------------------------------------------------
-# 7. Merge and Apply Fallback Logic
+# 5. Merge and apply the fallback
 # ------------------------------------------------------------------------------
 message("Merging marginal and average datasets...")
 
+# Join on the ISO 3166-1 alpha-3 code (both Ember and OWID use it), not on names
 df_merged <- full_join(
-  df_marginal, 
-  df_avg_latest, 
-  by = "Clean_Name"
-)
-
-# Populate Code and Name for any rows that were only present in average dataset
-df_merged <- df_merged %>%
-  mutate(
-    Code = if_else(is.na(Code), Avg_Code, Code),
-    Code = if_else(Clean_Name == "China", "CN", Code),
-    Code = if_else(Clean_Name == "India", "IN", Code),
-    Code = if_else(Clean_Name == "United States", "US", Code)
-  )
+  df_marginal,
+  df_avg_latest %>% filter(!is.na(Avg_Code), Avg_Code != "") %>% select(-Clean_Name),
+  by = c("Code" = "Avg_Code")
+) %>%
+  mutate(Clean_Name = if_else(is.na(Clean_Name), Entity, Clean_Name))
 
 # Extract national average grid CI for United States to use as fallback for US States
 us_avg_ci <- df_avg_latest %>%
@@ -221,7 +179,7 @@ df_merged <- df_merged %>%
   )
 
 # ------------------------------------------------------------------------------
-# 8. Convert Units and Select Output Columns
+# 6. Convert units and select output columns
 # ------------------------------------------------------------------------------
 message("Converting units and formatting output...")
 # 1 gCO2eq/kWh = 1/3600 tCO2eq/GJ
@@ -250,7 +208,7 @@ df_final <- df_merged %>%
   arrange(Code)
 
 # ------------------------------------------------------------------------------
-# 9. Save Output CSV
+# 7. Save output CSV
 # ------------------------------------------------------------------------------
 out_csv <- "BiocharAG/data-raw/marginal_ci_by_country.csv"
 message("Saving results to: ", out_csv)
