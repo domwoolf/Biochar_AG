@@ -29,3 +29,5 @@ BiocharAG/data-raw/ember_us_yearly_full_release_long_format.csv
 # Editor and render intermediates
 .~lock.*#
 Article/*.rmarkdown
+Article/BiomassTEA.pdf
+Article/BiomassTEA.tex
