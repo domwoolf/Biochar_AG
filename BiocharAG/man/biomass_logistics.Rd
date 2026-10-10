@@ -24,6 +24,6 @@ capital, insurance: \code{haul_time_share}), fuel (\code{haul_fuel_share}) and o
 are supplied (\code{haul_kt} travel time, \code{haul_kd} road distance, \code{haul_g} climb fuel; each normalised to
 a regional mean of 1), the time share scales with \code{haul_kt}, fuel with \code{haul_kd * haul_g} and other
 distance costs with \code{haul_kd}. Emissions scale with fuel. Per-km costs are scaled by the regional haulage
-factor and loading and handling by the farm-operations factor (\code{\link[=regional_haulage_factors]{regional_haulage_factors()}}). Per-km costs include the empty return trip.
+factor and loading and handling by the field-operations factor (\code{\link[=regional_haulage_factors]{regional_haulage_factors()}}). Per-km costs include the empty return trip.
 }
 \keyword{internal}

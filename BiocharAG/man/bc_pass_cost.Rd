@@ -17,6 +17,6 @@ US$ ha-1 (\code{bc_pass_cost}) or L ha-1 (\code{bc_pass_diesel}).
 }
 \description{
 Spreading only: application is timed to precede tillage, which incorporates the biochar or ash at no
-extra cost. Cost scaled by the farm-operations location factor.
+extra cost. Cost scaled by the field-operations location factor.
 }
 \keyword{internal}

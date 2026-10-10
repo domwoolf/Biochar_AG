@@ -10,7 +10,7 @@ regional_haulage_factors(params)
 \item{params}{Parameter list.}
 }
 \value{
-A list with \code{haulage} and \code{farm} multipliers (1 for the US).
+A list with \code{haulage}, \code{field} and \code{storage} multipliers (1 for the US).
 }
 \description{
 Cost relative to the US, built from the ATRI cost shares of trucking: time-based costs
@@ -18,8 +18,7 @@ Cost relative to the US, built from the ATRI cost shares of trucking: time-based
 \code{truck_price_ratio}), fuel (\code{haul_fuel_share}, scaled by \code{diesel_price_ratio}) and other costs (repairs,
 tyres, tolls; scaled by the mean of the labor and truck ratios). For per-km haulage the time-based
 share is also scaled by the regional travel time per km (\code{haul_speed_ratio}) and the fuel share by the
-regional grade fuel factor (\code{haul_grade_ratio}). Farm operations (loading and handling, storage,
-spreading) use \code{farm_cost_factor}: the same cost shares without the road terms would give ~0.34 for
-China and India, but per-hectare custom-hire rates there are close to US rates (small machines on small
-fields), so it is 1 with a wide Monte Carlo range until regional values are sourced (issue #12).
+regional grade fuel factor (\code{haul_grade_ratio}). Field and handling operations (spreading, loading and
+handling) use \code{field_ops_cost_factor}, from the ratio of regional to US custom-hire prices for comparable
+operations; interim storage uses \code{feedstock_storage_factor} (sources in parameters.csv; issue #12).
 }

@@ -11,7 +11,7 @@ calculate_regional_feedstock_cost(region, params)
 
 \item{params}{List of parameters; optional overrides \code{us_base_cost} ($/Mg, 2024 USD), \code{eu_base_eur}
 (EUR/t dm, 2012 EUR; fallback), \code{eu_feedstock_usd} (layer, USD/Mg), \code{cn_base_cny} (CNY/t, 2019), \code{cn_weather_risk}, \code{india_feedstock_cost} ($/Mg,
-2024 USD), \code{feedstock_storage_cost} (scaled by the farm-operations factor).}
+2024 USD), \code{feedstock_storage_cost} (scaled by the storage cost factor).}
 }
 \value{
 Field-side feedstock cost including storage, USD/Mg (2024 USD).
@@ -42,6 +42,6 @@ raking 1.0 + baling 84.3 + loading 14.3 = CNY 99.6/t (excluding transport, CNY 7
 et al. 2023, $33.14/t dm, 2023 USD), sampled 12-50 (paddy straw value where burned, Erenstein 2011, to
 fodder-market straw prices, Duncan et al. 2020; Lopes et al. 2023).
 \item \strong{Storage (all regions):} \code{feedstock_storage_cost} ($/Mg, US/EU basis, about six months) scaled by
-the farm-operations cost factor (labor, machinery and diesel; \code{\link[=regional_haulage_factors]{regional_haulage_factors()}}).
+the storage cost factor (\code{\link[=regional_haulage_factors]{regional_haulage_factors()}}).
 }
 }

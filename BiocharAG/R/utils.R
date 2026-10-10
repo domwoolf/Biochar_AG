@@ -462,16 +462,16 @@ plant_om_fraction <- function(params, specific = NULL) {
 
 #' Regional Cost Location Factor
 #'
-#' `"capex"`, `"ccs_transport"` and `"om"` read `<type>_location_factor`. `"haulage"` (per-km trucking)
-#' and `"farm"` (loading and handling, storage, field spreading) are built from regional cost ratios
-#' relative to the US (issue #12; see [regional_haulage_factors()]).
+#' `"capex"`, `"ccs_transport"` and `"om"` read `<type>_location_factor`. `"haulage"` (per-km trucking),
+#' `"field"` (spreading, loading and handling) and `"storage"` (interim feedstock storage) are regional
+#' cost ratios relative to the US (issue #12; see [regional_haulage_factors()]).
 #'
 #' @param params Parameter list.
-#' @param type One of "capex", "ccs_transport", "om", "haulage" or "farm".
+#' @param type One of "capex", "ccs_transport", "om", "haulage", "field" or "storage".
 #' @return The regional multiplier (1 if not set).
 #' @keywords internal
 location_factor <- function(params, type) {
-  if (type %in% c("haulage", "farm")) return(regional_haulage_factors(params)[[type]])
+  if (type %in% c("haulage", "field", "storage")) return(regional_haulage_factors(params)[[type]])
   v <- params[[paste0(type, "_location_factor"), exact = TRUE]]
   if (is.null(v)) 1 else v
 }
@@ -483,13 +483,12 @@ location_factor <- function(params, type) {
 #' `truck_price_ratio`), fuel (`haul_fuel_share`, scaled by `diesel_price_ratio`) and other costs (repairs,
 #' tyres, tolls; scaled by the mean of the labor and truck ratios). For per-km haulage the time-based
 #' share is also scaled by the regional travel time per km (`haul_speed_ratio`) and the fuel share by the
-#' regional grade fuel factor (`haul_grade_ratio`). Farm operations (loading and handling, storage,
-#' spreading) use `farm_cost_factor`: the same cost shares without the road terms would give ~0.34 for
-#' China and India, but per-hectare custom-hire rates there are close to US rates (small machines on small
-#' fields), so it is 1 with a wide Monte Carlo range until regional values are sourced (issue #12).
+#' regional grade fuel factor (`haul_grade_ratio`). Field and handling operations (spreading, loading and
+#' handling) use `field_ops_cost_factor`, from the ratio of regional to US custom-hire prices for comparable
+#' operations; interim storage uses `feedstock_storage_factor` (sources in parameters.csv; issue #12).
 #'
 #' @param params Parameter list.
-#' @return A list with `haulage` and `farm` multipliers (1 for the US).
+#' @return A list with `haulage`, `field` and `storage` multipliers (1 for the US).
 #' @export
 regional_haulage_factors <- function(params) {
   pv <- function(n, d) if (!is.null(params[[n, exact = TRUE]])) params[[n, exact = TRUE]] else d
@@ -503,7 +502,8 @@ regional_haulage_factors <- function(params) {
   other_cost <- s_o * (w + k) / 2
   list(
     haulage = time_cost * pv("haul_speed_ratio", 1) + fuel_cost * pv("haul_grade_ratio", 1) + other_cost,
-    farm = pv("farm_cost_factor", 1)
+    field = pv("field_ops_cost_factor", 1),
+    storage = pv("feedstock_storage_factor", 1)
   )
 }
 
@@ -517,7 +517,7 @@ regional_haulage_factors <- function(params) {
 #' are supplied (`haul_kt` travel time, `haul_kd` road distance, `haul_g` climb fuel; each normalised to
 #' a regional mean of 1), the time share scales with `haul_kt`, fuel with `haul_kd * haul_g` and other
 #' distance costs with `haul_kd`. Emissions scale with fuel. Per-km costs are scaled by the regional haulage
-#' factor and loading and handling by the farm-operations factor ([regional_haulage_factors()]). Per-km costs include the empty return trip.
+#' factor and loading and handling by the field-operations factor ([regional_haulage_factors()]). Per-km costs include the empty return trip.
 #'
 #' @param params Parameter list.
 #' @param mass Mg hauled per Mg dry, ash-free feed (default: the dry matter of the feed, the basis of the
@@ -540,7 +540,7 @@ biomass_logistics <- function(params, mass = dm_per_daf(params)) {
   var_mult <- s_t * kt + s_f * kd * g + max(0, 1 - s_t - s_f) * kd
   list(
     effective_dist = effective_dist,
-    cost = mass * (pv("bm_transport_fixed", 6.27) * location_factor(params, "farm") +
+    cost = mass * (pv("bm_transport_fixed", 6.27) * location_factor(params, "field") +
       pv("bm_transport_var", 0.15) * effective_dist * var_mult * location_factor(params, "haulage")),
     emissions = mass * effective_dist * kd * g * pv("transport_emissions_factor", 0.0001)
   )

@@ -206,7 +206,7 @@ ash_return <- function(params) {
     mass <- m$ash_bottom + pv("fly_ash_recycled", 0) * m$ash_fly
     rate <- pv("ash_app_rate", 5)
     haul <- if (isFALSE(as.logical(params$bc_return_haul))) 0 else mass * pv("bm_transport_fixed", 6.27)
-    list(cost = haul * location_factor(params, "farm") + mass / rate * bc_pass_cost(params),
+    list(cost = haul * location_factor(params, "field") + mass / rate * bc_pass_cost(params),
          emissions = mass / rate * bc_pass_diesel(params) * 2.68e-3, mass = mass)
 }
 
