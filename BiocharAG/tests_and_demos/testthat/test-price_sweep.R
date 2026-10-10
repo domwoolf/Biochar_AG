@@ -69,3 +69,28 @@ test_that("Exact break-even and takeover prices on a synthetic sweep", {
     expect_equal(to[4], 80 / 0.6, tolerance = 1e-6)
     expect_true(is.na(sweep_takeover(sw, k = 2, max_price = 60)[3]))
 })
+
+test_that("Linear and full price sweeps agree", {
+    dat <- tryCatch(load_region_data("India"), error = function(e) NULL)
+    skip_if(is.null(dat), "regional GIS data not available")
+    set.seed(11)
+    idx <- sort(sample(length(dat$vec$active_indices), 1500))
+    vec <- dat$vec
+    vec$active_indices <- vec$active_indices[idx]
+    vec$xy <- vec$xy[idx, , drop = FALSE]
+    vec$cell_area <- vec$cell_area[idx]
+    vec$layers <- lapply(vec$layers, function(x) if (length(x) > 1) x[idx] else x)
+    p <- set_scenario(region = "India")
+    p$region <- "India"
+    p$n2o_half_life <- 5 # move away from cached central values
+    prices <- c(0, 40, 80, 150, 300)
+    sf <- run_price_sweep(dat$template, dat$layers, p, vec = vec, prices = prices, method = "full")
+    sl <- run_price_sweep(dat$template, dat$layers, p, vec = vec, prices = prices, method = "linear")
+    expect_identical(is.na(sl$abate), is.na(sf$abate))
+    expect_identical(is.na(sl$n0_grid), is.na(sf$n0_grid))
+    ok <- is.finite(sf$abate)
+    expect_equal(sl$abate[ok], sf$abate[ok], tolerance = 1e-9)
+    ok <- is.finite(sf$n0_grid)
+    expect_equal(sl$n0_grid[ok], sf$n0_grid[ok], tolerance = 1e-6)
+    expect_equal(sweep_breakeven(sl), sweep_breakeven(sf), tolerance = 1e-6)
+})

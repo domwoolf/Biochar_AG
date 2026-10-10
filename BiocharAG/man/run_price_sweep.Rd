@@ -9,7 +9,8 @@ run_price_sweep(
   layers,
   params,
   vec,
-  prices = c(seq(0, 250, by = 5), seq(275, 500, by = 25))
+  prices = c(seq(0, 250, by = 5), seq(275, 500, by = 25)),
+  method = c("linear", "full")
 )
 }
 \arguments{
@@ -22,6 +23,12 @@ run_price_sweep(
 \item{vec}{Pre-extracted vectors from \code{load_region_data()$vec} (required).}
 
 \item{prices}{Carbon-price grid ($/tCO2), increasing and starting at 0.}
+
+\item{method}{\code{"linear"} (default): each technology is evaluated once, at two fixed displaced grid
+intensities, and abatement at each price follows by linearity in MEF(P); for BEBCS, every dose option
+and both energy modes are compared at each price (see \code{\link[=price_sweep_linear]{price_sweep_linear()}}). \code{"full"}: the model is
+run at every price. Both give the same results (up to floating-point rounding); \code{"linear"} falls back
+to \code{"full"} where linearity does not hold (BEBCS heat mode).}
 }
 \value{
 A list with \code{prices}, \code{n0} (cells x 3 net value without carbon revenue at C = 0), \code{n0_grid}

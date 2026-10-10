@@ -15,14 +15,28 @@
 #' @param params Scenario parameter list (`c_price` is overwritten).
 #' @param vec Pre-extracted vectors from `load_region_data()$vec` (required).
 #' @param prices Carbon-price grid ($/tCO2), increasing and starting at 0.
+#' @param method `"linear"` (default): each technology is evaluated once, at two fixed displaced grid
+#'   intensities, and abatement at each price follows by linearity in MEF(P); for BEBCS, every dose option
+#'   and both energy modes are compared at each price (see [price_sweep_linear()]). `"full"`: the model is
+#'   run at every price. Both give the same results (up to floating-point rounding); `"linear"` falls back
+#'   to `"full"` where linearity does not hold (BEBCS heat mode).
 #' @return A list with `prices`, `n0` (cells x 3 net value without carbon revenue at C = 0), `n0_grid`
 #'   (the same at each price; see `sweep_n0`), `abate` (cells x 3 x prices), `active_indices` and
 #'   `template`.
 #' @export
-run_price_sweep <- function(template, layers, params, vec, prices = c(seq(0, 250, by = 5), seq(275, 500, by = 25))) {
+run_price_sweep <- function(template, layers, params, vec, prices = c(seq(0, 250, by = 5), seq(275, 500, by = 25)),
+                            method = c("linear", "full")) {
+  method <- match.arg(method)
   if (is.null(vec) || is.null(vec[["active_indices", exact = TRUE]])) stop("run_price_sweep() needs `vec`.")
   prices <- sort(unique(prices))
   if (prices[1] != 0) stop("The price grid must start at 0.")
+  bebcs_mode <- if (!is.null(params$bebcs_energy_mode)) params$bebcs_energy_mode else "flex"
+  if (method == "linear" && bebcs_mode != "heat") {
+    out <- price_sweep_linear(params, vec, prices)
+    out$active_indices <- vec[["active_indices", exact = TRUE]]
+    out$template <- template
+    return(out)
+  }
   n_cell <- length(vec[["active_indices", exact = TRUE]])
   abate <- array(NA_real_, dim = c(n_cell, 3, length(prices)), dimnames = list(NULL, c("BES", "BECCS", "BEBCS"), NULL))
   n0_grid <- abate
@@ -38,6 +52,91 @@ run_price_sweep <- function(template, layers, params, vec, prices = c(seq(0, 250
   colnames(n0) <- c("BES", "BECCS", "BEBCS")
   list(prices = prices, n0 = n0, n0_grid = n0_grid, abate = abate,
        active_indices = vec[["active_indices", exact = TRUE]], template = template)
+}
+
+#' Carbon-Price Sweep by Linearity in the Displaced Grid Intensity
+#'
+#' The carbon price enters the model in two ways only: through the displaced grid intensity MEF(P)
+#' (`displaced_grid_ci`), on which abatement depends linearly for every technology (grid credit, and for
+#' BECCS the grid electricity of CO2 lift pumping), and through the BEBCS choice of dose option and energy
+#' mode, whose terms enter net value and abatement additively. Each technology is therefore evaluated once
+#' with the grid intensity fixed at 0 and at 1 Mg CO2/GJ (BES and BECCS; BEBCS "power" at one dose option,
+#' "none" once), at zero carbon price; at each price, abatement is A(0) + MEF(P) (A(1) - A(0)), and for
+#' BEBCS the dose and mode with the highest net value are chosen exactly as in [calculate_bebcs()].
+#'
+#' @param params Scenario parameter list.
+#' @param vec Pre-extracted vectors from `load_region_data()$vec`.
+#' @param prices Carbon-price grid.
+#' @return A list with `prices`, `n0`, `n0_grid` and `abate`, as [run_price_sweep()].
+#' @keywords internal
+price_sweep_linear <- function(params, vec, prices) {
+  p <- cell_params(params, vec)
+  n_cell <- length(vec[["active_indices", exact = TRUE]])
+  np <- length(prices)
+  # Displaced grid intensity at each price (cells x prices)
+  mef <- vapply(prices, function(cp) {
+    q <- p
+    q$c_price <- cp
+    rep_len(displaced_grid_ci(q), n_cell)
+  }, numeric(n_cell))
+  mef <- matrix(mef, n_cell, np)
+  fixed <- function(ci, extra = list()) {
+    q <- p
+    q$ff_c_intensity <- ci
+    q$mef_price_dependent <- FALSE
+    q$c_price <- 0
+    utils::modifyList(q, extra)
+  }
+  vecn <- function(x) rep_len(as.numeric(x), n_cell)
+  abate <- array(NA_real_, dim = c(n_cell, 3, np), dimnames = list(NULL, c("BES", "BECCS", "BEBCS"), NULL))
+  n0_grid <- abate
+  # BES and BECCS: net value without carbon revenue does not depend on the price; abatement is affine in MEF
+  for (k in 1:2) {
+    fun <- if (k == 1) calculate_bes else calculate_beccs
+    r0 <- fun(fixed(0))
+    r1 <- fun(fixed(1))
+    a0 <- vecn(r0$tot_c_abatement)
+    g <- vecn(r1$tot_c_abatement) - a0
+    n0_grid[, k, ] <- vecn(r0$net_value)
+    abate[, k, ] <- a0 + mef * g
+  }
+  # BEBCS: base values of each energy mode at dose option 1, field terms of every dose option
+  dose1 <- list(bc_dose_index = 1L, bc_return_field_table = TRUE)
+  mode_base <- function(m, with_grid) {
+    r0 <- calculate_bebcs_mode(fixed(0, c(dose1, list(bebcs_energy_mode = m))))
+    ft <- r0$field_table
+    d1n <- ft$v_yield[, 1] - ft$v_spread[, 1]
+    d1a <- ft$a_n2o[, 1] - ft$e_diesel[, 1]
+    g <- if (with_grid) vecn(calculate_bebcs_mode(fixed(1, c(dose1, list(bebcs_energy_mode = m))))$tot_c_abatement) -
+      vecn(r0$tot_c_abatement) else 0
+    list(n0 = vecn(r0$net_value) - d1n, a0 = vecn(r0$tot_c_abatement) - d1a, g = g, ft = ft)
+  }
+  bebcs_mode <- if (!is.null(params$bebcs_energy_mode)) params$bebcs_energy_mode else "flex"
+  modes <- if (bebcs_mode == "flex") c("power", "none") else bebcs_mode
+  base <- lapply(stats::setNames(modes, modes), function(m) mode_base(m, m != "none"))
+  for (i in seq_len(np)) {
+    cp <- prices[i]
+    val <- lapply(base, function(b) {
+      di <- bc_dose_index(b$ft, cp)
+      f <- pick_bc_dose(b$ft, di)
+      n0 <- b$n0 + f$v_yield - f$v_spread
+      a <- b$a0 + f$a_n2o - f$e_diesel + mef[, i] * b$g
+      list(n0 = n0, a = a, net = n0 + cp * a)
+    })
+    if (length(val) == 2) {
+      use_none <- val$none$net > val$power$net
+      n0_grid[, 3, i] <- fast_ifelse(use_none, val$none$n0, val$power$n0)
+      abate[, 3, i] <- fast_ifelse(use_none, val$none$a, val$power$a)
+    } else {
+      n0_grid[, 3, i] <- val[[1]]$n0
+      abate[, 3, i] <- val[[1]]$a
+    }
+  }
+  # As in the full sweep (N0 = net - C A), N0 is undefined where abatement is (e.g. missing grid intensity)
+  n0_grid[is.na(abate)] <- NA
+  n0 <- n0_grid[, , 1]
+  colnames(n0) <- c("BES", "BECCS", "BEBCS")
+  list(prices = prices, n0 = n0, n0_grid = n0_grid, abate = abate)
 }
 
 #' Net Value without Carbon Revenue at a Carbon Price, Interpolated from a Sweep

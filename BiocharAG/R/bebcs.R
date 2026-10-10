@@ -158,7 +158,9 @@ calculate_bebcs_mode <- function(params) {
     # Field application on the cell's own cropland: dose strategy with the highest net value at this carbon
     # price (yield response, spreading passes, soil N2O; biochar_field_table())
     field_tab <- biochar_field_table(params, bc_yield, bc_stability)
-    field <- choose_bc_dose(field_tab, c_price)
+    # bc_dose_index (internal, run_price_sweep): evaluate a fixed dose option instead of choosing at c_price
+    field <- if (!is.null(params$bc_dose_index)) pick_bc_dose(field_tab, params$bc_dose_index) else
+      choose_bc_dose(field_tab, c_price)
     bc_field_cost <- field$v_spread
     bc_field_emissions <- field$e_diesel
     logistics_cost <- logistics$cost + bc_haul_cost + bc_field_cost
@@ -193,7 +195,7 @@ calculate_bebcs_mode <- function(params) {
     abatement_efficiency <- ifelse_raster(co2e_sequestered > 0, tot_c_abatement / co2e_sequestered, 0)
     total_capex_m <- (total_py_capex + total_energy_capex) / 1e6
 
-    list(
+    res <- list(
       technology = "BEBCS",
       bc_yield = bc_yield,
       bc_c_content = bc_c_content,
@@ -231,5 +233,7 @@ calculate_bebcs_mode <- function(params) {
       abatement_efficiency = abatement_efficiency,
       total_capex_m = total_capex_m
     )
+    if (isTRUE(params$bc_return_field_table)) res$field_table <- field_tab # internal, run_price_sweep
+    res
   })
 }

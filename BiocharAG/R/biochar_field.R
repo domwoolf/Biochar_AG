@@ -244,9 +244,29 @@ bc_pass_diesel <- function(params) {
 #'   `dose` (option value; 0 = annual), `d_eff`, `cohorts`.
 #' @export
 choose_bc_dose <- function(ft, c_price) {
+  pick_bc_dose(ft, bc_dose_index(ft, c_price))
+}
+
+#' Index of the Best Dose Option at a Carbon Price
+#'
+#' @param ft Output of [biochar_field_table()].
+#' @param c_price Carbon price (US$ Mg-1 CO2e).
+#' @return Integer vector (per cell) of the column of `ft` with the highest field value.
+#' @keywords internal
+bc_dose_index <- function(ft, c_price) {
   val <- ft$v_yield - ft$v_spread + c_price * (ft$a_n2o - ft$e_diesel)
   val[is.na(val)] <- -Inf
-  i <- max.col(val, ties.method = "first")
+  max.col(val, ties.method = "first")
+}
+
+#' Field Effects of Given Dose Options
+#'
+#' @param ft Output of [biochar_field_table()].
+#' @param i Dose option index per cell (or a single index for all cells).
+#' @return As [choose_bc_dose()].
+#' @keywords internal
+pick_bc_dose <- function(ft, i) {
+  i <- rep_len(i, nrow(ft$v_yield))
   pick <- function(mx) mx[cbind(seq_len(nrow(mx)), i)]
   out <- lapply(ft[c("v_yield", "v_spread", "a_n2o", "e_diesel", "d_eff", "cohorts")], pick)
   out$dose <- ft$doses[i]
