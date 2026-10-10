@@ -16,8 +16,35 @@ ifelse_raster <- function(test, yes, no) {
       no
     }
   } else {
-    ifelse(test, yes, no)
+    fast_ifelse(test, yes, no)
   }
+}
+
+#' Fast Vector ifelse
+#'
+#' `data.table::fifelse` for numeric or logical `yes`/`no` of length 1 or `length(test)` (about 30 times
+#' faster than base `ifelse` on long vectors); falls back to base `ifelse` otherwise. Keeps the `dim`,
+#' `dimnames` and `names` of `test`, as base `ifelse` does.
+#'
+#' @param test,yes,no As for base `ifelse`.
+#' @return Vector (or matrix) of the shape of `test`.
+#' @keywords internal
+fast_ifelse <- function(test, yes, no) {
+  n <- length(test)
+  num_or_lgl <- function(x) is.numeric(x) || is.logical(x)
+  if (!num_or_lgl(yes) || !num_or_lgl(no) || !(length(yes) %in% c(1L, n)) || !(length(no) %in% c(1L, n)) ||
+      !(is.logical(test) || is.numeric(test))) {
+    return(ifelse(test, yes, no))
+  }
+  a <- attributes(test)
+  if (!is.logical(test)) test <- as.logical(test)
+  if (is.numeric(yes) || is.numeric(no)) {
+    yes <- as.double(yes)
+    no <- as.double(no)
+  }
+  out <- data.table::fifelse(as.vector(test), as.vector(yes), as.vector(no))
+  if (!is.null(a)) attributes(out) <- a[intersect(names(a), c("dim", "dimnames", "names"))]
+  out
 }
 
 #' Raster-Aware Parallel Minimum (pmin)
@@ -292,9 +319,10 @@ cell_params <- function(params, vec) {
 #' @param layers List of spatial layers (SpatRaster objects).
 #' @param params Scenario parameter list.
 #' @param vec Optional list of pre-extracted 1D spatial vectors from `load_region_data()$vec`.
+#' @param raster_out With `vec`: FALSE returns only `vec_res` (no SpatRaster outputs; faster).
 #' @return A list containing `net` (SpatRaster stack), `abate` (SpatRaster stack), `opt` (SpatRaster), and optionally `vec_res`.
 #' @export
-run_scenario <- function(template, layers, params, vec = NULL) {
+run_scenario <- function(template, layers, params, vec = NULL, raster_out = TRUE) {
   if (!is.null(vec) && is.list(vec) && !is.null(vec[["active_indices", exact = TRUE]])) {
     p <- cell_params(params, vec)
 
@@ -311,6 +339,8 @@ run_scenario <- function(template, layers, params, vec = NULL) {
 
     opt_vec <- max.col(net_matrix, ties.method = "first")
     opt_vec[rowSums(is.na(net_matrix)) == 3] <- NA
+
+    if (!raster_out) return(list(vec_res = list(net = net_matrix, abate = abate_matrix, opt = opt_vec)))
 
     active_idx <- vec[["active_indices", exact = TRUE]]
 
@@ -612,7 +642,7 @@ residue_burn_share <- function(params) {
   burn_map <- params[["residue_burn_map", exact = TRUE]]
   if (!is.null(burn_map)) {
     f_map <- pmin_raster(burn_map * pv("residue_burn_factor", 1), 1)
-    f_burn <- if (inherits(f_map, "SpatRaster")) terra::ifel(is.na(f_map), f_burn, f_map) else ifelse(is.na(f_map), f_burn, f_map)
+    f_burn <- if (inherits(f_map, "SpatRaster")) terra::ifel(is.na(f_map), f_burn, f_map) else fast_ifelse(is.na(f_map), f_burn, f_map)
   }
   f_burn
 }

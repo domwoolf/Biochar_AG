@@ -47,7 +47,7 @@ biochar_field_effects <- function(b, y_bc, k, a10, val_ha, n_dir, doses = c(0, 2
   # Cells with missing inputs are evaluated with placeholder values and returned as NA
   ok <- is.finite(b) & b > 0 & is.finite(y_bc) & y_bc > 0 & is.finite(k) & is.finite(a10) & is.finite(val_ha) &
     is.finite(n_dir)
-  m <- ifelse(ok, b / y_bc, NA_real_)
+  m <- fast_ifelse(ok, b / y_bc, NA_real_)
   b[!ok] <- 1; k[!ok] <- 0; a10[!ok] <- 0; val_ha[!ok] <- 0; n_dir[!ok] <- 0
   crf <- if (r > 0) r / (1 - (1 + r)^-T) else 1 / T
   lam <- log(2) / t_half
@@ -113,15 +113,15 @@ biochar_field_effects <- function(b, y_bc, k, a10, val_ha, n_dir, doses = c(0, 2
       if (j <= T - 1) {
         use <- as.numeric(j < nt)
         is_hi <- j < rem
-        S_y <- S_y + use * (1 + r)^-j * (if (any_lo) ifelse(is_hi, P_hi, P_lo) else P_hi)
-        S_n <- S_n + use * (if (any_lo) ifelse(is_hi, N_hi, N_lo) else N_hi)
+        S_y <- S_y + use * (1 + r)^-j * (if (any_lo) fast_ifelse(is_hi, P_hi, P_lo) else P_hi)
+        S_n <- S_n + use * (if (any_lo) fast_ifelse(is_hi, N_hi, N_lo) else N_hi)
       }
     }
     out$v_yield[, di] <- crf * val_ha * S_y / n / m
     out$v_spread[, di] <- c_pass / (n * m)
     out$a_n2o[, di] <- n_dir * R * pmin(1, d_eff / D_n2o) * S_n / n * 44 / 28 * 1e-3 * gwp_n2o / (m * T)
     out$e_diesel[, di] <- L_pass * ef_diesel / (n * m)
-    out$cohorts[, di] <- ifelse(ok, n, NA)
+    out$cohorts[, di] <- fast_ifelse(ok, n, NA)
     out$d_eff[, di] <- d_eff
   }
   out
@@ -161,7 +161,7 @@ biochar_field_table <- function(params, y_bc, bc_stability) {
   dens <- vals(params[["biomass_density", exact = TRUE]])
   hf <- vals(params[["harv_frac", exact = TRUE]])
   q_h <- if (is.null(dens) || is.null(hf)) pv("residue_per_ha_default", 3) else
-    ifelse(is.finite(hf) & hf > 0, pmin(dens / (hf * 100), q_max), q_max)
+    fast_ifelse(is.finite(hf) & hf > 0, pmin(dens / (hf * 100), q_max), q_max)
   b <- ci * q_h * vals(y_bc)
   cec <- fill(params[["soil_cec", exact = TRUE]], 20)
   a10 <- pmax(0, pv("bc_yield_b0", 0.3607) + pv("bc_yield_bcec", -0.1008) * log(pmax(cec, 0.1)))

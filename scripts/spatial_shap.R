@@ -67,26 +67,14 @@ feature_palette <- c(
 # Targets and spatial inputs per region
 # ==============================================================================
 
-#' Lowest carbon price at which BECCS has the highest non-negative net value (NA if never <= MAX_PRICE)
-takeover_price <- function(sweep, k = 2, step = 1) {
-  out <- rep(NA_real_, nrow(sweep$n0))
-  for (cp in seq(0, MAX_PRICE, by = step)) {
-    net <- sweep_net(sweep, cp)
-    net[is.na(net)] <- -Inf
-    best <- max.col(net, ties.method = "first")
-    hit <- is.na(out) & best == k & net[cbind(seq_along(best), best)] >= 0
-    out[hit] <- cp
-  }
-  out
-}
-
 region_data <- function(r) {
   message("Region ", r, ": price sweep and spatial inputs...")
   dat <- load_region_data(r)
   p0 <- set_scenario(region = r)
   p0$region <- r
   sw <- run_price_sweep(dat$template, dat$layers, p0, vec = dat$vec, prices = c(seq(0, 250, by = 5), seq(275, MAX_PRICE, by = 25)))
-  be <- function(k) price_root(function(cp) sweep_n0(sw, cp)[, k], function(cp) sweep_abate(sw, cp)[, k], sw$prices)
+  be_all <- sweep_breakeven(sw)
+  be <- function(k) be_all[, k]
   # Inputs at the default plant size, as in run_scenario()
   p <- cell_params(p0, dat$vec)
   p$c_price <- 0
@@ -110,7 +98,7 @@ region_data <- function(r) {
   rep_n <- function(x) if (length(x) == n) x else rep_len(x, n)
   data.table(
     region = r, x = dat$vec$xy[, 1], y = dat$vec$xy[, 2], cell_area_km2 = dat$vec$cell_area,
-    be_PyCCS = be(3), be_BECCS = be(2), n0_BE = sw$n0[, 1], takeover_BECCS = takeover_price(sw),
+    be_PyCCS = be(3), be_BECCS = be(2), n0_BE = sw$n0[, 1], takeover_BECCS = sweep_takeover(sw, k = 2, max_price = MAX_PRICE),
     biomass_density = sl$biomass_density, dist_BE_base = rep_n(p$avg_dist_BES_BASE), dist_BE_flex = rep_n(p$avg_dist_BES_FLEX),
     dist_BECCS = rep_n(p$avg_dist_BECCS), dist_PyCCS = rep_n(p$avg_dist_BEBCS), haul_mult = rep_n(haul_mult),
     burn_frac = rep_n(residue_burn_share(p)), feedstock_cost = rep_n(p$feedstock_cost),

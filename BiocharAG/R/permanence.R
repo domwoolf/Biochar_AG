@@ -48,7 +48,7 @@ calculate_fperm <- function(val, method = "HC", soil_temp = 14.9, time_years = 1
     delta_t <- t_expt - soil_temp
 
     # Handle case where delta_t is close to 0 to avoid division by zero
-    q10 <- ifelse(abs(delta_t) < 0.001,
+    q10 <- fast_ifelse(abs(delta_t) < 0.001,
         1.1 + 12.0 * exp(-0.19 * soil_temp), # Limit as T_expt -> soil_temp
         (1.1 * delta_t - 63.15789 * (exp(-0.19 * t_expt) - exp(-0.19 * soil_temp))) / delta_t
     )

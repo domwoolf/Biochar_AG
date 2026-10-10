@@ -28,7 +28,7 @@ run_price_sweep <- function(template, layers, params, vec, prices = c(seq(0, 250
   n0_grid <- abate
   for (i in seq_along(prices)) {
     params[["c_price"]] <- prices[i]
-    res <- run_scenario(template, layers, params, vec = vec)[["vec_res", exact = TRUE]]
+    res <- run_scenario(template, layers, params, vec = vec, raster_out = FALSE)[["vec_res", exact = TRUE]]
     abate[, , i] <- res[["abate", exact = TRUE]]
     # Net value without carbon revenue, from the configuration chosen at this price. Constant across
     # prices unless a technology switches configuration with the carbon price (BEBCS "flex" mode).
@@ -105,7 +105,7 @@ price_root <- function(n0, a_at, prices, step = 1) {
   n0_at <- if (is.function(n0)) n0 else function(cp) n0
   n00 <- n0_at(0)
   a0 <- a_at(0)
-  out <- ifelse(n00 >= 0 & a0 > 0, -n00 / a0, NA_real_)
+  out <- fast_ifelse(n00 >= 0 & a0 > 0, -n00 / a0, NA_real_)
   todo <- which(is.finite(n00) & n00 < 0)
   c_prev <- 0
   f_prev <- n00
@@ -126,15 +126,143 @@ price_root <- function(n0, a_at, prices, step = 1) {
   out
 }
 
-#' Break-Even Carbon Price per Technology from a Sweep
+#' Piecewise-Quadratic Net Value on a Sweep Segment
+#'
+#' Between grid prices p_i and p_i+1, both N0 and A are linear in the carbon price C, so the net value
+#' f(C) = N0(C) + C A(C) is quadratic in w = (C - p_i) / (p_i+1 - p_i): f = c0 + b w + a w^2. Above the
+#' top of the grid, N0 and A are constant and f is linear in w = C - p_top (unbounded). Non-finite values
+#' (no CO2 route, masked cells) give c0 = -Inf, b = a = 0.
 #'
 #' @param sweep Output of `run_price_sweep`.
-#' @param step Scan step ($/tCO2).
+#' @param i Segment index (1 .. length(prices)); i = length(prices) is the open segment above the grid.
+#' @return A list with matrices `c0`, `b`, `a` (cells x 3), the segment start `p`, width `d` (1 for the
+#'   open segment) and upper bound of w, `wmax`.
+#' @keywords internal
+sweep_segment <- function(sweep, i) {
+  p <- sweep$prices
+  n <- length(p)
+  n0 <- if (is.null(sweep$n0_grid)) array(sweep$n0, dim(sweep$abate)) else sweep$n0_grid
+  if (i < n) {
+    d <- p[i + 1] - p[i]
+    n_lo <- n0[, , i]; n_hi <- n0[, , i + 1]
+    a_lo <- sweep$abate[, , i]; a_hi <- sweep$abate[, , i + 1]
+    dn <- n_hi - n_lo; da <- a_hi - a_lo
+    out <- list(c0 = n_lo + p[i] * a_lo, b = dn + p[i] * da + d * a_lo, a = d * da, p = p[i], d = d, wmax = 1)
+  } else {
+    n_lo <- n0[, , n]; a_lo <- sweep$abate[, , n]
+    out <- list(c0 = n_lo + p[n] * a_lo, b = a_lo, a = 0 * a_lo, p = p[n], d = 1, wmax = Inf)
+    n_hi <- n_lo; a_hi <- a_lo
+  }
+  bad <- !is.finite(n_lo) | !is.finite(n_hi) | !is.finite(a_lo) | !is.finite(a_hi)
+  out$c0[bad] <- -Inf; out$b[bad] <- 0; out$a[bad] <- 0
+  out
+}
+
+#' Roots of c0 + b w + a w^2 in [0, wmax]
+#'
+#' @param c0,b,a Numeric vectors of equal length.
+#' @param wmax Upper bound of w (scalar, may be Inf).
+#' @return A two-column matrix of the roots in [0, wmax] (smaller first; NA where absent).
+#' @keywords internal
+quad_roots01 <- function(c0, b, a, wmax) {
+  n <- length(c0)
+  r <- matrix(NA_real_, n, 2)
+  lin <- abs(a) < 1e-12 * pmax(abs(b), abs(c0), 1e-300)
+  ok <- is.finite(c0)
+  i <- which(lin & ok & b != 0)
+  r[i, 1] <- -c0[i] / b[i]
+  q <- which(!lin & ok)
+  if (length(q)) {
+    disc <- b[q]^2 - 4 * a[q] * c0[q]
+    real <- disc >= 0
+    s <- sqrt(pmax(disc, 0))
+    # Numerically stable pair of roots
+    t <- -0.5 * (b[q] + fast_ifelse(b[q] >= 0, s, -s))
+    r1 <- fast_ifelse(t != 0, t / a[q], 0)
+    r2 <- fast_ifelse(t != 0, c0[q] / t, 0)
+    r[q, 1] <- fast_ifelse(real, pmin(r1, r2), NA)
+    r[q, 2] <- fast_ifelse(real, pmax(r1, r2), NA)
+  }
+  r[!is.na(r) & (r < 0 | r > wmax)] <- NA
+  # Keep the smaller valid root in column 1
+  sw <- is.na(r[, 1]) & !is.na(r[, 2])
+  r[sw, 1] <- r[sw, 2]; r[sw, 2] <- NA
+  r
+}
+
+#' Break-Even Carbon Price per Technology from a Sweep
+#'
+#' Exact on the piecewise-linear interpolation of N0 and A between the grid prices (see
+#' [sweep_segment()]): the lowest carbon price at which the net value N0(C) + C A(C) turns non-negative.
+#' Cells whose net value is already non-negative at C = 0 get the (zero or negative) root -N0(0) / A(0),
+#' where A(0) > 0; above the grid, N0 and A are held at their top values.
+#'
+#' @param sweep Output of `run_price_sweep`.
+#' @param step Ignored (kept for compatibility; the roots are exact).
 #' @return Cells x 3 matrix of break-even prices ($/tCO2); NA where a technology never breaks even.
 #' @export
-sweep_breakeven <- function(sweep, step = 1) {
-  out <- sapply(1:3, function(j) price_root(function(cp) sweep_n0(sweep, cp)[, j], function(cp) sweep_abate(sweep, cp)[, j], sweep$prices, step))
+sweep_breakeven <- function(sweep, step = NULL) {
+  n0 <- if (is.null(sweep$n0_grid)) sweep$n0 else sweep$n0_grid[, , 1]
+  a0 <- sweep$abate[, , 1]
+  out <- fast_ifelse(is.finite(n0) & is.finite(a0) & n0 >= 0 & a0 > 0, -n0 / a0, NA_real_)
+  todo <- is.finite(n0) & is.finite(a0) & n0 < 0
+  for (i in seq_along(sweep$prices)) {
+    if (!any(todo)) break
+    sg <- sweep_segment(sweep, i)
+    idx <- which(todo)
+    w <- quad_roots01(sg$c0[idx], sg$b[idx], sg$a[idx], sg$wmax)[, 1]
+    w[is.na(w) & sg$c0[idx] >= 0] <- 0 # crossing exactly at the grid price
+    hit <- !is.na(w)
+    out[idx[hit]] <- sg$p + sg$d * w[hit]
+    todo[idx[hit]] <- FALSE
+  }
   colnames(out) <- c("BES", "BECCS", "BEBCS")
+  out
+}
+
+#' Takeover Carbon Price from a Sweep
+#'
+#' Exact lowest carbon price at which technology `k` has the highest net value of the three and that
+#' value is non-negative, on the piecewise-linear interpolation of N0 and A between the grid prices.
+#' Candidate prices in each segment are its start and the roots of f_k and of f_k - f_j (j != k); the
+#' condition is tested just above each candidate.
+#'
+#' @param sweep Output of `run_price_sweep`.
+#' @param k Technology column (2 = BECCS).
+#' @param max_price Highest price considered (Inf: also the open segment above the grid).
+#' @return Vector of takeover prices ($/tCO2); NA where `k` never takes over up to `max_price`.
+#' @export
+sweep_takeover <- function(sweep, k = 2, max_price = Inf) {
+  n_cell <- dim(sweep$abate)[1]
+  out <- rep(NA_real_, n_cell)
+  todo <- rep(TRUE, n_cell)
+  others <- setdiff(1:3, k)
+  for (i in seq_along(sweep$prices)) {
+    if (!any(todo) || sweep$prices[i] > max_price) break
+    sg <- sweep_segment(sweep, i)
+    wmax <- min(sg$wmax, (max_price - sg$p) / sg$d)
+    idx <- which(todo)
+    f <- function(j, w) sg$c0[idx, j] + sg$b[idx, j] * w + sg$a[idx, j] * w^2
+    cand <- cbind(0, quad_roots01(sg$c0[idx, k], sg$b[idx, k], sg$a[idx, k], wmax))
+    for (j in others) {
+      cand <- cbind(cand, quad_roots01(sg$c0[idx, k] - sg$c0[idx, j], sg$b[idx, k] - sg$b[idx, j],
+                                       sg$a[idx, k] - sg$a[idx, j], wmax))
+    }
+    best <- rep(NA_real_, length(idx))
+    eps <- 1e-9 * if (is.finite(sg$wmax)) 1 else max(1, sg$p)
+    for (m in seq_len(ncol(cand))) {
+      w <- cand[, m]
+      wt <- pmin(w + eps, wmax)
+      fk <- f(k, wt)
+      okk <- !is.na(w) & is.finite(fk) & fk >= 0
+      for (j in others) okk <- okk & (fk >= f(j, wt) | !is.finite(f(j, wt)))
+      better <- okk & (is.na(best) | w < best)
+      best[better] <- w[better]
+    }
+    hit <- !is.na(best)
+    out[idx[hit]] <- sg$p + sg$d * best[hit]
+    todo[idx[hit]] <- FALSE
+  }
   out
 }
 

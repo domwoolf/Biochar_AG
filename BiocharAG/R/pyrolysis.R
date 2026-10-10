@@ -91,7 +91,7 @@ calculate_pyrolysis_physics <- function(py_temp, lignin, bm_lhv, moisture = 0.1,
     # --- 6. Heat losses (GJ/Mg daf feed) ---
     # Reactor wall: insulated cylinder sized from feed rate and residence time
     feed_rate_wet <- feed_rate_kg_hr / ((1 - ash) * (1 - moisture))
-    residence_hr <- ifelse(py_temp > 340, 654 * (py_temp - 332)^-0.56 / 60, 12)
+    residence_hr <- fast_ifelse(py_temp > 340, 654 * (py_temp - 332)^-0.56 / 60, 12)
     vessel_vol <- feed_rate_wet * residence_hr / 250 # feed bulk density 250 kg/m3
     aspect <- 20
     radius <- (vessel_vol / (pi * aspect))^(1 / 3)

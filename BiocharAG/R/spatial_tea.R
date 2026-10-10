@@ -289,7 +289,7 @@ calculate_regional_feedstock_cost <- function(region, params) {
         cost_usd <- base_eur * 1.285 * 1.366 # 2012 EUR -> 2012 USD -> 2024 USD
         x <- params$eu_feedstock_usd
         if (!is.null(x)) {
-            cost_usd <- if (inherits(x, "SpatRaster")) terra::ifel(is.na(x), cost_usd, x) else ifelse(is.na(x), cost_usd, x)
+            cost_usd <- if (inherits(x, "SpatRaster")) terra::ifel(is.na(x), cost_usd, x) else fast_ifelse(is.na(x), cost_usd, x)
         }
         # S2Biom straw costs include fertilizer to replace the nutrients removed; nutrient removal is charged
         # separately (residue_removal_charge()), so it is subtracted (EUR/t dm, 2012)

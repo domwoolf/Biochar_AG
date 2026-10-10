@@ -28,11 +28,12 @@ source("scripts/manuscript_figures.R") # load_all and helpers
 n_runs <- 5000 # Monte Carlo draws per region
 if (!exists("test_mode")) test_mode <- FALSE
 if (!exists("test_runs")) test_runs <- 100
-n_cores <- max(1, parallel::detectCores() - 2)
+# Throughput plateaus at about 8-12 workers on a 12-core machine: the vectorized R model is limited by
+# memory bandwidth (fresh vectors for every operation), so more workers only slow each draw
+n_cores <- min(12, max(1, parallel::detectCores() - 2))
 regions <- c("US", "Europe", "China", "India")
 MC_PRICES <- c(0, 25, 50, 75, 100, 125, 150, 175, 200, 250, 300, 400) # sweep grid ($/tCO2e)
 REPORT_PRICES <- c(0, 50, 100, 150, 200, 250)
-TAKEOVER_STEP <- 5
 
 if (test_mode) {
   message("Running in TEST MODE: ", test_runs, " draws per region.")
@@ -56,29 +57,13 @@ wmedian <- function(x, w) {
   x[o][which(cw >= 0.5)[1]]
 }
 
-# Lowest carbon price at which BECCS (column 2) has the highest non-negative net value
-takeover_price <- function(sw, top) {
-  out <- rep(NA_real_, nrow(sw$n0))
-  for (cp in seq(0, top, by = TAKEOVER_STEP)) {
-    net <- sweep_net(sw, cp)
-    net[is.na(net)] <- -Inf
-    b <- max.col(net, ties.method = "first")
-    hit <- is.na(out) & b == 2 & net[cbind(seq_along(b), b)] >= 0
-    out[hit] <- cp
-  }
-  out
-}
-
 draw_metrics <- function(sw, bm) {
   top <- max(MC_PRICES)
-  be <- function(k) {
-    v <- price_root(function(cp) sweep_n0(sw, cp)[, k], function(cp) sweep_abate(sw, cp)[, k], sw$prices)
-    min(wmedian(v, bm), top)
-  }
+  be <- sweep_breakeven(sw)
   out <- list(
-    be_PyCCS = be(3),
-    be_BECCS = be(2),
-    takeover = min(wmedian(takeover_price(sw, top), bm), top),
+    be_PyCCS = min(wmedian(be[, 3], bm), top),
+    be_BECCS = min(wmedian(be[, 2], bm), top),
+    takeover = min(wmedian(sweep_takeover(sw, k = 2, max_price = top), bm), top),
     n0_BE = sum((sw$n0[, 1] * bm)[is.finite(sw$n0[, 1])]) / sum(bm[is.finite(sw$n0[, 1])])
   )
   for (cp in REPORT_PRICES) {

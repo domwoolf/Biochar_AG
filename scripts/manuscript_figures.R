@@ -4,6 +4,10 @@
 # BiocharAG manuscript.
 
 library(terra)
+# One thread per R process: the model's vector operations gain nothing from OpenMP or BLAS threads, and
+# extra threads oversubscribe the cores when draws run in parallel (data.table defaults to half the cores)
+if (requireNamespace("data.table", quietly = TRUE)) data.table::setDTthreads(1)
+if (requireNamespace("RhpcBLASctl", quietly = TRUE)) { RhpcBLASctl::blas_set_num_threads(1); RhpcBLASctl::omp_set_num_threads(1) }
 library(ggplot2)
 library(dplyr)
 library(tidyr)

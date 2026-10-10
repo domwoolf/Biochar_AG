@@ -4,16 +4,19 @@
 \alias{sweep_breakeven}
 \title{Break-Even Carbon Price per Technology from a Sweep}
 \usage{
-sweep_breakeven(sweep, step = 1)
+sweep_breakeven(sweep, step = NULL)
 }
 \arguments{
 \item{sweep}{Output of \code{run_price_sweep}.}
 
-\item{step}{Scan step ($/tCO2).}
+\item{step}{Ignored (kept for compatibility; the roots are exact).}
 }
 \value{
 Cells x 3 matrix of break-even prices ($/tCO2); NA where a technology never breaks even.
 }
 \description{
-Break-Even Carbon Price per Technology from a Sweep
+Exact on the piecewise-linear interpolation of N0 and A between the grid prices (see
+\code{\link[=sweep_segment]{sweep_segment()}}): the lowest carbon price at which the net value N0(C) + C A(C) turns non-negative.
+Cells whose net value is already non-negative at C = 0 get the (zero or negative) root -N0(0) / A(0),
+where A(0) > 0; above the grid, N0 and A are held at their top values.
 }
