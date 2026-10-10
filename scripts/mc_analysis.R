@@ -1,326 +1,135 @@
-# scripts/run_mc_analysis.R
-# Executes Monte Carlo sensitivity and uncertainty analysis across scenario parameter combinations.
-# Evaluates technologies competitively across spatial layers using randomized parameter draws.
-# Highly optimized for performance using vectorization and multi-core parallelization.
+# scripts/mc_analysis.R
+# Monte Carlo uncertainty analysis. Each draw samples the uncertain parameters of parameters.csv
+# (PERT, uniform or normal marginals; correlated pairs jointly through a Gaussian copula,
+# parameter_correlations.csv) and runs the same carbon-price sweep as the main results
+# (run_price_sweep) for every grid cell of the region, at the regional discount rate and the reference
+# plant size. Structural choices (plant size, pipeline architecture, EOR sinks, social discount rate) are
+# tested separately as variants (variant_sweeps.R, manuscript_figures.R), not sampled here.
+#
+# For each region and draw it records the regional quantities that summarize the competition between
+# technologies, matching the targets of the spatial SHAP analysis (spatial_shap.R):
+#   be_PyCCS, be_BECCS   biomass-weighted median break-even carbon price ($/tCO2e) over all cells;
+#                        cells that never break even count as above any price; censored at the top of
+#                        the price grid (MC_PRICES)
+#   takeover             biomass-weighted median price at which BECCS becomes the technology with the
+#                        highest non-negative net value (censored likewise)
+#   n0_BE                biomass-weighted mean net value of BE without carbon revenue ($/Mg)
+# and, at each carbon price in REPORT_PRICES, the share of biomass allocated to each technology (highest
+# non-negative net value) and the abatement of the allocated cells (Tg CO2e/yr).
+#
+# Output: results/mc_analysis_results.csv (one row per region and draw: sampled parameters + metrics).
+# MC_shap.R fits the SHAP models and writes the summaries.
 
-library(terra)
 library(parallel)
-library(dplyr)
-library(tidyr)
 
-# Sourcing script for helper load function and devtools packages loading
-source("scripts/manuscript_figures.R")
+source("scripts/manuscript_figures.R") # load_all and helpers
 
 # Configuration
-n_runs <- 5000 # Number of MC iterations per region
-if (!exists("test_mode")) test_mode <- FALSE # Set to FALSE for full production run
-if (!exists("test_runs")) test_runs <- 100 # How many iterations in test mode
-n_cores <- 12 # Set to integer to override default cores detection (detectCores() - 1)
-append <- FALSE # Set to TRUE to append to existing results file
-
-regions <- c("US", "China", "Europe", "India")
+n_runs <- 5000 # Monte Carlo draws per region
+if (!exists("test_mode")) test_mode <- FALSE
+if (!exists("test_runs")) test_runs <- 100
+n_cores <- max(1, parallel::detectCores() - 2)
+regions <- c("US", "Europe", "China", "India")
+MC_PRICES <- c(0, 25, 50, 75, 100, 125, 150, 175, 200, 250, 300, 400) # sweep grid ($/tCO2e)
+REPORT_PRICES <- c(0, 50, 100, 150, 200, 250)
+TAKEOVER_STEP <- 5
 
 if (test_mode) {
-  message("Running in TEST MODE: ", test_runs, " iterations.")
+  message("Running in TEST MODE: ", test_runs, " draws per region.")
   n_runs <- test_runs
 }
+message("Using ", n_cores, " cores.")
 
-# Determine number of cores to use
-if (is.null(n_cores)) {
-  n_cores <- parallel::detectCores() - 1
-}
-if (is.na(n_cores) || n_cores < 1) {
-  n_cores <- 1
-}
-message("Using ", n_cores, " core(s) for parallel processing.")
-
-# 1. Load Parameter Definitions & Set Up Classifications
 params_df <- read.csv("BiocharAG/inst/extdata/parameters.csv", stringsAsFactors = FALSE)
 correlations_df <- read.csv("BiocharAG/inst/extdata/parameter_correlations.csv", stringsAsFactors = FALSE)
 
-# Scenario dimensions are sampled discretely below; control flags (allow_eor, early_adoption, ...)
-# stay at their scenario values and are never sampled.
-scenario_params <- c("c_price", "discount_rate", "plant_mw_th")
-
+# Scenario dimensions are fixed at their regional values, not sampled
+fixed_params <- c("c_price", "discount_rate", "plant_mw_th")
 # Spatial layers perturbed by a scalar multiplier (their bounds must be relative)
 spatial_multiplier_params <- c(elec_price = "elec_price_multiplier", ff_c_intensity = "ff_ci_multiplier")
 
-# 2. Pre-load and vectorize region spatial data
-message("Pre-loading and vectorizing spatial data for all regions...")
-region_names <- regions
-vectorized_regions <- list()
-
-for (r in region_names) {
-  message("  Loading vectorized data for: ", r)
-  dat <- load_region_data(r)
-  vectorized_regions[[r]] <- dat[["vec", exact = TRUE]]
+# Biomass-weighted median; NA (never) counts as +Inf
+wmedian <- function(x, w) {
+  x[is.na(x)] <- Inf
+  o <- order(x)
+  cw <- cumsum(w[o]) / sum(w)
+  x[o][which(cw >= 0.5)[1]]
 }
 
-# 3. Generate Randomized MC Parameter Tables per Region
-# Marginals are bounded PERT/uniform distributions centred on each region's values (see
-# dist_min/dist_max/dist_bounds in parameters.csv); correlated parameters are drawn jointly
-# via a Gaussian copula (parameter_correlations.csv).
-set.seed(42) # For reproducible random draws
-mc_tables_by_region <- list()
+# Lowest carbon price at which BECCS (column 2) has the highest non-negative net value
+takeover_price <- function(sw, top) {
+  out <- rep(NA_real_, nrow(sw$n0))
+  for (cp in seq(0, top, by = TAKEOVER_STEP)) {
+    net <- sweep_net(sw, cp)
+    net[is.na(net)] <- -Inf
+    b <- max.col(net, ties.method = "first")
+    hit <- is.na(out) & b == 2 & net[cbind(seq_along(b), b)] >= 0
+    out[hit] <- cp
+  }
+  out
+}
 
+draw_metrics <- function(sw, bm) {
+  top <- max(MC_PRICES)
+  be <- function(k) {
+    v <- price_root(function(cp) sweep_n0(sw, cp)[, k], function(cp) sweep_abate(sw, cp)[, k], sw$prices)
+    min(wmedian(v, bm), top)
+  }
+  out <- list(
+    be_PyCCS = be(3),
+    be_BECCS = be(2),
+    takeover = min(wmedian(takeover_price(sw, top), bm), top),
+    n0_BE = sum((sw$n0[, 1] * bm)[is.finite(sw$n0[, 1])]) / sum(bm[is.finite(sw$n0[, 1])])
+  )
+  for (cp in REPORT_PRICES) {
+    net <- sweep_net(sw, cp)
+    net[is.na(net)] <- -Inf
+    b <- max.col(net, ties.method = "first")
+    nb <- net[cbind(seq_along(b), b)]
+    viable <- is.finite(nb) & nb >= 0
+    ab <- sweep_abate(sw, cp)[cbind(seq_along(b), b)]
+    for (k in 1:3) out[[sprintf("share_%s_%d", c("BE", "BECCS", "PyCCS")[k], cp)]] <- sum(bm[viable & b == k]) / sum(bm)
+    out[[sprintf("abate_%d", cp)]] <- sum((bm * ab)[viable], na.rm = TRUE) / 1e6
+  }
+  out
+}
+
+set.seed(42)
+all_results <- list()
 for (r in regions) {
+  dat <- load_region_data(r)
+  vec0 <- dat$vec
+  bm <- vec0$layers$biomass_density * vec0$cell_area
+
   p_local <- BiocharAG::set_scenario(region = r)
   for (sp in names(spatial_multiplier_params)) {
     if (tolower(params_df$dist_bounds[params_df$name == sp]) != "relative") stop(sp, " must use relative bounds.")
-    p_local[[sp]] <- 1 # Sampled as a multiplier on the spatial layer
+    p_local[[sp]] <- 1
   }
-
   dist_table <- BiocharAG::mc_distribution_table(params_df, central = p_local)
-  dist_table <- dist_table[!dist_table$name %in% scenario_params, ]
-  mc_table_r <- BiocharAG::sample_mc_parameters(dist_table, n_runs, correlations = correlations_df)
-  for (sp in names(spatial_multiplier_params)) {
-    names(mc_table_r)[names(mc_table_r) == sp] <- spatial_multiplier_params[[sp]]
-  }
+  dist_table <- dist_table[!dist_table$name %in% fixed_params, ]
+  draws <- BiocharAG::sample_mc_parameters(dist_table, n_runs, correlations = correlations_df)
+  for (sp in names(spatial_multiplier_params)) names(draws)[names(draws) == sp] <- spatial_multiplier_params[[sp]]
 
-  # Discrete scenario sampling
-  mc_table_r$c_price <- sample(c(0, 50, 100, 150, 200), n_runs, replace = TRUE)
-  regional_dr <- if (!is.null(p_local$discount_rate)) p_local$discount_rate else 0.08
-  mc_table_r$discount_rate <- sample(c(0.02, regional_dr), n_runs, replace = TRUE)
-  mc_table_r$plant_mw_th <- sample(c(50, 150, 250), n_runs, replace = TRUE)
-
-  mc_table_r$mc_run_id <- seq_len(n_runs)
-  mc_tables_by_region[[r]] <- mc_table_r
+  message(sprintf("%s: %d draws, %d cells", r, n_runs, length(bm)))
+  rows <- parallel::mclapply(seq_len(n_runs), function(m) {
+    d <- draws[m, , drop = FALSE]
+    p <- BiocharAG::set_scenario(region = r)
+    p$region <- r
+    for (nm in setdiff(names(d), spatial_multiplier_params)) p[[nm]] <- d[[nm]]
+    vec <- vec0
+    if (!is.null(vec$layers$elec_price)) vec$layers$elec_price <- vec$layers$elec_price * d$elec_price_multiplier
+    if (!is.null(vec$layers$ff_c_intensity)) vec$layers$ff_c_intensity <- vec$layers$ff_c_intensity * d$ff_ci_multiplier
+    sw <- run_price_sweep(dat$template, dat$layers, p, vec = vec, prices = MC_PRICES)
+    c(list(mc_run_id = m, region = r), as.list(d), draw_metrics(sw, bm))
+  }, mc.cores = n_cores, mc.preschedule = TRUE)
+  err <- vapply(rows, inherits, logical(1), "try-error")
+  if (any(err)) stop("Monte Carlo draw failed in ", r, ":\n", rows[[which(err)[1]]])
+  all_results[[r]] <- do.call(rbind, lapply(rows, as.data.frame))
+  message(sprintf("Finished %s", r))
 }
 
-# Helper functions for spatial metrics extraction on vectors
-extract_masked_vector_mean <- function(vec, is_best) {
-  if (is.null(vec) || length(vec) == 0) {
-    return(NA)
-  }
-  if (length(vec) == 1) {
-    return(vec)
-  }
-  if (identical(is_best, FALSE)) is_best <- !is_best # Return all values if is_best is FALSE
-  vals <- vec[is_best]
-  vals <- vals[!is.na(vals)]
-  if (length(vals) == 0) {
-    return(NA)
-  }
-  return(mean(vals))
-}
-
-extract_masked_vector_min <- function(vec, is_best) {
-  if (is.null(vec) || length(vec) == 0) {
-    return(NA)
-  }
-  if (length(vec) == 1) {
-    return(vec)
-  }
-  if (identical(is_best, FALSE)) is_best <- !is_best # Return all values if is_best is FALSE
-  vals <- vec[is_best]
-  vals <- vals[!is.na(vals)]
-  if (length(vals) == 0) {
-    return(NA)
-  }
-  return(min(vals))
-}
-
-extract_masked_vector_max <- function(vec, is_best) {
-  if (is.null(vec) || length(vec) == 0) {
-    return(NA)
-  }
-  if (length(vec) == 1) {
-    return(vec)
-  }
-  if (identical(is_best, FALSE)) is_best <- !is_best # Return all values if is_best is FALSE
-  vals <- vec[is_best]
-  vals <- vals[!is.na(vals)]
-  if (length(vals) == 0) {
-    return(NA)
-  }
-  return(max(vals))
-}
-
-# 3. Pre-load and vectorize region spatial data
-# (Moved to before generate_param_draws to allow spatial means for MC bounds)
-
-message("Starting parallel Monte Carlo Analysis: ", length(regions), " regions x ", n_runs, " MC runs each.")
-
-# Run scenario combinations in parallel
-results_list <- parallel::mclapply(seq_along(regions), function(s) {
-  r_name <- regions[s]
-  r_data <- vectorized_regions[[r_name]]
-  spatial_layers <- r_data$layers
-  cell_area <- r_data$cell_area
-
-  # Create a scenario-specific results accumulator
-  scenario_results <- data.frame()
-
-  for (m in seq_len(n_runs)) {
-    mc_row <- mc_tables_by_region[[r_name]][m, ]
-
-    # Base Setup from Scenario
-    p <- BiocharAG::set_scenario(region = r_name)
-
-    # Inject all uncertain extrinsic scalar parameters from mc_row into p
-    for (p_name in names(mc_row)) {
-      if (!(p_name %in% c("mc_run_id", "ff_ci_multiplier", "elec_price_multiplier"))) {
-        p[[p_name]] <- mc_row[[p_name]]
-      }
-    }
-
-    # Inject spatial layers (overriding scalar defaults if layer exists)
-    # TODO (Future): If spatially explicit parameters with strict physical boundaries
-    # (e.g. fractions strictly <= 1.0) are added and subjected to uncertainty multipliers,
-    # explicit terra::clamp() logic must be added below to prevent the multiplier from
-    # pushing pixel values out of bounds. Current spatial parameters (elec_price, ff_c_intensity)
-    # are unbounded upper-limit quantities, so proportional scaling is safe.
-
-    if ("soil_temp" %in% names(spatial_layers)) p$soil_temp <- spatial_layers$soil_temp
-
-    if ("elec_price" %in% names(spatial_layers)) {
-      ep_mult <- if (!is.null(mc_row$elec_price_multiplier)) mc_row$elec_price_multiplier else 1.0
-      p$elec_price <- spatial_layers$elec_price * ep_mult
-    } else if (!is.null(p$elec_price)) {
-      ep_mult <- if (!is.null(mc_row$elec_price_multiplier)) mc_row$elec_price_multiplier else 1.0
-      p$elec_price <- p$elec_price * ep_mult
-    }
-
-    if ("soil_ph" %in% names(spatial_layers)) p$soil_ph <- spatial_layers$soil_ph
-    if ("soil_cec" %in% names(spatial_layers)) p$soil_cec <- spatial_layers$soil_cec
-    for (nm in intersect(transport_layer_names(), names(spatial_layers))) p[[nm]] <- spatial_layers[[nm]]
-
-    # Apply ff_ci_multiplier to ff_c_intensity (whether raster or scalar)
-    ff_mult <- if (!is.null(mc_row$ff_ci_multiplier)) mc_row$ff_ci_multiplier else 1.0
-    if ("ff_c_intensity" %in% names(spatial_layers)) {
-      p$ff_c_intensity <- spatial_layers$ff_c_intensity * ff_mult
-    } else if (!is.null(p$ff_c_intensity)) {
-      p$ff_c_intensity <- p$ff_c_intensity * ff_mult
-    }
-
-    for (layer_name in aux_layer_names()) {
-      if (layer_name %in% names(spatial_layers)) p[[layer_name]] <- spatial_layers[[layer_name]]
-    }
-
-    if ("biomass_density" %in% names(spatial_layers)) {
-      p$biomass_density <- spatial_layers$biomass_density
-    }
-
-    p <- attach_size_layers(p, spatial_layers, mc_row$plant_mw_th)
-
-    p$feedstock_cost <- BiocharAG::calculate_regional_feedstock_cost(r_name, p)
-
-    # Execute All 3 Technologies Competitively
-    res_bes <- BiocharAG::calculate_bes(p)
-    res_beccs <- BiocharAG::calculate_beccs(p)
-    res_bebcs <- BiocharAG::calculate_bebcs(p)
-
-    # Stack NPVs and find winner (in-memory matrix math)
-    npv_matrix <- cbind(res_bes$net_value, res_beccs$net_value, res_bebcs$net_value)
-    opt_idx <- max.col(npv_matrix, ties.method = "first")
-
-    # If all NPVs are NA, opt_idx is NA
-    opt_idx[rowSums(is.na(npv_matrix)) == 3] <- NA
-
-    biomass_amount <- spatial_layers$biomass_density * cell_area
-
-    techs <- c("BES", "BECCS", "BEBCS")
-    res_list <- list(res_bes, res_beccs, res_bebcs)
-
-    for (t_idx in 1:3) {
-      t_name <- techs[t_idx]
-      tech_res <- res_list[[t_idx]]
-
-      # Area and Biomass Calculations
-      is_best <- !is.na(opt_idx) & opt_idx == t_idx
-      is_viable <- is_best & !is.na(tech_res$net_value) & (tech_res$net_value > 0)
-
-      area_best_km2 <- sum(cell_area[is_best], na.rm = TRUE)
-      area_viable_km2 <- sum(cell_area[is_viable], na.rm = TRUE)
-      biomass_processed_yr <- sum(biomass_amount[is_viable], na.rm = TRUE)
-
-      # Create result row combining scenario columns, MC parameter draws, and TEA results
-      new_row <- data.frame(
-        mc_run_id = m,
-        region = r_name,
-        technology = t_name,
-        stringsAsFactors = FALSE
-      )
-
-      # Append MC parameter columns
-      param_cols <- mc_row[, names(mc_row) != "mc_run_id", drop = FALSE]
-      new_row <- cbind(new_row, param_cols)
-
-      # Append TEA result columns
-      tea_cols <- data.frame(
-        area_best_km2 = if (area_best_km2 == 0) NA else area_best_km2,
-        area_viable_km2 = if (area_viable_km2 == 0) NA else area_viable_km2,
-        biomass_processed_yr_mg = if (area_viable_km2 == 0) NA else biomass_processed_yr,
-        npv_min = extract_masked_vector_min(tech_res$net_value, is_best),
-        npv_max = extract_masked_vector_max(tech_res$net_value, is_best),
-        npv_mean = extract_masked_vector_mean(tech_res$net_value, is_best),
-        mean_co2_transport_distance_km = extract_masked_vector_mean(tech_res$co2_transport_distance_km, is_best),
-        mean_biomass_transport_distance_km = extract_masked_vector_mean(tech_res$biomass_transport_distance_km, is_best),
-        mean_capital_cost_mg = extract_masked_vector_mean(tech_res$capital_cost_mg, is_best),
-        mean_om_cost_mg = extract_masked_vector_mean(tech_res$om_cost_mg, is_best),
-        mean_biomass_cost_mg = extract_masked_vector_mean(tech_res$biomass_cost_mg, is_best),
-        mean_co2_transport_cost_mg = extract_masked_vector_mean(tech_res$co2_transport_cost_mg, is_best),
-        mean_net_cdr = extract_masked_vector_mean(tech_res$tot_c_abatement, is_best),
-        mean_carbon_removal_revenue_mg = extract_masked_vector_mean(tech_res$abatement_revenue_mg, is_best),
-        mean_energy_production_mwh = extract_masked_vector_mean(tech_res$energy_prod, is_best),
-        mean_energy_revenue_mg = extract_masked_vector_mean(tech_res$energy_revenue_mg, is_best),
-        mean_agronomic_revenue_mg = extract_masked_vector_mean(tech_res$agronomic_revenue_mg, is_best),
-        mean_lcoe_usd_mwh = extract_masked_vector_mean(tech_res$lcoe, is_best),
-        mean_cost_of_co2_avoided = extract_masked_vector_mean(tech_res$cost_of_co2_avoided, is_best),
-        mean_abatement_efficiency = extract_masked_vector_mean(tech_res$abatement_efficiency, is_best),
-        mean_total_capex_m = extract_masked_vector_mean(tech_res$total_capex_m, is_best)
-      )
-
-      new_row <- cbind(new_row, tea_cols)
-      scenario_results <- rbind(scenario_results, new_row)
-    }
-  }
-
-  message(sprintf("Finished Region: %s (%d runs)", r_name, n_runs))
-  return(scenario_results)
-}, mc.cores = n_cores)
-
-# Check for errors in parallel workers
-errors <- sapply(results_list, inherits, "try-error")
-if (any(errors)) {
-  stop("One or more parallel workers failed. First error:\n", results_list[[which(errors)[1]]])
-}
-
-# Combine all parallel result chunks
-results_df <- do.call(rbind, results_list)
-
+results_df <- do.call(rbind, all_results)
 dir.create("results", showWarnings = FALSE)
-file_path <- "results/mc_analysis_results.csv"
-file_exists <- file.exists(file_path)
-write.table(
-  results_df,
-  file = file_path,
-  row.names = FALSE,
-  col.names = !file_exists || !append,
-  sep = ",",
-  dec = ".",
-  qmethod = "double",
-  append = append && file_exists
-)
-message("Monte Carlo Analysis Complete. Results saved to results/mc_analysis_results.csv")
-
-# --- AI Summary Export ---
-ai_dir <- "results/ai_summaries/"
-dir.create(ai_dir, showWarnings = FALSE, recursive = TRUE)
-
-if (nrow(results_df) > 0) {
-  ai_summary <- results_df %>%
-    dplyr::group_by(region, technology, c_price) %>%
-    dplyr::summarize(
-      net_value_p05 = quantile(npv_mean, 0.05, na.rm = TRUE),
-      net_value_p50 = median(npv_mean, na.rm = TRUE),
-      net_value_p95 = quantile(npv_mean, 0.95, na.rm = TRUE),
-      lcoe_p05 = quantile(mean_lcoe_usd_mwh, 0.05, na.rm = TRUE),
-      lcoe_p50 = median(mean_lcoe_usd_mwh, na.rm = TRUE),
-      lcoe_p95 = quantile(mean_lcoe_usd_mwh, 0.95, na.rm = TRUE),
-      .groups = "drop"
-    )
-  ai_csv <- paste0(ai_dir, "mc_quantiles_summary.csv")
-  write.table(ai_summary, file = ai_csv, row.names = FALSE, sep = ",", append = append && file_exists, col.names = !file_exists || !append)
-  message("Saved AI summary quantiles to: ", ai_csv)
-}
+write.csv(results_df, "results/mc_analysis_results.csv", row.names = FALSE)
+message("Monte Carlo analysis complete: results/mc_analysis_results.csv")

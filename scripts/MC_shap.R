@@ -1,418 +1,107 @@
-# Monte Carlo sensitivity analysis using xgboost and shapviz.
-# Generates sensitivity evolution plot, beeswarm plot, and partial dependence plots.
+# scripts/MC_shap.R
+# Attribution of Monte Carlo output uncertainty to the sampled parameters. For each region and each
+# regional quantity recorded by mc_analysis.R (median break-even prices of PyCCS and BECCS, median BECCS
+# takeover price, mean BE net value without carbon revenue), fits gradient-boosted regression trees
+# (XGBoost) to the sampled parameters and computes SHAP values (shapviz). Importance is the mean absolute
+# SHAP value, in the units of the quantity, and its share of the total.
+#
+# Outputs:
+#   results/mc_shap/mc_shap_importance.csv          all parameters (and groups, group = TRUE; share relative
+#                                                   to the sum over individual parameters), held-out R2
+#   results/mc_shap/beeswarm_<target>_<region>.png  top parameters
+#   results/ai_summaries/mc_shap_importance.csv     top 10 parameters per region and quantity
+#   results/ai_summaries/mc_quantiles_summary.csv   5th/50th/95th percentiles of every recorded quantity
+# Entry point: run_mc_shap().
 
 library(data.table)
-library(dplyr)
 library(xgboost)
 library(shapviz)
 library(ggplot2)
 
-# Display names of the technologies in plot titles (data and file names keep the internal codes)
-tech_display <- function(x) c(BES = "BE", BECCS = "BECCS", BEBCS = "PyCCS")[[x]]
+MC_TARGETS <- c(be_PyCCS = "Median PyCCS break-even price (US$/Mg CO2e)",
+                be_BECCS = "Median BECCS break-even price (US$/Mg CO2e)",
+                takeover = "Median BECCS takeover price (US$/Mg CO2e)",
+                n0_BE = "Mean BE net value without carbon revenue (US$/Mg)")
+MC_META <- c("mc_run_id", "region")
+MC_TOP_PRICE <- 400 # top of the Monte Carlo sweep grid (censoring level)
+# Parameters sampled jointly whose SHAP values are also reported as a group (SHAP divides the effect of
+# correlated inputs between them): importance of the group = mean |sum of their SHAP values|
+MC_GROUPS <- list(bc_yield_amplitude = c("bc_yield_b0", "bc_yield_bcec"))
 
-plot_sensitivity_evolution <- function(
-  data_path = "results/mc_analysis_results.csv",
-  technology_name = "BECCS",
-  region_name = "Europe",
-  discount_rate = NULL,
-  target_c_price = 100
-) {
-  # 1. Load the Monte Carlo results
-  message("Loading data from ", data_path, "...")
+mc_metric_names <- function(df) {
+  grep("^(be_|takeover$|n0_|share_|abate_)", names(df), value = TRUE)
+}
+
+fit_mc_shap <- function(X, y, seed = 1) {
+  set.seed(seed)
+  test <- sample(nrow(X), round(0.2 * nrow(X)))
+  prm <- list(max_depth = 4, eta = 0.05, subsample = 0.8, colsample_bytree = 0.8,
+              objective = "reg:squarederror", nthread = 4)
+  m_test <- xgb.train(prm, xgb.DMatrix(X[-test, , drop = FALSE], label = y[-test]), nrounds = 400, verbose = 0)
+  pred <- predict(m_test, xgb.DMatrix(X[test, , drop = FALSE]))
+  r2 <- 1 - sum((y[test] - pred)^2) / sum((y[test] - mean(y[test]))^2)
+  model <- xgb.train(prm, xgb.DMatrix(X, label = y), nrounds = 400, verbose = 0)
+  list(shp = shapviz(model, X_pred = X), r2 = r2)
+}
+
+run_mc_shap <- function(data_path = "results/mc_analysis_results.csv", min_runs = 200) {
   df <- fread(data_path, data.table = FALSE)
+  metrics <- mc_metric_names(df)
+  params <- setdiff(names(df), c(MC_META, metrics))
+  pdesc <- read.csv("BiocharAG/inst/extdata/parameters.csv", stringsAsFactors = FALSE)[, c("name", "description")]
+  ai_dir <- "results/ai_summaries"
+  out_dir <- "results/mc_shap"
+  dir.create(ai_dir, showWarnings = FALSE, recursive = TRUE)
+  dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
 
-  # Define the discrete scenario steps to track (carbon prices)
-  c_prices <- c(0, 50, 100, 150, 200)
-  message("Filtering data across carbon prices: ", paste(c_prices, collapse = ", "))
+  # Percentiles of every recorded quantity
+  q <- rbindlist(lapply(split(df, df$region), function(d) {
+    rbindlist(lapply(metrics, function(m) data.table(
+      region = d$region[1], quantity = m, p05 = quantile(d[[m]], 0.05, na.rm = TRUE),
+      p50 = median(d[[m]], na.rm = TRUE), p95 = quantile(d[[m]], 0.95, na.rm = TRUE),
+      share_censored = if (m %in% c("be_PyCCS", "be_BECCS", "takeover")) mean(d[[m]] >= MC_TOP_PRICE) else NA_real_,
+      n = sum(!is.na(d[[m]])))))
+  }))
+  fwrite(q, file.path(ai_dir, "mc_quantiles_summary.csv"))
 
-  # Data structure to store the SHAP importance
-  importance_list <- list()
-
-  # Define columns to drop to isolate the purely uncertain input parameters and toggles
-  cols_to_drop <- c(
-    "mc_run_id", "region", "technology", "c_price",
-    "area_best_km2", "area_viable_km2", "biomass_processed_yr_mg",
-    "npv_min", "npv_max", "npv_mean"
-  )
-
-  # Also drop columns starting with mean_ or total_
-  all_names <- names(df)
-  cols_to_drop <- c(
-    cols_to_drop,
-    all_names[startsWith(all_names, "mean_") | startsWith(all_names, "total_")]
-  )
-
-  # Store the shapviz object for the target carbon price to plot beeswarm/dependence later
-  target_shp <- NULL
-
-  # 2. Iterate through Carbon Prices and fit SHAP model
-  for (cp in c_prices) {
-    # Filter conditionally to the specific scenario
-    sub_df <- df %>%
-      filter(
-        technology == technology_name,
-        region == region_name,
-        c_price == !!cp,
-        !is.na(npv_mean)
-      )
-
-    if (nrow(sub_df) < 30) {
-      message(sprintf("Skipping c_price=%d: only %d runs available (locked out or inactive)", cp, nrow(sub_df)))
-      next
-    }
-
-    message(sprintf("Processing c_price=%d (%d runs)...", cp, nrow(sub_df)))
-
-    y <- sub_df$npv_mean
-    X <- sub_df[, !(names(sub_df) %in% cols_to_drop), drop = FALSE]
-
-    # Convert logical columns to numeric (0/1) for xgboost compatibility
-    for (col in names(X)) {
-      if (is.logical(X[[col]])) {
-        X[[col]] <- as.numeric(X[[col]])
-      } else if (is.character(X[[col]])) {
-        # Try to map strings like TRUE/FALSE or convert to factor/numeric
-        X[[col]] <- ifelse(X[[col]] %in% c("TRUE", "True", "T"), 1,
-          ifelse(X[[col]] %in% c("FALSE", "False", "F"), 0,
-            as.numeric(as.factor(X[[col]]))
-          )
-        )
-      }
-    }
-
-    # Drop constant columns (variance <= 1e-8)
-    variances <- sapply(X, var, na.rm = TRUE)
-    constant_cols <- names(variances)[is.na(variances) | variances <= 1e-8]
-    X <- X[, !(names(X) %in% constant_cols), drop = FALSE]
-
-    # Train XGBoost model
-    X_mat <- as.matrix(X)
-    dtrain <- xgb.DMatrix(data = X_mat, label = y)
-
-    params <- list(
-      max_depth = 5,
-      eta = 0.05,
-      objective = "reg:squarederror",
-      nthread = 1
-    )
-
-    model <- xgb.train(
-      params = params,
-      data = dtrain,
-      nrounds = 100,
-      verbose = 0
-    )
-
-    # Calculate SHAP values
-    shp <- shapviz(model, X_pred = X_mat)
-
-    # Save target shapviz object if it matches the target carbon price
-    if (cp == target_c_price) {
-      target_shp <- shp
-    }
-
-    # Calculate Mean Absolute SHAP (Feature Importance)
-    mean_abs_shap <- colMeans(abs(shp$S))
-
-    # Save to list
-    importance_df <- data.frame(
-      c_price = cp,
-      feature = names(mean_abs_shap),
-      mean_abs_shap = as.numeric(mean_abs_shap),
-      stringsAsFactors = FALSE
-    )
-    importance_list[[as.character(cp)]] <- importance_df
-  }
-
-  if (length(importance_list) == 0) {
-    # Too few runs in which this technology is best (e.g. a quick Monte Carlo run): skip, as the global
-    # beeswarm does, so that the render continues
-    message(sprintf("Skipping sensitivity evolution for %s in %s: fewer than 30 runs at every carbon price",
-                    technology_name, region_name))
+  n_runs <- max(table(df$region))
+  if (n_runs < min_runs) {
+    message(sprintf("Skipping Monte Carlo SHAP: %d draws per region (< %d).", n_runs, min_runs))
     return(invisible(NULL))
   }
 
-  # Combine importance data
-  importance_all <- do.call(rbind, importance_list)
-
-  # 3. Plot the Evolution
-  # Filter to top 6 most important features overall to avoid chart clutter
-  overall_importance <- importance_all %>%
-    group_by(feature) %>%
-    summarise(avg_importance = mean(mean_abs_shap), .groups = "drop") %>%
-    arrange(desc(avg_importance)) %>%
-    slice_head(n = 6)
-
-  top_features <- overall_importance$feature
-  message("Top 6 key features overall: ", paste(top_features, collapse = ", "))
-
-  importance_top <- importance_all %>%
-    filter(feature %in% top_features)
-
-  # Evolution Plot
-  p_ev <- ggplot(importance_top, aes(x = c_price, y = mean_abs_shap, color = feature, group = feature)) +
-    geom_line(linewidth = 1.2) +
-    geom_point(size = 3) +
-    theme_bw(base_size = 12) +
-    labs(
-      title = paste0(
-        "Evolution of Parameter Sensitivity vs. Carbon Price (R Port)\n",
-        tech_display(technology_name), " in ", region_name, " (DR=", if (is.null(discount_rate)) "regional" else paste0(discount_rate * 100, "%"), ")"
-      ),
-      x = "Carbon Price ($/tCO2e)",
-      y = "Mean Absolute SHAP Value (Impact on NPV)",
-      color = "Key Parameters / Toggles"
-    ) +
-    theme(
-      plot.title = element_blank(), # no titles in figures: captions describe them
-      legend.position = "right",
-      panel.grid.minor = element_blank()
-    )
-
-  dir.create("results/mc_shap", showWarnings = FALSE, recursive = TRUE)
-
-  ev_png <- sprintf("results/mc_shap/sensitivity_evolution_R_%s_%s_toggles.png", technology_name, region_name)
-  ggsave(ev_png, plot = p_ev, width = 10, height = 6, dpi = 300)
-  message("Saved evolution plot to ", ev_png)
-
-  # --- AI Summary Export ---
-  ai_dir <- "results/ai_summaries/"
-  dir.create(ai_dir, showWarnings = FALSE, recursive = TRUE)
-  ai_csv <- sprintf("%smc_shap_importance_%s_%s.csv", ai_dir, technology_name, region_name)
-  write.csv(importance_all, ai_csv, row.names = FALSE)
-  message("Saved AI summary of SHAP importance to ", ai_csv)
-
-  # 4. Generate Beeswarm and Dependence Plots if target SHAP is available
-  if (!is.null(target_shp)) {
-    message("Generating SHAP diagnostic plots for target carbon price $", target_c_price, "...")
-
-    # Beeswarm Plot
-    p_bee <- sv_importance(target_shp, kind = "beeswarm") +
-      theme_bw(base_size = 12) +
-      labs(
-        title = paste0(
-          "SHAP Beeswarm Plot (Carbon Price = $", target_c_price, ")\n",
-          tech_display(technology_name), " in ", region_name
-        )
-      ) +
-      theme(plot.title = element_blank()) # no titles in figures: captions describe them
-
-    bee_png <- sprintf("results/mc_shap/beeswarm_R_%s_%s_c_%d.png", technology_name, region_name, target_c_price)
-    ggsave(bee_png, plot = p_bee, width = 9, height = 6, dpi = 300)
-    message("Saved beeswarm plot to ", bee_png)
-
-    # Partial Dependence / SHAP Dependence Plot for the top features
-    # Find the top 2 features at this specific carbon price
-    top_features_at_c <- importance_all %>%
-      filter(c_price == target_c_price) %>%
-      arrange(desc(mean_abs_shap)) %>%
-      slice_head(n = 2) %>%
-      pull(feature)
-
-    for (feat in top_features_at_c) {
-      if (feat %in% colnames(target_shp$X)) {
-        p_dep <- sv_dependence(target_shp, v = feat) +
-          theme_bw(base_size = 12) +
-          labs(
-            title = paste0(
-              "SHAP Dependence Plot for ", feat, " (Carbon Price = $", target_c_price, ")\n",
-              tech_display(technology_name), " in ", region_name
-            )
-          ) +
-          theme(plot.title = element_blank()) # no titles in figures: captions describe them
-
-        dep_png <- sprintf("results/mc_shap/dependence_R_%s_%s_%s_c_%d.png", technology_name, region_name, feat, target_c_price)
-        ggsave(dep_png, plot = p_dep, width = 8, height = 5, dpi = 300)
-        message("Saved dependence plot for ", feat, " to ", dep_png)
-      }
-    }
-  } else {
-    warning("Target carbon price $", target_c_price, " was not processed; skipping beeswarm and dependence plots.")
-  }
-}
-
-plot_global_beeswarm <- function(
-  data_path = "results/mc_analysis_results.csv",
-  technology_name = "BECCS",
-  discount_rate = NULL, # NULL = each region's central (regional) rate; mc_analysis.R samples {0.02, regional}
-  target_c_price = 100
-) {
-  # 1. Load the Monte Carlo results
-  message("Loading data for global beeswarm from ", data_path, "...")
-  df <- fread(data_path, data.table = FALSE)
-
-  # Filter conditionally to the specific technology and carbon price across all regions
-  dr_keep <- if (is.null(discount_rate)) df$discount_rate > 0.02 else df$discount_rate == discount_rate
-  sub_df <- df[dr_keep, ] %>%
-    filter(
-      technology == technology_name,
-      c_price == !!target_c_price,
-      !is.na(npv_mean)
-    )
-
-  if (nrow(sub_df) < 30) {
-    message(sprintf("Skipping global beeswarm for %s: only %d runs available", technology_name, nrow(sub_df)))
-    return(NULL)
-  }
-
-  message(sprintf("Processing global beeswarm for %s (%d runs)...", technology_name, nrow(sub_df)))
-
-  # Define columns to drop (note: region is NOT dropped!)
-  cols_to_drop <- c(
-    "scenario_id", "mc_run_id", "technology", "c_price", "discount_rate",
-    "area_best_km2", "area_viable_km2", "biomass_processed_yr_mg",
-    "npv_min", "npv_max", "npv_mean"
-  )
-
-  # Also drop columns starting with mean_ or total_
-  all_names <- names(df)
-  cols_to_drop <- c(
-    cols_to_drop,
-    all_names[startsWith(all_names, "mean_") | startsWith(all_names, "total_")]
-  )
-
-  y <- sub_df$npv_mean
-  X <- sub_df[, !(names(sub_df) %in% cols_to_drop), drop = FALSE]
-
-  # Convert logical and character columns to numeric for xgboost compatibility
-  for (col in names(X)) {
-    if (is.logical(X[[col]])) {
-      X[[col]] <- as.numeric(X[[col]])
-    } else if (is.character(X[[col]]) || is.factor(X[[col]])) {
-      X[[col]] <- as.numeric(as.factor(X[[col]]))
+  imp <- list()
+  for (r in unique(df$region)) {
+    d <- df[df$region == r, ]
+    X <- as.matrix(d[, params, drop = FALSE])
+    keep <- apply(X, 2, function(v) var(v, na.rm = TRUE) > 1e-12)
+    X <- X[, keep, drop = FALSE]
+    for (tg in names(MC_TARGETS)) {
+      y <- d[[tg]]
+      ok <- is.finite(y)
+      if (sum(ok) < min_runs || var(y[ok]) == 0) next
+      fit <- fit_mc_shap(X[ok, , drop = FALSE], y[ok])
+      mas <- colMeans(abs(fit$shp$S))
+      grp <- vapply(MC_GROUPS, function(g) {
+        g <- intersect(g, colnames(fit$shp$S))
+        if (length(g)) mean(abs(rowSums(fit$shp$S[, g, drop = FALSE]))) else NA_real_
+      }, numeric(1))
+      imp[[paste(r, tg)]] <- rbind(
+        data.table(region = r, quantity = tg, parameter = names(mas), mean_abs_shap = mas,
+                   share = mas / sum(mas), r2_test = fit$r2, group = FALSE),
+        data.table(region = r, quantity = tg, parameter = names(grp), mean_abs_shap = grp,
+                   share = grp / sum(mas), r2_test = fit$r2, group = TRUE)[is.finite(mean_abs_shap)])
+      top <- names(sort(mas, decreasing = TRUE))[seq_len(min(12, length(mas)))]
+      p <- sv_importance(fit$shp[, top], kind = "beeswarm", max_display = length(top)) +
+        labs(x = paste0("SHAP value: ", MC_TARGETS[[tg]])) + theme_bw(base_size = 11)
+      ggsave(file.path(out_dir, sprintf("beeswarm_%s_%s.png", tg, r)), p, width = 8, height = 5.5, dpi = 300)
+      message(sprintf("%s %s: R2 (held out) = %.2f", r, tg, fit$r2))
     }
   }
-
-  # Drop constant columns (variance <= 1e-8)
-  variances <- sapply(X, var, na.rm = TRUE)
-  constant_cols <- names(variances)[is.na(variances) | variances <= 1e-8]
-  X <- X[, !(names(X) %in% constant_cols), drop = FALSE]
-
-  # Train XGBoost model
-  X_mat <- as.matrix(X)
-  dtrain <- xgb.DMatrix(data = X_mat, label = y)
-
-  params <- list(
-    max_depth = 5,
-    eta = 0.05,
-    objective = "reg:squarederror",
-    nthread = 1
-  )
-
-  model <- xgb.train(
-    params = params,
-    data = dtrain,
-    nrounds = 100,
-    verbose = 0
-  )
-
-  # Calculate SHAP values
-  shp <- shapviz(model, X_pred = X_mat)
-
-  # Beeswarm Plot
-  p_bee <- sv_importance(shp, kind = "beeswarm") +
-    theme_bw(base_size = 12) +
-    labs(
-      title = paste0(
-        "Global SHAP Beeswarm Plot (Carbon Price = $", target_c_price, ")\n",
-        tech_display(technology_name), " - All Regions Aggregated (DR=", if (is.null(discount_rate)) "regional" else paste0(discount_rate * 100, "%"), ")"
-      )
-    ) +
-    theme(plot.title = element_blank()) # no titles in figures: captions describe them
-
-  # Add second color legend for region mapping
-  opt <- getOption("shapviz.viridis_args", list(begin = 0.25, end = 0.85, option = "inferno"))
-  cols <- viridisLite::viridis(100, begin = opt$begin, end = opt$end, option = opt$option)
-  unique_regions <- sort(unique(na.omit(sub_df$region)))
-  n_regions <- length(unique_regions)
-  if (n_regions > 0) {
-    region_colors <- cols[round(1 + seq(0, 1, length.out = n_regions) * 99)]
-    names(region_colors) <- unique_regions
-
-    legend_data <- data.frame(
-      x = NA_real_,
-      y = p_bee$data$feature[1],
-      Region = factor(unique_regions, levels = unique_regions)
-    )
-
-    p_bee <- p_bee +
-      geom_point(data = legend_data, aes(x = x, y = y, fill = Region), shape = 21, size = 3, stroke = 0) +
-      scale_fill_manual(
-        name = "Region",
-        values = region_colors
-      ) +
-      guides(
-        fill = guide_legend(override.aes = list(shape = 21, size = 4, stroke = 0))
-      )
-  }
-
-  dir.create("results/mc_shap", showWarnings = FALSE, recursive = TRUE)
-  bee_png <- sprintf("results/mc_shap/beeswarm_global_%s_c_%d.png", technology_name, target_c_price)
-  ggsave(bee_png, plot = p_bee, width = 10, height = 7, dpi = 300)
-  message("Saved global beeswarm plot to ", bee_png)
-
-  return(p_bee)
-}
-
-generate_evolution_plots <- function() {
-  plot_sensitivity_evolution(
-    data_path = "results/mc_analysis_results.csv",
-    technology_name = "BECCS",
-    region_name = "Europe",
-    discount_rate = NULL,
-    target_c_price = 100
-  )
-
-  plot_sensitivity_evolution(
-    data_path = "results/mc_analysis_results.csv",
-    technology_name = "BECCS",
-    region_name = "US",
-    discount_rate = NULL,
-    target_c_price = 100
-  )
-
-  plot_sensitivity_evolution(
-    data_path = "results/mc_analysis_results.csv",
-    technology_name = "BECCS",
-    region_name = "China",
-    discount_rate = NULL,
-    target_c_price = 100
-  )
-
-  plot_sensitivity_evolution(
-    data_path = "results/mc_analysis_results.csv",
-    technology_name = "BECCS",
-    region_name = "India",
-    discount_rate = NULL,
-    target_c_price = 100
-  )
-}
-
-generate_global_beeswarm_plots <- function() {
-  plot_global_beeswarm(
-    data_path = "results/mc_analysis_results.csv",
-    technology_name = "BECCS",
-    discount_rate = NULL,
-    target_c_price = 100
-  )
-
-  plot_global_beeswarm(
-    data_path = "results/mc_analysis_results.csv",
-    technology_name = "BES",
-    discount_rate = NULL,
-    target_c_price = 100
-  )
-
-  plot_global_beeswarm(
-    data_path = "results/mc_analysis_results.csv",
-    technology_name = "BEBCS",
-    discount_rate = NULL,
-    target_c_price = 100
-  )
-}
-
-# Run the analysis
-if (sys.nframe() == 0L) {
-  generate_evolution_plots()
-  generate_global_beeswarm_plots()
+  imp <- rbindlist(imp)
+  imp <- merge(imp, as.data.table(pdesc), by.x = "parameter", by.y = "name", all.x = TRUE)
+  setorder(imp, region, quantity, -mean_abs_shap)
+  fwrite(imp, file.path(out_dir, "mc_shap_importance.csv"))
+  fwrite(imp[, .SD[seq_len(min(10, .N))], by = .(region, quantity)], file.path(ai_dir, "mc_shap_importance.csv"))
+  invisible(imp)
 }

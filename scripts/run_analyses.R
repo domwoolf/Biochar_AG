@@ -37,13 +37,11 @@ library(sf)
 
 # 4) Monte Carlo Shap Analysis
 #    Generates:
-#    Evolution Plot (shap value of highest features against carbon price)
-#    Beeswarm of SHAP values
-#    Dependence plots
+#    SHAP importance of the sampled parameters for the regional break-even, takeover and BE net-value
+#    quantities, beeswarm plots, and percentiles of every recorded quantity
 {
   source("scripts/MC_shap.R")
-  generate_evolution_plots()
-  generate_global_beeswarm_plots()
+  run_mc_shap()
 }
 
 # 5) Spatial SHAP (regression on break-even and takeover prices; issue #111)
