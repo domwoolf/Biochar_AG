@@ -11,6 +11,7 @@ results/
 *.png
 
 # R
+Rplots.pdf
 .Rproj.user
 .Rhistory
 .RData
@@ -24,3 +25,7 @@ __pycache__/
 bak/
 BiocharAG/data-raw/ember_yearly_full_release_long_format.csv
 BiocharAG/data-raw/ember_us_yearly_full_release_long_format.csv
+
+# Editor and render intermediates
+.~lock.*#
+Article/*.rmarkdown

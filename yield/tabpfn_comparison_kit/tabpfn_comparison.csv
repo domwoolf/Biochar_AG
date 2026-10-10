@@ -1,0 +1,12 @@
+set,model,obs_R2,study_R2
+All field observations,null,-0.004981216853426673,-0.033948822919560806
+All field observations,"meta-regression (pH, CEC class, crop)",-0.009983172206766477,0.09245818597424549
+All field observations,"boosted trees, all covariates",-0.10513006185388907,0.27311645304591214
+All field observations,"random forest, all covariates",0.059815624404863765,0.21212306210078002
+All field observations,"TabPFN (cuda), all covariates",0.035939115088825524,0.19281679601468582
+Observations with pH and CEC,null,-0.01840819829369389,-0.06436174514059867
+Observations with pH and CEC,meta-regression: acid + log CEC,-0.12667834641069975,0.19706943671019672
+Observations with pH and CEC,"boosted trees, pH + CEC",0.01847325929793986,0.25187630819328977
+Observations with pH and CEC,"random forest, all covariates",0.08775438292792592,0.31204013761798965
+Observations with pH and CEC,"TabPFN (cuda), pH + CEC",0.07942773744783727,0.2104043376648771
+Observations with pH and CEC,"TabPFN (cuda), all covariates",0.0759935044215212,0.20629692185121595
