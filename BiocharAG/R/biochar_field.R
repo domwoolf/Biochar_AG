@@ -32,13 +32,16 @@
 #' @param R N2O reduction (fraction); `D_n2o` lowest tested dose (Mg ha-1); `t_half` half-life (yr).
 #' @param c_pass Cost per hectare and pass (US$ ha-1); `L_pass` diesel per pass (L ha-1).
 #' @param gwp_n2o 100-year GWP of N2O; `ef_diesel` Mg CO2 per L diesel.
+#' @param engine `"cpp"` (compiled cohort loop, [field_cohort_sums_cpp()]) or `"r"` (the vectorized R loop,
+#'   kept as a reference); both give the same results.
 #' @return List of cells x doses matrices: `v_yield`, `v_spread` (US$ Mg-1 feedstock), `a_n2o`,
 #'   `e_diesel` (Mg CO2e Mg-1 feedstock), `cohorts` and `d_eff` (Mg ha-1).
 #' @export
 biochar_field_effects <- function(b, y_bc, k, a10, val_ha, n_dir, doses = c(0, 2.5, 5, 10, 20),
                                   r = 0.08, T = 20, H = 100, p = 0.30, B_r = 10, B_min = 2.5,
                                   R = 0.20, D_n2o = 2.2, t_half = 3, c_pass = 87, L_pass = 13.1,
-                                  gwp_n2o = 273, ef_diesel = 2.68e-3) {
+                                  gwp_n2o = 273, ef_diesel = 2.68e-3, engine = c("cpp", "r")) {
+  engine <- match.arg(engine)
   if (H < T) stop("The horizon H must be at least the plant life T.")
   nc <- max(length(b), length(k), length(a10), length(val_ha), length(n_dir))
   rep_n <- function(x) if (length(x) == nc) x else rep_len(x, nc)
@@ -75,46 +78,53 @@ biochar_field_effects <- function(b, y_bc, k, a10, val_ha, n_dir, doses = c(0, 2
       gB[lin] <- s_lin * B[lin]
       gB
     }
-    # Two cohort histories (starting in relative year 1, with c_hi = q + 1 and q applications every n
-    # years), stepped forward one year at a time: the stock decays between applications, so g(B) follows by
-    # multiplication (power-law regime) or proportionally to B (linear regime), and is recomputed only in
-    # application years, which all fall within the first T years
-    c_hi <- q + 1
-    w_lo <- as.numeric(q > 0)        # "lo" cohorts with no application contribute nothing
-    any_lo <- any(rem < nt)          # some cells have treated "lo" cohorts
-    B1 <- g1 <- a1 <- B0 <- g0 <- a0 <- numeric(nc)
-    nx1 <- nx0 <- rep(1, nc)
-    d1 <- d0 <- numeric(nc)
-    P_hi <- P_lo <- N_hi <- N_lo <- S_y <- S_n <- numeric(nc)
-    for (u in seq_len(H)) {
-      B1 <- B1 * ek; g1 <- g1 * ekp; a1 <- a1 * elam
-      lin <- which(B1 < B_min)
-      g1[lin] <- s_lin * B1[lin]
-      if (u <= T) {
-        app <- which(nx1 == u & d1 < c_hi)
-        nx1[app] <- nx1[app] + n[app]; d1[app] <- d1[app] + 1
-        B1[app] <- B1[app] + d_eff[app]; g1[app] <- g_full(B1[app]); a1[app] <- 1
-      }
-      P_hi <- P_hi + disc[u] * expm1(a10 * g1)
-      N_hi <- N_hi + a1
-      if (any_lo) {
-        B0 <- B0 * ek; g0 <- g0 * ekp; a0 <- a0 * elam
-        lin <- which(B0 < B_min)
-        g0[lin] <- s_lin * B0[lin]
+    if (engine == "cpp") {
+      cs <- field_cohort_sums_cpp(as.double(n), as.double(d_eff), as.double(k), as.double(a10), B_r, B_min, p,
+                                  lam, as.integer(T), as.integer(H), r)
+      S_y <- cs$S_y
+      S_n <- cs$S_n
+    } else {
+      # Two cohort histories (starting in relative year 1, with c_hi = q + 1 and q applications every n
+      # years), stepped forward one year at a time: the stock decays between applications, so g(B) follows by
+      # multiplication (power-law regime) or proportionally to B (linear regime), and is recomputed only in
+      # application years, which all fall within the first T years
+      c_hi <- q + 1
+      w_lo <- as.numeric(q > 0)        # "lo" cohorts with no application contribute nothing
+      any_lo <- any(rem < nt)          # some cells have treated "lo" cohorts
+      B1 <- g1 <- a1 <- B0 <- g0 <- a0 <- numeric(nc)
+      nx1 <- nx0 <- rep(1, nc)
+      d1 <- d0 <- numeric(nc)
+      P_hi <- P_lo <- N_hi <- N_lo <- S_y <- S_n <- numeric(nc)
+      for (u in seq_len(H)) {
+        B1 <- B1 * ek; g1 <- g1 * ekp; a1 <- a1 * elam
+        lin <- which(B1 < B_min)
+        g1[lin] <- s_lin * B1[lin]
         if (u <= T) {
-          app <- which(nx0 == u & d0 < q)
-          nx0[app] <- nx0[app] + n[app]; d0[app] <- d0[app] + 1
-          B0[app] <- B0[app] + d_eff[app]; g0[app] <- g_full(B0[app]); a0[app] <- 1
+          app <- which(nx1 == u & d1 < c_hi)
+          nx1[app] <- nx1[app] + n[app]; d1[app] <- d1[app] + 1
+          B1[app] <- B1[app] + d_eff[app]; g1[app] <- g_full(B1[app]); a1[app] <- 1
         }
-        P_lo <- P_lo + disc[u] * w_lo * expm1(a10 * g0)
-        N_lo <- N_lo + w_lo * a0
-      }
-      j <- H - u                                      # cohort whose horizon ends at relative year u
-      if (j <= T - 1) {
-        use <- as.numeric(j < nt)
-        is_hi <- j < rem
-        S_y <- S_y + use * (1 + r)^-j * (if (any_lo) fast_ifelse(is_hi, P_hi, P_lo) else P_hi)
-        S_n <- S_n + use * (if (any_lo) fast_ifelse(is_hi, N_hi, N_lo) else N_hi)
+        P_hi <- P_hi + disc[u] * expm1(a10 * g1)
+        N_hi <- N_hi + a1
+        if (any_lo) {
+          B0 <- B0 * ek; g0 <- g0 * ekp; a0 <- a0 * elam
+          lin <- which(B0 < B_min)
+          g0[lin] <- s_lin * B0[lin]
+          if (u <= T) {
+            app <- which(nx0 == u & d0 < q)
+            nx0[app] <- nx0[app] + n[app]; d0[app] <- d0[app] + 1
+            B0[app] <- B0[app] + d_eff[app]; g0[app] <- g_full(B0[app]); a0[app] <- 1
+          }
+          P_lo <- P_lo + disc[u] * w_lo * expm1(a10 * g0)
+          N_lo <- N_lo + w_lo * a0
+        }
+        j <- H - u                                      # cohort whose horizon ends at relative year u
+        if (j <= T - 1) {
+          use <- as.numeric(j < nt)
+          is_hi <- j < rem
+          S_y <- S_y + use * (1 + r)^-j * (if (any_lo) fast_ifelse(is_hi, P_hi, P_lo) else P_hi)
+          S_n <- S_n + use * (if (any_lo) fast_ifelse(is_hi, N_hi, N_lo) else N_hi)
+        }
       }
     }
     out$v_yield[, di] <- crf * val_ha * S_y / n / m

@@ -4,7 +4,7 @@
 \alias{run_scenario}
 \title{Run Scenario Spatial TEA}
 \usage{
-run_scenario(template, layers, params, vec = NULL)
+run_scenario(template, layers, params, vec = NULL, raster_out = TRUE)
 }
 \arguments{
 \item{template}{Reference SpatRaster template.}
@@ -14,6 +14,8 @@ run_scenario(template, layers, params, vec = NULL)
 \item{params}{Scenario parameter list.}
 
 \item{vec}{Optional list of pre-extracted 1D spatial vectors from \code{load_region_data()$vec}.}
+
+\item{raster_out}{With \code{vec}: FALSE returns only \code{vec_res} (no SpatRaster outputs; faster).}
 }
 \value{
 A list containing \code{net} (SpatRaster stack), \code{abate} (SpatRaster stack), \code{opt} (SpatRaster), and optionally \code{vec_res}.

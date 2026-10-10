@@ -24,7 +24,8 @@ biochar_field_effects(
   c_pass = 87,
   L_pass = 13.1,
   gwp_n2o = 273,
-  ef_diesel = 0.00268
+  ef_diesel = 0.00268,
+  engine = c("cpp", "r")
 )
 }
 \arguments{
@@ -53,6 +54,9 @@ value per harvested hectare.}
 \item{c_pass}{Cost per hectare and pass (US$ ha-1); \code{L_pass} diesel per pass (L ha-1).}
 
 \item{gwp_n2o}{100-year GWP of N2O; \code{ef_diesel} Mg CO2 per L diesel.}
+
+\item{engine}{\code{"cpp"} (compiled cohort loop, \code{\link[=field_cohort_sums_cpp]{field_cohort_sums_cpp()}}) or \code{"r"} (the vectorized R loop,
+kept as a reference); both give the same results.}
 }
 \value{
 List of cells x doses matrices: \code{v_yield}, \code{v_spread} (US$ Mg-1 feedstock), \code{a_n2o},

@@ -51,3 +51,16 @@ test_that("cells are evaluated independently when vectorised", {
   expect_equal(two$v_yield[2, ], one$v_yield[1, ], ignore_attr = TRUE)
   expect_equal(two$a_n2o[2, ], one$a_n2o[1, ], ignore_attr = TRUE)
 })
+
+test_that("Compiled and R cohort loops give identical results, including edge cases", {
+    set.seed(7)
+    nc <- 400
+    b <- c(exp(runif(nc - 4, log(0.05), log(8))), 1e-7, NA, 3, 0.4) # tiny supply -> n far above T; NA input
+    a10 <- c(pmax(0, rnorm(nc - 4, 0.2, 0.15)), 0.2, 0.2, 0, 0.5)    # includes a10 = 0
+    args <- list(b = b, y_bc = 0.3, k = runif(nc, 0.002, 0.5), a10 = a10, val_ha = runif(nc, 300, 3000),
+                 n_dir = 0.7, doses = c(0, 2.5, 5, 10, 20), r = 0.07, T = 20, H = 100, p = 0.3, B_r = 10,
+                 B_min = 2.5, R = 0.2, D_n2o = 2.2, t_half = 2)
+    o_r <- do.call(biochar_field_effects, c(args, engine = "r"))
+    o_c <- do.call(biochar_field_effects, c(args, engine = "cpp"))
+    for (v in names(o_r)) expect_identical(o_c[[v]], o_r[[v]], info = v)
+})
