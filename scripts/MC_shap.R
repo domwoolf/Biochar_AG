@@ -22,7 +22,7 @@ MC_TARGETS <- c(be_PyCCS = "Median PyCCS break-even price (US$/Mg CO2e)",
                 be_BECCS = "Median BECCS break-even price (US$/Mg CO2e)",
                 takeover = "Median BECCS takeover price (US$/Mg CO2e)",
                 n0_BE = "Mean BE net value without carbon revenue (US$/Mg)")
-MC_META <- c("mc_run_id", "region")
+MC_META <- c("mc_run_id", "region", "cell_fraction")
 MC_TOP_PRICE <- 400 # top of the Monte Carlo sweep grid (censoring level)
 # Parameters sampled jointly whose SHAP values are also reported as a group (SHAP divides the effect of
 # correlated inputs between them): importance of the group = mean |sum of their SHAP values|

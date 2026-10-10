@@ -45,19 +45,19 @@ format:
 # hashes for code and parameters (stable across git checkouts) and size + modification time for the
 # large, untracked GIS layers. Logs go to results/logs/.
 repo <- normalizePath("..")
-test_runs <- 100 # iterations per region in a quick Monte Carlo run
 fig_scenarios <- c("default") # scenarios for the main figures (see scripts/run_analyses.R)
 
 # Monte Carlo run size, asked at the start of every render: none (do not run; downstream steps use the
-# existing results), quick (test_runs iterations per region) or full (hours). Without a display, set the
-# environment variable MC_RUN. The MC chunk runs only for quick or full, and its cache key includes the
+# existing results), quick (100 draws per region on a 25% cell sample; smoke test), revision (2,000 draws,
+# 25% of cells) or full (5,000 draws, all cells; production). Without a display, set the environment
+# variable MC_RUN. The MC chunk runs only for quick or full, and its cache key includes the
 # run size, so it reruns when the model changes or the run size differs from the cached run.
 mc_choice <- Sys.getenv("MC_RUN")
 if (!nzchar(mc_choice)) {
-  if (!capabilities("tcltk") || !nzchar(Sys.getenv("DISPLAY"))) stop("No display for the Monte Carlo dialog: set MC_RUN to none, quick or full.")
-  mc_choice <- tcltk::tk_select.list(c("none", "quick", "full"), preselect = "none", title = "Monte Carlo run size")
+  if (!capabilities("tcltk") || !nzchar(Sys.getenv("DISPLAY"))) stop("No display for the Monte Carlo dialog: set MC_RUN to none, quick, revision or full.")
+  mc_choice <- tcltk::tk_select.list(c("none", "quick", "revision", "full"), preselect = "none", title = "Monte Carlo run size")
 }
-if (!mc_choice %in% c("none", "quick", "full")) stop("Monte Carlo run size not chosen; render cancelled.")
+if (!mc_choice %in% c("none", "quick", "revision", "full")) stop("Monte Carlo run size not chosen; render cancelled.")
 message("Monte Carlo run size: ", mc_choice)
 
 files_in <- function(paths) {
@@ -76,7 +76,7 @@ fp_model <- function() list(fp_hash("BiocharAG/R", "BiocharAG/inst/extdata", "Bi
 # vars: named list of settings assigned in the subprocess's global environment before code runs
 # (the subprocess does not see this document's variables). List them in the chunk's cache.extra too.
 run_step <- function(name, code, vars = list()) {
-  if (name %in% "mc_analysis") vars <- utils::modifyList(vars, list(test_mode = mc_choice == "quick", test_runs = test_runs))
+  if (name %in% "mc_analysis") vars <- utils::modifyList(vars, list(mc_size = mc_choice))
   dir.create(file.path(repo, "results", "logs"), showWarnings = FALSE, recursive = TRUE)
   log <- file.path(repo, "results", "logs", paste0(name, ".log"))
   callr::r(function(code, repo, vars) {
