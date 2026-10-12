@@ -1,8 +1,9 @@
 ---
-title: "Optimal biomass-based climate change mitigation pathways are spatially heterogeneous due to localized technoeconomic and biophysical constraints"
+title: "Biochar first, geological storage later: the least-cost sequence for biomass-based carbon dioxide removal"
 date: last-modified
 abstract: |
-  The use of biomass for climate change mitigation offers substantial technical potential, but optimal deployment is highly dependent on spatial, technoeconomic, and biophysical constraints. Blanket climate policies frequently fail to capture this heterogeneity. Here we apply a spatially explicit techno-economic and consequential life cycle assessment framework deployed at a 0.1-degree resolution across the United States, Europe, India, and China. We evaluate the economic viability and carbon abatement potential of three distinct biomass utilization pathways: Bioenergy (BE), Bioenergy with Carbon Capture and Storage (BECCS), and Pyrogenic Carbon Capture and Storage with soil application of biochar (PyCCS). Localized constraints, such as distance to geological CO~2~ sinks, baseline grid carbon intensity, and native soil cation exchange capacity, dictate the economically optimal pathway. Traditional BE tends to dominate at low carbon prices, particularly in regions with high wholesale energy prices like Europe, or high grid carbon intensities like India. PyCCS emerges as a highly competitive transition technology at moderate carbon prices, and serves as the optimal long-term pathway in specific agro-ecological zones with degraded soils, such as southern China. Conversely, high capital costs and piecewise long-distance pipeline penalties act as severe barriers to BECCS, which only achieves universal dominance at high carbon prices (e.g., 150 US\$ Mg^-1^ CO~2~e) where carbon capture revenues finally overwhelm infrastructure penalties. Ultimately, effective climate mitigation requires localized policies that match biomass resources to their most efficient regional end-use.
+  Crop residues are a large source of biomass for carbon dioxide removal that does not compete for land, but whether they should be pyrolyzed to biochar or used for bioenergy with carbon capture and storage (BECCS) is unresolved. We compared bioenergy (BE), BECCS and pyrolysis with soil application of biochar (pyrogenic carbon capture and storage, PyCCS) in every 0.1° grid cell of the United States, Europe, China and India, accounting for the effects of biochar on crops, CO~2~ transport networks and the decarbonization of electricity grids. PyCCS is the least-cost use of residues at moderate carbon prices, abating about 650 Tg CO~2~e yr^-1^ at 100 US\$ per megagram of CO~2~. BECCS takes over at 130–210 US\$ per megagram and doubles the removal per megagram of residue, but it requires large plants and shared CO~2~ pipelines. Bioenergy without carbon capture is rarely the best use. Strategies for carbon removal from residues should plan the transition from biochar to geological storage.
+  <!-- STALE: abstract numbers typed from the revision render; check against the production run -->
 bibliography: references.bib
 csl: science.csl
 filters:
@@ -40,49 +41,54 @@ format:
 
 ```{r pipeline-setup}
 #| include: false
-# Model pipeline: each step below is a cached chunk that runs in its own R process (scripts/ run from the
-# repository root) and reruns only when the files it depends on change. Fingerprints are content
-# hashes for code and parameters (stable across git checkouts) and size + modification time for the
-# large, untracked GIS layers. Logs go to results/logs/.
+# Model pipeline: each step below is a cached chunk that runs in its own R process. 
+# Fingerprints are content hashes for code and parameters (stable across git checkouts) and size + modification time for the large, untracked GIS layers. Logs go to results/logs/.
 repo <- normalizePath("..")
 fig_scenarios <- c("default") # scenarios for the main figures (see scripts/run_analyses.R)
 
-# Monte Carlo run size, asked at the start of every render: none (do not run; downstream steps use the
-# existing results), quick (100 draws per region on a 25% cell sample; smoke test), revision (2,000 draws,
-# 25% of cells) or full (5,000 draws, all cells; production). Without a display, set the environment
-# variable MC_RUN. The MC chunk runs only for quick or full, and its cache key includes the
-# run size, so it reruns when the model changes or the run size differs from the cached run.
+# Monte Carlo run size, asked at the start of every render: 
+#  - none (do not run; downstream steps use the existing results), 
+#  - quick (100 draws per region on a 25% cell sample; smoke test), 
+#  - revision (2,000 draws, 25% of cells) or 
+#  - full (5,000 draws, all cells; production). 
+# Without a display, set the environment variable MC_RUN. The MC chunk only reruns when the model changes or the run size differs from the cached run.
 mc_choice <- Sys.getenv("MC_RUN")
 if (!nzchar(mc_choice)) {
-  if (!capabilities("tcltk") || !nzchar(Sys.getenv("DISPLAY"))) stop("No display for the Monte Carlo dialog: set MC_RUN to none, quick, revision or full.")
-  mc_choice <- tcltk::tk_select.list(c("none", "quick", "revision", "full"), preselect = "none", title = "Monte Carlo run size")
+    if (!capabilities("tcltk") || !nzchar(Sys.getenv("DISPLAY"))) stop("No display for the Monte Carlo dialog: set MC_RUN to none, quick, revision or full.")
+    mc_choice <- tcltk::tk_select.list(c("none", "quick", "revision", "full"), preselect = "none", title = "Monte Carlo run size")
 }
 if (!mc_choice %in% c("none", "quick", "revision", "full")) stop("Monte Carlo run size not chosen; render cancelled.")
 message("Monte Carlo run size: ", mc_choice)
 
 files_in <- function(paths) {
-  paths <- file.path(repo, paths)
-  f <- unlist(lapply(paths, function(p) if (dir.exists(p)) list.files(p, recursive = TRUE, full.names = TRUE) else p))
-  sort(f[file.exists(f)])
+    paths <- file.path(repo, paths)
+    f <- unlist(lapply(paths, function(p) if (dir.exists(p)) list.files(p, recursive = TRUE, full.names = TRUE) else p))
+    sort(f[file.exists(f)])
 }
 fp_hash <- function(...) unname(tools::md5sum(files_in(c(...)))) # content hash
 fp_stat <- function(...) { # size + mtime, for large untracked data
-  i <- file.info(files_in(c(...)))
-  paste(basename(rownames(i)), i$size, as.numeric(i$mtime))
+    i <- file.info(files_in(c(...)))
+    paste(basename(rownames(i)), i$size, as.numeric(i$mtime))
 }
-fp_model <- function() list(fp_hash("BiocharAG/R", "BiocharAG/inst/extdata", "BiocharAG/DESCRIPTION",
-  "scripts/manuscript_figures.R"), fp_stat("GIS/processed"))
+fp_model <- function() {
+    list(fp_hash(
+        "BiocharAG/R", "BiocharAG/inst/extdata", "BiocharAG/DESCRIPTION",
+        "scripts/manuscript_figures.R"
+    ), fp_stat("GIS/processed"))
+}
 
 # vars: named list of settings assigned in the subprocess's global environment before code runs
 # (the subprocess does not see this document's variables). List them in the chunk's cache.extra too.
 run_step <- function(name, code, vars = list()) {
-  if (name %in% "mc_analysis") vars <- utils::modifyList(vars, list(mc_size = mc_choice))
-  dir.create(file.path(repo, "results", "logs"), showWarnings = FALSE, recursive = TRUE)
-  log <- file.path(repo, "results", "logs", paste0(name, ".log"))
-  callr::r(function(code, repo, vars) {
-    setwd(repo); list2env(vars, envir = globalenv()); eval(parse(text = code), envir = globalenv())
-  }, args = list(code = code, repo = repo, vars = vars), wd = repo, stdout = log, stderr = "2>&1")
-  invisible(Sys.time())
+    if (name %in% "mc_analysis") vars <- utils::modifyList(vars, list(mc_size = mc_choice))
+    dir.create(file.path(repo, "results", "logs"), showWarnings = FALSE, recursive = TRUE)
+    log <- file.path(repo, "results", "logs", paste0(name, ".log"))
+    callr::r(function(code, repo, vars) {
+        setwd(repo)
+        list2env(vars, envir = globalenv())
+        eval(parse(text = code), envir = globalenv())
+    }, args = list(code = code, repo = repo, vars = vars), wd = repo, stdout = log, stderr = "2>&1")
+    invisible(Sys.time())
 }
 ```
 
@@ -91,7 +97,15 @@ run_step <- function(name, code, vars = list()) {
 #| cache: true
 #| cache.extra: !expr list(fp_model(), fig_scenarios)
 run_step("figures", 'source("scripts/manuscript_figures.R"); run_all_manuscript_figures(save_map = TRUE)',
-  vars = list(.regions = c("US", "China", "Europe", "India"), .scenarios = fig_scenarios))
+    vars = list(.regions = c("US", "China", "Europe", "India"), .scenarios = fig_scenarios)
+)
+```
+
+```{r pipeline-components}
+#| include: false
+#| cache: true
+#| cache.extra: !expr list(fp_model(), fp_hash("scripts/results_components.R"))
+run_step("components", 'source("scripts/results_components.R")')
 ```
 
 ```{r pipeline-variants}
@@ -125,51 +139,118 @@ run_step("spatial_shap", 'source("scripts/spatial_shap.R")')
 
 # INTRODUCTION
 
-Biochar has been widely promoted for climate change mitigation, with co-benefits for soil health and crop production when used as a soil amendment.[@woolf2010; @lehmann2021biochar] Globally, biochar has the sustainable technical potential for carbon sequestration and emissions reductions of up to 3.4–6.3 Pg CO~2~e. However, the costs, benefits and tradeoffs for biochar vary spatially, creating substantial heterogeneity in its feasibility at a given carbon price. This variability is further affected by the fact that biochar must compete with alternative uses for the limited supply of available waste biomass. Indeed, alternative uses of biomass, such as producing bioenergy with or without carbon capture and sequestration can also help to mitigate climate change and may provide greater climate mitigation, lower costs, and/or greater co-benefits in certain contexts.[@woolf2016] This depends on a number of different factors, including soil type, cropland productivity, climate, energy fuel mix, feedstock availability, distance to CO~2~ sinks for carbon capture and storage, energy prices and food prices. For example, bioenergy production may provide a greater climate benefit in regions that are highly dependent on carbon-intensive energy sources and have high soil fertility, whereas biochar is more favorable where low-fertility soils can benefit from its soil-health improvement.[@woolf2016]
+Limiting warming to less than 2°C warming, in line with the Paris Agreement, require carbon dioxide removal (CDR) to counterbalance residual emissions and to reach net-negative emissions later in the century [@unfccc2015paris; @ipcc2022wg3]. Biomass can contribute to CDR in several ways, but its supply is limited, and dedicated biomass crops compete with food production and natural ecosystems for land [@fuss2018]. Crop residues avoid this competition: the residue that can be removed sustainably from cropland, after retaining enough to protect soils, is a large and widely distributed resource [@karan2023]. How best to use it for climate mitigation is therefore an important question for the design of mitigation strategies.
 
-It is, therefore, critical to understand where biochar could be the best use of resources from a climate mitigation perspective. Currently, most biochar assessments focus on the technical potential, without mapping out the tradeoffs or identifying optimal pathways based on location. While there are some biochar life-cycle assessments that account for alternative biomass uses, they are highly context-specific and difficult to scale up on[@peters2015; @lefebvre2021]. As such, this project aims to provide a detailed feasibility and tradeoff analysis across four regions (North America, India, China, and Europe) to map where biochar represents the most efficient use of biomass to reduce atmospheric greenhouse gasses (GHGs). These regions represent a diversity of geographic, socio-economic, and agro-ecological conditions for a broad assessment of how constraints, tradeoffs and benefits vary across regions. This work will allow policy-makers and practitioners to make scientifically-informed decisions about which mitigation pathways are best suited for their geographies. It can also help contextualize biochar's mitigation potential by identifying areas that maximize its climate benefits and realistically support its production and application.
+<!--# Question: do we need to pre-empt readers/reviewers questioning our choice of pathways.  I added a sction to the Discussion on omitted pathways, including reasons for exclusion. But this may be something that bothers readers before they get to that part. -->There are several potential uses of residues to mitigate climate change which may compete for this resource. Bioenergy (BE) combusts the residue to generate electricity, thereby returning its carbon to atmospheric CO~2~, while having the potential to provide some mitigation by displacing fossil fuel generation. Bioenergy with carbon capture and storage (BECCS) captures the CO~2~ released and stores it in geological formations, removing most of the biomass carbon from the atmosphere <!--# cite Fuss, Sabine, et al. "Negative emissions—Part 2: Costs, potentials and side effects." Environmental research letters 13.6 (2018): 063002. -->. Pyrogenic carbon capture and storage (PyCCS) pyrolyzes the residue and applies the carbonized solid product (biochar) to soil, where much of its carbon persists for centuries, while the pyrolysis vapors and gases can supply energy [@schmidt2019pyccs; @woolf2010; @lehmann2021biochar]. Each has distinct strengths and weaknesses. The value of BE depends on the carbon intensity of the electricity it displaces, which falls as power systems decarbonize. Although BE does not provide CDR, it is important to include it in a comparative assessment, since higher costs or reduced energy production of CDR relative to BE would need to be sufficiently compensated by greater mitigation and any other co-benefits. BECCS stores the greatest amount of carbon per unit of biomass (about twice as much as PyCCS) [@woolf2016], but it is capital intensive and requires infrastructure to transport and store CO~2~. PyCCS needs no CO~2~ infrastructure, and biochar can raise crop yields, neutralize soil acidity and supply nutrients, but it stores less carbon and earns less from energy. Which use is best therefore depends on local conditions: soils and crops, electricity prices and grid emissions, feedstock costs, distance to geological storage, and the price of carbon [@woolf2016].
+
+The scenarios that inform international climate policy do not resolve this choice. The integrated assessment models behind the pathways assessed by the IPCC obtain most of their novel CDR from BECCS and seldom represent biochar [@ipcc2022wg3; @smith2024state] <!--# state of CDR has a more recent 2026version.  Correct url is https://www.stateofcdr.org/report/3rd-edition.  Cite this instead of @smith2024state -->. They also operate at the scale of large world regions, with aggregate cost assumptions that cannot capture the variation in soils, infrastructure and energy systems that determines which pathway is best in a given place. Bottom-up assessments, in contrast, have mostly evaluated one pathway at a time, or compared pathways at particular sites [@peters2015; @lefebvre2021] <!--# add roe et al. "Land-based measures to mitigate climate change: Potential and feasibility by country" to this citation list. -->. Single-pathway assessments estimate what each technology could achieve on its own, but they do not account for the competition between pathways for the same biomass, so their potentials cannot be added, and they do not show where each pathway is the better use.
+
+Here, we bridge the gap between the single-technology assessments and IAMs by conducting a bottom-up comparison of BE, BECCS and PyCCS grounded in spatially-explicit empirical data and mechanistic constraints. This study analyzes these pathways for crop residues in four geographically and socio-economically distinct regions (United States, Europe, China and India). This geographic focus facilitates performing detailed and comprehensive analyses grounded in country-specific realities while spanning a wide range of agricultural, energy and geological conditions that render the insights and conclusions generalizable. At every location on a high resolution (0.1°) grid, we calculate the net value and net greenhouse gas abatement of each technology, and allocate the residue to the technology with the highest net value at each carbon price, so that the pathways compete for the same feedstock. It includes the logistics of residue collection, the crop yield and soil N~2~O responses to biochar, the transport of CO~2~ along routed pipeline networks and shipping routes to characterized geological sinks, and the decline in the carbon intensity of displaced electricity as carbon prices rise. We use this comparison to identify which pathway is the least-cost use of residues at each carbon price and location, what determines the choice, and how sensitive it is to uncertainty in prices, agronomic responses, and technical performance.
 
 # RESULTS
 
-## Capital-intensive pathways are highly sensitive to discount rates and carbon prices
+```{r results-values}
+#| include: false
+# Numbers quoted in the Results, computed from the model outputs (results/ai_summaries, results/mc_*)
+suppressPackageStartupMessages(library(data.table))
+tl <- c(BES = "BE", BECCS = "BECCS", BEBCS = "PyCCS")
+ev <- fread("results/ai_summaries/evaporation_grid_summary_default.csv")[, tech := tl[technology]]
+sh <- function(r, cp_, tech_, dr_ = "market") 100 * ev[region == r & dr == dr_ & cp == cp_ & tech == tech_ & viable == TRUE, sum(biomass_share)]
+bio_total <- ev[dr == "market" & cp == 0, sum(biomass_Mg)] / 1e6
+mc <- fread("results/ai_summaries/macc_data_default.csv")[, tech := tl[Technology]]
+ab <- function(r, price, tech_ = c("BE", "BECCS", "PyCCS")) mc[Region %in% r & Price == price & Metric == "Abatement" & tech %in% tech_, sum(Value)]
+cp <- fread("results/ai_summaries/per_tonne_components.csv")
+comp <- function(r, tech, q) cp[region %in% r & technology == tech & quantity == q, value]
+mcr <- fread("results/mc_analysis_results.csv")
+mcs <- mcr[, .(
+    p_py = mean(be_PyCCS < be_BECCS), d50 = median(be_BECCS - be_PyCCS), n0pos = mean(n0_BE > 0),
+    to05 = quantile(takeover, 0.05), to50 = median(takeover), to95 = quantile(takeover, 0.95),
+    bepy50 = median(be_PyCCS), bebc50 = median(be_BECCS)
+), by = region]
+m <- function(r, v) mcs[region == r][[v]]
+va <- fread("results/ai_summaries/variant_summary.csv")[, tech := tl[Technology]]
+vv <- function(r, price, variant, tech_) va[Region == r & Price == price & startsWith(Variant, variant) & tech == tech_, Abatement]
+sp <- fread("results/ai_summaries/spatial_shap_importance.csv")
+imp <- function(r, tg, f) sp[region == r & target == tg & feature == f, share_pct]
+ms <- fread("results/mc_shap/mc_shap_importance.csv")
+cells <- fread("results/spatial_shap/shap_targets_by_cell.csv.gz")[, w := biomass_density * cell_area_km2]
+py_first <- cells[, .(s = 100 * sum(w[which(be_PyCCS < be_BECCS | (is.finite(be_PyCCS) & !is.finite(be_BECCS)))]) / sum(w)), by = region]$s
+to_spread <- cells[, .(d = quantile(takeover_BECCS, 0.9, na.rm = TRUE) - quantile(takeover_BECCS, 0.1, na.rm = TRUE)), by = region]$d
+c_in <- 0.48 * 44 / 12 # CO2 equivalent of the feedstock carbon (Mg CO2 Mg-1 dry, ash-free)
+msh <- function(r, q, p) 100 * ms[region == r & quantity == q & parameter == p, share]
+f0 <- function(x) format(round(x), big.mark = ",")
+f1 <- function(x) format(round(x, 1), nsmall = 1)
+f2 <- function(x) format(round(x, 2), nsmall = 2)
+rng0 <- function(x) paste0(f0(min(x)), "–", f0(max(x)))
+rng2 <- function(x) paste0(f2(min(x)), "–", f2(max(x)))
+R4 <- c("US", "Europe", "China", "India")
+```
 
-@fig-evap and @fig-si-evap-social illustrate the core vulnerability of CDR pathways to capital lock-out. Because both BECCS (heavy upfront infrastructure) and PyCCS (deferred agronomic value) are highly sensitive to the cost of capital, high discount rates act as a strong barrier to adoption, forcing a retreat to traditional bioenergy (BE) without high carbon prices. For example, in the USA, at a 2% social discount rate and a 30 US\$ Mg^-1^ CO~2~e carbon price, PyCCS covers a large extent of the US Midwest and South, with BECCS only being viable close to CO~2~ sinks. However, stepping up to the 8% market baseline eliminates PyCCS's advantage, replacing it with almost entirely with BE. The value of biochar relies heavily on liming and nutrient substitution benefits that are amortized over a 10-year agronomic impact duration. At an 8% or 15% discount rate, the present value of those future soil benefits is diminished, rendering the upfront thermal penalties of pyrolysis economically unviable at low carbon prices. At a 2% discount rate and intermediate carbon price (around 100 US\$ Mg^-1^ CO~2~e), BECCS is nearly universal across the US. At 15%, the BECCS dominance is fractured, with BE reclaiming the geographic margins (e.g., the Northeast and far West), and PyCCS remaining only in localized pockets where soil conditions make it particularly attractive. This occurs because, when capital is expensive, the penalty for long-distance pipelines becomes insurmountable until carbon prices reach the 150 US\$ Mg^-1^ CO~2~e range. By the time the carbon price reaches 150 US\$ Mg^-1^ CO~2~e, the maps become almost entirely red across all discount rates. At this pricing level, the high CDR capture efficiency overwhelms the high cost of capital, making BECCS the most economically attractive option.
+## Biochar is the least-cost carbon removal from crop residues at moderate carbon prices
 
-## Biochar provides a mid-price transition technology option and a long-term solution for specific agro-ecological zones
+The four regions supply `r f0(bio_total)` Tg yr^-1^ of available crop residue (dry, ash-free). At a carbon price of 100 US\$ Mg^-1^ CO~2~e, PyCCS is the technology with the highest non-negative net value for `r f0(sh("China", 100, "PyCCS"))`% of this residue in China, `r f0(sh("India", 100, "PyCCS"))`% in India, `r f0(sh("Europe", 100, "PyCCS"))`% in Europe and `r f0(sh("US", 100, "PyCCS"))`% in the United States (@fig-evap). It then abates `r f0(ab(R4, 100, "PyCCS"))` Tg CO~2~e yr^-1^ across the four regions, `r f0(100 * ab(R4, 100, "PyCCS") / ab(R4, 100))`% of the abatement at that price (@fig-macc). PyCCS breaks even at a lower carbon price than BECCS on `r f0(min(py_first))`–`r f0(max(py_first))`% of the residue in each region (@fig-break-even). This ranking holds across the parameter uncertainty: the regional median break-even price of PyCCS is below that of BECCS in `r f0(100 * min(mcs$p_py))`–`r f0(100 * max(mcs$p_py))`% of Monte Carlo draws, by a median of `r rng0(mcs$d50)` US\$ Mg^-1^ CO~2~e.
 
-@fig-evap (China) provides a counterpoint to the US results. It shows how soils with strong production constraints that can be alleviated by biochar can create a persistent competitive advantage for biochar, particularly when combined with large distances to CO~2~ storage sites. PyCCS performs a central role as a transition technology that peaks at intermediate carbon prices that are high enough to make its carbon sequestration competitive with BE, but not so high that the more efficient CDR of BECCS per unit biomass outcompetes it (@fig-macc). Nonetheless, while BECCS ultimately becomes the optimal technology across the entire US spatial domain at high carbon prices, PyCCS remains the most viable pathway in southern China across almost all price and discount rate scenarios. This demonstrates that PyCCS is not merely a transition technology, but the optimal long-term pathway for specific agro-ecological zones. In Southern China, characterized by highly weathered, acidic soils, the biochar's liming and nutrient use efficiency benefits provide a substantial economic credit that buffers against high processing costs. The model scales physical yield efficiency gains inversely to the soil's native Cation Exchange Capacity (CEC), thus granting severe CEC deficits higher premiums. This is confirmed by the SHAP analysis (@fig-takeover-driver), which identifies soil CEC as a dominant spatial driver in this region.
+PyCCS removes about half as much carbon per megagram of residue as BECCS, but at much lower cost, and the biochar earns an agronomic return. At 100 US\$ Mg^-1^ CO~2~e, the biochar applied to cropland is worth `r f0(comp("China", "PyCCS", "agronomic_revenue"))` and `r f0(comp("India", "PyCCS", "agronomic_revenue"))` US\$ Mg^-1^ of feedstock in China and India, of which the crop yield increase contributes `r f0(comp("China", "PyCCS", "yield_value"))` and `r f0(comp("India", "PyCCS", "yield_value"))` US\$ Mg^-1^ and the replacement of lime, P and K the rest. The agronomic value is lower in the United States and Europe, `r f0(comp("US", "PyCCS", "agronomic_revenue"))` and `r f0(comp("Europe", "PyCCS", "agronomic_revenue"))` US\$ Mg^-1^, of which the yield increase contributes `r f0(comp("US", "PyCCS", "yield_value"))` and `r f0(comp("Europe", "PyCCS", "yield_value"))` US\$ Mg^-1^. Biochar carbon accounts for most of the abatement of PyCCS, `r f2(comp("China", "PyCCS", "carbon_stored"))` of the `r f2(comp("China", "PyCCS", "abatement"))` Mg CO~2~e Mg^-1^ in China; avoided soil N~2~O adds at most `r f2(max(comp(R4, "PyCCS", "soil_n2o")))` Mg CO~2~e Mg^-1^.
 
-## Regional policies hinder biochar competitiveness
+The United States is the exception among the four regions. Neither carbon removal pathway is viable at or below 100 US\$ Mg^-1^ CO~2~e on more than `r f0(sh("US", 100, "PyCCS") + sh("US", 100, "BECCS"))`% of its residue, and PyCCS becomes the leading use between 100 and 150 US\$ Mg^-1^ CO~2~e, covering `r f0(sh("US", 150, "PyCCS"))`% of the residue at 150 US\$ Mg^-1^ CO~2~e. Low wholesale electricity prices remove the value of the PyCCS power block, which is omitted for `r f0(100 * comp("US", "PyCCS", "share_no_energy"))`% of US residue, and feedstock costs are higher than in China and India (`r f0(comp("US", "all", "feedstock_cost"))` against `r f0(comp("China", "all", "feedstock_cost"))`–`r f0(comp("India", "all", "feedstock_cost"))` US\$ Mg^-1^). A lower cost of capital extends the range of PyCCS to lower carbon prices: at a 2% social discount rate, PyCCS is viable without any carbon price for `r f0(sh("China", 0, "PyCCS", "social"))`% of the residue in China and `r f0(sh("India", 0, "PyCCS", "social"))`% in India (@fig-si-evap-social).
 
-In India, on the other hand, the mid carbon price advantage of PyCCS is almost entirely eliminated, with BECCS eventually covering most of the map at high carbon prices. Here, fertilizer subsidies hamper PyCCS's economic viability. Because PyCCS economics relies on improved nutrient use efficiency and lower fertilizer inputs per unit crop yield, cheap subsidized synthetic fertilizers erode biochar's nutrient substitution value. Despite this, Biochar maintains a strong foothold in the regions in the North East, North West, and central Eastern coastal regions of India where low soil CEC is a major constraint to crop production.
+## Geological storage takes over at higher carbon prices and doubles the removal per megagram of residue
 
-## Regional energy prices and carbon intensity provide a critical constraint on the optimal CDR pathways
+Above a regional takeover price, BECCS replaces PyCCS as the leading use of residues. The median takeover price is `r f0(m("India", "to50"))` US\$ Mg^-1^ CO~2~e in India, `r f0(m("China", "to50"))` in China, `r f0(m("Europe", "to50"))` in Europe and `r f0(m("US", "to50"))` in the United States, with 90% ranges across the Monte Carlo draws of `r f0(m("India", "to05"))`–`r f0(m("India", "to95"))`, `r f0(m("China", "to05"))`–`r f0(m("China", "to95"))`, `r f0(m("Europe", "to05"))`–`r f0(m("Europe", "to95"))` and `r f0(m("US", "to05"))`–`r f0(m("US", "to95"))` US\$ Mg^-1^ CO~2~e, respectively. Within each region, the takeover price differs by `r f0(min(to_spread))`–`r f0(max(to_spread))` US\$ Mg^-1^ CO~2~e between the 10th and 90th percentiles of grid cells (@fig-takeover-price).
 
-At lower carbon prices The optimal technology in Europe is almost universally BE, driven by high energy prices as the dominant driver across Europe. At 30 US\$ Mg^-1^ CO~2~e, the revenue from maximized power generation in BE outweighs the incentive to capture and sequester carbon, rendering the capital expenditure for BECCS and PyCCS unviable across all discount rates. As carbon prices increase, BECCS begins to dominate across central and northern Europe. PyCCS gains a strong advantage in Southern Europe, and Eastern Scandinavia where various combinations of large distances to CO~2~ sinks, already-low carbon intensity of the energy systems, and infertile soils make it more competitive. As in China, we see PyCCS maintain its advantage in these regions, even at very high carbon prices.
+BECCS abates `r f2(min(comp(R4, "BECCS", "abatement")))`–`r f2(max(comp(R4, "BECCS", "abatement")))` Mg CO~2~e Mg^-1^ of residue, about twice the `r f2(min(comp(R4, "PyCCS", "abatement")))`–`r f2(max(comp(R4, "PyCCS", "abatement")))` Mg CO~2~e Mg^-1^ of PyCCS, because capture recovers 90% of the feedstock carbon, whereas PyCCS stores `r f0(100 * min(comp(R4, "PyCCS", "carbon_stored")) / c_in)`–`r f0(100 * max(comp(R4, "PyCCS", "carbon_stored")) / c_in)`% of it as biochar carbon that persists for a century. The switch from PyCCS to BECCS therefore raises the abatement obtained from the same residue. In China, abatement rises from `r f0(ab("China", 100))` Tg CO~2~e yr^-1^ at 100 US\$ Mg^-1^ CO~2~e to `r f0(ab("China", 200))` Tg CO~2~e yr^-1^ at 200 US\$ Mg^-1^ CO~2~e, with little change in the residue used (@fig-macc; @fig-si-macc-biomass). Across the four regions, abatement reaches `r f0(ab(R4, 250))` Tg CO~2~e yr^-1^ at 250 US\$ Mg^-1^ CO~2~e, `r f0(100 * ab(R4, 250, "BECCS") / ab(R4, 250))`% of it from BECCS. Between the plateau of PyCCS and the takeover by BECCS, abatement can fall slightly as the carbon price rises, as in China between 75 and 100 US\$ Mg^-1^ CO~2~e: a higher carbon price implies a cleaner grid, which reduces the grid credit of the electricity exported (see Grid displacement).
 
-The value of bioenergy power also depends on how it is dispatched within the wider power system, which this plant-level analysis represents only approximately. Each plant here processes a fixed annual quantity of biomass, set by its capacity and capacity factor, and BE chooses between base-load and flexible operation on its own net value. In system models that optimise capacity and hourly dispatch together, biomass is a scarce, storable fuel that the system directs to the hours and uses where it is most valuable, such as periods of high residual load, so that its operating regime depends on the generation mix, demand and other sources of flexibility of each grid [@johansson2019; @lehtveer2021; @ahlstrom2022]. Where such flexibility is scarce, the value of BE, and of BECCS operated below base load, may therefore be higher than estimated here; where it is abundant, base-load operation, as assumed here, is closer to the system optimum.
+## Bioenergy without carbon capture is rarely the best use of crop residues
 
-## Plant size and CO~2~ infrastructure shift the technology mix
+BE is the leading use of residues only in Europe and only at low carbon prices, on `r f0(sh("Europe", 50, "BE"))`% of the European residue at 50 US\$ Mg^-1^ CO~2~e, in Ukraine, Moldova and southeastern Europe, where the displaced electricity is more carbon-intensive than elsewhere in Europe (@fig-evap). It is not the leading use anywhere in the United States, China or India at any carbon price. Without a carbon price, BE loses money across the regions: its biomass-weighted mean net value is negative in all Monte Carlo draws for the United States and China, and positive in at most `r f1(100 * max(mcs$n0pos))`% of draws elsewhere. Its climate benefit is also small. At 100 US\$ Mg^-1^ CO~2~e, BE abates `r f2(min(comp(R4, "BE", "abatement")))`–`r f2(max(comp(R4, "BE", "abatement")))` Mg CO~2~e Mg^-1^ of residue, `r f0(100 * min(comp(R4, "BE", "abatement") / comp(R4, "PyCCS", "abatement")))`–`r f0(100 * max(comp(R4, "BE", "abatement") / comp(R4, "PyCCS", "abatement")))`% of the abatement of PyCCS and less than `r f0(ceiling(100 * max(comp(R4, "BE", "abatement") / comp(R4, "BECCS", "abatement"))))`% of that of BECCS, because the electricity it displaces becomes cleaner as the carbon price rises. Any positive carbon price therefore favors the pathways that store carbon over the one that only displaces fossil electricity.
 
-Three structural assumptions that the Monte Carlo analysis holds fixed were tested by repeating the carbon-price sweep (@fig-si-variants). Plant size has the largest effect. Larger plants favour the more capital-intensive technologies through economies of scale: with 250 MW~th~ instead of 125 MW~th~ plants, BECCS is adopted at lower carbon prices, and in the United States abatement at 150 US\$ Mg^-1^ CO~2~e rises from 46 to 337 Tg CO~2~e yr^-1^. With 50 MW~th~ plants, adoption is delayed and PyCCS keeps a larger share: in the United States at 200 US\$ Mg^-1^ CO~2~e, PyCCS provides 243 of 257 Tg CO~2~e yr^-1^, against 91 of 529 Tg CO~2~e yr^-1^ by default. In Europe, 250 MW~th~ BE plants are profitable even without a carbon price. Where almost all biomass is already used at high carbon prices, as in China and India above about 150 US\$ Mg^-1^ CO~2~e, plant size changes the timing of adoption but not the eventual abatement. These results should be read alongside the constraints on plant size that the model does not represent (see Methods): economies of scale favour ever larger plants, but road traffic, nuisance and local infrastructure limit the size of biomass plants in agricultural landscapes. Requiring each plant to build a dedicated pipeline to its sink, rather than share trunklines, delays BECCS and shifts biomass to PyCCS: at 150 US\$ Mg^-1^ CO~2~e, total abatement falls from 1,124 to 885 Tg CO~2~e yr^-1^ in China and from 287 to 209 Tg CO~2~e yr^-1^ in Europe. Allowing CO~2~-EOR as a sink raises abatement at intermediate carbon prices in China (from 731 to 821 Tg CO~2~e yr^-1^ at 100 US\$ Mg^-1^ CO~2~e) but by 5% or less in the other regions.
+## Soils and distance to CO~2~ storage decide where each pathway wins
 
-## Competing uses of crop residues
+The spatial variation in the costs of PyCCS and BECCS has different causes (@fig-shap-importance). The break-even price of PyCCS depends mainly on agronomic conditions: crop value per hectare and soil CEC together account for `r f0(imp("China", "be_PyCCS", "crop_value") + imp("China", "be_PyCCS", "soil_cec"))`% of the mean absolute SHAP value in China, `r f0(imp("India", "be_PyCCS", "crop_value") + imp("India", "be_PyCCS", "soil_cec"))`% in India and `r f0(imp("US", "be_PyCCS", "crop_value") + imp("US", "be_PyCCS", "soil_cec"))`% in the United States, followed by the biochar supply per hectare of cropland. In Europe, electricity price and feedstock cost dominate. The break-even price of BECCS depends mainly on the length of the route to geological storage (`r f0(imp("China", "be_BECCS", "co2_route_km"))`% in China, `r f0(imp("India", "be_BECCS", "co2_route_km"))`% in India), followed by electricity price and the storage cost of the sink.
 
-The analysis values crop residues against two counterfactuals: retention in the field, whose net soil GHG effect is close to zero [@mcclelland2025], and open burning, whose avoided CH~4~ and N~2~O emissions are credited. A third use, livestock fodder and bedding, is excluded from the supply: the sustainably harvestable residue of @karan2023, which is net of the fraction that must be retained to avoid soil degradation, is reduced by the fraction already used as fodder and bedding [@herrero2013]. This matters most in India, where cereal straws are a major source of fodder, whereas rice straw in the north-western rice–wheat belt is largely burned. Where the fodder fraction is underestimated locally, diverting residues would displace feed that must be replaced from other sources, with associated emissions, land use and costs; the net abatement estimated here is therefore most robust where residues would otherwise be burned or left in the field.
+Where BECCS takes over from PyCCS therefore depends on both soils and CO~2~ infrastructure (@fig-takeover-driver). Crop value per hectare is the most common dominant driver of the takeover price in China and the United States, and soil CEC is the second most common in India: on productive, low-CEC cropland, biochar remains the better use up to higher carbon prices. Distance to storage dominates in most of Europe and in much of India, where BECCS takes over first near sinks and last far from them.
+
+## Large plants and shared pipelines are prerequisites for BECCS, but not for biochar
+
+The economics of BECCS depend on structural choices that matter much less for PyCCS (@fig-si-variants). At 200 US\$ Mg^-1^ CO~2~e, BECCS abates `r f0(vv("US", 200, "Default", "BECCS"))` Tg CO~2~e yr^-1^ in the United States with plants of 125 MW~th~, but only `r f0(vv("US", 200, "50 MW", "BECCS"))` Tg CO~2~e yr^-1^ with plants of 50 MW~th~; in Europe, the corresponding values are `r f0(vv("Europe", 200, "Default", "BECCS"))` and `r f0(vv("Europe", 200, "50 MW", "BECCS"))` Tg CO~2~e yr^-1^. Shared trunklines matter as much as plant size: if each plant builds its own pipeline to the sink, BECCS abatement at 200 US\$ Mg^-1^ CO~2~e falls to `r f0(vv("US", 200, "Dedicated", "BECCS"))` Tg CO~2~e yr^-1^ in the United States, `r f0(vv("Europe", 200, "Dedicated", "BECCS"))` in Europe and `r f0(vv("China", 200, "Dedicated", "BECCS"))` in China. PyCCS takes up much of the residue that BECCS loses under these variants, because it needs neither large plants nor CO~2~ transport. Allowing CO~2~-EOR sites as sinks changes regional abatement by less than `r f0(100 * max(abs(sapply(R4, function(r) sum(va[Region == r & Price == 200 & startsWith(Variant, "CO"), Abatement]) / sum(va[Region == r & Price == 200 & startsWith(Variant, "Default"), Abatement]) - 1))))`% at 200 US\$ Mg^-1^ CO~2~e.
+
+## The crop response to biochar dominates the uncertainty in its cost
+
+The Monte Carlo analysis identifies which parameters most affect the regional comparisons. The crop yield response to biochar is the largest source of uncertainty in the break-even price of PyCCS: its two coefficients account together for `r f0(min(sapply(c("US", "China", "India"), function(r) msh(r, "be_PyCCS", "bc_yield_amplitude"))))`–`r f0(max(sapply(c("US", "China", "India"), function(r) msh(r, "be_PyCCS", "bc_yield_amplitude"))))`% of the mean absolute SHAP value in the United States, China and India, and `r f0(msh("Europe", "be_PyCCS", "bc_yield_amplitude"))`% in Europe, and the decline of the response over time adds a further `r f0(min(sapply(R4, function(r) msh(r, "be_PyCCS", "bc_yield_decay"))))`–`r f0(max(sapply(R4, function(r) msh(r, "be_PyCCS", "bc_yield_decay"))))`%. The break-even price of BECCS depends most on capital costs, the capital cost premium of capture and the capacity factor. The takeover price inherits both sets of uncertainties: the yield response dominates it in China and India, and the capital cost and capacity factor of BECCS in the United States and Europe.
 
 # DISCUSSION
 
-The deployment of biomass for climate change mitigation cannot be guided by a single universal pathway. Our spatial analysis demonstrates that the economic viability of BE, BECCS, and PyCCS is dictated by a complex interplay of localized biophysical constraints and regional market dynamics.
+```{r discussion-values}
+#| include: false
+heat <- if (file.exists("results/ai_summaries/heat_sensitivity_quantiles.csv")) fread("results/ai_summaries/heat_sensitivity_quantiles.csv") else NULL
+hd <- function(r) heat[region == r & c_price == 100, delta_p50]
+```
 
-While BECCS offers the highest theoretical carbon removal potential, its heavy infrastructure requirements and sensitivity to the cost of capital create significant barriers to entry, particularly where biomass is located far from suitable geological sinks. In contrast, PyCCS circumvents these transport constraints and establishes a resilient economic niche in regions with degraded, low-CEC soils, where its agronomic co-benefits—such as liming equivalence and nutrient substitution—offset its lower electrical conversion efficiencies. Southern China exemplifies this dynamic, demonstrating that PyCCS is a robust, long-term mitigation strategy for specific agro-ecological zones rather than merely a transition technology.
+#### Context:
 
-Furthermore, baseline energy markets shape optimal pathways. In Europe, high wholesale electricity prices establish BE as the dominant pathway at low carbon prices.
+Pathways that limit warming in line with the Paris Agreement [@unfccc2015paris] rely on carbon dioxide removal to offset residual emissions and to reach net-negative emissions later in the century, and the pathways assessed by the IPCC obtain most of their novel removal from BECCS [@ipcc2022wg3; @smith2024state]. Biochar is largely absent from the integrated assessment models behind these pathways [@smith2024state]. Our bottom-up comparison suggests that this omission matters for the use of crop residues, one of the largest sources of biomass that does not compete for land. Across the four regions, biochar is the least-cost removal from residues over a wide range of carbon prices, and geological storage becomes the better use only at prices of about 130–210 US\$ Mg^-1^ CO~2~e, depending on the region. BECCS still delivers about twice the removal per megagram of residue, so it dominates the potential at high carbon prices. The two pathways are therefore sequential rather than competing: biochar is the first option for removal from residues, and BECCS the option that raises the removal obtained from a limited resource once carbon prices are high and CO~2~ transport and storage are in place.
 
-Biochar plants could also sell the heat from their surplus pyrolysis vapours and gases rather than generating electricity. In an exploratory scenario in which PyCCS sold all its heat to a year-round user, heat recovery raised the net value of PyCCS in all four regions, because heat earns more than electricity from the same fuel at a much lower capital cost, while abating slightly less, as heat displaces less CO~2~ per unit than electricity. Year-round heat demand, such as an industrial process or a district heating network, is uncommon in residue-producing regions, so heat recovery is an opportunity for co-location at particular sites rather than a basis for regional deployment, and it is not included in the results.
+This sequence has three implications for planning removal at national and international levels. First, scenarios that represent only BECCS overstate the carbon price needed to start removing carbon with residues, and understate the removal available at moderate prices: at 100 US\$ Mg^-1^ CO~2~e, biochar accounts for `r f0(100 * ab(R4, 100, "PyCCS") / ab(R4, 100))`% of the `r f0(ab(R4, 100))` Tg CO~2~e yr^-1^ that residues can abate in the four regions. Second, the economic life of a pyrolysis plant, 20 years, is comparable to the time over which carbon prices in mitigation pathways rise from moderate to high levels [@ipcc2022wg3]. <!-- TODO (reference required): carbon-price trajectories in Paris-consistent pathways (AR6 WGIII Ch. 3) --> Plants built for biochar now may hold residues that BECCS would later use for twice the removal, and plans for residue use should anticipate the transition, for example by siting pyrolysis plants where the takeover price is high: on productive cropland with low-CEC soils and far from geological storage (@fig-takeover-price). Third, BECCS from residues depends strongly on plant size and on shared CO~2~ trunklines. Without shared pipelines, much of its potential at high carbon prices is lost (@fig-si-variants), so the deployment of BECCS from dispersed residues is a question of CO~2~ infrastructure planning as much as of carbon prices.
 
-The soil N~2~O credit of PyCCS rests on short field trials. Most syntheses find that the reduction declines within a few years of a single application [@borchard2019; @kaur2023; @yang2025biochar], and we model this decline. Some studies, however, report that aged biochar increases N~2~O emissions [@song2016; @wang2024aging; @guo2023legacy], whereas the largest synthesis of long-term field experiments (4–12 years) finds reductions that diminish without reversing [@yang2025biochar]. A reversal would last for as long as the biochar remains in the soil, so even a small one would matter: in our model, a persistent 5% increase in emissions after the reduction has decayed would more than cancel the central estimate of the credit. Long-term trials of single applications are needed to resolve this.
+Bioenergy without carbon capture is rarely the best use of residues in our analysis. It is often regarded as a low-cost option for using residues, but it earns too little from electricity to cover its costs without subsidy, and it abates only `r f2(min(comp(R4, "BE", "abatement")))`–`r f2(max(comp(R4, "BE", "abatement")))` Mg CO~2~e Mg^-1^ of residue at 100 US\$ Mg^-1^ CO~2~e, because the electricity it displaces becomes cleaner as decarbonization proceeds. Its benefit is greatest where grids remain carbon-intensive, as in parts of southeastern Europe, but even there it gives way to biochar and BECCS once carbon prices rise. We model dedicated plants; co-firing residues in existing coal plants, which displaces coal directly, is outside the scope of this analysis. For the long-term goals of the Paris Agreement, the more valuable climate service of residues is to store carbon, not to displace fossil electricity.
 
-Realizing the climate mitigation potential of global biomass requires moving beyond blanket technological mandates. Policymakers must adopt spatially explicit strategies that target BECCS deployment near geological sinks, incentivize PyCCS in agro-ecological zones suffering from soil degradation, and recognize the enduring role of BE in displacing highly carbon-intensive fossil grids.
+The competitiveness of biochar rests on its value to crops more than on its carbon. Crop value and soil CEC explain most of the spatial variation in the cost of PyCCS, and the crop yield response to biochar is the largest single source of uncertainty in that cost. This links carbon removal to food security: the regions where biochar is most competitive are those where it raises yields most. It also sets a research priority. Most field evidence comes from trials lasting one or two years, whereas the economics of biochar depend on yield responses over decades (Supplementary Text S3). Long-term trials of the yield response, and of how it declines as biochar ages, would reduce the uncertainty in the cost of PyCCS more than better estimates of any single technology parameter in most regions.
+
+#### Limitations: 
+
+Our results are subject to several limitations. The greenhouse gas balance covers the emissions and removals that differ between pathways or scale with logistics; it is not a complete life-cycle assessment. The model offers the same residue supply to all three technologies, but combustion of residues faces feedstock-quality constraints that it represents only through efficiency and capital cost penalties for high ash content: slagging and fouling from high-silica residues such as rice straw and husk, and corrosion from high-potassium, high-chlorine straws, which need specialized boilers. The potential of BE and BECCS is therefore an upper bound with respect to feedstock suitability, although gasification offers a route to power from rice residues. <!-- TODO (reference required): gasification of rice residues for power generation --> The soil N~2~O credit of PyCCS rests on short field trials. Most syntheses find that the reduction declines within a few years of a single application [@borchard2019; @kaur2023; @yang2025biochar], and we model this decline. Some studies, however, report that aged biochar increases N~2~O emissions [@song2016; @wang2024aging; @guo2023legacy], whereas the largest synthesis of long-term field experiments (4–12 years) finds reductions that diminish without reversing [@yang2025biochar]. A reversal would last for as long as the biochar remains in the soil, so even a small one would matter: a persistent 5% increase in emissions after the reduction has decayed would more than cancel the central estimate of the credit. The cost of storing residues in China rests on limited evidence (Supplementary Text S4).
+
+#### Omitted pathways:
+
+Pyrolysis plants could also sell the heat from their surplus vapors and gases instead of generating electricity. In an exploratory scenario in which PyCCS sold all its surplus heat to a year-round user, the net value of PyCCS rose by about `r f0(hd("China"))`–`r f0(hd("Europe"))` US\$ Mg^-1^ of residue in China, the United States and Europe at 100 US\$ Mg^-1^ CO~2~e, but by less than `r f0(ceiling(hd("India")))` US\$ Mg^-1^ in India, and abatement changed by less than `r f2(ceiling(100 * max(abs(heat$abate_change_p50))) / 100)` Mg CO~2~e Mg^-1^. Year-round heat demand, such as an industrial process or a district heating network, is uncommon in residue-producing regions, so heat recovery is an opportunity for co-location at particular sites rather than a basis for regional deployment, and it is not included in the main results.
+
+Simple biomass burial can, in principle, provide long term protection from decomposition to sequester most of the biomass carbon <!--# cite Clayton DOI: 10.1126/sciadv.aee6185; Luo et al. Nature Geoscience 18.7 (2025): 675-681. -->. However, burial provides no co-benefits, may offset the benefits of carbon sequestration with increased methane emissions <!--# cite Yablonovitch & Deckman https://doi.org/10.1073/pnas.2217695120  -->, and removes critical nutrients from the biosphere and food production. Supplies of phosphorus (P) and potassium (K) already constrain food systems and are expected to peak and then decline around mid-century, making the effective recycling of these nutrients an important priority for food security <!--# references - cite Rawashdeh doi:10.1016/j.resourpol.2020.101834; Brownlie et al. Nature Food volume 5, pages111–115 (2024); Nedelciu et al. Global Food Security Volume 26, September 2020, 100426 -->. Because of its uncertain net impact on GHG emissions, lack of any tangible co-benefits, and detrimental impact on nutrient recycling we excluded biomass burial from our study.
+
+Storage in durable products <!--# TODO e.g. biochar-concrete, bio-polymers. May also remove nutrients.  Scalability of approaches and durability of removals is unknown -->
+
+#### Conclusion:
+
+Carbon removal from crop residues is not a choice between biochar and geological storage, but a sequence whose timing and geography depend on carbon prices, soils and CO~2~ infrastructure. Mitigation pathways and national strategies under the Paris Agreement that include both pathways, and that plan the transition between them, would obtain more removal from residues at lower cost than those that rely on BECCS alone.
 
 # METHODS
 
@@ -218,7 +299,7 @@ Crop residues contain more ash than the wood chips usually burned in bioenergy p
 Feedstock is priced at the field side (farm gate or road side); haulage to the plant is costed separately (see Biomass transport costs and emissions). For Europe, China and India, the prices are collection costs that exclude the margins of farmers and intermediaries. For the United States, where no comparable national cost estimate exists, the price is a farm-gate price that includes a grower premium, and is therefore somewhat higher than a cost-only estimate (@tbl-feedstock-price). The nutrients removed with the residue are charged separately in every region (see Residue minerals and ash return). Prices are quoted per megagram of dry matter and converted to the dry, ash-free basis of the model with the regional ash content (@tbl-parameters); haulage and storage costs are converted in the same way.
 
 | Region | Basis | Original value | 2024 US\$ Mg^-1^ | Source |
-|:---|:---|:---|---:|:---|
+|:--------------|:--------------|:--------------|--------------:|:--------------|
 | United States | Farm-gate price of crop residues, excluding the payment for nutrients removed | US\$24 per dry short ton (2011) | 37 | @perlack2011 |
 | Europe | Road-side cost of cereal straw, by country (three classes), excluding replacement fertilizer | €20, 37.5 and 62.5 Mg^-1^ dry matter (2012), less €12.1 | 13.9, 44.6 and 88.5 | @dees2017s2biom |
 | China | Field-side cost of collecting corn straw, Nongan county, Jilin | ¥99.6 Mg^-1^ of air-dried straw (2019) | 19.7 | @wang2022strawfeed |
@@ -328,7 +409,7 @@ The pyrolysis unit costs 335 US\$ per Mg yr^-1^ of feed capacity in the United S
 
 #### Biochar carbon storage
 
-We consider only soil application of biochar, because its agronomic value is part of the comparison between pathways. Biochar carbon in soil decays slowly, and we credit the fraction remaining after 100 years, $F_{\mathrm{perm}}$, following the method of @woolf2021greenhouse. That method uses incubation experiments in which the loss of biochar carbon was fitted with multi-pool exponential decay models. The decay rates of each experiment are adjusted from the incubation temperature to the mean annual soil temperature of the grid cell with a temperature-dependent $Q_{10}$. The fraction remaining after 100 years is then calculated for each experiment and regressed linearly on the molar ratio of hydrogen to organic carbon (H:C~org~) of the biochar. 
+We consider only soil application of biochar, because its agronomic value is part of the comparison between pathways. Biochar carbon in soil decays slowly, and we credit the fraction remaining after 100 years, $F_{\mathrm{perm}}$, following the method of @woolf2021greenhouse. That method uses incubation experiments in which the loss of biochar carbon was fitted with multi-pool exponential decay models. The decay rates of each experiment are adjusted from the incubation temperature to the mean annual soil temperature of the grid cell with a temperature-dependent $Q_{10}$. The fraction remaining after 100 years is then calculated for each experiment and regressed linearly on the molar ratio of hydrogen to organic carbon (H:C~org~) of the biochar.
 
 The CO~2~ stored per megagram of feedstock is
 
@@ -486,11 +567,11 @@ The per-kilometer cost of haulage is scaled by a regional factor built from the 
 
 ### Monte Carlo analysis
 
-Parameter uncertainty was propagated by Monte Carlo simulation, with 5,000 draws per region. Each parameter with an uncertainty range was sampled from a PERT, uniform or normal distribution, with the central values, distributions and bounds listed in @tbl-si-mc. Parameters with common cost drivers or estimated jointly were sampled together through a Gaussian copula (@tbl-si-mc-corr). In each draw, the grid displacement curve was one of its 1,000 bootstrap fits (see Grid displacement). The discount rate and the plant size were held at the regional rate and 125 MW~th~, because they are design and policy choices rather than uncertain quantities; their effect is shown by the variants below.
+Parameter uncertainty was propagated by Monte Carlo simulation, with `r f0(max(mcr[, .N, by = region]$N))` draws per region. Each parameter with an uncertainty range was sampled from a PERT, uniform or normal distribution, with the central values, distributions and bounds listed in @tbl-si-mc. Parameters with common cost drivers or estimated jointly were sampled together through a Gaussian copula (@tbl-si-mc-corr). In each draw, the grid displacement curve was one of its 1,000 bootstrap fits (see Grid displacement). The discount rate and the plant size were held at the regional rate and 125 MW~th~, because they are design and policy choices rather than uncertain quantities; their effect is shown by the variants below.
 
 For each draw, we evaluated every grid cell over the same carbon-price sweep as the main results (see Economic evaluation and technology selection), on a coarser price grid: 0 to 200 US\$ Mg^-1^ CO~2~e in steps of 25 US\$ Mg^-1^, then 250, 300 and 400 US\$ Mg^-1^. Each draw yields four regional quantities: the biomass-weighted median break-even prices of PyCCS and BECCS, the biomass-weighted median takeover price at which BECCS becomes the technology with the highest non-negative net value, and the biomass-weighted mean net value of BE without a carbon price. Cells that never break even count as above any price, and medians above 400 US\$ Mg^-1^ CO~2~e are recorded as 400. At carbon prices from 0 to 250 US\$ Mg^-1^ CO~2~e in steps of 50, each draw also yields the share of biomass allocated to each technology and the abatement of the allocated cells. We report the 5th, 50th and 95th percentiles of each quantity across draws.
 
-To attribute the uncertainty of each regional quantity to the sampled parameters, we fitted gradient-boosted regression trees [XGBoost; @chen2016xgboost] to the draws of each region, with a squared-error objective, a maximum depth of 4, a learning rate of 0.05 and 400 rounds. Each draw's prediction was attributed to the parameters with SHAP (SHapley Additive exPlanations) values [@lundberg2017], and a parameter's importance is its mean absolute SHAP value, in the units of the quantity. SHAP values divide the effect of correlated parameters between them. The two coefficients of the yield response (@eq-yield-response), which are sampled with a correlation of −0.87, are therefore also reported as a group, whose importance is the mean absolute value of their summed SHAP values. On a random 20% of draws held out from fitting, the models explained 88–99% of the variance of each quantity.
+To attribute the uncertainty of each regional quantity to the sampled parameters, we fitted gradient-boosted regression trees [XGBoost; @chen2016xgboost] to the draws of each region, with a squared-error objective, a maximum depth of 4, a learning rate of 0.05 and 400 rounds. Each draw's prediction was attributed to the parameters with SHAP (SHapley Additive exPlanations) values [@lundberg2017], and a parameter's importance is its mean absolute SHAP value, in the units of the quantity. SHAP values divide the effect of correlated parameters between them. The two coefficients of the yield response (@eq-yield-response), which are sampled with a correlation of −0.87, are therefore also reported as a group, whose importance is the mean absolute value of their summed SHAP values. On a random 20% of draws held out from fitting, the models explained `r f0(100 * min(unique(ms$r2_test)))`–`r f0(100 * max(unique(ms$r2_test)))`% of the variance of each quantity.
 
 ### Structural variants
 
@@ -504,7 +585,7 @@ To identify the spatial inputs that make each technology cheap or expensive, and
 
 Each model uses only the spatial inputs that enter the economics of the technologies it represents (@tbl-si-shap-importance). This prevents a cost from being attributed to a correlated input that the technology does not use, such as soil temperature, which correlates with the terrain and road-network multiplier of haulage cost in India (r = −0.63). The inputs common to all technologies are the collection distance of each technology at its capacity factor (see Biomass transport costs and emissions), the terrain and road-network multiplier of haulage cost, the field-side feedstock cost, the electricity price and soil pH, which sets the liming credit and the removal charge. The quantities that depend on the carbon price also use the displaced grid carbon intensity and the share of residue otherwise burned. PyCCS adds soil temperature, soil CEC, the biochar supply per hectare of cropland and the crop value per hectare; BECCS adds the length of its CO~2~ route, whether the route ends at an offshore sink, and the storage cost at that sink. The takeover price uses the inputs of both.
 
-A separate model was fitted for each region, because inputs that are constant within a region, such as feedstock cost outside Europe and the electricity price in India, would otherwise act as labels for the region. On a random 20% of cells held out from fitting, the models explained 95–100% of the variance of each quantity. Cells where a quantity is undefined (at most 2.4% in any region) were excluded. Dependence plots show a random sample of 20,000 cells per model; SHAP values were computed for all cells.
+A separate model was fitted for each region, because inputs that are constant within a region, such as feedstock cost outside Europe and the electricity price in India, would otherwise act as labels for the region. On a random 20% of cells held out from fitting, the models explained 94–100% of the variance of each quantity. Cells where a quantity is undefined (at most 1.0% in any region) were excluded. Dependence plots show a random sample of 20,000 cells per model; SHAP values were computed for all cells.
 
 ## Model parameters and data sources
 
@@ -534,47 +615,49 @@ raw_params <- read.csv("../BiocharAG/inst/extdata/parameters.csv", check.names =
 
 # Units in parameters.csv use Pandoc markdown (Mg^-1^, CO~2~); tables need LaTeX (or HTML) markup
 md_units <- function(x, latex = knitr::is_latex_output()) {
-  x[is.na(x)] <- ""
-  if (latex) {
-    x <- gsub("([$%&_#])", "\\\\\\1", x)
-    x <- gsub("\\^([^^]+)\\^", "\\\\textsuperscript{\\1}", x)
-    gsub("~([^~]+)~", "\\\\textsubscript{\\1}", x)
-  } else {
-    x <- gsub("\\^([^^]+)\\^", "<sup>\\1</sup>", x)
-    gsub("~([^~]+)~", "<sub>\\1</sub>", x)
-  }
+    x[is.na(x)] <- ""
+    if (latex) {
+        x <- gsub("([$%&_#])", "\\\\\\1", x)
+        x <- gsub("\\^([^^]+)\\^", "\\\\textsuperscript{\\1}", x)
+        gsub("~([^~]+)~", "\\\\textsubscript{\\1}", x)
+    } else {
+        x <- gsub("\\^([^^]+)\\^", "<sup>\\1</sup>", x)
+        gsub("~([^~]+)~", "<sub>\\1</sub>", x)
+    }
 }
 
 # Filter out rows that shouldn't be displayed
 # Exclude Constants, Control Flags, and some spatial metrics
 display_df <- raw_params |>
-  filter(!(category %in% c("Constants", "Control Flags"))) |>
-  filter(!(name %in% c("avg_dist", "collection_radius", "dist_offshore", "dist_onshore", "dist_sink_km", "dist_sink_saline_km", "feedstock_cost", "plant_sizes_mw_th", "flat_ci_tCO2_GJ", "rebound",
-    # BEBCS heat mode: optional, not used in the results (see Discussion)
-    "bebcs_heat_capital_cost", "bebcs_heat_efficiency", "bebcs_heat_life", "bebcs_heat_om_factor",
-    "heat_price", "heat_boiler_ci", "heat_pump_cop", "heat_offtake"))) |>
-  select(
-    Category = category,
-    Parameter = name,
-    Description = description,
-    USA = US,
-    Europe = Europe,
-    China = China,
-    India = India,
-    Units = units
-  ) |>
-  mutate(Units = md_units(Units)) |>
-  mutate(
-    # Convert NA to Spatially explicit for regional columns
-    USA = ifelse(is.na(USA), "Spatially explicit", USA),
-    Europe = ifelse(is.na(Europe), "Spatially explicit", Europe),
-    China = ifelse(is.na(China), "Spatially explicit", China),
-    India = ifelse(is.na(India), "Spatially explicit", India),
-    # Add backticks to Parameter names for markdown formatting
-    Parameter = paste0("`", Parameter, "`")
-  ) |>
-  # Arrange by Category
-  arrange(Category)
+    filter(!(category %in% c("Constants", "Control Flags"))) |>
+    filter(!(name %in% c(
+        "avg_dist", "collection_radius", "dist_offshore", "dist_onshore", "dist_sink_km", "dist_sink_saline_km", "feedstock_cost", "plant_sizes_mw_th", "flat_ci_tCO2_GJ", "rebound",
+        # BEBCS heat mode: optional, not used in the results (see Discussion)
+        "bebcs_heat_capital_cost", "bebcs_heat_efficiency", "bebcs_heat_life", "bebcs_heat_om_factor",
+        "heat_price", "heat_boiler_ci", "heat_pump_cop", "heat_offtake"
+    ))) |>
+    select(
+        Category = category,
+        Parameter = name,
+        Description = description,
+        USA = US,
+        Europe = Europe,
+        China = China,
+        India = India,
+        Units = units
+    ) |>
+    mutate(Units = md_units(Units)) |>
+    mutate(
+        # Convert NA to Spatially explicit for regional columns
+        USA = ifelse(is.na(USA), "Spatially explicit", USA),
+        Europe = ifelse(is.na(Europe), "Spatially explicit", Europe),
+        China = ifelse(is.na(China), "Spatially explicit", China),
+        India = ifelse(is.na(India), "Spatially explicit", India),
+        # Add backticks to Parameter names for markdown formatting
+        Parameter = paste0("`", Parameter, "`")
+    ) |>
+    # Arrange by Category
+    arrange(Category)
 
 # Identify rows where all regional values are identical
 is_uniform <- with(display_df, !is.na(USA) & USA == Europe & Europe == China & China == India & USA != "Spatially explicit")
@@ -584,52 +667,52 @@ display_df$China[is_uniform] <- ""
 display_df$India[is_uniform] <- ""
 
 gt(display_df, groupname_col = "Category") |>
-  tab_spanner(
-    label = "Value",
-    columns = c(USA, Europe, China, India)
-  ) |>
-  cols_label(
-    Parameter = "Parameter",
-    Description = "Description",
-    USA = "USA/Default",
-    Europe = "Europe",
-    China = "China",
-    India = "India",
-    Units = "Units"
-  ) |>
-  cols_width(
-    Parameter ~ pct(18),
-    Description ~ pct(24),
-    USA ~ pct(12),
-    Europe ~ pct(10),
-    China ~ pct(10),
-    India ~ pct(10),
-    Units ~ pct(16)
-  ) |>
-  fmt_markdown(columns = c(Category, Parameter, Description, USA, Europe, China, India)) |>
-  fmt_passthrough(columns = Units, escape = FALSE) |>
-  tab_options(
-    table.font.size = px(9),
-    data_row.padding = px(2),
-    row_group.font.weight = "bold",
-    latex.use_longtable = TRUE,
-    latex.header_repeat = TRUE
-  )
+    tab_spanner(
+        label = "Value",
+        columns = c(USA, Europe, China, India)
+    ) |>
+    cols_label(
+        Parameter = "Parameter",
+        Description = "Description",
+        USA = "USA/Default",
+        Europe = "Europe",
+        China = "China",
+        India = "India",
+        Units = "Units"
+    ) |>
+    cols_width(
+        Parameter ~ pct(18),
+        Description ~ pct(24),
+        USA ~ pct(12),
+        Europe ~ pct(10),
+        China ~ pct(10),
+        India ~ pct(10),
+        Units ~ pct(16)
+    ) |>
+    fmt_markdown(columns = c(Category, Parameter, Description, USA, Europe, China, India)) |>
+    fmt_passthrough(columns = Units, escape = FALSE) |>
+    tab_options(
+        table.font.size = px(9),
+        data_row.padding = px(2),
+        row_group.font.weight = "bold",
+        latex.use_longtable = TRUE,
+        latex.header_repeat = TRUE
+    )
 ```
 
 # FIGURES
 
-![Minimum Break-even carbon price for each technology option. The penultimate row shows the technology with the lowest break-even price, and the final row shows that price. The lowest break-even technology is the first to become profitable as the carbon price rises; it is not necessarily the technology with the highest NPV at a given carbon price (see @fig-evap and @fig-si-evap-social).](results/figures/Breakeven_CPrice.png){#fig-break-even width="100%"}
+![Break-even carbon price of each technology (rows 1–3), the technology with the lowest break-even price (row 4) and that price (row 5), by region (columns), at the regional market discount rates. The break-even price is the carbon price at which the net value of a technology becomes non-negative; it is negative where a technology is profitable without a carbon price. The technology with the lowest break-even price is the first to become profitable as the carbon price rises, but not necessarily the one with the highest net value at higher prices (@fig-evap). Colors are capped at −50 and 200 US\$ Mg^-1^ CO~2~e.](results/figures/Breakeven_CPrice.png){#fig-break-even width="100%"}
 
-![Optimal technology by carbon price (rows) and region (columns) at the regional market discount rates. Saturated colours: the technology with the highest net present value (NPV), where that NPV is positive; pale colours: the least unprofitable technology where no technology has a positive NPV. Maps show Mainland China.](results/figures/Evaporation_Grid_market.png){#fig-evap width="100%"}
+![Technology with the highest net value in each grid cell, by carbon price (rows) and region (columns), at the regional market discount rates. Saturated colors: that net value is positive; pale colors: no technology is profitable, and the color shows the one with the smallest loss.](results/figures/Evaporation_Grid_market.png){#fig-evap width="100%"}
 
-![Marginal abatement cost curves: abatement potential of the technology with the highest non-negative net value in each grid cell, by region, as a function of the carbon price.](results/figures/MACC.png){#fig-macc width="100%"}
+![Marginal abatement cost curves: annual abatement of the technology with the highest non-negative net value in each grid cell, summed over each region, as a function of the carbon price, at the regional market discount rates.](results/figures/MACC.png){#fig-macc width="100%"}
 
-![Spatial drivers of technology costs and of the takeover of biochar by geological storage: share of the mean absolute SHAP value of each input in regional regression models of the break-even carbon prices of PyCCS and BECCS, the net value of BE without a carbon price, and the carbon price at which BECCS takes over. Inputs without a value are not used by that model; values below 5% are not labelled.](results/spatial_shap/shap_importance.png){#fig-shap-importance width=\"100%\"}
+![Spatial drivers of technology costs and of the takeover of biochar by geological storage: share of the mean absolute SHAP value of each spatial input in regional regression models of the break-even carbon prices of PyCCS and BECCS, the net value of BE without a carbon price, and the carbon price at which BECCS takes over. Blank: the input is not used by that model; values below 5% are not labeled.](results/spatial_shap/shap_importance.png){#fig-shap-importance width="100%"}
 
-![Carbon price at which BECCS becomes the technology with the highest non-negative net value in each grid cell, at the regional market discount rates. Cells in grey: BECCS does not take over below 500 US\$ Mg^-1^ CO~2~e.](results/spatial_shap/map_takeover_price.png){#fig-takeover-price width=\"100%\"}
+![Carbon price at which BECCS becomes the technology with the highest non-negative net value in each grid cell, at the regional market discount rates. Gray: BECCS does not take over below 500 US\$ Mg^-1^ CO~2~e.](results/spatial_shap/map_takeover_price.png){#fig-takeover-price width="100%"}
 
-![Dominant driver of the BECCS takeover price (@fig-takeover-price) in each grid cell: the input with the largest absolute SHAP value in the regional regression models (@fig-shap-importance).](results/spatial_shap/map_takeover_driver.png){#fig-takeover-driver width=\"100%\"}
+![Dominant driver of the BECCS takeover price (@fig-takeover-price) in each grid cell: the spatial input with the largest absolute SHAP value in the regional regression model (@fig-shap-importance).](results/spatial_shap/map_takeover_driver.png){#fig-takeover-driver width="100%"}
 
 # REFERENCES AND NOTES
 
@@ -690,8 +773,8 @@ where $s_{\mathrm{t}}$, $s_{\mathrm{f}}$ and $s_{\mathrm{o}}$ are the time-based
 
 @tbl-si-haul lists the inputs. Driver labor cost in the United States is the mean wage of heavy and tractor-trailer truck drivers in 2024, 26.92 US\$ h^-1^ [@bls2025oes], plus benefits at the ratio of benefits to wages in @atri2024, giving 33.6 US\$ h^-1^. For Europe, it is the 2024 labor cost in transport and storage in the EU, 29.3 € h^-1^ (31.7 US\$ h^-1^) [@eurostat2025lc]. For China, it is a monthly income of 6,500 CNY (904 US\$), the middle of the range reported by most truck drivers in a national survey [@cflp2025], over 286 working hours per month, because more than a third of drivers work 12 hours a day or more. For India, it is a monthly pay of 20,000 INR (239 US\$) over 260 hours. <!-- TODO (reference required): Indian truck and tractor driver pay --> Truck prices compare a heavy tractor with trailer. <!-- TODO (reference required): heavy truck prices in the United States, China and India --> Diesel prices are 2024 averages, excluding value-added tax where hauliers can recover it (Europe and China). <!-- TODO (reference required): 2024 diesel prices in the four regions --> Mean speeds and grade fuel factors are biomass-weighted means over the least-time routes to 125 MW~th~ plants (see Biomass transport costs and emissions).
 
-| | United States | Europe | China | India |
-|:--|--:|--:|--:|--:|
+|   | United States | Europe | China | India |
+|:--------------|--------------:|--------------:|--------------:|--------------:|
 | Driver labor cost, $\rho_{\mathrm{w}}$ | 1 | 0.90 | 0.094 | 0.027 |
 | Truck price, $\rho_{\mathrm{k}}$ | 1 | 1.0 | 0.23 | 0.25 |
 | Diesel price, $\rho_{\mathrm{d}}$ | 1 | 1.44 | 0.96 | 1.08 |
@@ -719,67 +802,78 @@ library(kableExtra)
 raw <- read.csv("../BiocharAG/inst/extdata/parameters.csv", check.names = FALSE, na.strings = "")
 regions <- c("US", "Europe", "China", "India")
 fmt_num <- function(x) {
-  v <- suppressWarnings(as.numeric(x))
-  ifelse(is.na(v), as.character(x), format(signif(v, 4), scientific = FALSE, drop0trailing = TRUE, trim = TRUE))
+    v <- suppressWarnings(as.numeric(x))
+    ifelse(is.na(v), as.character(x), format(signif(v, 4), scientific = FALSE, drop0trailing = TRUE, trim = TRUE))
 }
 fmt_num1 <- function(x) vapply(x, fmt_num, character(1), USE.NAMES = FALSE)
 # Split a bound such as "0.85;India=0.5" into its base value and regional overrides
 parse_bound <- function(b) {
-  parts <- strsplit(as.character(b), ";", fixed = TRUE)[[1]]
-  ov <- if (length(parts) > 1) {
-    kv <- do.call(rbind, strsplit(parts[-1], "=", fixed = TRUE))
-    stats::setNames(kv[, 2], kv[, 1])
-  } else character(0)
-  list(base = parts[1], ov = ov)
+    parts <- strsplit(as.character(b), ";", fixed = TRUE)[[1]]
+    ov <- if (length(parts) > 1) {
+        kv <- do.call(rbind, strsplit(parts[-1], "=", fixed = TRUE))
+        stats::setNames(kv[, 2], kv[, 1])
+    } else {
+        character(0)
+    }
+    list(base = parts[1], ov = ov)
 }
 fmt_range <- function(lo, hi, rel) {
-  a <- parse_bound(lo); b <- parse_bound(hi)
-  unit <- if (rel) " × central" else ""
-  out <- paste0(fmt_num(a$base), "–", fmt_num(b$base), unit)
-  ovr <- union(names(a$ov), names(b$ov))
-  if (length(ovr)) {
-    extra <- vapply(ovr, function(r) {
-      l <- if (r %in% names(a$ov)) a$ov[[r]] else a$base
-      h <- if (r %in% names(b$ov)) b$ov[[r]] else b$base
-      paste0(r, " ", fmt_num(l), "–", fmt_num(h))
-    }, character(1))
-    out <- paste0(out, " (", paste(extra, collapse = "; "), ")")
-  }
-  out
+    a <- parse_bound(lo)
+    b <- parse_bound(hi)
+    unit <- if (rel) " × central" else ""
+    out <- paste0(fmt_num(a$base), "–", fmt_num(b$base), unit)
+    ovr <- union(names(a$ov), names(b$ov))
+    if (length(ovr)) {
+        extra <- vapply(ovr, function(r) {
+            l <- if (r %in% names(a$ov)) a$ov[[r]] else a$base
+            h <- if (r %in% names(b$ov)) b$ov[[r]] else b$base
+            paste0(r, " ", fmt_num(l), "–", fmt_num(h))
+        }, character(1))
+        out <- paste0(out, " (", paste(extra, collapse = "; "), ")")
+    }
+    out
 }
 central <- function(row) {
-  v <- unlist(row[regions])
-  if (all(is.na(v))) return(paste0(fmt_num(row[["default_value"]]), " (spatial)"))
-  if (length(unique(v)) == 1) return(fmt_num(v[1]))
-  paste(paste(regions, fmt_num1(v)), collapse = "; ")
+    v <- unlist(row[regions])
+    if (all(is.na(v))) {
+        return(paste0(fmt_num(row[["default_value"]]), " (spatial)"))
+    }
+    if (length(unique(v)) == 1) {
+        return(fmt_num(v[1]))
+    }
+    paste(paste(regions, fmt_num1(v)), collapse = "; ")
 }
 
-mc <- raw |> filter(!is.na(distribution), distribution != "none") |> arrange(category, name)
+mc <- raw |>
+    filter(!is.na(distribution), distribution != "none") |>
+    arrange(category, name)
 esc <- if (knitr::is_latex_output()) function(x) gsub("([$%&_#])", "\\\\\\1", x) else identity # escape = FALSE below
 tab <- data.frame(
-  Parameter = esc(mc$name),
-  Description = esc(mc$description),
-  Units = md_units(mc$units),
-  Central = vapply(seq_len(nrow(mc)), function(i) central(mc[i, ]), character(1)),
-  Dist. = tools::toTitleCase(mc$distribution),
-  Range = vapply(seq_len(nrow(mc)), function(i) fmt_range(mc$dist_min[i], mc$dist_max[i], mc$dist_bounds[i] == "relative"), character(1))
+    Parameter = esc(mc$name),
+    Description = esc(mc$description),
+    Units = md_units(mc$units),
+    Central = vapply(seq_len(nrow(mc)), function(i) central(mc[i, ]), character(1)),
+    Dist. = tools::toTitleCase(mc$distribution),
+    Range = vapply(seq_len(nrow(mc)), function(i) fmt_range(mc$dist_min[i], mc$dist_max[i], mc$dist_bounds[i] == "relative"), character(1))
 )
 grp <- rle(mc$category)
-k <- kbl(tab, format = if (knitr::is_latex_output()) "latex" else "html", booktabs = TRUE, longtable = TRUE,
-  escape = FALSE, row.names = FALSE) |>
-  kable_styling(latex_options = c("repeat_header"), font_size = 7) |>
-  column_spec(1, width = "3.3cm", monospace = TRUE) |>
-  column_spec(2, width = "4.1cm") |>
-  column_spec(3, width = "2.1cm") |>
-  column_spec(4, width = "2.2cm") |>
-  column_spec(5, width = "0.9cm") |>
-  column_spec(6, width = "2.6cm")
+k <- kbl(tab,
+    format = if (knitr::is_latex_output()) "latex" else "html", booktabs = TRUE, longtable = TRUE,
+    escape = FALSE, row.names = FALSE
+) |>
+    kable_styling(latex_options = c("repeat_header"), font_size = 7) |>
+    column_spec(1, width = "3.3cm", monospace = TRUE) |>
+    column_spec(2, width = "4.1cm") |>
+    column_spec(3, width = "2.1cm") |>
+    column_spec(4, width = "2.2cm") |>
+    column_spec(5, width = "0.9cm") |>
+    column_spec(6, width = "2.6cm")
 start <- 1
 for (g in seq_along(grp$lengths)) {
-  grp_label <- md_units(grp$values[g])
-  if (knitr::is_latex_output()) grp_label <- gsub("\\\\&", "\\\\\\\\&", grp_label)
-  k <- pack_rows(k, grp_label, start, start + grp$lengths[g] - 1, escape = FALSE)
-  start <- start + grp$lengths[g]
+    grp_label <- md_units(grp$values[g])
+    if (knitr::is_latex_output()) grp_label <- gsub("\\\\&", "\\\\\\\\&", grp_label)
+    k <- pack_rows(k, grp_label, start, start + grp$lengths[g] - 1, escape = FALSE)
+    start <- start + grp$lengths[g]
 }
 k
 ```
@@ -792,13 +886,15 @@ k
 #| tbl-cap: "Correlations between parameters sampled jointly in the Monte Carlo analysis (correlation coefficients of the Gaussian copula)."
 corr <- read.csv("../BiocharAG/inst/extdata/parameter_correlations.csv", check.names = FALSE)
 esc_c <- function(x) if (knitr::is_latex_output()) gsub("_", "\\\\_", x) else x
-tab_c <- data.frame(`Parameter 1` = esc_c(corr$param_a), `Parameter 2` = esc_c(corr$param_b),
-  `Correlation` = sprintf("%.2f", corr$rho), Rationale = corr$rationale, check.names = FALSE)
+tab_c <- data.frame(
+    `Parameter 1` = esc_c(corr$param_a), `Parameter 2` = esc_c(corr$param_b),
+    `Correlation` = sprintf("%.2f", corr$rho), Rationale = corr$rationale, check.names = FALSE
+)
 kbl(tab_c, format = if (knitr::is_latex_output()) "latex" else "html", booktabs = TRUE, escape = FALSE, row.names = FALSE) |>
-  kable_styling(font_size = 7) |>
-  column_spec(1:2, width = "3.3cm", monospace = TRUE) |>
-  column_spec(3, width = "1.4cm") |>
-  column_spec(4, width = "6.5cm")
+    kable_styling(font_size = 7) |>
+    column_spec(1:2, width = "3.3cm", monospace = TRUE) |>
+    column_spec(3, width = "1.4cm") |>
+    column_spec(4, width = "6.5cm")
 ```
 
 ```{r}
@@ -808,25 +904,35 @@ kbl(tab_c, format = if (knitr::is_latex_output()) "latex" else "html", booktabs 
 #| label: tbl-si-shap-importance
 #| tbl-cap: "Share of the mean absolute SHAP value (%) of each input in the regional regression models (@fig-shap-importance), and the share of variance each model explains in held-out cells. A dash marks an input that the model does not use or that is constant within the region."
 imp <- read.csv("results/spatial_shap/shap_importance.csv")
-targets <- c(be_PyCCS = "Break-even price, PyCCS", be_BECCS = "Break-even price, BECCS",
-  n0_BE = "Net value of BE at zero carbon price", takeover_BECCS = "BECCS takeover price")
-labs <- c(dist_BE_base = "Collection distance, BE (base load)", dist_BE_flex = "Collection distance, BE (flexible)",
-  dist_BECCS = "Collection distance, BECCS", dist_PyCCS = "Collection distance, PyCCS",
-  haul_mult = "Haulage cost multiplier", feedstock_cost = "Feedstock cost", elec_price = "Electricity price",
-  ff_c_intensity = "Grid carbon intensity", soil_ph = "Soil pH", burn_frac = "Share of residue burned",
-  soil_temp = "Soil temperature", soil_cec = "Soil CEC", bc_supply = "Biochar supply per hectare",
-  crop_value = "Crop value per hectare", co2_route_km = "CO~2~ route length", co2_offshore = "Offshore CO~2~ sink",
-  co2_storage_cost = "CO~2~ storage cost")
+targets <- c(
+    be_PyCCS = "Break-even price, PyCCS", be_BECCS = "Break-even price, BECCS",
+    n0_BE = "Net value of BE at zero carbon price", takeover_BECCS = "BECCS takeover price"
+)
+labs <- c(
+    dist_BE_base = "Collection distance, BE (base load)", dist_BE_flex = "Collection distance, BE (flexible)",
+    dist_BECCS = "Collection distance, BECCS", dist_PyCCS = "Collection distance, PyCCS",
+    haul_mult = "Haulage cost multiplier", feedstock_cost = "Feedstock cost", elec_price = "Electricity price",
+    ff_c_intensity = "Grid carbon intensity", soil_ph = "Soil pH", burn_frac = "Share of residue burned",
+    soil_temp = "Soil temperature", soil_cec = "Soil CEC", bc_supply = "Biochar supply per hectare",
+    crop_value = "Crop value per hectare", co2_route_km = "CO~2~ route length", co2_offshore = "Offshore CO~2~ sink",
+    co2_storage_cost = "CO~2~ storage cost"
+)
 regions <- c("US", "Europe", "China", "India")
 rows <- list()
 for (tg in names(targets)) {
-  s <- imp[imp$target == tg, ]
-  for (f in names(labs)[names(labs) %in% s$feature]) {
-    v <- vapply(regions, function(r) { x <- s$share_pct[s$region == r & s$feature == f]; if (length(x)) sprintf("%.1f", x) else "–" }, character(1))
-    rows[[length(rows) + 1]] <- c(targets[[tg]], labs[[f]], v)
-  }
-  r2 <- vapply(regions, function(r) { x <- s$holdout_r2[s$region == r]; if (length(x)) sprintf("%.3f", x[1]) else "–" }, character(1))
-  rows[[length(rows) + 1]] <- c(targets[[tg]], "Held-out R^2^", r2)
+    s <- imp[imp$target == tg, ]
+    for (f in names(labs)[names(labs) %in% s$feature]) {
+        v <- vapply(regions, function(r) {
+            x <- s$share_pct[s$region == r & s$feature == f]
+            if (length(x)) sprintf("%.1f", x) else "–"
+        }, character(1))
+        rows[[length(rows) + 1]] <- c(targets[[tg]], labs[[f]], v)
+    }
+    r2 <- vapply(regions, function(r) {
+        x <- s$holdout_r2[s$region == r]
+        if (length(x)) sprintf("%.3f", x[1]) else "–"
+    }, character(1))
+    rows[[length(rows) + 1]] <- c(targets[[tg]], "Held-out R^2^", r2)
 }
 tab <- as.data.frame(do.call(rbind, rows))
 names(tab) <- c("Quantity", "Input", regions)
@@ -837,11 +943,11 @@ knitr::kable(tab, format = "pipe", row.names = FALSE, align = c("l", "l", rep("r
 
 ![Meta-analysis of biochar field trials (Supplementary Text S3). (**a**) Shape of the crop yield response to biochar dose within experiments, relative to the response at 10–20 Mg ha^-1^, on soils with a pH of 6.5 or above and below 6.0; points are binned means with 90% confidence intervals, lines the fitted power functions. (**b**) Change in soil N~2~O emissions by dose class; the dashed line is the overall mean reduction of 20%. (**c**) Biochar-weighted ratio of the yield value per megagram of biochar under the fitted dose response to that under a response linear in dose, by region; bars span the confidence interval of the dose exponent and cropping intensities of 1–1.5.](../docs/biochar_agronomy_handover/dose_response_v2.png){#fig-si-dose-response width="100%"}
 
-![Optimal technology by carbon price (rows) and region (columns) at a 2% social discount rate (cf. @fig-evap, at the regional market rates).](results/figures/Evaporation_Grid_social.png){#fig-si-evap-social width="100%"}
+![Technology with the highest net value in each grid cell, by carbon price (rows) and region (columns), at a 2% social discount rate (cf. @fig-evap, at the regional market discount rates).](results/figures/Evaporation_Grid_social.png){#fig-si-evap-social width="100%"}
 
-![Biomass converted by the technology with the highest non-negative net value in each grid cell, by region, as a function of the carbon price (the biomass equivalent of @fig-macc).](results/figures/MACC_biomass.png){#fig-si-macc-biomass width="100%"}
+![Residue used by the technology with the highest non-negative net value in each grid cell, summed over each region, as a function of the carbon price (the biomass equivalent of @fig-macc).](results/figures/MACC_biomass.png){#fig-si-macc-biomass width="100%"}
 
-![Sensitivity of the marginal abatement cost curves (@fig-macc) to structural assumptions: abatement of the technology with the highest non-negative net value in each grid cell, by region (rows), for the default (125 MW~th~ plants, shared CO~2~ trunklines, no CO~2~-EOR), plants of 50 and 250 MW~th~, dedicated pipelines from each plant to its sink, and CO~2~-EOR allowed as a sink (columns). Plant size is a design assumption; the size variants do not represent a recommended size, because local constraints on plant size, such as truck traffic, are outside the model.](results/figures/Variants_MACC.png){#fig-si-variants width="100%"}
+![Sensitivity of the marginal abatement cost curves (@fig-macc) to structural assumptions: abatement of the technology with the highest non-negative net value in each grid cell, by region (rows), for the reference design (plants of 125 MW~th~, shared CO~2~ trunklines, no CO~2~-EOR sinks), plants of 50 and 250 MW~th~, dedicated pipelines from each plant to its sink, and CO~2~-EOR sites admitted as sinks (columns). The size variants show the sensitivity to plant size, not a recommended size: local constraints on plant size, such as truck traffic, are outside the model.](results/figures/Variants_MACC.png){#fig-si-variants width="100%"}
 
 ```{r}
 #| echo: false
@@ -849,14 +955,20 @@ knitr::kable(tab, format = "pipe", row.names = FALSE, align = c("l", "l", rep("r
 #| warning: false
 #| results: asis
 dep <- list.files("results/spatial_shap", pattern = "^dependence_.*\\.png$")
-targets <- c(be_PyCCS = "the break-even carbon price of PyCCS", be_BECCS = "the break-even carbon price of BECCS",
-  n0_BE = "the net value of BE without a carbon price", takeover_BECCS = "the carbon price at which BECCS takes over")
+targets <- c(
+    be_PyCCS = "the break-even carbon price of PyCCS", be_BECCS = "the break-even carbon price of BECCS",
+    n0_BE = "the net value of BE without a carbon price", takeover_BECCS = "the carbon price at which BECCS takes over"
+)
 regions <- c(US = "United States", Europe = "Europe", China = "China", India = "India")
-for (tg in names(targets)) for (r in names(regions)) {
-  f <- sprintf("dependence_%s_%s.png", tg, r)
-  if (!f %in% dep) next
-  lab <- tolower(gsub("_", "-", sprintf("fig-si-dep-%s-%s", tg, r)))
-  cat(sprintf("![SHAP dependence plots for %s, %s: SHAP value of each input, in the units of that quantity, against the input value, for inputs with at least 2%% of the mean absolute SHAP value.](results/spatial_shap/%s){#%s width=\"100%%\"}\n\n",
-    targets[[tg]], regions[[r]], f, lab))
+for (tg in names(targets)) {
+    for (r in names(regions)) {
+        f <- sprintf("dependence_%s_%s.png", tg, r)
+        if (!f %in% dep) next
+        lab <- tolower(gsub("_", "-", sprintf("fig-si-dep-%s-%s", tg, r)))
+        cat(sprintf(
+            "![SHAP dependence plots for %s, %s: SHAP value of each input, in the units of that quantity, against the input value, for inputs with at least 2%% of the mean absolute SHAP value.](results/spatial_shap/%s){#%s width=\"100%%\"}\n\n",
+            targets[[tg]], regions[[r]], f, lab
+        ))
+    }
 }
 ```

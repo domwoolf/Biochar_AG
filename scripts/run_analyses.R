@@ -27,6 +27,11 @@ library(sf)
   source("scripts/variant_sweeps.R")
 }
 
+# 2b) Per-tonne economics and abatement at 100 US$/t (results/ai_summaries/per_tonne_components.csv)
+{
+  source("scripts/results_components.R")
+}
+
 # 3) Monte Carlo Simulations
 #    Generates:
 #    "results/mc_analysis_results.csv"

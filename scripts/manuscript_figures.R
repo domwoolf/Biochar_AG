@@ -172,10 +172,10 @@ generate_fig_evaporation <- function(
     # where even the best technology loses money (NPV <= 0)
     # Legend: one column per technology, NPV <= 0 on the top row
     techs <- names(TECH_COLORS)
-    neg_labels <- paste0(techs, " (NPV \u2264 0)")
+    neg_labels <- paste0(techs, " (net value \u2264 0)")
     tech_levels <- as.vector(rbind(neg_labels, techs))
     df_data$tech_npv <- factor(
-      ifelse(df_data$max_npv > 0, df_data$tech, paste0(df_data$tech, " (NPV \u2264 0)")),
+      ifelse(df_data$max_npv > 0, df_data$tech, paste0(df_data$tech, " (net value \u2264 0)")),
       levels = tech_levels
     )
     fill_values <- stats::setNames(c(TECH_COLORS, desaturate_color(TECH_COLORS)), c(techs, neg_labels))[tech_levels]
@@ -209,14 +209,14 @@ generate_fig_evaporation <- function(
     }
     plt +
       coord_sf(crs = 4326) +
-      scale_fill_viridis_c(option = "viridis", name = "Max NPV (US$ Mg\u207b\u00b9)") +
+      scale_fill_viridis_c(option = "viridis", name = "Highest net value (US$ Mg\u207b\u00b9)") +
       facet_grid(cp_label ~ dr_label) +
       theme_void(base_size = 14) +
       theme(
         strip.text = element_text(face = "bold", margin = margin(b = 5, t = 5)),
         legend.position = "bottom"
       ) +
-      labs(fill = "Max NPV (US$ Mg\u207b\u00b9)")
+      labs(fill = "Highest net value (US$ Mg\u207b\u00b9)")
   }
 
   out_plot <- if (metric == "optimal_tech") {
@@ -227,7 +227,7 @@ generate_fig_evaporation <- function(
     # metric == "both"
     patchwork::wrap_plots(
       build_tech_plot(all_df) + labs(title = paste0("Optimal technology - ", region_name)),
-      build_npv_plot(all_df) + labs(title = paste0("Highest NPV - ", region_name)),
+      build_npv_plot(all_df) + labs(title = paste0("Highest net value - ", region_name)),
       ncol = 2
     )
   }
@@ -262,7 +262,7 @@ generate_fig_evaporation <- function(
 generate_fig_evaporation_grid <- function(save_map = TRUE, scenario = "default", c_prices = seq(0, 250, 50),
                                           regions = c("US", "Europe", "China", "India")) {
   message("Generating Figure: evaporation grid...")
-  techs <- names(TECH_COLORS); neg <- paste0(techs, " (NPV \u2264 0)"); lv <- as.vector(rbind(neg, techs))
+  techs <- names(TECH_COLORS); neg <- paste0(techs, " (net value \u2264 0)"); lv <- as.vector(rbind(neg, techs))
   fills <- stats::setNames(c(TECH_COLORS, desaturate_color(TECH_COLORS)), c(techs, neg))[lv]
   D <- list(); A <- list()
   for (r in regions) {
