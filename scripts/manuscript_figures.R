@@ -75,7 +75,7 @@ ggsave_with_scenario <- function(filename, plot, width, height, bg = "white", dp
 # Unit strings for figure labels (SI units with Unicode super- and subscripts)
 U_CPRICE <- "US$ Mg\u207b\u00b9 CO\u2082e" # carbon price
 U_ABATE <- "Tg CO\u2082e yr\u207b\u00b9" # abatement
-U_BIOMASS <- "Tg dry matter yr\u207b\u00b9" # biomass converted
+U_BIOMASS <- "Tg yr\u207b\u00b9, dry, ash-free" # biomass converted
 
 # Map display: islands smaller than MIN_ISLAND_KM2 show as specks at figure scale, so maps drop them
 # (outlines and grid cells). Display only: model results include them.

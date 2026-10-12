@@ -47,11 +47,21 @@ fp_stat <- function(...) { # size + mtime, for large untracked data
   i <- file.info(files_in(c(...)))
   paste(basename(rownames(i)), i$size, as.numeric(i$mtime))
 }
+# parameters.csv is hashed without its text columns (description, units, notes, category), so that editing
+# wording does not invalidate the model results
+fp_params <- function() {
+  x <- read.csv(file.path(repo, "BiocharAG/inst/extdata/parameters.csv"), colClasses = "character")
+  f <- tempfile(fileext = ".csv")
+  on.exit(unlink(f))
+  write.csv(x[, setdiff(names(x), c("description", "units", "notes", "category"))], f, row.names = FALSE)
+  unname(tools::md5sum(f))
+}
 fp_model <- function() {
+  extdata <- setdiff(list.files(file.path(repo, "BiocharAG/inst/extdata"), recursive = TRUE), "parameters.csv")
   list(fp_hash(
-    "BiocharAG/R", "BiocharAG/inst/extdata", "BiocharAG/DESCRIPTION",
+    "BiocharAG/R", file.path("BiocharAG/inst/extdata", extdata), "BiocharAG/DESCRIPTION",
     "scripts/manuscript_figures.R"
-  ), fp_stat("GIS/processed"))
+  ), fp_params(), fp_stat("GIS/processed"))
 }
 
 # vars: named list of settings assigned in the subprocess's global environment before code runs
