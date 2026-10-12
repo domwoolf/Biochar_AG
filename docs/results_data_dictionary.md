@@ -54,7 +54,7 @@ Per-tonne economics and abatement (scripts/results_components.R): each technolog
 technology is best).
 
 ```
-116 obs. of 4 variables (long format):
+152 obs. of 4 variables (long format):
  $ region    : chr
  $ technology: chr  "BE" | "BECCS" | "PyCCS" | "all"
  $ quantity  : chr
@@ -73,6 +73,9 @@ technology is best).
 | `co2_transport_storage` | US$ Mg⁻¹ | BECCS CO₂ transport and storage |
 | `carbon_stored` | Mg CO₂ Mg⁻¹ | BECCS captured CO₂; PyCCS permanent biochar carbon |
 | `soil_n2o` | Mg CO₂e Mg⁻¹ | PyCCS avoided soil N₂O |
+| `grid_credit` | Mg CO₂e Mg⁻¹ | exported electricity × displaced grid intensity at 100 US$ Mg⁻¹ CO₂e (zero where PyCCS flares its surplus) |
+| `residue_counterfactual` | Mg CO₂e Mg⁻¹ | avoided emissions of the counterfactual residue fate (open burning); same for all technologies |
+| `emissions` | Mg CO₂e Mg⁻¹ | haulage, field operations and CO₂ transport; residual, so that `abatement` = `carbon_stored` + `soil_n2o` + `grid_credit` + `residue_counterfactual` − `emissions` |
 | `share_no_energy` | fraction | PyCCS: biomass share where the power block is omitted (surplus gas flared) |
 | `feedstock_cost` (technology `all`) | US$ Mg⁻¹ | field-side feedstock price incl. storage |
 

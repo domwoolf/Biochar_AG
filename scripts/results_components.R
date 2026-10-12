@@ -1,7 +1,8 @@
 # scripts/results_components.R
 # Per-tonne economics and abatement of each technology at the central regional parameters and a carbon
 # price of 100 US$/t CO2e: biomass-weighted means over all grid cells of revenues, costs and abatement
-# (per Mg dry, ash-free feedstock). Used for the explanatory numbers in the Results.
+# (per Mg dry, ash-free feedstock), including a decomposition of abatement into carbon stored, avoided soil
+# N2O, grid credit, residue counterfactual and emissions. Used for the explanatory numbers in the Results.
 #
 # Output: results/ai_summaries/per_tonne_components.csv (long format: region, technology, quantity, value)
 
@@ -31,6 +32,23 @@ for (r in c("US", "Europe", "China", "India")) {
     for (nm in names(qty)) {
       v <- res[[tech]][[qty[[nm]]]]
       if (is.null(v)) next
+      rows[[length(rows) + 1]] <- data.frame(region = r, technology = tech, quantity = nm, value = wmean(v, bm))
+    }
+  }
+  # Decomposition of abatement: grid credit (exported energy x displaced grid intensity at this price; zero
+  # where PyCCS flares its surplus), residue counterfactual (avoided open burning), and emissions (haulage,
+  # field operations and CO2 transport) as the residual, so that
+  # abatement = carbon_stored + soil_n2o + grid_credit + residue_counterfactual - emissions
+  mef <- displaced_grid_ci(q)
+  res_cf <- BiocharAG:::residue_counterfactual_ghg(q)
+  for (tech in names(res)) {
+    r_t <- res[[tech]]
+    grid <- r_t$energy_output * mef
+    stored <- if (is.null(r_t$c_sequestered)) 0 else r_t$c_sequestered
+    n2o <- if (is.null(r_t$soil_n2o_abatement)) 0 else r_t$soil_n2o_abatement
+    emis <- stored + n2o + grid + res_cf - r_t$tot_c_abatement
+    for (nm in c("grid_credit", "residue_counterfactual", "emissions")) {
+      v <- switch(nm, grid_credit = grid, residue_counterfactual = res_cf, emissions = emis)
       rows[[length(rows) + 1]] <- data.frame(region = r, technology = tech, quantity = nm, value = wmean(v, bm))
     }
   }
