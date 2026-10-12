@@ -1,13 +1,15 @@
 ---
-title: "Biochar first, geological storage later: the least-cost sequence for biomass-based carbon dioxide removal"
+title: "Coordinating biochar and geological storage for biomass based carbon dioxide removal"
 date: last-modified
 abstract: |
   Crop residues are a large source of biomass for carbon dioxide removal that does not compete for land, but whether they should be pyrolyzed to biochar or used for bioenergy with carbon capture and storage (BECCS) is unresolved. We compared bioenergy (BE), BECCS and pyrolysis with soil application of biochar (pyrogenic carbon capture and storage, PyCCS) in every 0.1° grid cell of the United States, Europe, China and India, accounting for the effects of biochar on crops, CO~2~ transport networks and the decarbonization of electricity grids. PyCCS is the least-cost use of residues at moderate carbon prices, abating about 650 Tg CO~2~e yr^-1^ at 100 US\$ per megagram of CO~2~. BECCS takes over at 130–210 US\$ per megagram and doubles the removal per megagram of residue, but it requires large plants and shared CO~2~ pipelines. Bioenergy without carbon capture is rarely the best use. Strategies for carbon removal from residues should plan the transition from biochar to geological storage.
   <!-- STALE: abstract numbers typed from the revision render; check against the production run -->
 bibliography: references.bib
 csl: science.csl
+# Model results are produced by pipeline.qmd (render it on demand); this document only reads results/
 filters:
   - runin-headings.lua
+  - docx-comments.lua
 link-citations: true
 zotero: true
 format:
@@ -37,115 +39,32 @@ format:
       \affil[1]{Cornell University}
       \affil[2]{Environmental Defense Fund}
       \renewcommand\author[2][]{}
+  docx:
+    # Word copy for co-authors (comments and tracked changes); the .qmd remains the master copy
+    reference-doc: reference.docx # styles: fonts, sizes, spacing, margins, line numbers (edit in Word)
+    # Authors for Word (the PDF sets them in header-includes with authblk); Quarto's Word title block shows
+    # names only, so affiliations are written into each entry
+    author:
+      - "Dominic Woolf, Cornell University (correspondence: d.woolf@cornell.edu)"
+      - "Jocelyn Lavallee, Environmental Defense Fund"
+      - "Anna Raffeld, Environmental Defense Fund"
+      - "Doria Gordon, Environmental Defense Fund"
+      - "Emily Oldfield, Environmental Defense Fund"
+    number-sections: true
+    toc: false
+    fig-dpi: 300
+    fig-align: center
 ---
-
-```{r pipeline-setup}
-#| include: false
-# Model pipeline: each step below is a cached chunk that runs in its own R process. 
-# Fingerprints are content hashes for code and parameters (stable across git checkouts) and size + modification time for the large, untracked GIS layers. Logs go to results/logs/.
-repo <- normalizePath("..")
-fig_scenarios <- c("default") # scenarios for the main figures (see scripts/run_analyses.R)
-
-# Monte Carlo run size, asked at the start of every render: 
-#  - none (do not run; downstream steps use the existing results), 
-#  - quick (100 draws per region on a 25% cell sample; smoke test), 
-#  - revision (2,000 draws, 25% of cells) or 
-#  - full (5,000 draws, all cells; production). 
-# Without a display, set the environment variable MC_RUN. The MC chunk only reruns when the model changes or the run size differs from the cached run.
-mc_choice <- Sys.getenv("MC_RUN")
-if (!nzchar(mc_choice)) {
-    if (!capabilities("tcltk") || !nzchar(Sys.getenv("DISPLAY"))) stop("No display for the Monte Carlo dialog: set MC_RUN to none, quick, revision or full.")
-    mc_choice <- tcltk::tk_select.list(c("none", "quick", "revision", "full"), preselect = "none", title = "Monte Carlo run size")
-}
-if (!mc_choice %in% c("none", "quick", "revision", "full")) stop("Monte Carlo run size not chosen; render cancelled.")
-message("Monte Carlo run size: ", mc_choice)
-
-files_in <- function(paths) {
-    paths <- file.path(repo, paths)
-    f <- unlist(lapply(paths, function(p) if (dir.exists(p)) list.files(p, recursive = TRUE, full.names = TRUE) else p))
-    sort(f[file.exists(f)])
-}
-fp_hash <- function(...) unname(tools::md5sum(files_in(c(...)))) # content hash
-fp_stat <- function(...) { # size + mtime, for large untracked data
-    i <- file.info(files_in(c(...)))
-    paste(basename(rownames(i)), i$size, as.numeric(i$mtime))
-}
-fp_model <- function() {
-    list(fp_hash(
-        "BiocharAG/R", "BiocharAG/inst/extdata", "BiocharAG/DESCRIPTION",
-        "scripts/manuscript_figures.R"
-    ), fp_stat("GIS/processed"))
-}
-
-# vars: named list of settings assigned in the subprocess's global environment before code runs
-# (the subprocess does not see this document's variables). List them in the chunk's cache.extra too.
-run_step <- function(name, code, vars = list()) {
-    if (name %in% "mc_analysis") vars <- utils::modifyList(vars, list(mc_size = mc_choice))
-    dir.create(file.path(repo, "results", "logs"), showWarnings = FALSE, recursive = TRUE)
-    log <- file.path(repo, "results", "logs", paste0(name, ".log"))
-    callr::r(function(code, repo, vars) {
-        setwd(repo)
-        list2env(vars, envir = globalenv())
-        eval(parse(text = code), envir = globalenv())
-    }, args = list(code = code, repo = repo, vars = vars), wd = repo, stdout = log, stderr = "2>&1")
-    invisible(Sys.time())
-}
-```
-
-```{r pipeline-figures}
-#| include: false
-#| cache: true
-#| cache.extra: !expr list(fp_model(), fig_scenarios)
-run_step("figures", 'source("scripts/manuscript_figures.R"); run_all_manuscript_figures(save_map = TRUE)',
-    vars = list(.regions = c("US", "China", "Europe", "India"), .scenarios = fig_scenarios)
-)
-```
-
-```{r pipeline-components}
-#| include: false
-#| cache: true
-#| cache.extra: !expr list(fp_model(), fp_hash("scripts/results_components.R"))
-run_step("components", 'source("scripts/results_components.R")')
-```
-
-```{r pipeline-variants}
-#| include: false
-#| cache: true
-#| cache.extra: !expr list(fp_model(), fp_hash("scripts/variant_sweeps.R"))
-run_step("variants", 'source("scripts/variant_sweeps.R")')
-```
-
-```{r pipeline-mc}
-#| include: false
-#| cache: true
-#| eval: !expr mc_choice != "none"
-#| cache.extra: !expr list(fp_model(), fp_hash("scripts/mc_analysis.R"), mc_choice)
-run_step("mc_analysis", 'source("scripts/mc_analysis.R")')
-```
-
-```{r pipeline-mc-shap}
-#| include: false
-#| cache: true
-#| cache.extra: !expr list(fp_hash("scripts/MC_shap.R", "results/mc_analysis_results.csv"))
-run_step("mc_shap", 'source("scripts/MC_shap.R"); run_mc_shap()')
-```
-
-```{r pipeline-spatial-shap}
-#| include: false
-#| cache: true
-#| cache.extra: !expr list(fp_model(), fp_hash("scripts/spatial_shap.R"))
-run_step("spatial_shap", 'source("scripts/spatial_shap.R")')
-```
 
 # INTRODUCTION
 
-Limiting warming to less than 2°C warming, in line with the Paris Agreement, require carbon dioxide removal (CDR) to counterbalance residual emissions and to reach net-negative emissions later in the century [@unfccc2015paris; @ipcc2022wg3]. Biomass can contribute to CDR in several ways, but its supply is limited, and dedicated biomass crops compete with food production and natural ecosystems for land [@fuss2018]. Crop residues avoid this competition: the residue that can be removed sustainably from cropland, after retaining enough to protect soils, is a large and widely distributed resource [@karan2023]. How best to use it for climate mitigation is therefore an important question for the design of mitigation strategies.
+Limiting global warming to below 2 °C requires carbon dioxide removal (CDR) to counterbalance residual greenhouse gas emissions and reach net-negative emissions later in the century [@unfccc2015paris; @ipcc2022wg3]. Biomass can supply carbon removal, but dedicated bioenergy crops compete directly with food production and natural ecosystems for arable land [@fuss2018]. Crop residues avoid this competition: sustainably harvestable residues, after retaining suffient to prevent soil erosion, offer an abundant, spatially dispersed carbon feedstock [@karan2023]. Because this residue resource is strictly finite, allocating it across competing climate mitigation technologies is a critical optimization challenge.
 
-<!--# Question: do we need to pre-empt readers/reviewers questioning our choice of pathways.  I added a sction to the Discussion on omitted pathways, including reasons for exclusion. But this may be something that bothers readers before they get to that part. -->There are several potential uses of residues to mitigate climate change which may compete for this resource. Bioenergy (BE) combusts the residue to generate electricity, thereby returning its carbon to atmospheric CO~2~, while having the potential to provide some mitigation by displacing fossil fuel generation. Bioenergy with carbon capture and storage (BECCS) captures the CO~2~ released and stores it in geological formations, removing most of the biomass carbon from the atmosphere <!--# cite Fuss, Sabine, et al. "Negative emissions—Part 2: Costs, potentials and side effects." Environmental research letters 13.6 (2018): 063002. -->. Pyrogenic carbon capture and storage (PyCCS) pyrolyzes the residue and applies the carbonized solid product (biochar) to soil, where much of its carbon persists for centuries, while the pyrolysis vapors and gases can supply energy [@schmidt2019pyccs; @woolf2010; @lehmann2021biochar]. Each has distinct strengths and weaknesses. The value of BE depends on the carbon intensity of the electricity it displaces, which falls as power systems decarbonize. Although BE does not provide CDR, it is important to include it in a comparative assessment, since higher costs or reduced energy production of CDR relative to BE would need to be sufficiently compensated by greater mitigation and any other co-benefits. BECCS stores the greatest amount of carbon per unit of biomass (about twice as much as PyCCS) [@woolf2016], but it is capital intensive and requires infrastructure to transport and store CO~2~. PyCCS needs no CO~2~ infrastructure, and biochar can raise crop yields, neutralize soil acidity and supply nutrients, but it stores less carbon and earns less from energy. Which use is best therefore depends on local conditions: soils and crops, electricity prices and grid emissions, feedstock costs, distance to geological storage, and the price of carbon [@woolf2016].
+Three thermochemical pathways compete for agricultural residues. Bioenergy (BE) combusts residues to generate electricity, abating emissions only by displacing fossil power generation before its biogenic carbon returns to the atmosphere. Bioenergy with carbon capture and storage (BECCS) captures this combustion CO~2~ and injects it into deep geological formations, isolating roughly 90% of feedstock carbon from the active atmosphere [@fuss2018]. Pyrogenic carbon capture and storage (PyCCS) pyrolyzes biomass into biochar for soil application, stabilizing 35–42% of the carbon for centuries while exporting surplus energy [@schmidt2019pyccs; @woolf2010; @lehmann2021biochar]. Each approach presents distinct trade-offs. BE requires no CO~2~ disposal infrastructure, but its climate benefit erodes as electricity grids decarbonize. BECCS achieves roughly double the net carbon removal per megagram of biomass compared to pyrolysis [@woolf2016], yet it is capital-intensive and requires access to shared CO~2~ pipeline networks and certified geological sinks. PyCCS avoids CO~2~ transport networks and can raise crop yields, neutralize soil acidity, and supply mineral nutrients, but it sequesters less carbon per unit of feedstock. Which technology delivers the greatest net benefit depends on local soil chemistry, crop values, power prices, grid emission intensities, and proximity to geological storage [@woolf2016].
 
-The scenarios that inform international climate policy do not resolve this choice. The integrated assessment models behind the pathways assessed by the IPCC obtain most of their novel CDR from BECCS and seldom represent biochar [@ipcc2022wg3; @smith2024state] <!--# state of CDR has a more recent 2026version.  Correct url is https://www.stateofcdr.org/report/3rd-edition.  Cite this instead of @smith2024state -->. They also operate at the scale of large world regions, with aggregate cost assumptions that cannot capture the variation in soils, infrastructure and energy systems that determines which pathway is best in a given place. Bottom-up assessments, in contrast, have mostly evaluated one pathway at a time, or compared pathways at particular sites [@peters2015; @lefebvre2021] <!--# add roe et al. "Land-based measures to mitigate climate change: Potential and feasibility by country" to this citation list. -->. Single-pathway assessments estimate what each technology could achieve on its own, but they do not account for the competition between pathways for the same biomass, so their potentials cannot be added, and they do not show where each pathway is the better use.
+Current climate policy scenarios do not resolve this geographic and economic competition. Integrated assessment models (IAMs) rely predominantly on BECCS for engineered carbon removal and rarely represent biochar systems [@ipcc2022wg3; @edwards2026state]. Operating across coarse geopolitical regions, IAMs cannot represent the fine-scale heterogeneity in soils, energy grids, and transport logistics that governs technology performance. Conversely, bottom-up life-cycle assessments typically evaluate single technologies in isolation [@roe2021] or examine localized facility case studies [@peters2015; @lefebvre2021]. By assessing pathways independently without forcing them to compete for the same feedstock base, existing studies cannot determine where or at what carbon price one pathway should yield to another.
 
-Here, we bridge the gap between the single-technology assessments and IAMs by conducting a bottom-up comparison of BE, BECCS and PyCCS grounded in spatially-explicit empirical data and mechanistic constraints. This study analyzes these pathways for crop residues in four geographically and socio-economically distinct regions (United States, Europe, China and India). This geographic focus facilitates performing detailed and comprehensive analyses grounded in country-specific realities while spanning a wide range of agricultural, energy and geological conditions that render the insights and conclusions generalizable. At every location on a high resolution (0.1°) grid, we calculate the net value and net greenhouse gas abatement of each technology, and allocate the residue to the technology with the highest net value at each carbon price, so that the pathways compete for the same feedstock. It includes the logistics of residue collection, the crop yield and soil N~2~O responses to biochar, the transport of CO~2~ along routed pipeline networks and shipping routes to characterized geological sinks, and the decline in the carbon intensity of displaced electricity as carbon prices rise. We use this comparison to identify which pathway is the least-cost use of residues at each carbon price and location, what determines the choice, and how sensitive it is to uncertainty in prices, agronomic responses, and technical performance.
+Here, we reconcile single-facility assessments and global economic models through a bottom-up, spatially explicit comparison of BE, BECCS, and PyCCS. We analyze sustainably-available crop residues across the coterminous United States, Europe, China, and India at 0.1° resolution. These four regions capture diverse agricultural soils, energy market structures, and geological storage geology. At each grid cell, we evaluate the net economic value and greenhouse gas abatement of each pathway across a broad range of carbon prices, allocating residue to the technology with the highest net value. The optimization incorporates localized residue collection logistics, crop yield and soil N~2~O responses to biochar, cost-minimized CO~2~ pipeline routes to characterized geological basins, and price-dependent electricity grid decarbonization. This framework establishes the least-cost spatial allocation of crop residues, reveals the environmental and infrastructural thresholds that govern technology transitions, and quantifies the parametric uncertainties that determine deployment strategy.
 
 # RESULTS
 
@@ -163,9 +82,9 @@ cp <- fread("results/ai_summaries/per_tonne_components.csv")
 comp <- function(r, tech, q) cp[region %in% r & technology == tech & quantity == q, value]
 mcr <- fread("results/mc_analysis_results.csv")
 mcs <- mcr[, .(
-    p_py = mean(be_PyCCS < be_BECCS), d50 = median(be_BECCS - be_PyCCS), n0pos = mean(n0_BE > 0),
-    to05 = quantile(takeover, 0.05), to50 = median(takeover), to95 = quantile(takeover, 0.95),
-    bepy50 = median(be_PyCCS), bebc50 = median(be_BECCS)
+  p_py = mean(be_PyCCS < be_BECCS), d50 = median(be_BECCS - be_PyCCS), n0pos = mean(n0_BE > 0),
+  to05 = quantile(takeover, 0.05), to50 = median(takeover), to95 = quantile(takeover, 0.95),
+  bepy50 = median(be_PyCCS), bebc50 = median(be_BECCS)
 ), by = region]
 m <- function(r, v) mcs[region == r][[v]]
 va <- fread("results/ai_summaries/variant_summary.csv")[, tech := tl[Technology]]
@@ -228,7 +147,7 @@ hd <- function(r) heat[region == r & c_price == 100, delta_p50]
 
 #### Context:
 
-Pathways that limit warming in line with the Paris Agreement [@unfccc2015paris] rely on carbon dioxide removal to offset residual emissions and to reach net-negative emissions later in the century, and the pathways assessed by the IPCC obtain most of their novel removal from BECCS [@ipcc2022wg3; @smith2024state]. Biochar is largely absent from the integrated assessment models behind these pathways [@smith2024state]. Our bottom-up comparison suggests that this omission matters for the use of crop residues, one of the largest sources of biomass that does not compete for land. Across the four regions, biochar is the least-cost removal from residues over a wide range of carbon prices, and geological storage becomes the better use only at prices of about 130–210 US\$ Mg^-1^ CO~2~e, depending on the region. BECCS still delivers about twice the removal per megagram of residue, so it dominates the potential at high carbon prices. The two pathways are therefore sequential rather than competing: biochar is the first option for removal from residues, and BECCS the option that raises the removal obtained from a limited resource once carbon prices are high and CO~2~ transport and storage are in place.
+Pathways that limit warming in line with the Paris Agreement [@unfccc2015paris] rely on carbon dioxide removal to offset residual emissions and to reach net-negative emissions later in the century, and the pathways assessed by the IPCC obtain most of their novel removal from BECCS [@ipcc2022wg3; @edwards2026state]. Biochar is largely absent from the integrated assessment models behind these pathways [@edwards2026state]. Our bottom-up comparison suggests that this omission matters for the use of crop residues, one of the largest sources of biomass that does not compete for land. Across the four regions, biochar is the least-cost removal from residues over a wide range of carbon prices, and geological storage becomes the better use only at prices of about 130–210 US\$ Mg^-1^ CO~2~e, depending on the region. BECCS still delivers about twice the removal per megagram of residue, so it dominates the potential at high carbon prices. The two pathways are therefore sequential rather than competing: biochar is the first option for removal from residues, and BECCS the option that raises the removal obtained from a limited resource once carbon prices are high and CO~2~ transport and storage are in place.
 
 This sequence has three implications for planning removal at national and international levels. First, scenarios that represent only BECCS overstate the carbon price needed to start removing carbon with residues, and understate the removal available at moderate prices: at 100 US\$ Mg^-1^ CO~2~e, biochar accounts for `r f0(100 * ab(R4, 100, "PyCCS") / ab(R4, 100))`% of the `r f0(ab(R4, 100))` Tg CO~2~e yr^-1^ that residues can abate in the four regions. Second, the economic life of a pyrolysis plant, 20 years, is comparable to the time over which carbon prices in mitigation pathways rise from moderate to high levels [@ipcc2022wg3]. <!-- TODO (reference required): carbon-price trajectories in Paris-consistent pathways (AR6 WGIII Ch. 3) --> Plants built for biochar now may hold residues that BECCS would later use for twice the removal, and plans for residue use should anticipate the transition, for example by siting pyrolysis plants where the takeover price is high: on productive cropland with low-CEC soils and far from geological storage (@fig-takeover-price). Third, BECCS from residues depends strongly on plant size and on shared CO~2~ trunklines. Without shared pipelines, much of its potential at high carbon prices is lost (@fig-si-variants), so the deployment of BECCS from dispersed residues is a question of CO~2~ infrastructure planning as much as of carbon prices.
 
@@ -614,50 +533,99 @@ library(dplyr)
 raw_params <- read.csv("../BiocharAG/inst/extdata/parameters.csv", check.names = FALSE, na.strings = "")
 
 # Units in parameters.csv use Pandoc markdown (Mg^-1^, CO~2~); tables need LaTeX (or HTML) markup
+is_docx <- knitr::pandoc_to("docx")
+
+# Word tables (flextable): Pandoc markup in units and labels becomes Unicode super/subscripts; optional
+# heading rows per group; fixed column widths (inches, summing to the 6.5-inch text width)
+uni_units <- function(x) {
+  sup <- c("0" = "\u2070", "1" = "\u00b9", "2" = "\u00b2", "3" = "\u00b3", "4" = "\u2074", "5" = "\u2075",
+    "6" = "\u2076", "7" = "\u2077", "8" = "\u2078", "9" = "\u2079", "-" = "\u207b", "+" = "\u207a")
+  sub <- c("0" = "\u2080", "1" = "\u2081", "2" = "\u2082", "3" = "\u2083", "4" = "\u2084", "5" = "\u2085",
+    "6" = "\u2086", "7" = "\u2087", "8" = "\u2088", "9" = "\u2089", "e" = "\u2091", "h" = "\u2095",
+    "t" = "\u209c", "a" = "\u2090", "o" = "\u2092")
+  conv <- function(s, map, delim) {
+    pat <- paste0("\\", delim, "([^", delim, "]+)\\", delim)
+    m <- gregexpr(pat, s, perl = TRUE)
+    regmatches(s, m) <- lapply(regmatches(s, m), function(v) vapply(v, function(t) {
+      ch <- strsplit(substr(t, 2, nchar(t) - 1), "")[[1]]
+      if (all(ch %in% names(map))) paste(map[ch], collapse = "") else substr(t, 2, nchar(t) - 1)
+    }, character(1)))
+    s
+  }
+  x <- as.character(x)
+  x[is.na(x)] <- ""
+  x <- conv(x, sup, "^")
+  conv(gsub("\\\\\\$", "$", x), sub, "~")
+}
+word_table <- function(df, widths, group = NULL, mono = NULL, font_size = 8) {
+  df[] <- lapply(df, uni_units)
+  if (!is.null(group)) {
+    gd <- flextable::as_grouped_data(df, groups = group)
+    ft <- flextable::as_flextable(gd, hide_grouplabel = TRUE)
+    grp_rows <- which(!is.na(gd[[group]]))
+    ft <- flextable::bold(ft, i = grp_rows, part = "body")
+    ft <- flextable::bg(ft, i = grp_rows, bg = "#EDEDED", part = "body")
+  } else {
+    ft <- flextable::flextable(df)
+  }
+  ft <- flextable::font(ft, fontname = "Times New Roman", part = "all")
+  ft <- flextable::fontsize(ft, size = font_size, part = "all")
+  if (!is.null(mono)) { # Consolas looks larger than Times at the same size
+    ft <- flextable::font(ft, j = mono, fontname = "Consolas", part = "body")
+    ft <- flextable::fontsize(ft, j = mono, size = font_size - 1, part = "body")
+  }
+  ft <- flextable::bold(ft, part = "header")
+  ft <- flextable::valign(ft, valign = "top", part = "body")
+  ft <- flextable::padding(ft, padding.top = 1, padding.bottom = 1, part = "all")
+  ft <- flextable::set_table_properties(ft, layout = "fixed")
+  flextable::width(ft, width = widths)
+}
+
 md_units <- function(x, latex = knitr::is_latex_output()) {
-    x[is.na(x)] <- ""
-    if (latex) {
-        x <- gsub("([$%&_#])", "\\\\\\1", x)
-        x <- gsub("\\^([^^]+)\\^", "\\\\textsuperscript{\\1}", x)
-        gsub("~([^~]+)~", "\\\\textsubscript{\\1}", x)
-    } else {
-        x <- gsub("\\^([^^]+)\\^", "<sup>\\1</sup>", x)
-        gsub("~([^~]+)~", "<sub>\\1</sub>", x)
-    }
+  x[is.na(x)] <- ""
+  if (is_docx) return(x) # Pandoc markup renders directly in Word (pipe tables)
+  if (latex) {
+    x <- gsub("([$%&_#])", "\\\\\\1", x)
+    x <- gsub("\\^([^^]+)\\^", "\\\\textsuperscript{\\1}", x)
+    gsub("~([^~]+)~", "\\\\textsubscript{\\1}", x)
+  } else {
+    x <- gsub("\\^([^^]+)\\^", "<sup>\\1</sup>", x)
+    gsub("~([^~]+)~", "<sub>\\1</sub>", x)
+  }
 }
 
 # Filter out rows that shouldn't be displayed
 # Exclude Constants, Control Flags, and some spatial metrics
 display_df <- raw_params |>
-    filter(!(category %in% c("Constants", "Control Flags"))) |>
-    filter(!(name %in% c(
-        "avg_dist", "collection_radius", "dist_offshore", "dist_onshore", "dist_sink_km", "dist_sink_saline_km", "feedstock_cost", "plant_sizes_mw_th", "flat_ci_tCO2_GJ", "rebound",
-        # BEBCS heat mode: optional, not used in the results (see Discussion)
-        "bebcs_heat_capital_cost", "bebcs_heat_efficiency", "bebcs_heat_life", "bebcs_heat_om_factor",
-        "heat_price", "heat_boiler_ci", "heat_pump_cop", "heat_offtake"
-    ))) |>
-    select(
-        Category = category,
-        Parameter = name,
-        Description = description,
-        USA = US,
-        Europe = Europe,
-        China = China,
-        India = India,
-        Units = units
-    ) |>
-    mutate(Units = md_units(Units)) |>
-    mutate(
-        # Convert NA to Spatially explicit for regional columns
-        USA = ifelse(is.na(USA), "Spatially explicit", USA),
-        Europe = ifelse(is.na(Europe), "Spatially explicit", Europe),
-        China = ifelse(is.na(China), "Spatially explicit", China),
-        India = ifelse(is.na(India), "Spatially explicit", India),
-        # Add backticks to Parameter names for markdown formatting
-        Parameter = paste0("`", Parameter, "`")
-    ) |>
-    # Arrange by Category
-    arrange(Category)
+  filter(!(category %in% c("Constants", "Control Flags"))) |>
+  filter(!(name %in% c(
+    "avg_dist", "collection_radius", "dist_offshore", "dist_onshore", "dist_sink_km", "dist_sink_saline_km", "feedstock_cost", "plant_sizes_mw_th", "flat_ci_tCO2_GJ", "rebound",
+    # BEBCS heat mode: optional, not used in the results (see Discussion)
+    "bebcs_heat_capital_cost", "bebcs_heat_efficiency", "bebcs_heat_life", "bebcs_heat_om_factor",
+    "heat_price", "heat_boiler_ci", "heat_pump_cop", "heat_offtake"
+  ))) |>
+  select(
+    Category = category,
+    Parameter = name,
+    Description = description,
+    USA = US,
+    Europe = Europe,
+    China = China,
+    India = India,
+    Units = units
+  ) |>
+  mutate(Units = md_units(Units)) |>
+  mutate(
+    # Convert NA to Spatially explicit for regional columns
+    USA = ifelse(is.na(USA), "Spatially explicit", USA),
+    Europe = ifelse(is.na(Europe), "Spatially explicit", Europe),
+    China = ifelse(is.na(China), "Spatially explicit", China),
+    India = ifelse(is.na(India), "Spatially explicit", India),
+    # Add backticks to Parameter names for markdown formatting
+    Parameter = paste0("`", Parameter, "`")
+  ) |>
+  # Arrange by Category
+  arrange(Category)
 
 # Identify rows where all regional values are identical
 is_uniform <- with(display_df, !is.na(USA) & USA == Europe & Europe == China & China == India & USA != "Spatially explicit")
@@ -666,38 +634,44 @@ display_df$Europe[is_uniform] <- ""
 display_df$China[is_uniform] <- ""
 display_df$India[is_uniform] <- ""
 
-gt(display_df, groupname_col = "Category") |>
+if (is_docx) {
+  # Word: flextable with a heading row per category (gt output does not survive the Word conversion)
+  word_table(transform(display_df, Parameter = gsub("`", "", Parameter)),
+    widths = c(1.2, 2.1, 0.65, 0.6, 0.6, 0.6, 0.75), group = "Category", mono = "Parameter")
+} else {
+  gt(display_df, groupname_col = "Category") |>
     tab_spanner(
-        label = "Value",
-        columns = c(USA, Europe, China, India)
+      label = "Value",
+      columns = c(USA, Europe, China, India)
     ) |>
     cols_label(
-        Parameter = "Parameter",
-        Description = "Description",
-        USA = "USA/Default",
-        Europe = "Europe",
-        China = "China",
-        India = "India",
-        Units = "Units"
+      Parameter = "Parameter",
+      Description = "Description",
+      USA = "USA/Default",
+      Europe = "Europe",
+      China = "China",
+      India = "India",
+      Units = "Units"
     ) |>
     cols_width(
-        Parameter ~ pct(18),
-        Description ~ pct(24),
-        USA ~ pct(12),
-        Europe ~ pct(10),
-        China ~ pct(10),
-        India ~ pct(10),
-        Units ~ pct(16)
+      Parameter ~ pct(18),
+      Description ~ pct(24),
+      USA ~ pct(12),
+      Europe ~ pct(10),
+      China ~ pct(10),
+      India ~ pct(10),
+      Units ~ pct(16)
     ) |>
     fmt_markdown(columns = c(Category, Parameter, Description, USA, Europe, China, India)) |>
     fmt_passthrough(columns = Units, escape = FALSE) |>
     tab_options(
-        table.font.size = px(9),
-        data_row.padding = px(2),
-        row_group.font.weight = "bold",
-        latex.use_longtable = TRUE,
-        latex.header_repeat = TRUE
+      table.font.size = px(9),
+      data_row.padding = px(2),
+      row_group.font.weight = "bold",
+      latex.use_longtable = TRUE,
+      latex.header_repeat = TRUE
     )
+}
 ```
 
 # FIGURES
@@ -802,65 +776,70 @@ library(kableExtra)
 raw <- read.csv("../BiocharAG/inst/extdata/parameters.csv", check.names = FALSE, na.strings = "")
 regions <- c("US", "Europe", "China", "India")
 fmt_num <- function(x) {
-    v <- suppressWarnings(as.numeric(x))
-    ifelse(is.na(v), as.character(x), format(signif(v, 4), scientific = FALSE, drop0trailing = TRUE, trim = TRUE))
+  v <- suppressWarnings(as.numeric(x))
+  ifelse(is.na(v), as.character(x), format(signif(v, 4), scientific = FALSE, drop0trailing = TRUE, trim = TRUE))
 }
 fmt_num1 <- function(x) vapply(x, fmt_num, character(1), USE.NAMES = FALSE)
 # Split a bound such as "0.85;India=0.5" into its base value and regional overrides
 parse_bound <- function(b) {
-    parts <- strsplit(as.character(b), ";", fixed = TRUE)[[1]]
-    ov <- if (length(parts) > 1) {
-        kv <- do.call(rbind, strsplit(parts[-1], "=", fixed = TRUE))
-        stats::setNames(kv[, 2], kv[, 1])
-    } else {
-        character(0)
-    }
-    list(base = parts[1], ov = ov)
+  parts <- strsplit(as.character(b), ";", fixed = TRUE)[[1]]
+  ov <- if (length(parts) > 1) {
+    kv <- do.call(rbind, strsplit(parts[-1], "=", fixed = TRUE))
+    stats::setNames(kv[, 2], kv[, 1])
+  } else {
+    character(0)
+  }
+  list(base = parts[1], ov = ov)
 }
 fmt_range <- function(lo, hi, rel) {
-    a <- parse_bound(lo)
-    b <- parse_bound(hi)
-    unit <- if (rel) " × central" else ""
-    out <- paste0(fmt_num(a$base), "–", fmt_num(b$base), unit)
-    ovr <- union(names(a$ov), names(b$ov))
-    if (length(ovr)) {
-        extra <- vapply(ovr, function(r) {
-            l <- if (r %in% names(a$ov)) a$ov[[r]] else a$base
-            h <- if (r %in% names(b$ov)) b$ov[[r]] else b$base
-            paste0(r, " ", fmt_num(l), "–", fmt_num(h))
-        }, character(1))
-        out <- paste0(out, " (", paste(extra, collapse = "; "), ")")
-    }
-    out
+  a <- parse_bound(lo)
+  b <- parse_bound(hi)
+  unit <- if (rel) " × central" else ""
+  out <- paste0(fmt_num(a$base), "–", fmt_num(b$base), unit)
+  ovr <- union(names(a$ov), names(b$ov))
+  if (length(ovr)) {
+    extra <- vapply(ovr, function(r) {
+      l <- if (r %in% names(a$ov)) a$ov[[r]] else a$base
+      h <- if (r %in% names(b$ov)) b$ov[[r]] else b$base
+      paste0(r, " ", fmt_num(l), "–", fmt_num(h))
+    }, character(1))
+    out <- paste0(out, " (", paste(extra, collapse = "; "), ")")
+  }
+  out
 }
 central <- function(row) {
-    v <- unlist(row[regions])
-    if (all(is.na(v))) {
-        return(paste0(fmt_num(row[["default_value"]]), " (spatial)"))
-    }
-    if (length(unique(v)) == 1) {
-        return(fmt_num(v[1]))
-    }
-    paste(paste(regions, fmt_num1(v)), collapse = "; ")
+  v <- unlist(row[regions])
+  if (all(is.na(v))) {
+    return(paste0(fmt_num(row[["default_value"]]), " (spatial)"))
+  }
+  if (length(unique(v)) == 1) {
+    return(fmt_num(v[1]))
+  }
+  paste(paste(regions, fmt_num1(v)), collapse = "; ")
 }
 
 mc <- raw |>
-    filter(!is.na(distribution), distribution != "none") |>
-    arrange(category, name)
+  filter(!is.na(distribution), distribution != "none") |>
+  arrange(category, name)
 esc <- if (knitr::is_latex_output()) function(x) gsub("([$%&_#])", "\\\\\\1", x) else identity # escape = FALSE below
 tab <- data.frame(
-    Parameter = esc(mc$name),
-    Description = esc(mc$description),
-    Units = md_units(mc$units),
-    Central = vapply(seq_len(nrow(mc)), function(i) central(mc[i, ]), character(1)),
-    Dist. = tools::toTitleCase(mc$distribution),
-    Range = vapply(seq_len(nrow(mc)), function(i) fmt_range(mc$dist_min[i], mc$dist_max[i], mc$dist_bounds[i] == "relative"), character(1))
+  Parameter = esc(mc$name),
+  Description = esc(mc$description),
+  Units = md_units(mc$units),
+  Central = vapply(seq_len(nrow(mc)), function(i) central(mc[i, ]), character(1)),
+  Dist. = tools::toTitleCase(mc$distribution),
+  Range = vapply(seq_len(nrow(mc)), function(i) fmt_range(mc$dist_min[i], mc$dist_max[i], mc$dist_bounds[i] == "relative"), character(1))
 )
 grp <- rle(mc$category)
-k <- kbl(tab,
+if (is_docx) {
+  # Word: flextable with a heading row per category (kableExtra styling is HTML/LaTeX only)
+  word_table(cbind(Category = mc$category, tab), widths = c(1.25, 1.9, 0.8, 1.05, 0.55, 0.95),
+    group = "Category", mono = "Parameter")
+} else {
+  k <- kbl(tab,
     format = if (knitr::is_latex_output()) "latex" else "html", booktabs = TRUE, longtable = TRUE,
     escape = FALSE, row.names = FALSE
-) |>
+  ) |>
     kable_styling(latex_options = c("repeat_header"), font_size = 7) |>
     column_spec(1, width = "3.3cm", monospace = TRUE) |>
     column_spec(2, width = "4.1cm") |>
@@ -868,14 +847,15 @@ k <- kbl(tab,
     column_spec(4, width = "2.2cm") |>
     column_spec(5, width = "0.9cm") |>
     column_spec(6, width = "2.6cm")
-start <- 1
-for (g in seq_along(grp$lengths)) {
+  start <- 1
+  for (g in seq_along(grp$lengths)) {
     grp_label <- md_units(grp$values[g])
     if (knitr::is_latex_output()) grp_label <- gsub("\\\\&", "\\\\\\\\&", grp_label)
     k <- pack_rows(k, grp_label, start, start + grp$lengths[g] - 1, escape = FALSE)
     start <- start + grp$lengths[g]
+  }
+  k
 }
-k
 ```
 
 ```{r}
@@ -887,14 +867,18 @@ k
 corr <- read.csv("../BiocharAG/inst/extdata/parameter_correlations.csv", check.names = FALSE)
 esc_c <- function(x) if (knitr::is_latex_output()) gsub("_", "\\\\_", x) else x
 tab_c <- data.frame(
-    `Parameter 1` = esc_c(corr$param_a), `Parameter 2` = esc_c(corr$param_b),
-    `Correlation` = sprintf("%.2f", corr$rho), Rationale = corr$rationale, check.names = FALSE
+  `Parameter 1` = esc_c(corr$param_a), `Parameter 2` = esc_c(corr$param_b),
+  `Correlation` = sprintf("%.2f", corr$rho), Rationale = corr$rationale, check.names = FALSE
 )
-kbl(tab_c, format = if (knitr::is_latex_output()) "latex" else "html", booktabs = TRUE, escape = FALSE, row.names = FALSE) |>
+if (knitr::pandoc_to("docx")) {
+  word_table(tab_c, widths = c(1.45, 1.45, 0.7, 2.9), mono = c("Parameter 1", "Parameter 2"))
+} else {
+  kbl(tab_c, format = if (knitr::is_latex_output()) "latex" else "html", booktabs = TRUE, escape = FALSE, row.names = FALSE) |>
     kable_styling(font_size = 7) |>
     column_spec(1:2, width = "3.3cm", monospace = TRUE) |>
     column_spec(3, width = "1.4cm") |>
     column_spec(4, width = "6.5cm")
+}
 ```
 
 ```{r}
@@ -905,38 +889,42 @@ kbl(tab_c, format = if (knitr::is_latex_output()) "latex" else "html", booktabs 
 #| tbl-cap: "Share of the mean absolute SHAP value (%) of each input in the regional regression models (@fig-shap-importance), and the share of variance each model explains in held-out cells. A dash marks an input that the model does not use or that is constant within the region."
 imp <- read.csv("results/spatial_shap/shap_importance.csv")
 targets <- c(
-    be_PyCCS = "Break-even price, PyCCS", be_BECCS = "Break-even price, BECCS",
-    n0_BE = "Net value of BE at zero carbon price", takeover_BECCS = "BECCS takeover price"
+  be_PyCCS = "Break-even price, PyCCS", be_BECCS = "Break-even price, BECCS",
+  n0_BE = "Net value of BE at zero carbon price", takeover_BECCS = "BECCS takeover price"
 )
 labs <- c(
-    dist_BE_base = "Collection distance, BE (base load)", dist_BE_flex = "Collection distance, BE (flexible)",
-    dist_BECCS = "Collection distance, BECCS", dist_PyCCS = "Collection distance, PyCCS",
-    haul_mult = "Haulage cost multiplier", feedstock_cost = "Feedstock cost", elec_price = "Electricity price",
-    ff_c_intensity = "Grid carbon intensity", soil_ph = "Soil pH", burn_frac = "Share of residue burned",
-    soil_temp = "Soil temperature", soil_cec = "Soil CEC", bc_supply = "Biochar supply per hectare",
-    crop_value = "Crop value per hectare", co2_route_km = "CO~2~ route length", co2_offshore = "Offshore CO~2~ sink",
-    co2_storage_cost = "CO~2~ storage cost"
+  dist_BE_base = "Collection distance, BE (base load)", dist_BE_flex = "Collection distance, BE (flexible)",
+  dist_BECCS = "Collection distance, BECCS", dist_PyCCS = "Collection distance, PyCCS",
+  haul_mult = "Haulage cost multiplier", feedstock_cost = "Feedstock cost", elec_price = "Electricity price",
+  ff_c_intensity = "Grid carbon intensity", soil_ph = "Soil pH", burn_frac = "Share of residue burned",
+  soil_temp = "Soil temperature", soil_cec = "Soil CEC", bc_supply = "Biochar supply per hectare",
+  crop_value = "Crop value per hectare", co2_route_km = "CO~2~ route length", co2_offshore = "Offshore CO~2~ sink",
+  co2_storage_cost = "CO~2~ storage cost"
 )
 regions <- c("US", "Europe", "China", "India")
 rows <- list()
 for (tg in names(targets)) {
-    s <- imp[imp$target == tg, ]
-    for (f in names(labs)[names(labs) %in% s$feature]) {
-        v <- vapply(regions, function(r) {
-            x <- s$share_pct[s$region == r & s$feature == f]
-            if (length(x)) sprintf("%.1f", x) else "–"
-        }, character(1))
-        rows[[length(rows) + 1]] <- c(targets[[tg]], labs[[f]], v)
-    }
-    r2 <- vapply(regions, function(r) {
-        x <- s$holdout_r2[s$region == r]
-        if (length(x)) sprintf("%.3f", x[1]) else "–"
+  s <- imp[imp$target == tg, ]
+  for (f in names(labs)[names(labs) %in% s$feature]) {
+    v <- vapply(regions, function(r) {
+      x <- s$share_pct[s$region == r & s$feature == f]
+      if (length(x)) sprintf("%.1f", x) else "–"
     }, character(1))
-    rows[[length(rows) + 1]] <- c(targets[[tg]], "Held-out R^2^", r2)
+    rows[[length(rows) + 1]] <- c(targets[[tg]], labs[[f]], v)
+  }
+  r2 <- vapply(regions, function(r) {
+    x <- s$holdout_r2[s$region == r]
+    if (length(x)) sprintf("%.3f", x[1]) else "–"
+  }, character(1))
+  rows[[length(rows) + 1]] <- c(targets[[tg]], "Held-out R^2^", r2)
 }
 tab <- as.data.frame(do.call(rbind, rows))
 names(tab) <- c("Quantity", "Input", regions)
-knitr::kable(tab, format = "pipe", row.names = FALSE, align = c("l", "l", rep("r", length(regions)))) # pipe: Pandoc renders CO~2~
+if (knitr::pandoc_to("docx")) {
+  word_table(tab, widths = c(2.5, 1, 1, 1, 1), group = "Quantity")
+} else {
+  knitr::kable(tab, format = "pipe", row.names = FALSE, align = c("l", "l", rep("r", length(regions)))) # pipe: Pandoc renders CO~2~
+}
 ```
 
 ## Supplementary figures {.unnumbered}
@@ -956,19 +944,19 @@ knitr::kable(tab, format = "pipe", row.names = FALSE, align = c("l", "l", rep("r
 #| results: asis
 dep <- list.files("results/spatial_shap", pattern = "^dependence_.*\\.png$")
 targets <- c(
-    be_PyCCS = "the break-even carbon price of PyCCS", be_BECCS = "the break-even carbon price of BECCS",
-    n0_BE = "the net value of BE without a carbon price", takeover_BECCS = "the carbon price at which BECCS takes over"
+  be_PyCCS = "the break-even carbon price of PyCCS", be_BECCS = "the break-even carbon price of BECCS",
+  n0_BE = "the net value of BE without a carbon price", takeover_BECCS = "the carbon price at which BECCS takes over"
 )
 regions <- c(US = "United States", Europe = "Europe", China = "China", India = "India")
 for (tg in names(targets)) {
-    for (r in names(regions)) {
-        f <- sprintf("dependence_%s_%s.png", tg, r)
-        if (!f %in% dep) next
-        lab <- tolower(gsub("_", "-", sprintf("fig-si-dep-%s-%s", tg, r)))
-        cat(sprintf(
-            "![SHAP dependence plots for %s, %s: SHAP value of each input, in the units of that quantity, against the input value, for inputs with at least 2%% of the mean absolute SHAP value.](results/spatial_shap/%s){#%s width=\"100%%\"}\n\n",
-            targets[[tg]], regions[[r]], f, lab
-        ))
-    }
+  for (r in names(regions)) {
+    f <- sprintf("dependence_%s_%s.png", tg, r)
+    if (!f %in% dep) next
+    lab <- tolower(gsub("_", "-", sprintf("fig-si-dep-%s-%s", tg, r)))
+    cat(sprintf(
+      "![SHAP dependence plots for %s, %s: SHAP value of each input, in the units of that quantity, against the input value, for inputs with at least 2%% of the mean absolute SHAP value.](results/spatial_shap/%s){#%s width=\"100%%\"}\n\n",
+      targets[[tg]], regions[[r]], f, lab
+    ))
+  }
 }
 ```

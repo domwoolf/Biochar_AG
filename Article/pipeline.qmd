@@ -1,0 +1,139 @@
+---
+title: "C-SCAPE model pipeline"
+subtitle: "Runs the model steps whose inputs have changed and writes their outputs to results/ for BiomassTEA.qmd"
+date: last-modified
+format:
+  html:
+    toc: false
+    embed-resources: false
+execute:
+  echo: false
+  warning: false
+---
+
+Each step below is a cached chunk that runs in its own R process (scripts/ run from the repository root)
+and reruns only when the files it depends on change. Render this document on demand
+(`quarto render pipeline.qmd`, or with `MC_RUN=none|quick|revision|full` to skip the run-size dialog);
+then render `BiomassTEA.qmd`, which only reads the files in `results/`. Logs are in `results/logs/`.
+
+```{r pipeline-setup}
+#| include: false
+# Model pipeline: each step below is a cached chunk that runs in its own R process.
+# Fingerprints are content hashes for code and parameters (stable across git checkouts) and size + modification time for the large, untracked GIS layers. Logs go to results/logs/.
+repo <- normalizePath("..")
+fig_scenarios <- c("default") # scenarios for the main figures (see scripts/run_analyses.R)
+
+# Monte Carlo run size, asked at the start of every render:
+#  - none (do not run; downstream steps use the existing results),
+#  - quick (100 draws per region on a 25% cell sample; smoke test),
+#  - revision (2,000 draws, 25% of cells) or
+#  - full (5,000 draws, all cells; production).
+# Without a display, set the environment variable MC_RUN. The MC chunk only reruns when the model changes or the run size differs from the cached run.
+mc_choice <- Sys.getenv("MC_RUN")
+if (!nzchar(mc_choice)) {
+  if (!capabilities("tcltk") || !nzchar(Sys.getenv("DISPLAY"))) stop("No display for the Monte Carlo dialog: set MC_RUN to none, quick, revision or full.")
+  mc_choice <- tcltk::tk_select.list(c("none", "quick", "revision", "full"), preselect = "none", title = "Monte Carlo run size")
+}
+if (!mc_choice %in% c("none", "quick", "revision", "full")) stop("Monte Carlo run size not chosen; render cancelled.")
+message("Monte Carlo run size: ", mc_choice)
+
+files_in <- function(paths) {
+  paths <- file.path(repo, paths)
+  f <- unlist(lapply(paths, function(p) if (dir.exists(p)) list.files(p, recursive = TRUE, full.names = TRUE) else p))
+  sort(f[file.exists(f)])
+}
+fp_hash <- function(...) unname(tools::md5sum(files_in(c(...)))) # content hash
+fp_stat <- function(...) { # size + mtime, for large untracked data
+  i <- file.info(files_in(c(...)))
+  paste(basename(rownames(i)), i$size, as.numeric(i$mtime))
+}
+fp_model <- function() {
+  list(fp_hash(
+    "BiocharAG/R", "BiocharAG/inst/extdata", "BiocharAG/DESCRIPTION",
+    "scripts/manuscript_figures.R"
+  ), fp_stat("GIS/processed"))
+}
+
+# vars: named list of settings assigned in the subprocess's global environment before code runs
+# (the subprocess does not see this document's variables). List them in the chunk's cache.extra too.
+run_step <- function(name, code, vars = list()) {
+  if (name %in% "mc_analysis") vars <- utils::modifyList(vars, list(mc_size = mc_choice))
+  dir.create(file.path(repo, "results", "logs"), showWarnings = FALSE, recursive = TRUE)
+  log <- file.path(repo, "results", "logs", paste0(name, ".log"))
+  callr::r(function(code, repo, vars) {
+    setwd(repo)
+    list2env(vars, envir = globalenv())
+    eval(parse(text = code), envir = globalenv())
+  }, args = list(code = code, repo = repo, vars = vars), wd = repo, stdout = log, stderr = "2>&1")
+  invisible(Sys.time())
+}
+```
+
+```{r pipeline-figures}
+#| include: false
+#| cache: true
+#| cache.extra: !expr list(fp_model(), fig_scenarios)
+run_step("figures", 'source("scripts/manuscript_figures.R"); run_all_manuscript_figures(save_map = TRUE)',
+  vars = list(.regions = c("US", "China", "Europe", "India"), .scenarios = fig_scenarios)
+)
+```
+
+```{r pipeline-components}
+#| include: false
+#| cache: true
+#| cache.extra: !expr list(fp_model(), fp_hash("scripts/results_components.R"))
+run_step("components", 'source("scripts/results_components.R")')
+```
+
+```{r pipeline-variants}
+#| include: false
+#| cache: true
+#| cache.extra: !expr list(fp_model(), fp_hash("scripts/variant_sweeps.R"))
+run_step("variants", 'source("scripts/variant_sweeps.R")')
+```
+
+```{r pipeline-mc}
+#| include: false
+#| cache: true
+#| eval: !expr mc_choice != "none"
+#| cache.extra: !expr list(fp_model(), fp_hash("scripts/mc_analysis.R"), mc_choice)
+run_step("mc_analysis", 'source("scripts/mc_analysis.R")')
+```
+
+```{r pipeline-mc-shap}
+#| include: false
+#| cache: true
+#| cache.extra: !expr list(fp_hash("scripts/MC_shap.R", "results/mc_analysis_results.csv"))
+run_step("mc_shap", 'source("scripts/MC_shap.R"); run_mc_shap()')
+```
+
+```{r pipeline-spatial-shap}
+#| include: false
+#| cache: true
+#| cache.extra: !expr list(fp_model(), fp_hash("scripts/spatial_shap.R"))
+run_step("spatial_shap", 'source("scripts/spatial_shap.R")')
+```
+
+```{r pipeline-heat}
+#| include: false
+#| cache: true
+#| cache.extra: !expr list(fp_model(), fp_hash("scripts/heat_sensitivity.R"))
+run_step("heat_sensitivity", 'source("scripts/heat_sensitivity.R")')
+```
+
+## Status of the results
+
+```{r status}
+#| echo: false
+#| results: asis
+steps <- c(figures = "results/ai_summaries/macc_data_default.csv", components = "results/ai_summaries/per_tonne_components.csv",
+           variants = "results/ai_summaries/variant_summary.csv", mc_analysis = "results/mc_analysis_results.csv",
+           mc_shap = "results/mc_shap/mc_shap_importance.csv", spatial_shap = "results/ai_summaries/spatial_shap_importance.csv",
+           heat_sensitivity = "results/ai_summaries/heat_sensitivity_quantiles.csv")
+info <- file.info(file.path(repo, steps))
+mc_log <- file.path(repo, "results/logs/mc_analysis.log")
+mc_size <- if (file.exists(mc_log)) sub(".*run size '([a-z]+)'.*", "\\1", grep("run size", readLines(mc_log), value = TRUE)[1]) else NA
+print(knitr::kable(data.frame(Step = names(steps), Output = steps, Updated = format(info$mtime, "%Y-%m-%d %H:%M"),
+                              row.names = NULL), format = "pipe"))
+cat("\n\nMonte Carlo run size of the current results: ", mc_size, "\n")
+```

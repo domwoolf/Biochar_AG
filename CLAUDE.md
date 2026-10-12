@@ -72,7 +72,7 @@ Avoid bulleted or numbered lists and bold run-in labels ("**The Feeder Leg:**") 
 
 - Every number in the abstract, Results, Discussion and captions must match the current parameter table or rendered outputs. Where practical, insert values with inline R (`` `r ...` ``) drawn from `parameters.csv` or `results/`, rather than typing them.
 - When you change a parameter or method, list in your reply every sentence whose numbers or qualitative claims may now be stale. If you cannot verify a number without rerunning the model, leave it and mark it `<!-- STALE: depends on <change>; rerun <step> -->`.
-- Do not render the full document unless asked: stale pipeline chunks rerun the model. If you must render to check LaTeX, set `MC_RUN=none`.
+- The model runs only in `Article/pipeline.qmd` (rendered on demand; cached steps write to `results/`). `BiomassTEA.qmd` only reads `results/` and renders in under a minute to PDF or Word (`quarto render BiomassTEA.qmd --to docx`). Do not render `pipeline.qmd` unless asked.
 
 ## 8. Before/after examples from this manuscript
 

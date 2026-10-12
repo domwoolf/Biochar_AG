@@ -31,3 +31,8 @@ BiocharAG/data-raw/ember_us_yearly_full_release_long_format.csv
 Article/*.rmarkdown
 Article/BiomassTEA.pdf
 Article/BiomassTEA.tex
+Article/BiomassTEA.docx
+Article/pipeline.html
+Article/pipeline_cache/
+Article/pipeline_files/
+Article/BiomassTEA_cache/
