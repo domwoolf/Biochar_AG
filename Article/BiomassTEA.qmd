@@ -1,13 +1,11 @@
 ---
 title: "Coordinating biochar and geological storage for biomass based carbon dioxide removal"
 date: last-modified
-abstract: |
-  Crop residues are a large source of biomass for carbon dioxide removal that does not compete for land, but whether they should be pyrolyzed to biochar or used for bioenergy with carbon capture and storage (BECCS) is unresolved. We compared bioenergy (BE), BECCS and pyrolysis with soil application of biochar (pyrogenic carbon capture and storage, PyCCS) in every 0.1° grid cell of the United States, Europe, China and India, accounting for the effects of biochar on crops, CO~2~ transport networks and the decarbonization of electricity grids. PyCCS is the least-cost use of residues at moderate carbon prices, abating about 650 Tg CO~2~e yr^-1^ at 100 US\$ per megagram of CO~2~. BECCS takes over at 130–210 US\$ per megagram and doubles the removal per megagram of residue, but it requires large plants and shared CO~2~ pipelines. Bioenergy without carbon capture is rarely the best use. Strategies for carbon removal from residues should plan the transition from biochar to geological storage.
-  <!-- STALE: abstract numbers typed from the revision render; check against the production run -->
 bibliography: references.bib
 csl: science.csl
 # Model results are produced by pipeline.qmd (render it on demand); this document only reads results/
 filters:
+  - abstract-section
   - runin-headings.lua
   - docx-comments.lua
 link-citations: true
@@ -56,21 +54,9 @@ format:
     fig-align: center
 ---
 
-# INTRODUCTION
-
-Limiting global warming to below 2 °C requires carbon dioxide removal (CDR) to counterbalance residual greenhouse gas emissions and reach net-negative emissions later in the century [@unfccc2015paris; @ipcc2022wg3]. Biomass can supply carbon removal, but dedicated bioenergy crops compete directly with food production and natural ecosystems for arable land [@fuss2018]. Crop residues avoid this competition: sustainably harvestable residues, after retaining suffient to prevent soil erosion, offer an abundant, spatially dispersed carbon feedstock [@karan2023]. Because this residue resource is strictly finite, allocating it across competing climate mitigation technologies is a critical optimization challenge.
-
-Three thermochemical pathways compete for agricultural residues. Bioenergy (BE) combusts residues to generate electricity, abating emissions only by displacing fossil power generation before its biogenic carbon returns to the atmosphere. Bioenergy with carbon capture and storage (BECCS) captures this combustion CO~2~ and injects it into deep geological formations, isolating roughly 90% of feedstock carbon from the active atmosphere [@fuss2018]. Pyrogenic carbon capture and storage (PyCCS) pyrolyzes biomass into biochar for soil application, stabilizing 35–42% of the carbon for centuries while exporting surplus energy [@schmidt2019pyccs; @woolf2010; @lehmann2021biochar]. Each approach presents distinct trade-offs. BE requires no CO~2~ disposal infrastructure, but its climate benefit erodes as electricity grids decarbonize. BECCS achieves roughly double the net carbon removal per megagram of biomass compared to pyrolysis [@woolf2016], yet it is capital-intensive and requires access to shared CO~2~ pipeline networks and certified geological sinks. PyCCS avoids CO~2~ transport networks and can raise crop yields, neutralize soil acidity, and supply mineral nutrients, but it sequesters less carbon per unit of feedstock. Which technology delivers the greatest net benefit depends on local soil chemistry, crop values, power prices, grid emission intensities, and proximity to geological storage [@woolf2016].
-
-Current climate policy scenarios do not resolve this geographic and economic competition. Integrated assessment models (IAMs) rely predominantly on BECCS for engineered carbon removal and rarely represent biochar systems [@ipcc2022wg3; @edwards2026state]. Operating across coarse geopolitical regions, IAMs cannot represent the fine-scale heterogeneity in soils, energy grids, and transport logistics that governs technology performance. Conversely, bottom-up life-cycle assessments typically evaluate single technologies in isolation [@roe2021] or examine localized facility case studies [@peters2015; @lefebvre2021]. By assessing pathways independently without forcing them to compete for the same feedstock base, existing studies cannot determine where or at what carbon price one pathway should yield to another.
-
-Here, we reconcile single-facility assessments and global economic models through a bottom-up, spatially explicit comparison of BE, BECCS, and PyCCS. We analyze sustainably-available crop residues across the coterminous United States, Europe, China, and India at 0.1° resolution. These four regions capture diverse agricultural soils, energy market structures, and geological storage geology. At each grid cell, we evaluate the net economic value and greenhouse gas abatement of each pathway across a broad range of carbon prices, allocating residue to the technology with the highest net value. The optimization incorporates localized residue collection logistics, crop yield and soil N~2~O responses to biochar, cost-minimized CO~2~ pipeline routes to characterized geological basins, and price-dependent electricity grid decarbonization. This framework establishes the least-cost spatial allocation of crop residues, reveals the environmental and infrastructural thresholds that govern technology transitions, and quantifies the parametric uncertainties that determine deployment strategy.
-
-# RESULTS
-
 ```{r results-values}
 #| include: false
-# Numbers quoted in the Results, computed from the model outputs (results/ai_summaries, results/mc_*)
+# Numbers quoted in the Abstract and Results, computed from the model outputs (results/ai_summaries, results/mc_*)
 suppressPackageStartupMessages(library(data.table))
 tl <- c(BES = "BE", BECCS = "BECCS", BEBCS = "PyCCS")
 ev <- fread("results/ai_summaries/evaporation_grid_summary_default.csv")[, tech := tl[technology]]
@@ -104,7 +90,25 @@ f2 <- function(x) format(round(x, 2), nsmall = 2)
 rng0 <- function(x) paste0(f0(min(x)), "–", f0(max(x)))
 rng2 <- function(x) paste0(f2(min(x)), "–", f2(max(x)))
 R4 <- c("US", "Europe", "China", "India")
+# Ratio of carbon stored by BECCS to that stored by PyCCS, per megagram of residue
+st_ratio <- comp(R4, "BECCS", "carbon_stored") / comp(R4, "PyCCS", "carbon_stored")
 ```
+
+# Abstract
+
+Crop residues are a large source of biomass for carbon dioxide removal that does not compete for land, but whether they should be pyrolyzed to biochar or used for bioenergy with carbon capture and storage (BECCS) is unresolved. We compared bioenergy (BE), BECCS and pyrolysis with soil application of biochar (pyrogenic carbon capture and storage, PyCCS) in every 0.1° grid cell of the United States, Europe, China and India, accounting for the effects of biochar on crops, CO~2~ transport networks and the decarbonization of electricity grids. PyCCS is the least-cost use of residues at moderate carbon prices, abating about `r f0(round(ab(R4, 100, "PyCCS"), -1))` Tg CO~2~e yr^-1^ at 100 US\$ per megagram of CO~2~. BECCS takes over at `r rng0(round(mcs$to50, -1))` US\$ per megagram and stores `r f1(min(st_ratio))`–`r f1(max(st_ratio))` times as much carbon per megagram of residue, but it requires large plants and shared CO~2~ pipelines. Bioenergy without carbon capture is rarely the best use. Strategies for carbon removal from residues should plan the transition from biochar to geological storage.
+
+# INTRODUCTION
+
+Limiting global warming to below 2 °C requires carbon dioxide removal (CDR) to counterbalance residual greenhouse gas emissions and reach net-negative emissions later in the century [@unfccc2015paris; @ipcc2022wg3]. Biomass can supply carbon removal, but dedicated bioenergy crops compete directly with food production and natural ecosystems for arable land [@fuss2018]. Crop residues avoid this competition: sustainably harvestable residues, after retaining suffient to prevent soil erosion, offer an abundant, spatially dispersed carbon feedstock [@karan2023]. Because this residue resource is finite, allocating it across competing climate mitigation technologies is a critical optimization challenge.
+
+Three thermochemical pathways compete for agricultural residues. Bioenergy (BE) combusts residues to generate electricity, abating emissions only by displacing fossil power generation before its biogenic carbon returns to the atmosphere. Bioenergy with carbon capture and storage (BECCS) captures this combustion CO~2~ and injects it into deep geological formations, isolating roughly 90% of feedstock carbon from the active atmosphere [@fuss2018]. Pyrogenic carbon capture and storage (PyCCS) pyrolyzes biomass into biochar for soil application, stabilizing 35–42% of the carbon for centuries while exporting surplus energy [@schmidt2019pyccs; @woolf2010; @lehmann2021biochar]. Each approach presents distinct trade-offs. BE requires no CO~2~ disposal infrastructure, but its climate benefit erodes as electricity grids decarbonize. BECCS achieves roughly double the net carbon removal per megagram of biomass compared to pyrolysis [@woolf2016], yet it is capital-intensive and requires access to shared CO~2~ pipeline networks and certified geological sinks. PyCCS avoids CO~2~ transport networks and can raise crop yields, neutralize soil acidity, and supply mineral nutrients, but it sequesters less carbon per unit of feedstock. Which technology delivers the greatest net benefit depends on local soil chemistry, crop values, power prices, grid emission intensities, and proximity to geological storage [@woolf2016].
+
+Current climate policy scenarios do not resolve this geographic and economic competition. Integrated assessment models (IAMs) rely predominantly on BECCS for engineered carbon removal and rarely represent biochar systems [@ipcc2022wg3; @edwards2026state]. Operating across coarse geopolitical regions, IAMs cannot represent the fine-scale heterogeneity in soils, energy grids, and transport logistics that governs technology performance. Conversely, bottom-up life-cycle assessments typically evaluate single technologies in isolation [@roe2021] or examine localized facility case studies [@peters2015; @lefebvre2021]. By assessing pathways independently without forcing them to compete for the same feedstock base, existing studies cannot determine where or at what carbon price one pathway should yield to another.
+
+Here, we reconcile single-facility assessments and global economic models through a bottom-up, spatially explicit comparison of BE, BECCS, and PyCCS. We analyze sustainably-available crop residues across the coterminous United States, Europe, China, and India at 0.1° resolution. These four regions capture diverse agricultural soils, energy market structures, and geological storage geology. At each grid cell, we evaluate the net economic value and greenhouse gas abatement of each pathway across a broad range of carbon prices, allocating residue to the technology with the highest net value. The optimization incorporates localized residue collection logistics, crop yield and soil N~2~O responses to biochar, cost-minimized CO~2~ pipeline routes to characterized geological basins, and price-dependent electricity grid decarbonization. This framework establishes the least-cost spatial allocation of crop residues, reveals the environmental and infrastructural thresholds that govern technology transitions, and quantifies the parametric uncertainties that determine deployment strategy.
+
+# RESULTS
 
 ## Carbon storage outcompetes conventional bioenergy for crop residue utilization
 
@@ -150,8 +154,6 @@ heat <- if (file.exists("results/ai_summaries/heat_sensitivity_quantiles.csv")) 
 hd <- function(r) heat[region == r & c_price == 100, delta_p50]
 pars <- fread("../BiocharAG/inst/extdata/parameters.csv")
 py_life <- pars[name == "py_life", as.numeric(default_value)]
-# Ratio of carbon stored by BECCS to that stored by PyCCS, per megagram of residue
-st_ratio <- comp(R4, "BECCS", "carbon_stored") / comp(R4, "PyCCS", "carbon_stored")
 # Residue on which PyCCS is profitable without a carbon price at the 2% social discount rate (Tg yr-1)
 soc0_tg <- ev[region %in% c("China", "India") & dr == "social" & cp == 0 & tech == "PyCCS" & viable == TRUE, sum(biomass_Mg)] / 1e6
 # AR6 WGIII marginal abatement costs of CO2 (US$2015 per Mg CO2), escalated to 2024 with CPI-U (313.689 / 237.017)
