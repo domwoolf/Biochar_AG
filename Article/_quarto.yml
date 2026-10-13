@@ -1,0 +1,7 @@
+# Minimal project so Quarto runs the Word post-processing step after rendering.
+# Only BiomassTEA.qmd is rendered by a bare `quarto render`; pipeline.qmd is rendered on demand by name.
+project:
+  render:
+    - BiomassTEA.qmd
+  post-render:
+    - docx-figure-margins.py

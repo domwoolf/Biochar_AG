@@ -18,6 +18,48 @@ ZERO_MAR = ('<w:tblCellMar><w:left w:type="dxa" w:w="0" />'
             '<w:right w:type="dxa" w:w="0" /></w:tblCellMar>')
 
 
+# Order of tblPr children required by the WordprocessingML schema (CT_TblPr). Word desktop tolerates
+# other orders; Word Online reports the document as corrupt (e.g. flextable writes jc after tblLayout).
+TBLPR_ORDER = ["tblStyle", "tblpPr", "tblOverlap", "bidiVisual", "tblStyleRowBandSize", "tblStyleColBandSize",
+               "tblW", "jc", "tblCellSpacing", "tblInd", "tblBorders", "shd", "tblLayout", "tblCellMar", "tblLook",
+               "tblCaption", "tblDescription", "tblPrChange"]
+
+
+def _children(inner):
+    """Split the content of an element into its top-level child elements (strings)."""
+    out, pos = [], 0
+    while True:
+        m = re.compile(r"<w:(\w+)\b").search(inner, pos)
+        if not m:
+            return out
+        name, i = m.group(1), m.start()
+        tag_end = inner.index(">", i)
+        if inner[tag_end - 1] == "/":
+            end = tag_end + 1
+        else:  # find the matching close tag, allowing nested elements of the same name
+            depth, j = 1, tag_end + 1
+            while depth:
+                n = re.compile(r"<(/?)w:" + name + r"\b[^>]*?(/?)>").search(inner, j)
+                if n.group(1):
+                    depth -= 1
+                elif not n.group(2):
+                    depth += 1
+                j = n.end()
+            end = j
+        out.append((name, inner[i:end]))
+        pos = end
+
+
+def fix_order(xml):
+    """Put the children of every tblPr in schema order."""
+    def reorder(m):
+        kids = _children(m.group(1))
+        rank = {n: k for k, n in enumerate(TBLPR_ORDER)}
+        kids.sort(key=lambda c: rank.get(c[0], len(TBLPR_ORDER)))
+        return "<w:tblPr>" + "".join(c[1] for c in kids) + "</w:tblPr>"
+    return re.sub(r"<w:tblPr>(.*?)</w:tblPr>", reorder, xml, flags=re.S)
+
+
 def fix_xml(xml):
     out, pos, n = [], 0, 0
     for m in re.finditer(r"<w:tbl>", xml):
@@ -35,14 +77,18 @@ def fix_xml(xml):
         end_pr = xml.find("</w:tblPr>", start)
         tblpr = re.sub(r'<w:tblW [^>]*/>', f'<w:tblW w:type="dxa" w:w="{twips}" />', xml[start:end_pr])
         if "<w:tblCellMar>" not in tblpr:
-            tblpr += ZERO_MAR
+            # The schema fixes the order of tblPr children: tblCellMar precedes tblLook, tblCaption and
+            # tblDescription. Word Online reports the file as corrupt if it follows them.
+            later = re.search(r"<w:(tblLook|tblCaption|tblDescription)\b", tblpr)
+            at = later.start() if later else len(tblpr)
+            tblpr = tblpr[:at] + ZERO_MAR + tblpr[at:]
         grid_start = start + body.index(grid.group(0))
         grid_new = re.sub(r'w:w="\d+"', f'w:w="{twips}"', grid.group(0))
         out += [xml[pos:start], tblpr, xml[end_pr:grid_start], grid_new]
         pos = grid_start + len(grid.group(0))
         n += 1
     out.append(xml[pos:])
-    return "".join(out), n
+    return fix_order("".join(out)), n
 
 
 def fix_docx(path):
