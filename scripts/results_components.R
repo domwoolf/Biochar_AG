@@ -52,6 +52,25 @@ for (r in c("US", "Europe", "China", "India")) {
       rows[[length(rows) + 1]] <- data.frame(region = r, technology = tech, quantity = nm, value = wmean(v, bm))
     }
   }
+  # Biochar reapplication on residue allocated to PyCCS (best and viable technology at this price): biomass-
+  # weighted 10th, 50th and 90th percentiles of the interval between applications to the same field (years,
+  # = number of cohorts) and the median dose per application (Mg biochar/ha)
+  nvm <- cbind(res$BE$net_value, res$BECCS$net_value, res$PyCCS$net_value)
+  nvm[!is.finite(nvm)] <- -Inf
+  sel <- max.col(nvm, ties.method = "first") == 3 & apply(nvm, 1, max) >= 0 & is.finite(res$PyCCS$bc_cohorts)
+  wq <- function(x, w, pr) {
+    o <- order(x)
+    cw <- cumsum(w[o]) / sum(w)
+    x[o][which(cw >= pr)[1]]
+  }
+  if (any(sel)) {
+    for (pr in c(0.1, 0.5, 0.9)) {
+      rows[[length(rows) + 1]] <- data.frame(region = r, technology = "PyCCS", quantity = sprintf("reapply_interval_p%d", 100 * pr),
+                                             value = wq(res$PyCCS$bc_cohorts[sel], bm[sel], pr))
+    }
+    rows[[length(rows) + 1]] <- data.frame(region = r, technology = "PyCCS", quantity = "dose_p50",
+                                           value = wq(res$PyCCS$bc_dose_eff[sel], bm[sel], 0.5))
+  }
   # Share of biomass where PyCCS exports no energy (surplus vapours flared)
   rows[[length(rows) + 1]] <- data.frame(region = r, technology = "PyCCS", quantity = "share_no_energy",
                                          value = wmean(as.numeric(res$PyCCS$bebcs_mode == 2), bm))
