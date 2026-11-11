@@ -1,7 +1,7 @@
 # scripts/results_components.R
 # Per-tonne economics and abatement of each technology at the central regional parameters and a carbon
 # price of 100 US$/t CO2e: biomass-weighted means over all grid cells of revenues, costs and abatement
-# (per Mg dry, ash-free feedstock), including a decomposition of abatement into carbon stored, avoided soil
+# (per Mg dry, ash-free feedstock), abatement at 0 and 200 US$/t CO2e, and a decomposition of abatement into carbon stored, avoided soil
 # N2O, grid credit, residue counterfactual and emissions. Used for the explanatory numbers in the Results.
 #
 # Output: results/ai_summaries/per_tonne_components.csv (long format: region, technology, quantity, value)
@@ -70,6 +70,17 @@ for (r in c("US", "Europe", "China", "India")) {
     }
     rows[[length(rows) + 1]] <- data.frame(region = r, technology = "PyCCS", quantity = "dose_p50",
                                            value = wq(res$PyCCS$bc_dose_eff[sel], bm[sel], 0.5))
+  }
+  # Abatement per Mg at carbon prices of 0 and 200 US$/t CO2e (grid intensity displaced falls as the price rises)
+  for (cp_alt in c(0, 200)) {
+    p_alt <- p
+    p_alt$c_price <- cp_alt
+    q_alt <- cell_params(p_alt, d$vec)
+    res_alt <- list(BE = calculate_bes(q_alt), BECCS = calculate_beccs(q_alt), PyCCS = calculate_bebcs(q_alt))
+    for (tech in names(res_alt)) {
+      rows[[length(rows) + 1]] <- data.frame(region = r, technology = tech, quantity = sprintf("abatement_cp%d", cp_alt),
+                                             value = wmean(res_alt[[tech]]$tot_c_abatement, bm))
+    }
   }
   # Share of biomass where PyCCS exports no energy (surplus vapours flared)
   rows[[length(rows) + 1]] <- data.frame(region = r, technology = "PyCCS", quantity = "share_no_energy",

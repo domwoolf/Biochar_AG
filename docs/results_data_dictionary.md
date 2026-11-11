@@ -64,6 +64,7 @@ technology is best).
 | quantity | unit | meaning |
 |---|---|---|
 | `abatement` | Mg CO₂e Mg⁻¹ | net GHG abatement (eq-abatement) |
+| `abatement_cp0`, `abatement_cp200` | Mg CO₂e Mg⁻¹ | net GHG abatement at carbon prices of 0 and 200 US$ Mg⁻¹ CO₂e (displaced grid intensity falls as the price rises) |
 | `net_value` | US$ Mg⁻¹ | levelized net value at 100 US$ Mg⁻¹ CO₂e (eq-net-value) |
 | `total_cost` | US$ Mg⁻¹ | all costs |
 | `capital_cost` | US$ Mg⁻¹ | annualized CAPEX |
