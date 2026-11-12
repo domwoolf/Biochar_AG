@@ -5,3 +5,4 @@ project:
     - BiomassTEA.qmd
   post-render:
     - docx-figure-margins.py
+    - esi-split.py

@@ -1,0 +1,15 @@
+# Journal-specific settings for Energy & Environmental Science (Royal Society of Chemistry).
+# Use as `format: ees-pdf` / `ees-docx`; content and journal-agnostic options stay in BiomassTEA.qmd.
+# Citation style: numbered superscripts (Vancouver form), CSL from the Citation Style Language
+# repository (CC BY-SA 3.0).
+title: Energy & Environmental Science
+version: 1.0.0
+quarto-required: ">=1.4.0"
+contributes:
+  formats:
+    common:
+      csl: royal-society-of-chemistry.csl
+      filters:
+        - cite-after-punct.lua
+    pdf: {}
+    docx: {}

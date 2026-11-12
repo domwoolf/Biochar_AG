@@ -2,7 +2,6 @@
 title: "Coordinating biochar and geological storage for biomass based carbon dioxide removal"
 date: last-modified
 bibliography: references.bib
-csl: science.csl
 # Model results are produced by pipeline.qmd (render it on demand); this document only reads results/
 filters:
   - abstract-section
@@ -11,7 +10,7 @@ filters:
 link-citations: true
 zotero: true
 format:
-  pdf:
+  ees-pdf:
     documentclass: article
     papersize: letter
     geometry:
@@ -37,7 +36,7 @@ format:
       \affil[2]{Environmental Defense Fund}
       \affil[3]{University of Florida}
       \renewcommand\author[2][]{}
-  docx:
+  ees-docx:
     # Word copy for co-authors (comments and tracked changes); the .qmd remains the master copy
     reference-doc: reference.docx # styles: fonts, sizes, spacing, margins, line numbers (edit in Word)
     # Authors for Word (the PDF sets them in header-includes with authblk); Quarto's Word title block shows
@@ -112,7 +111,11 @@ cpi <- 313.689 / 237.017
 
 Crop residues are an abundant biomass source for carbon dioxide removal (CDR) that requires no additional land. However, the best allocation of this finite resource among removal pathways is unresolved. We compared the net costs and benefits of allocating residues to bioenergy, bioenergy with carbon capture and storage (BECCS), and pyrogenic carbon capture and storage (PyCCS; biochar applied to soil) at 0.1° spatial resolution (0.2° in the United States) across the United States, Europe, China and India. PyCCS is the least-cost removal at moderate carbon prices, mainly through its agronomic value. In China and India it is profitable without a carbon price on residue that abates about `r f0(round(ab(c("China", "India"), 0, "PyCCS"), -1))` Tg CO~2~e yr^-1^, and across the four regions it abates about `r f0(round(ab(R4, 100, "PyCCS"), -1))` Tg CO~2~e yr^-1^ at 100 US\$ Mg^-1^ CO~2~e. BECCS stores `r f1(min(st_ratio))`–`r f1(max(st_ratio))` times more carbon per megagram of residue and overtakes PyCCS at regional median prices of `r rng0(round(mcs$to50, -1))` US\$ Mg^-1^ CO~2~e, raising total abatement to about `r f0(round(ab(R4, 250), -1))` Tg CO~2~e yr^-1^ at 250 US\$ Mg^-1^ CO~2~e. These transition prices differ between regions with feedstock costs, electricity prices, crop values and distance to geological storage, so a single global cost curve would misplace both when and where each pathway is deployed. Bioenergy without carbon capture is rarely the best use of residues. Climate strategies should sequentially plan for biochar and geological storage depending on carbon price and geography, to maximize abatement while avoiding lock-in to transitional technologies.
 
-# INTRODUCTION
+# Broader context {.unnumbered}
+
+<!-- TODO (EES): broader context statement for non-specialists, up to ~200 words, if required by the journal. -->
+
+# Introduction
 
 Limiting global warming to below 2 °C requires carbon dioxide removal (CDR) to counterbalance residual greenhouse gas (GHG) emissions and reach net-negative emissions later in the century [@unfccc2015paris; @ipcc2022wg3]. Biomass can supply CDR, but dedicated bioenergy crops compete directly with food production and natural ecosystems for arable land [@fuss2018]. Crop residues avoid this competition: sustainably harvestable residues, after retaining sufficient biomass to prevent soil erosion and accounting for use as livestock feed, offer an abundant, spatially dispersed carbon feedstock [@karan2023]. Because this residue resource is finite, allocating it across competing climate mitigation technologies is a critical optimization challenge.
 
@@ -122,7 +125,11 @@ Current climate policy scenarios do not resolve this geographic and economic com
 
 Here, we reconcile single-facility assessments and global economic models through a bottom-up, spatially explicit comparison of BE, BECCS, and PyCCS. We analyze sustainably available crop residues across the coterminous United States, Europe, China, and India at 0.1° resolution (0.2° in the United States). These four regions capture diverse agricultural soils, energy market structures, and geological storage capacity. At each grid cell, we evaluate the costs, revenues and GHG abatement of each pathway across a broad range of carbon prices, allocating residue to the technology with the highest discounted net value, in which GHG abatement is valued at the carbon price. The optimization incorporates localized residue collection logistics, crop yield and soil N~2~O responses to biochar, cost-minimized CO~2~ pipeline routes to characterized geological basins, price-dependent electricity grid decarbonization, and GHG abatement. This framework establishes the least-cost spatial allocation of crop residues, reveals the environmental and infrastructural thresholds that govern technology transitions, and quantifies the parametric uncertainties that determine deployment strategy.
 
-# RESULTS
+# Modeling approach
+
+<!-- TODO (EES): ~1 page summary of the model for readers before the Results; no parameter values; points to Methods subsections. -->
+
+# Results
 
 Each pathway was evaluated at carbon prices from 0 to 500 US\$ Mg^-1^ CO~2~e. Where a single price is quoted, we use 100 US\$ Mg^-1^ CO~2~e, close to the marginal abatement cost of CO~2~ in 2030 (`r f0(90 * cpi)` US\$ Mg^-1^) in pathways likely to limit warming to below 2 °C [@riahi2022]; results across the full range are shown in @fig-macc and @fig-break-even.
 
@@ -172,7 +179,7 @@ Uncertainty in the model parameters (@tbl-si-mc) was propagated with `r f0(min(m
 
 The crop yield response to biochar dominates the uncertainty in PyCCS break-even pricing. The parameters defining the yield response account for `r f0(min(sapply(c("US", "China", "India"), function(r) msh(r, "be_PyCCS", "bc_yield_amplitude"))))`–`r f0(max(sapply(c("US", "China", "India"), function(r) msh(r, "be_PyCCS", "bc_yield_amplitude"))))`% of the mean absolute SHAP value in the United States, China, and India, with assumptions about how rapidly this response declines over time adding a further `r f0(min(sapply(R4, function(r) msh(r, "be_PyCCS", "bc_yield_decay"))))`–`r f0(max(sapply(R4, function(r) msh(r, "be_PyCCS", "bc_yield_decay"))))`%. The BECCS takeover price inherits both of these sensitivities. It is driven primarily by agronomic yield uncertainty in China and India, where yield increases contribute a larger share of the net value of PyCCS, and by capital costs and capacity factors in the United States and Europe.
 
-# DISCUSSION
+# Discussion
 
 ```{r discussion-values}
 #| include: false
@@ -204,7 +211,11 @@ Two field responses limit confidence in the economics and climate benefit of PyC
 
 Finally, we emphasize that CDR from biomass is not a binary choice between biochar and geological storage, but a sequence whose timing and geography depend on carbon prices, soils, the cost of capital and CO~2~ infrastructure. Mitigation pathways and national strategies that include both pathways, and that plan the transition between them, would obtain more CDR at lower cost than those that rely on BECCS alone.
 
-# METHODS
+# Conclusions
+
+<!-- TODO (EES): interpretation, novelty and significance, future work; not a summary of the Results. -->
+
+# Methods
 
 ## Objectives and design
 
@@ -523,7 +534,7 @@ Parameter uncertainty was propagated by Monte Carlo simulation, with `r f0(max(m
 
 For each draw, we evaluated every grid cell over the same carbon-price sweep as the main results (see Economic evaluation and technology selection), on a coarser price grid: 0 to 200 US\$ Mg^-1^ CO~2~e in steps of 25 US\$ Mg^-1^, then 250, 300 and 400 US\$ Mg^-1^. Each draw yields four regional quantities: the biomass-weighted median break-even prices of PyCCS and BECCS, the biomass-weighted median takeover price at which BECCS becomes the technology with the highest non-negative net value, and the biomass-weighted mean net value of BE without a carbon price. Cells that never break even count as above any price, and medians above 400 US\$ Mg^-1^ CO~2~e are recorded as 400. At carbon prices from 0 to 250 US\$ Mg^-1^ CO~2~e in steps of 50, each draw also yields the share of biomass allocated to each technology and the GHG abatement of the allocated cells. We report the 5th, 50th and 95th percentiles of each quantity across draws.
 
-To attribute the uncertainty of each regional quantity to the sampled parameters, we fitted gradient-boosted regression trees [XGBoost; @chen2016xgboost] to the draws of each region, with a squared-error objective, a maximum depth of 4, a learning rate of 0.05 and 400 rounds. Each draw's prediction was attributed to the parameters with SHAP (SHapley Additive exPlanations) values [@lundberg2017], and a parameter's importance is its mean absolute SHAP value, in the units of the quantity. SHAP values divide the effect of correlated parameters between them. The two coefficients of the yield response (@eq-yield-response), which are sampled with a correlation of −0.87, are therefore also reported as a group, whose importance is the mean absolute value of their summed SHAP values. On a random 20% of draws held out from fitting, the models explained `r f0(100 * min(unique(ms$r2_test)))`–`r f0(100 * max(unique(ms$r2_test)))`% of the variance of each quantity.
+To attribute the uncertainty of each regional quantity to the sampled parameters, we fitted gradient-boosted regression trees (XGBoost) [@chen2016xgboost] to the draws of each region, with a squared-error objective, a maximum depth of 4, a learning rate of 0.05 and 400 rounds. Each draw's prediction was attributed to the parameters with SHAP (SHapley Additive exPlanations) values [@lundberg2017], and a parameter's importance is its mean absolute SHAP value, in the units of the quantity. SHAP values divide the effect of correlated parameters between them. The two coefficients of the yield response (@eq-yield-response), which are sampled with a correlation of −0.87, are therefore also reported as a group, whose importance is the mean absolute value of their summed SHAP values. On a random 20% of draws held out from fitting, the models explained `r f0(100 * min(unique(ms$r2_test)))`–`r f0(100 * max(unique(ms$r2_test)))`% of the variance of each quantity.
 
 ### Structural variants
 
@@ -533,7 +544,7 @@ We treat plant size as a design assumption rather than optimizing it. Choosing t
 
 ### Spatial drivers of cost
 
-To identify the spatial inputs that make each technology cheap or expensive, and that determine where geological storage takes over from biochar, we fitted regression models to four quantities calculated for each grid cell from the carbon-price sweep at the central regional parameters. They are the break-even carbon prices of PyCCS and BECCS; the net value of BE without a carbon price, because BE abates too little for its break-even price to be informative; and the takeover price. Each quantity was predicted by gradient-boosted regression trees [XGBoost; @chen2016xgboost] with a squared-error objective, a maximum depth of 6, a learning rate of 0.05 and 400 rounds, and each prediction was attributed to the inputs with SHAP values [@lundberg2017], in the units of the predicted quantity.
+To identify the spatial inputs that make each technology cheap or expensive, and that determine where geological storage takes over from biochar, we fitted regression models to four quantities calculated for each grid cell from the carbon-price sweep at the central regional parameters. They are the break-even carbon prices of PyCCS and BECCS; the net value of BE without a carbon price, because BE abates too little for its break-even price to be informative; and the takeover price. Each quantity was predicted by gradient-boosted regression trees (XGBoost) [@chen2016xgboost] with a squared-error objective, a maximum depth of 6, a learning rate of 0.05 and 400 rounds, and each prediction was attributed to the inputs with SHAP values [@lundberg2017], in the units of the predicted quantity.
 
 Each model uses only the spatial inputs that enter the economics of the technologies it represents (@tbl-si-shap-importance). This prevents a cost from being attributed to a correlated input that the technology does not use, such as soil temperature, which correlates with the terrain and road-network multiplier of haulage cost in India (r = −0.63). The inputs common to all technologies are the collection distance of each technology at its capacity factor (see Biomass transport costs and emissions), the terrain and road-network multiplier of haulage cost, the field-side feedstock cost, the electricity price and soil pH, which sets the liming credit and the removal charge. The quantities that depend on the carbon price also use the displaced grid carbon intensity and the share of residue otherwise burned. PyCCS adds soil temperature, soil CEC, the biochar supply per hectare of cropland and the crop value per hectare; BECCS adds the length of its CO~2~ route, whether the route ends at an offshore sink, and the storage cost at that sink. The takeover price uses the inputs of both.
 
@@ -716,7 +727,7 @@ if (is_docx) {
 }
 ```
 
-# FIGURES
+# Figures {.unnumbered}
 
 ![Break-even carbon price of each technology (rows 1–3), the technology with the lowest break-even price (row 4) and that price (row 5), by region (columns), at the regional market discount rates. The break-even price is the carbon price at which the net value of a technology becomes non-negative; it is negative where a technology is profitable without a carbon price. The technology with the lowest break-even price is the first to become profitable as the carbon price rises, but not necessarily the one with the highest net value at higher prices (@fig-evap). Colors are capped at −50 and 200 US\$ Mg^-1^ CO~2~e.](results/figures/Breakeven_CPrice.png){#fig-break-even width="100%"}
 
@@ -730,23 +741,40 @@ if (is_docx) {
 
 ![Dominant driver of the BECCS takeover price (@fig-takeover-price) in each grid cell: the spatial input with the largest absolute SHAP value in the regional regression model (@fig-shap-importance).](results/spatial_shap/map_takeover_driver.png){#fig-takeover-driver width="100%"}
 
-# REFERENCES AND NOTES
+# Author contributions {.unnumbered}
 
-::: {#refs}
-:::
+<!-- TODO (EES): CRediT roles for each author. -->
 
-Maps in this study depict Mainland China to correspond with the geographical scope of the data. The omission of islands or maritime boundaries does not imply an endorsement of any particular political status or territorial claim.
+# Conflicts of interest {.unnumbered}
 
-# ACKNOWLEDGEMENTS {.unnumbered}
+<!-- TODO (EES): conflicts of interest statement ("There are no conflicts to declare" if none). -->
+
+# Data availability {.unnumbered}
+
+<!-- TODO (EES): repository and DOI for model code, inputs and results; note the reference numbers cited only in the ESI. -->
+
+# Acknowledgements {.unnumbered}
 
 This work was supported by Environmental Defense Fund with an award from King Philanthropies.
 
 Claude (Anthropic) was used as a research assistant for model code development, for checking consistency between the model and the manuscript, and for drafting and editing text. The AI tool did not make scientific decisions: every modeling choice, interpretation and passage of text it proposed was reviewed, revised where necessary and approved by the lead author, and all authors take full responsibility for the content. The procedures used to verify the AI-assisted work are described in the Supplementary Information (Section S5).
 
-# SUPPLEMENTARY MATERIALS {.unnumbered}
+# Notes and references {.unnumbered}
+
+Maps in this study depict Mainland China to correspond with the geographical scope of the data. The omission of islands or maritime boundaries does not imply an endorsement of any particular political status or territorial claim.
+
+::: {#refs}
+:::
 
 ```{=latex}
 \clearpage
+\setcounter{page}{1}
+\renewcommand{\thepage}{S\arabic{page}}
+```
+
+# Electronic Supplementary Information {.unnumbered}
+
+```{=latex}
 \setcounter{figure}{0}
 \renewcommand{\thefigure}{S\arabic{figure}}
 \setcounter{table}{0}
