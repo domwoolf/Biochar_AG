@@ -17,7 +17,9 @@
 # and, at each carbon price in REPORT_PRICES, the share of biomass allocated to each technology (highest
 # non-negative net value) and the abatement of the allocated cells (Tg CO2e/yr).
 #
-# Output: results/mc_analysis_results.csv (one row per region and draw: sampled parameters + metrics).
+# Output: results/mc_analysis_results.csv (one row per region and draw: sampled parameters + metrics), and
+# the per-cell results of every draw in the results cache (BIOCHAR_CACHE_DIR/mc/<key>/<region>/), from which
+# a rerun with an unchanged model and run size recomputes the metrics without repeating the draws.
 # MC_shap.R fits the SHAP models and writes the summaries.
 
 library(parallel)
@@ -64,24 +66,71 @@ wmedian <- function(x, w) {
   x[o][which(cw >= 0.5)[1]]
 }
 
-draw_metrics <- function(sw, bm) {
-  top <- max(MC_PRICES)
+# Per-cell results of one draw, kept in the results cache so that further regional quantities can be
+# computed without rerunning the draws: break-even prices of PyCCS and BECCS, BECCS takeover price (NA:
+# never, up to the top of the grid), net value of BE without carbon revenue, and at each sweep price the
+# allocated technology (0 none, 1 BE, 2 BECCS, 3 PyCCS: highest net value if non-negative) and its abatement
+# (Mg CO2e per Mg feedstock; NA where none is allocated).
+# Stored as scaled integers (CELL_SCALE: prices and net value in units of 0.01 US$, abatement in units of
+# 1e-4 Mg CO2e Mg-1) and the allocation as int8, about a quarter of the size of doubles. The regional
+# metrics are always computed from the stored values, so a cached rerun reproduces a fresh run exactly.
+CELL_SCALE <- c(price = 100, abate = 1e4)
+quantize_cells <- function(cl) {
+  for (nm in names(cl)) {
+    s <- if (startsWith(nm, "abate_")) CELL_SCALE[["abate"]] else if (startsWith(nm, "alloc_")) 1 else CELL_SCALE[["price"]]
+    x <- cl[[nm]]
+    x[!is.finite(x)] <- NA # break-even prices are NA where never reached; no other value is infinite
+    cl[[nm]] <- as.integer(round(pmax(pmin(x * s, 2e9), -2e9)))
+  }
+  cl
+}
+dequantize_cells <- function(q) {
+  q <- as.data.frame(q)
+  for (nm in names(q)) {
+    s <- if (startsWith(nm, "abate_")) CELL_SCALE[["abate"]] else if (startsWith(nm, "alloc_")) 1 else CELL_SCALE[["price"]]
+    q[[nm]] <- if (s == 1) as.integer(q[[nm]]) else q[[nm]] / s
+  }
+  q
+}
+write_cells <- function(q, f) {
+  tb <- arrow::arrow_table(q)
+  for (nm in grep("^alloc_", names(q), value = TRUE)) tb[[nm]] <- tb[[nm]]$cast(arrow::int8())
+  tmp <- paste0(f, ".tmp")
+  arrow::write_parquet(tb, tmp, compression = "zstd")
+  file.rename(tmp, f)
+}
+draw_cells <- function(sw) {
   be <- sweep_breakeven(sw)
-  out <- list(
-    be_PyCCS = min(wmedian(be[, 3], bm), top),
-    be_BECCS = min(wmedian(be[, 2], bm), top),
-    takeover = min(wmedian(sweep_takeover(sw, k = 2, max_price = top), bm), top),
-    n0_BE = sum((sw$n0[, 1] * bm)[is.finite(sw$n0[, 1])]) / sum(bm[is.finite(sw$n0[, 1])])
-  )
-  for (cp in REPORT_PRICES) {
+  out <- data.frame(be_PyCCS = be[, 3], be_BECCS = be[, 2],
+                    takeover = sweep_takeover(sw, k = 2, max_price = max(MC_PRICES)), n0_BE = sw$n0[, 1])
+  for (cp in MC_PRICES) {
     net <- sweep_net(sw, cp)
     net[is.na(net)] <- -Inf
     b <- max.col(net, ties.method = "first")
     nb <- net[cbind(seq_along(b), b)]
     viable <- is.finite(nb) & nb >= 0
     ab <- sweep_abate(sw, cp)[cbind(seq_along(b), b)]
-    for (k in 1:3) out[[sprintf("share_%s_%d", c("BE", "BECCS", "PyCCS")[k], cp)]] <- sum(bm[viable & b == k]) / sum(bm)
-    out[[sprintf("abate_%d", cp)]] <- sum((bm * ab)[viable], na.rm = TRUE) / 1e6
+    out[[sprintf("alloc_%d", cp)]] <- ifelse(viable, b, 0L)
+    out[[sprintf("abate_%d", cp)]] <- ifelse(viable, ab, NA_real_)
+  }
+  quantize_cells(out)
+}
+
+# Regional quantities of one draw from its per-cell results (bm: sampling-weighted biomass of each cell)
+draw_metrics <- function(cl, bm) {
+  top <- max(MC_PRICES)
+  ok <- is.finite(cl$n0_BE)
+  out <- list(
+    be_PyCCS = min(wmedian(cl$be_PyCCS, bm), top),
+    be_BECCS = min(wmedian(cl$be_BECCS, bm), top),
+    takeover = min(wmedian(cl$takeover, bm), top),
+    n0_BE = sum((cl$n0_BE * bm)[ok]) / sum(bm[ok])
+  )
+  for (cp in REPORT_PRICES) {
+    b <- cl[[sprintf("alloc_%d", cp)]]
+    ab <- cl[[sprintf("abate_%d", cp)]]
+    for (k in 1:3) out[[sprintf("share_%s_%d", c("BE", "BECCS", "PyCCS")[k], cp)]] <- sum(bm[b == k]) / sum(bm)
+    out[[sprintf("abate_%d", cp)]] <- sum((bm * ab)[b > 0], na.rm = TRUE) / 1e6
   }
   out
 }
@@ -114,6 +163,15 @@ subset_vec <- function(vec, idx) {
   vec
 }
 
+# Results cache: one Parquet file of per-cell results per region and draw, under a key that covers the model,
+# this script's draw and sampling code, the price grid and the run size (see scripts/results_cache.R)
+source("scripts/results_cache.R")
+mc_key <- cache_key(fp_model(), draw_cells, quantize_cells, CELL_SCALE, sample_cells, subset_vec, MC_PRICES, n_runs, cell_fraction, regions,
+                    fixed_params, spatial_multiplier_params, 42)
+mc_cache <- cache_dir(file.path("mc", mc_key))
+message("Results cache: ", mc_cache)
+if (!exists("mc_out")) mc_out <- "results/mc_analysis_results.csv"
+
 set.seed(42)
 all_results <- list()
 for (r in regions) {
@@ -135,6 +193,12 @@ for (r in regions) {
   for (sp in names(spatial_multiplier_params)) names(draws)[names(draws) == sp] <- spatial_multiplier_params[[sp]]
 
   message(sprintf("%s: %d draws, %d of %d cells", r, n_runs, length(bm), length(bm_all)))
+  rdir <- file.path(mc_cache, r)
+  dir.create(rdir, showWarnings = FALSE, recursive = TRUE)
+  cells_file <- file.path(rdir, "cells.parquet")
+  if (!file.exists(cells_file)) {
+    arrow::write_parquet(data.frame(cell = smp$idx, x = vec0$xy[, 1], y = vec0$xy[, 2], biomass = bm), cells_file)
+  }
   rows <- parallel::mclapply(seq_len(n_runs), function(m) {
     d <- draws[m, , drop = FALSE]
     p <- BiocharAG::set_scenario(region = r)
@@ -143,8 +207,14 @@ for (r in regions) {
     vec <- vec0
     if (!is.null(vec$layers$elec_price)) vec$layers$elec_price <- vec$layers$elec_price * d$elec_price_multiplier
     if (!is.null(vec$layers$ff_c_intensity)) vec$layers$ff_c_intensity <- vec$layers$ff_c_intensity * d$ff_ci_multiplier
-    sw <- run_price_sweep(dat$template, dat$layers, p, vec = vec, prices = MC_PRICES)
-    c(list(mc_run_id = m, region = r, cell_fraction = cell_fraction), as.list(d), draw_metrics(sw, bm))
+    f <- file.path(rdir, sprintf("draw_%05d.parquet", m))
+    if (file.exists(f)) {
+      q <- arrow::read_parquet(f)
+    } else {
+      q <- draw_cells(run_price_sweep(dat$template, dat$layers, p, vec = vec, prices = MC_PRICES))
+      write_cells(q, f)
+    }
+    c(list(mc_run_id = m, region = r, cell_fraction = cell_fraction), as.list(d), draw_metrics(dequantize_cells(q), bm))
   }, mc.cores = n_cores, mc.preschedule = TRUE)
   err <- vapply(rows, inherits, logical(1), "try-error")
   if (any(err)) stop("Monte Carlo draw failed in ", r, ":\n", rows[[which(err)[1]]])
@@ -154,5 +224,5 @@ for (r in regions) {
 
 results_df <- do.call(rbind, all_results)
 dir.create("results", showWarnings = FALSE)
-write.csv(results_df, "results/mc_analysis_results.csv", row.names = FALSE)
-message("Monte Carlo analysis complete: results/mc_analysis_results.csv")
+write.csv(results_df, mc_out, row.names = FALSE)
+message("Monte Carlo analysis complete: ", mc_out)

@@ -84,6 +84,10 @@ sp <- fread("results/ai_summaries/spatial_shap_importance.csv")
 imp <- function(r, tg, f) sp[region == r & target == tg & feature == f, share_pct]
 ms <- fread("results/mc_shap/mc_shap_importance.csv")
 cells <- fread("results/spatial_shap/shap_targets_by_cell.csv.gz")[, w := biomass_density * cell_area_km2]
+# Technology allocated at the top carbon price (terminal pathway), by region (% of residue); the text states
+# that no cell leaves BECCS once allocated to it
+tp <- fread("results/ai_summaries/terminal_pathway_summary.csv")
+stopifnot("A grid cell leaves BECCS at a higher carbon price; revise the takeover-price text" = sum(tp$cells_leaving_BECCS) == 0)
 py_first <- cells[, .(s = 100 * sum(w[which(be_PyCCS < be_BECCS | (is.finite(be_PyCCS) & !is.finite(be_BECCS)))]) / sum(w)), by = region]$s
 to_spread <- cells[, .(d = quantile(takeover_BECCS, 0.9, na.rm = TRUE) - quantile(takeover_BECCS, 0.1, na.rm = TRUE)), by = region]$d
 c_in <- 0.48 * 44 / 12 # CO2 equivalent of the feedstock carbon (Mg CO2 Mg-1 dry, ash-free)
@@ -171,7 +175,7 @@ The United States is an exception among the four regions. Neither CDR pathway (P
 
 ## Geological storage takes over at high carbon prices, maximizing absolute GHG abatement
 
-Above a regional carbon price threshold, BECCS replaces PyCCS as the leading use of residues. The median takeover price is `r f0(m("India", "to50"))` US\$ Mg^-1^ CO~2~e in India, `r f0(m("China", "to50"))` in China, `r f0(m("Europe", "to50"))` in Europe, and `r f0(m("US", "to50"))` in the United States. Within each region, the takeover price differs by `r f0(min(to_spread))`–`r f0(max(to_spread))` US\$ Mg^-1^ CO~2~e between the 10th and 90th percentiles of grid cells (@fig-takeover-price).
+Above a regional carbon price threshold, BECCS replaces PyCCS as the leading use of residues. No grid cell leaves BECCS once allocated to it, and BECCS is the terminal pathway for at least `r f1(floor(10 * min(tp$terminal_BECCS)) / 10)`% of the residue in each region. In the remaining cells, BECCS either has no viable CO~2~ route to a storage basin or would take over only above `r f0(max(tp$top_price))` US\$ Mg^-1^ CO~2~e. We therefore report the takeover price as the carbon price at which BECCS becomes the pathway with the highest non-negative net value. The median takeover price is `r f0(m("India", "to50"))` US\$ Mg^-1^ CO~2~e in India, `r f0(m("China", "to50"))` in China, `r f0(m("Europe", "to50"))` in Europe, and `r f0(m("US", "to50"))` in the United States. Within each region, the takeover price differs by `r f0(min(to_spread))`–`r f0(max(to_spread))` US\$ Mg^-1^ CO~2~e between the 10th and 90th percentiles of grid cells (@fig-takeover-price).
 
 ![Carbon price at which BECCS becomes the technology with the highest non-negative net value in each grid cell, at the regional market discount rates. Gray: BECCS does not take over below 500 US\$ Mg^-1^ CO~2~e.](results/spatial_shap/map_takeover_price.png){#fig-takeover-price width="100%"}
 

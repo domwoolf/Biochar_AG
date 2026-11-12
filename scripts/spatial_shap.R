@@ -14,7 +14,8 @@
 #
 # Outputs (results/spatial_shap/): shap_importance.csv, shap_targets_by_cell.csv.gz, importance and
 # dependence figures, maps of the takeover price and its dominant driver; and
-# results/ai_summaries/spatial_shap_admin1_summary.csv and spatial_shap_importance.csv.
+# results/ai_summaries/spatial_shap_admin1_summary.csv, spatial_shap_importance.csv and
+# terminal_pathway_summary.csv (technology allocated at the top carbon price, by region).
 
 library(data.table)
 library(xgboost)
@@ -26,6 +27,7 @@ library(sf)
 
 sf::sf_use_s2(FALSE)
 source("scripts/manuscript_figures.R") # load_all, display_admin(), tech_label(), TECH_COLORS
+source("scripts/results_cache.R") # cached(), cache_key(), fp_model()
 
 OUT_DIR <- "results/spatial_shap"
 REGIONS <- c("US", "Europe", "China", "India")
@@ -75,6 +77,21 @@ region_data <- function(r) {
   sw <- run_price_sweep(dat$template, dat$layers, p0, vec = dat$vec, prices = c(seq(0, 250, by = 5), seq(275, MAX_PRICE, by = 25)))
   be_all <- sweep_breakeven(sw)
   be <- function(k) be_all[, k]
+  # Allocation at each sweep price (0 none, 1 BE, 2 BECCS, 3 PyCCS): the technology with the highest
+  # non-negative net value. The terminal pathway is the allocation at the top price; leaves_BECCS flags
+  # cells allocated to BECCS at some price but to another technology (or none) at a higher one.
+  alloc <- sapply(sw$prices, function(cp) {
+    nv <- sweep_net(sw, cp)
+    nv[!is.finite(nv)] <- -Inf
+    a <- max.col(nv, ties.method = "first")
+    a[apply(nv, 1, max) < 0] <- 0L
+    a
+  })
+  first_beccs <- apply(alloc == 2, 1, function(v) if (any(v)) which(v)[1] else NA_integer_)
+  leaves_beccs <- vapply(seq_len(nrow(alloc)), function(i) {
+    f <- first_beccs[i]
+    !is.na(f) && any(alloc[i, f:ncol(alloc)] != 2)
+  }, logical(1))
   # Inputs at the default plant size, as in run_scenario()
   p <- cell_params(p0, dat$vec)
   p$c_price <- 0
@@ -106,12 +123,33 @@ region_data <- function(r) {
     soil_ph = rep_n(p$soil_ph), soil_cec = rep_n(p$soil_cec), bc_supply = rep_n(pyccs$bc_supply_ha),
     crop_value = rep_n(if (is.null(p$crop_value)) NA_real_ else p$crop_value),
     co2_route_km = rep_n(beccs$co2_transport_distance_km), co2_offshore = as.numeric(sclass %in% c(3, 4)),
-    co2_storage_cost = co2_storage_cost
+    co2_storage_cost = co2_storage_cost,
+    biomass = sl$biomass_density * dat$vec$cell_area, terminal = alloc[, ncol(alloc)], leaves_BECCS = leaves_beccs,
+    beccs_no_route = is.na(sclass)
   )
 }
 
-cells <- rbindlist(lapply(REGIONS, region_data))
+# Results cache (scripts/results_cache.R): the cell table, the fitted models and the SHAP interaction values
+# are each reused while the model and the code of their own stage are unchanged, so that edits to figures
+# or summaries do not repeat the price sweeps, fits or interaction values
+key_cells <- cache_key(fp_model(), region_data, REGIONS, MAX_PRICE)
+cells <- cached("cells", key_cells, rbindlist(lapply(REGIONS, region_data)), sub = "spatial_shap")
 fwrite(cells, file.path(OUT_DIR, "shap_targets_by_cell.csv.gz"))
+# Terminal pathway by region (biomass shares, %): technology allocated at the top of the price sweep; cells
+# that leave BECCS at a higher price after being allocated to it; and, of the biomass not terminal in BECCS,
+# the part with no CO2 route to a storage basin (BECCS undefined) and the part with a route, where BECCS
+# would take over only above the top price.
+term <- cells[, {
+  w <- biomass / sum(biomass, na.rm = TRUE) * 100
+  nb <- terminal != 2
+  .(cells = .N, top_price = MAX_PRICE,
+    terminal_BECCS = sum(w[terminal == 2], na.rm = TRUE), terminal_PyCCS = sum(w[terminal == 3], na.rm = TRUE),
+    terminal_BE = sum(w[terminal == 1], na.rm = TRUE), terminal_none = sum(w[terminal == 0], na.rm = TRUE),
+    cells_leaving_BECCS = sum(leaves_BECCS), leaving_BECCS = sum(w[leaves_BECCS], na.rm = TRUE),
+    not_terminal_no_route = sum(w[nb & beccs_no_route], na.rm = TRUE),
+    not_terminal_with_route = sum(w[nb & !beccs_no_route], na.rm = TRUE))
+}, by = region]
+fwrite(term, "results/ai_summaries/terminal_pathway_summary.csv")
 FEATURES <- names(feature_labels)
 # Each target sees only the inputs that enter the economics of the technologies it depends on, so that
 # SHAP cannot attribute a cost to a correlated input the technology does not use (e.g. soil temperature
@@ -153,16 +191,22 @@ fit_shap <- function(d, target) {
        undefined = 1 - mean(ok))
 }
 
-message("Fitting regression models...")
-models <- list()
-for (tg in names(TARGETS)) for (r in REGIONS) {
-  d <- cells[region == r]
-  if (sum(is.finite(d[[tg]])) < 200) {
-    message("  ", tg, " ", r, ": too few defined cells; skipped")
-    next
+fit_all <- function(cells) {
+  message("Fitting regression models...")
+  models <- list()
+  for (tg in names(TARGETS)) for (r in REGIONS) {
+    d <- cells[region == r]
+    if (sum(is.finite(d[[tg]])) < 200) {
+      message("  ", tg, " ", r, ": too few defined cells; skipped")
+      next
+    }
+    models[[paste(tg, r)]] <- fit_shap(d, tg)
   }
-  models[[paste(tg, r)]] <- fit_shap(d, tg)
+  models
 }
+key_models <- cache_key(key_cells, fit_all, fit_shap, FEATURES, TARGETS, TARGET_FEATURES)
+models <- cached("models", key_models, fit_all(cells), sub = "spatial_shap")
+for (m in models) message(sprintf("  %-14s %-7s holdout R2 %.3f", m$target, m$region, m$r2))
 
 imp <- rbindlist(lapply(models, function(m) {
   s <- colMeans(abs(m$shp$S))
@@ -197,7 +241,8 @@ for (m in models) {
   v_show <- shares[share_pct >= 2][order(-share_pct), feature]
   if (!length(v_show)) next
   idx <- if (nrow(m$data) <= N_PLOT) seq_len(nrow(m$data)) else { set.seed(1); sort(sample.int(nrow(m$data), N_PLOT)) }
-  shp_i <- shapviz(m$model, X_pred = m$X[idx, , drop = FALSE], interactions = TRUE)
+  shp_i <- cached(sprintf("interactions_%s_%s", m$target, m$region), cache_key(key_models, idx),
+                  shapviz(m$model, X_pred = m$X[idx, , drop = FALSE], interactions = TRUE), sub = "spatial_shap")
   deps <- lapply(v_show, function(v) {
     iv <- abs(shp_i$S_inter[, v, , drop = FALSE])[, 1, ]
     iv[, v] <- 0
