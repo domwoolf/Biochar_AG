@@ -133,6 +133,10 @@ Here, we reconcile single-facility assessments and global economic models throug
 
 Each pathway was evaluated at carbon prices from 0 to 500 US\$ Mg^-1^ CO~2~e. Where a single price is quoted, we use 100 US\$ Mg^-1^ CO~2~e, close to the marginal abatement cost of CO~2~ in 2030 (`r f0(90 * cpi)` US\$ Mg^-1^) in pathways likely to limit warming to below 2 °C [@riahi2022]; results across the full range are shown in @fig-macc and @fig-break-even.
 
+![Abatement supply curves: annual abatement of the technology with the highest non-negative net value in each grid cell, summed over each region, as a function of the carbon price, at the regional market discount rates.](results/figures/MACC.png){#fig-macc width="100%"}
+
+![Break-even carbon price of each technology (rows 1–3), the technology with the lowest break-even price (row 4) and that price (row 5), by region (columns), at the regional market discount rates. The break-even price is the carbon price at which the net value of a technology becomes non-negative; it is negative where a technology is profitable without a carbon price. The technology with the lowest break-even price is the first to become profitable as the carbon price rises, but not necessarily the one with the highest net value at higher prices (@fig-evap). Colors are capped at −50 and 200 US\$ Mg^-1^ CO~2~e.](results/figures/Breakeven_CPrice.png){#fig-break-even width="100%"}
+
 ## Abatement potential rises in two steps as the carbon price increases
 
 Summing the abatement of the technology with the highest non-negative net value in each grid cell gives an abatement supply curve for each region (@fig-macc). Across the four regions, residues abate `r f0(ab(R4, 0))` Tg CO~2~e yr^-1^ without a carbon price, almost all of it through PyCCS in China and India. Abatement rises to `r f0(ab(R4, 50))` Tg CO~2~e yr^-1^ at 50 US\$ Mg^-1^ CO~2~e and `r f0(ab(R4, 100))` Tg CO~2~e yr^-1^ at 100 US\$ Mg^-1^ CO~2~e, `r f0(100 * ab(R4, 100, "PyCCS") / ab(R4, 100))`% of it from PyCCS. It then rises more steeply as BECCS becomes viable, to `r f0(ab(R4, 150))` Tg CO~2~e yr^-1^ at 150 US\$ Mg^-1^ CO~2~e and `r f0(ab(R4, 200))` Tg CO~2~e yr^-1^ at 200 US\$ Mg^-1^ CO~2~e, and reaches `r f0(ab(R4, 250))` Tg CO~2~e yr^-1^ at 250 US\$ Mg^-1^ CO~2~e, `r f0(100 * ab(R4, 250, "BECCS") / ab(R4, 250))`% of it from BECCS. In the first step, abatement grows as PyCCS becomes profitable on more residue. In the second, the same residue is reallocated to the pathway that stores more carbon per megagram. In China and India, all residue is already in use at 100 US\$ Mg^-1^ CO~2~e (@fig-si-macc-biomass), so all further abatement comes from reallocation: abatement in China nearly doubles, from `r f0(ab("China", 100))` Tg CO~2~e yr^-1^ at 100 US\$ Mg^-1^ CO~2~e to `r f0(ab("China", 200))` Tg CO~2~e yr^-1^ at 200 US\$ Mg^-1^ CO~2~e. In the United States, both steps occur at higher prices: PyCCS between 100 and 150 US\$ Mg^-1^ CO~2~e, and BECCS between 150 and 250 US\$ Mg^-1^ CO~2~e.
@@ -141,21 +145,25 @@ Summing the abatement of the technology with the highest non-negative net value 
 
 Bioenergy without carbon capture (BE) is rarely the optimal use of crop residues. Without a carbon price, BE loses money across the four regions: its biomass-weighted mean net value is negative in all Monte Carlo draws for the United States and China, and positive in at most `r f1(100 * max(mcs$n0pos))`% of draws for Europe and India. Even with a carbon price, its climate benefit remains small. Because the electricity displaced by BE becomes cleaner as power grids decarbonize, its mitigation value drops as carbon prices rise. At 100 US\$ Mg^-1^ CO~2~e, BE abates only `r f2(min(comp(R4, "BE", "abatement")))`–`r f2(max(comp(R4, "BE", "abatement")))` Mg CO~2~e per megagram of residue. This specific abatement is only `r f0(100 * min(comp(R4, "BE", "abatement") / comp(R4, "PyCCS", "abatement")))`–`r f0(100 * max(comp(R4, "BE", "abatement") / comp(R4, "PyCCS", "abatement")))`% of the GHG abatement achieved by pyrogenic carbon capture and storage (PyCCS), and less than `r f0(ceiling(100 * max(comp(R4, "BE", "abatement") / comp(R4, "BECCS", "abatement"))))`% of that achieved by bioenergy with carbon capture and storage (BECCS). Consequently, BE is the leading use of residues only in Europe at low carbon prices, capturing `r f0(sh("Europe", 50, "BE"))`% of the European residue at 50 US\$ Mg^-1^ CO~2~e, primarily in Ukraine, Moldova, and southeastern Europe, where displaced electricity remains carbon-intensive (@fig-evap). Any increase in carbon price favors pathways that physically store carbon over those that merely displace fossil electricity, because electricity grids decarbonize at higher carbon prices, which reduces the emissions that BE can displace. Because of this covariance between carbon prices and grid intensity, the GHG abatement of BE per megagram of residue falls by `r rng0(ab_drop("BE"))`% between carbon prices of 0 and 200 US\$ Mg^-1^ CO~2~e, compared with `r rng0(ab_drop("BECCS"))`% for BECCS and at most `r f0(max(ab_drop("PyCCS")))`% for PyCCS, which also export electricity but derive most of their abatement from stored carbon.
 
+![Technology with the highest net value in each grid cell, by carbon price (rows) and region (columns), at the regional market discount rates. Saturated colors: that net value is positive; pale colors: no technology is profitable, and the color shows the one with the smallest loss.](results/figures/Evaporation_Grid_market.png){#fig-evap width="100%"}
+
 ## Biochar delivers the most cost-effective early CDR driven by agronomic co-benefits
 
 The four regions supply `r f0(bio_total)` Tg yr^-1^ of available crop residue on a dry, ash-free basis (see Crop residue supply). At a carbon price of 100 US\$ Mg^-1^ CO~2~e, PyCCS is the technology with the highest non-negative net value for `r f0(sh("China", 100, "PyCCS"))`% of this residue in China, `r f0(sh("India", 100, "PyCCS"))`% in India, and `r f0(sh("Europe", 100, "PyCCS"))`% in Europe (@fig-evap). At this price, PyCCS abates `r f0(ab(R4, 100, "PyCCS"))` Tg CO~2~e yr^-1^ across the four regions, `r f0(100 * ab(R4, 100, "PyCCS") / ab(R4, 100))`% of the total economically viable GHG abatement (@fig-macc). PyCCS breaks even (its net value becomes positive) at a lower carbon price than BECCS on `r f0(min(py_first))`–`r f0(max(py_first))`% of the residue in each region (@fig-break-even).
 
-PyCCS removes about half as much carbon per megagram of residue as BECCS, but it outcompetes geological storage at moderate prices because biochar generates a direct agronomic return. At 100 US\$ Mg^-1^ CO~2~e, biochar applied to cropland provides value equivalent to `r f0(comp("China", "PyCCS", "agronomic_revenue"))` and `r f0(comp("India", "PyCCS", "agronomic_revenue"))` US\$ Mg^-1^ of feedstock in China and India. Crop yield increases contribute `r f0(comp("China", "PyCCS", "yield_value"))` and `r f0(comp("India", "PyCCS", "yield_value"))` US\$ Mg^-1^ to this total, with the replacement of agricultural lime, phosphorus, and potassium accounting for the remainder. This agronomic value is lower in the United States and Europe, at `r f0(comp("US", "PyCCS", "agronomic_revenue"))` and `r f0(comp("Europe", "PyCCS", "agronomic_revenue"))` US\$ Mg^-1^ respectively, where yield increases contribute only `r f0(comp("US", "PyCCS", "yield_value"))` and `r f0(comp("Europe", "PyCCS", "yield_value"))` US\$ Mg^-1^ (see Biochar agronomic valuation and Supplementary Text S3). Biochar carbon accounts for `r rng0(pyshare("carbon_stored"))`% of the GHG abatement of PyCCS across the four regions. The grid credit for exported electricity adds `r rng0(pyshare("grid_credit"))`%. It is smallest in the United States, where plants processing `r f0(100 * comp("US", "PyCCS", "share_no_energy"))`% of the residue are predicted to flare their surplus gas rather than generate electricity (see High feedstock costs and low power prices delay CDR in the United States). Avoided soil N~2~O emissions add `r rng0(pyshare("soil_n2o"))`%.
+PyCCS removes about half as much carbon per megagram of residue as BECCS, but it outcompetes geological storage at moderate prices because biochar generates a direct agronomic return. At 100 US\$ Mg^-1^ CO~2~e, biochar applied to cropland provides value equivalent to `r f0(comp("China", "PyCCS", "agronomic_revenue"))` and `r f0(comp("India", "PyCCS", "agronomic_revenue"))` US\$ Mg^-1^ of feedstock in China and India. Crop yield increases contribute `r f0(comp("China", "PyCCS", "yield_value"))` and `r f0(comp("India", "PyCCS", "yield_value"))` US\$ Mg^-1^ to this total, with the replacement of agricultural lime, phosphorus, and potassium accounting for the remainder. This agronomic value is lower in the United States and Europe, at `r f0(comp("US", "PyCCS", "agronomic_revenue"))` and `r f0(comp("Europe", "PyCCS", "agronomic_revenue"))` US\$ Mg^-1^ respectively, where yield increases contribute only `r f0(comp("US", "PyCCS", "yield_value"))` and `r f0(comp("Europe", "PyCCS", "yield_value"))` US\$ Mg^-1^ (see Biochar agronomic valuation and Meta-analysis of biochar field trials). Biochar carbon accounts for `r rng0(pyshare("carbon_stored"))`% of the GHG abatement of PyCCS across the four regions. The grid credit for exported electricity adds `r rng0(pyshare("grid_credit"))`%. It is smallest in the United States, where plants processing `r f0(100 * comp("US", "PyCCS", "share_no_energy"))`% of the residue are predicted to flare their surplus gas rather than generate electricity (see High feedstock costs and low power prices delay CDR in the United States). Avoided soil N~2~O emissions add `r rng0(pyshare("soil_n2o"))`%.
 
 Because PyCCS economics rely heavily on agricultural returns rather than energy export, lowering the cost of capital extends its viability to even lower carbon prices. At a 2% social discount rate [@drupp2018], PyCCS is profitable without any carbon price for `r f0(sh("China", 0, "PyCCS", "social"))`% of the crop residue in China and `r f0(sh("India", 0, "PyCCS", "social"))`% in India (@fig-si-evap-social).
 
 ## High feedstock costs and low power prices delay CDR in the United States
 
-The United States is an exception among the four regions. Neither CDR pathway (PyCCS or BECCS) is viable at or below 100 US\$ Mg^-1^ CO~2~e on more than `r f0(sh("US", 100, "PyCCS") + sh("US", 100, "BECCS"))`% of its agricultural residue, or `r f0(ar("US", 100, c("PyCCS", "BECCS")))`% of the land area from which that residue can be sourced. The share of land area is larger than the share of residue because the cells where PyCCS is viable have sparser residue and soils with a lower cation exchange capacity (CEC), on which the agronomic value of biochar is higher. PyCCS becomes the leading use only between 100 and 150 US\$ Mg^-1^ CO~2~e, expanding to cover `r f0(sh("US", 150, "PyCCS"))`% of the residue at the higher price. This delayed viability stems mainly from feedstock and electricity prices, and partly from a smaller agronomic return. US feedstock costs are higher than in China and India, averaging `r f0(comp("US", "all", "feedstock_cost"))` US\$ Mg^-1^ compared to `r f0(comp("China", "all", "feedstock_cost"))`–`r f0(comp("India", "all", "feedstock_cost"))` US\$ Mg^-1^ in China and India. Simultaneously, low wholesale electricity prices in the US (see Spatial input data and Supplementary Text S1) depress the economic value of energy export. Consequently, the power block is omitted from PyCCS plants for `r f0(100 * comp("US", "PyCCS", "share_no_energy"))`% of the US residue, to avoid capital losses.
+The United States is an exception among the four regions. Neither CDR pathway (PyCCS or BECCS) is viable at or below 100 US\$ Mg^-1^ CO~2~e on more than `r f0(sh("US", 100, "PyCCS") + sh("US", 100, "BECCS"))`% of its agricultural residue, or `r f0(ar("US", 100, c("PyCCS", "BECCS")))`% of the land area from which that residue can be sourced. The share of land area is larger than the share of residue because the cells where PyCCS is viable have sparser residue and soils with a lower cation exchange capacity (CEC), on which the agronomic value of biochar is higher. PyCCS becomes the leading use only between 100 and 150 US\$ Mg^-1^ CO~2~e, expanding to cover `r f0(sh("US", 150, "PyCCS"))`% of the residue at the higher price. This delayed viability stems mainly from feedstock and electricity prices, and partly from a smaller agronomic return. US feedstock costs are higher than in China and India, averaging `r f0(comp("US", "all", "feedstock_cost"))` US\$ Mg^-1^ compared to `r f0(comp("China", "all", "feedstock_cost"))`–`r f0(comp("India", "all", "feedstock_cost"))` US\$ Mg^-1^ in China and India. Simultaneously, low wholesale electricity prices in the US (see Spatial input data and Capacity factors and price capture of biomass power) depress the economic value of energy export. Consequently, the power block is omitted from PyCCS plants for `r f0(100 * comp("US", "PyCCS", "share_no_energy"))`% of the US residue, to avoid capital losses.
 
 ## Geological storage takes over at high carbon prices, maximizing absolute GHG abatement
 
 Above a regional carbon price threshold, BECCS replaces PyCCS as the leading use of residues. The median takeover price is `r f0(m("India", "to50"))` US\$ Mg^-1^ CO~2~e in India, `r f0(m("China", "to50"))` in China, `r f0(m("Europe", "to50"))` in Europe, and `r f0(m("US", "to50"))` in the United States. Within each region, the takeover price differs by `r f0(min(to_spread))`–`r f0(max(to_spread))` US\$ Mg^-1^ CO~2~e between the 10th and 90th percentiles of grid cells (@fig-takeover-price).
+
+![Carbon price at which BECCS becomes the technology with the highest non-negative net value in each grid cell, at the regional market discount rates. Gray: BECCS does not take over below 500 US\$ Mg^-1^ CO~2~e.](results/spatial_shap/map_takeover_price.png){#fig-takeover-price width="100%"}
 
 Because carbon capture recovers roughly 90% of the feedstock carbon, BECCS abates `r f2(min(comp(R4, "BECCS", "abatement")))`–`r f2(max(comp(R4, "BECCS", "abatement")))` Mg CO~2~e per megagram of residue. This is roughly twice the per-megagram efficiency of PyCCS, which permanently stores `r f0(100 * min(comp(R4, "PyCCS", "carbon_stored")) / c_in)`–`r f0(100 * max(comp(R4, "PyCCS", "carbon_stored")) / c_in)`% of the initial carbon as biochar.
 
@@ -165,7 +173,11 @@ Transitioning from PyCCS to BECCS at higher carbon prices therefore maximizes th
 
 The break-even price of PyCCS is governed predominantly by agronomic conditions, with lower break-even prices where biochar adds most to the value of the harvest. We attributed the spatial variation in break-even prices to the model inputs with SHAP (Shapley additive explanation) values, which divide each grid cell's prediction from a regression model fitted to the results among the inputs (see Spatial drivers of cost). Crop value per hectare and soil CEC together account for `r f0(imp("China", "be_PyCCS", "crop_value") + imp("China", "be_PyCCS", "soil_cec"))`% of the mean absolute SHAP value in China, `r f0(imp("India", "be_PyCCS", "crop_value") + imp("India", "be_PyCCS", "soil_cec"))`% in India, and `r f0(imp("US", "be_PyCCS", "crop_value") + imp("US", "be_PyCCS", "soil_cec"))`% in the United States (@fig-shap-importance). In contrast, the break-even price of BECCS depends mainly on the routed distance to geological storage, accounting for `r f0(imp("China", "be_BECCS", "co2_route_km"))`% in China and `r f0(imp("India", "be_BECCS", "co2_route_km"))`% in India.
 
+![Spatial drivers of technology costs and of the takeover of biochar by geological storage: share of the mean absolute SHAP value of each spatial input in regional regression models of the break-even carbon prices of PyCCS and BECCS, the net value of BE without a carbon price, and the carbon price at which BECCS takes over. Blank: the input is not used by that model; values below 5% are not labeled.](results/spatial_shap/shap_importance.png){#fig-shap-importance width="100%"}
+
 Consequently, where BECCS takes over from PyCCS depends on both soils and CO~2~ infrastructure (@fig-takeover-driver). Crop value per hectare is the most common dominant driver of the takeover price in China and the United States, and soil CEC is the second most common in India. On productive, low-CEC cropland, biochar remains the better use up to higher carbon prices. Distance to storage dominates in most of Europe and in much of India, where BECCS takes over first near sinks and last far from them.
+
+![Dominant driver of the BECCS takeover price (@fig-takeover-price) in each grid cell: the spatial input with the largest absolute SHAP value in the regional regression model (@fig-shap-importance).](results/spatial_shap/map_takeover_driver.png){#fig-takeover-driver width="100%"}
 
 SHAP dependence plots for each input, quantity and region ([-@fig-si-dep-be-pyccs-us]–[-@fig-si-dep-takeover-beccs-india]) show the form of these effects. In China, the contribution of crop value to the break-even price of PyCCS declines steadily as crop value rises, whereas that of soil CEC rises between about 15 and 30 cmol~c~ kg^-1^ and changes little above that range. Break-even prices are also lower where the biochar supply is below about 1.5 Mg ha^-1^ yr^-1^, because the yield response per megagram of biochar is largest at low doses. In India, the contribution of the CO~2~ route length to the takeover price of BECCS rises gradually up to about 750 km and steeply beyond it. The cells more than 800 km from storage, mostly in northern India, also have soils with a lower CEC, so this step partly reflects a correlation between inputs that SHAP values do not separate.
 
@@ -207,7 +219,7 @@ Residue carbon could also be stored without pyrolysis or CO~2~ capture. Burial c
 
 Several simplifications bound these results. The GHG balance covers the emissions and removals that differ between pathways or scale with logistics; it is not a complete life-cycle assessment. The model offers the same residue supply to all three technologies. Combustion of residues, however, faces feedstock-quality constraints that the model represents only through efficiency and capital cost penalties for high ash content. These constraints include slagging and fouling from high-silica residues such as rice straw and husk, and corrosion from high-potassium, high-chlorine straws, which need specialized boilers. The potential of BE and BECCS is therefore an upper bound with respect to feedstock suitability, and the additional costs of using high-ash residues in combustion facilities may shift implementation further toward PyCCS. Gasification offers another route to power from rice residues: for example, small gasifiers fueled by rice husk supply power at rice mills in Cambodia [@field2016], although at a far smaller scale than the plants modeled here. The main results also omit sales of heat. In an exploratory scenario in which PyCCS sold all its surplus heat to a year-round user, the net value of PyCCS rose by about `r f0(hd("China"))`–`r f0(hd("Europe"))` US\$ Mg^-1^ of residue in China, the United States and Europe at 100 US\$ Mg^-1^ CO~2~e, but by less than `r f0(ceiling(hd("India")))` US\$ Mg^-1^ in India, and GHG abatement changed by less than `r f2(ceiling(100 * max(abs(heat$abate_change_p50))) / 100)` Mg CO~2~e Mg^-1^. However, year-round heat demand, such as for an industrial process or a district heating network, is uncommon in residue-producing regions, so heat recovery is an opportunity for co-location at particular sites rather than a basis for regional deployment.
 
-Two field responses limit confidence in the economics and climate benefit of PyCCS. The first is the crop yield response to biochar. Most field evidence comes from trials lasting one or two years, whereas the economics of biochar depend on yield responses over decades (Supplementary Text S3). Long-term trials of the yield response, and of how it declines as biochar ages, would reduce the uncertainty in the cost of PyCCS more than better estimates of any single technology parameter. The second is the soil N~2~O credit, which also rests on short field trials. Most syntheses find that the reduction declines within a few years of a single application [@borchard2019; @kaur2023; @yang2025biochar], and we model this decline. Some studies, however, report that aged biochar increases N~2~O emissions [@song2016; @wang2024aging; @guo2023legacy]. The largest synthesis finds that the benefits of a single application diminish as the biochar ages, whereas annual applications sustain or increase both the N~2~O reduction and the yield benefit in experiments lasting 4–12 years [@yang2025biochar]. In our model, biochar is reapplied to each field at an interval set by the dose, which is chosen to maximize net value. At 100 US\$ Mg^-1^ CO~2~e, the median interval on crop residue allocated to PyCCS is `r rng0(comp(c("US", "China", "India"), "PyCCS", "reapply_interval_p50"))` years in the United States, China and India, with median doses of `r rng0(comp(c("US", "China", "India"), "PyCCS", "dose_p50"))` Mg ha^-1^, and `r f0(comp("Europe", "PyCCS", "reapply_interval_p50"))` years in Europe. If repeat applications restore the yield and N~2~O effects, as these experiments suggest, field trials spanning two application cycles, about `r f0(2 * min(comp(c("US", "China", "India"), "PyCCS", "reapply_interval_p50")))`–`r f0(2 * max(comp(c("US", "China", "India"), "PyCCS", "reapply_interval_p50")))` years outside Europe, would constrain the long-term response. Such trials would also test whether the yield responses to successive applications accumulate with diminishing returns, as the model assumes, or saturate.
+Two field responses limit confidence in the economics and climate benefit of PyCCS. The first is the crop yield response to biochar. Most field evidence comes from trials lasting one or two years, whereas the economics of biochar depend on yield responses over decades (see Meta-analysis of biochar field trials). Long-term trials of the yield response, and of how it declines as biochar ages, would reduce the uncertainty in the cost of PyCCS more than better estimates of any single technology parameter. The second is the soil N~2~O credit, which also rests on short field trials. Most syntheses find that the reduction declines within a few years of a single application [@borchard2019; @kaur2023; @yang2025biochar], and we model this decline. Some studies, however, report that aged biochar increases N~2~O emissions [@song2016; @wang2024aging; @guo2023legacy]. The largest synthesis finds that the benefits of a single application diminish as the biochar ages, whereas annual applications sustain or increase both the N~2~O reduction and the yield benefit in experiments lasting 4–12 years [@yang2025biochar]. In our model, biochar is reapplied to each field at an interval set by the dose, which is chosen to maximize net value. At 100 US\$ Mg^-1^ CO~2~e, the median interval on crop residue allocated to PyCCS is `r rng0(comp(c("US", "China", "India"), "PyCCS", "reapply_interval_p50"))` years in the United States, China and India, with median doses of `r rng0(comp(c("US", "China", "India"), "PyCCS", "dose_p50"))` Mg ha^-1^, and `r f0(comp("Europe", "PyCCS", "reapply_interval_p50"))` years in Europe. If repeat applications restore the yield and N~2~O effects, as these experiments suggest, field trials spanning two application cycles, about `r f0(2 * min(comp(c("US", "China", "India"), "PyCCS", "reapply_interval_p50")))`–`r f0(2 * max(comp(c("US", "China", "India"), "PyCCS", "reapply_interval_p50")))` years outside Europe, would constrain the long-term response. Such trials would also test whether the yield responses to successive applications accumulate with diminishing returns, as the model assumes, or saturate.
 
 Finally, we emphasize that CDR from biomass is not a binary choice between biochar and geological storage, but a sequence whose timing and geography depend on carbon prices, soils, the cost of capital and CO~2~ infrastructure. Mitigation pathways and national strategies that include both pathways, and that plan the transition between them, would obtain more CDR at lower cost than those that rely on BECCS alone.
 
@@ -261,15 +273,6 @@ Crop residues contain more ash than the wood chips usually burned in bioenergy p
 
 Feedstock is priced at the field side (farm gate or road side); haulage to the plant is costed separately (see Biomass transport costs and emissions). For Europe, China and India, the prices are collection costs that exclude the margins of farmers and intermediaries. For the United States, where no comparable national cost estimate exists, the price is a farm-gate price that includes a grower premium, and is therefore somewhat higher than a cost-only estimate (@tbl-feedstock-price). The nutrients removed with the residue are charged separately in every region (see Residue minerals and ash return). Prices are quoted per megagram of dry matter and converted to the dry, ash-free basis of the model with the regional ash content (@tbl-parameters); haulage and storage costs are converted in the same way.
 
-| Region | Basis | Original value | 2024 US\$ Mg^-1^ | Source |
-|:--------------|:--------------|:--------------|--------------:|:--------------|
-| United States | Farm-gate price of crop residues, excluding the payment for nutrients removed | US\$24 per dry short ton (2011) | 37 | @perlack2011 |
-| Europe | Road-side cost of cereal straw, by country (three classes), excluding replacement fertilizer | €20, 37.5 and 62.5 Mg^-1^ dry matter (2012), less €12.1 | 13.9, 44.6 and 88.5 | @dees2017s2biom |
-| China | Field-side cost of collecting corn straw, Nongan county, Jilin | ¥99.6 Mg^-1^ of air-dried straw (2019) | 19.7 | @wang2022strawfeed |
-| India | Field-side cost of baled paddy straw, Haryana | 34 US\$ Mg^-1^ (dry basis) | 34 | @sokhansanj2023 |
-
-: Field-side feedstock prices. {#tbl-feedstock-price}
-
 In the Billion-Ton Update, about 80% of the primary crop residue supply in the United States is profitable to collect at a farm-gate price of US\$45 per dry short ton, and 90% at US\$50 [@perlack2011]. The price is uniform across the country because the underlying POLYSYS model [@delatorreugarte2000] applies a single national price, raised until a large and reliable supply is offered. It comprises the harvest cost, a grower premium and a payment that compensates the grower for the nutrients removed with the residue, about US\$26 per dry short ton [@perlack2011]. We exclude the nutrient payment, because nutrient removal is charged explicitly and on the same basis in all four regions.
 
 The S2Biom atlas maps road-side costs of cereal straw at NUTS-3 level (the most detailed level of the EU Nomenclature of Territorial Units for Statistics) by activity-based costing [@dees2017s2biom]. Its costs include fertilizer to replace the nutrients removed with the straw. Because nutrient removal is charged separately in every region, we subtract an estimate of this cost: €12.1 Mg^-1^ of dry matter, the N, P and K of the European straw (@tbl-parameters) at the World Bank's 2012 fertilizer prices [@worldbank2026pinksheet]. The Monte Carlo analysis samples it down to €7.9 Mg^-1^, the value of P and K alone, because the N included by S2Biom is not reported. We aggregated them to country level in three cost classes: the lowest for eastern Europe, Poland and the Baltic states; the middle class for most of central, northern and southern Europe, including France and Spain; and the highest for Germany, Belgium, the Netherlands and Luxembourg. Countries without an S2Biom value are assigned by analogy: Kosovo to the lowest class, like Serbia and Croatia, and Cyprus to the middle class, like Greece. We assign Türkiye to the middle class, because the market price of loose straw sold as fodder, 1,500–1,750 TL Mg^-1^ in 2023 in Samsun province (about 65–76 US\$ Mg^-1^), rules out the lowest class [@tek2026saman].
@@ -296,7 +299,7 @@ where $I$ is the total capital cost (US\$), $I_{\mathrm{ref}}$ is the reference 
 
 O&M costs, fixed and variable together, are assumed to be 4% of capital cost per year for all conversion technologies (BE, BECCS, and the pyrolysis unit and power block of PyCCS) and in every region (see Regional cost adjustment). This value lies within the range of reference biomass plants: about 3.5% for the EIA 50 MW plant at a capacity factor of 0.70 (fixed O&M of 141.5 US\$ kW^-1^ yr^-1^ plus 5.44 US\$ MWh^-1^) [@eia2023], 3.2–4.2% plus 3.8–4.7 US\$ MWh^-1^ for stoker and fluidized-bed boilers [@irena2012], and 4.4–4.6% for Danish 80 MW~th~ straw- and pellet-fired combined heat and power plants [@dea2020].
 
-The capacity factor depends both on plant availability, which is 0.91 for biomass plants after planned and unplanned outages [@dea2026], and on how close to full output each technology operates on average. Historical capacity factors of biomass power plants, 0.50–0.64 in the United States and at Drax [@eia2026epm; @drax2025], reflect operation with little or no support from a carbon price. In decarbonizing grids, biomass power can operate either as a base-load generator at a high capacity factor [@daggash2019; @prado2023] or as a flexible generator that supplies hours of high residual load, reducing the need for expensive grid storage [@johansson2019; @lehtveer2021]. We therefore evaluate BE under both operating regimes, and each grid cell takes the one with the higher net value. Base-load operation is assumed to have a capacity factor of 0.85, below the plant availability to allow for part-load operation. Flexible operation is assumed to have a capacity factor of 0.45, or about 3,900 full-load hours per year, as for biomass power that supplies high-price hours in a modeled 2050 European system [@lehtveer2021]. A plant that follows prices sells in high-price hours, so its realized price exceeds the time-averaged wholesale price. From hourly day-ahead prices in 24–31 European markets [@ember2026hourly], we estimated this price ratio as 1.05 for base load and 1.30 for flexible operation, and apply these ratios in all regions. Because GHG abatement per megagram of feedstock is the same under both regimes, the choice between them does not depend on the carbon price. Supplementary Text S1 gives the derivation of these values and their Monte Carlo ranges.
+The capacity factor depends both on plant availability, which is 0.91 for biomass plants after planned and unplanned outages [@dea2026], and on how close to full output each technology operates on average. Historical capacity factors of biomass power plants, 0.50–0.64 in the United States and at Drax [@eia2026epm; @drax2025], reflect operation with little or no support from a carbon price. In decarbonizing grids, biomass power can operate either as a base-load generator at a high capacity factor [@daggash2019; @prado2023] or as a flexible generator that supplies hours of high residual load, reducing the need for expensive grid storage [@johansson2019; @lehtveer2021]. We therefore evaluate BE under both operating regimes, and each grid cell takes the one with the higher net value. Base-load operation is assumed to have a capacity factor of 0.85, below the plant availability to allow for part-load operation. Flexible operation is assumed to have a capacity factor of 0.45, or about 3,900 full-load hours per year, as for biomass power that supplies high-price hours in a modeled 2050 European system [@lehtveer2021]. A plant that follows prices sells in high-price hours, so its realized price exceeds the time-averaged wholesale price. From hourly day-ahead prices in 24–31 European markets [@ember2026hourly], we estimated this price ratio as 1.05 for base load and 1.30 for flexible operation, and apply these ratios in all regions. Because GHG abatement per megagram of feedstock is the same under both regimes, the choice between them does not depend on the carbon price. These values and their Monte Carlo ranges are derived in Capacity factors and price capture of biomass power.
 
 ### Bioenergy with carbon capture and storage (BECCS)
 
@@ -308,7 +311,7 @@ $$M_{\mathrm{c}} = \tfrac{44}{12}\, f_{\mathrm{C}}\, \chi,$$ {#eq-capture}
 
 where $f_{\mathrm{C}}$ is the carbon mass fraction of the dry, ash-free feedstock [@phyllis2] and $\chi$ the capture rate. Capture, compression and flue-gas cleaning add a premium to the capital cost of a BE plant of the same biomass input (@tbl-parameters). The premium follows the IEAGHG evaluation of dedicated biomass power plants with post-combustion amine capture, in which capture raised total investment by 38–40% for a 75 MW~e~ bubbling fluidized-bed plant and a 250 MW~e~ circulating fluidized-bed plant [@ieaghg2009]. Because net output fell at the same time, specific capital cost per net kW~e~ rose by 114–126%, within the 45–130% range reported across biomass CCS technologies [@bhave2017]. Expressing the premium per unit of biomass input keeps it independent of the efficiency penalty. O&M costs are the same fraction of capital cost as for BE.
 
-BECCS is assumed to operate at base load, at the design capacity factor of power plants with carbon capture [@petranova2020], because of its high capital cost and the need for steady operation of capture, pipeline and injection [@johansson2019; @prado2023] (Supplementary Text S1).
+BECCS is assumed to operate at base load, at the design capacity factor of power plants with carbon capture [@petranova2020], because of its high capital cost and the need for steady operation of capture, pipeline and injection [@johansson2019; @prado2023] (see Capacity factors and price capture of biomass power).
 
 #### Carbon transport and geological storage
 
@@ -366,7 +369,7 @@ PyCCS pyrolyzes the feedstock: heating it in the absence of oxygen converts it t
 
 The energy balance is on a higher heating value (HHV) basis. The process heat demand is the HHV of the products (biochar, bio-oil and permanent gases) plus the process heat losses, minus the HHV of the feedstock. The HHVs of biochar and bio-oil are calculated from their carbon, hydrogen and oxygen fractions with the correlation of @channiwala2002, and that of the gas from the heats of combustion of its components. The feedstock HHV is its lower heating value (LHV) plus the latent heat of the water formed from its hydrogen. Heat losses comprise three terms. The first is conduction through the insulated reactor wall, whose area is sized from the plant feed rate and a temperature-dependent solids residence time. The second is the sensible heat of biochar discharged at $T_{\mathrm{py}}$. The third is the heat carried by the bio-oil vapor, permanent gases and water vapor (feedstock moisture plus reaction water) leaving the heat-recovery system, including the latent heat of the vapors. Because this term includes the latent heat of all water leaving the process, expressing both feedstock and products on an HHV basis avoids counting that latent heat twice. Process heat is supplied by combusting the pyrolysis vapors and gases in a process heater, and the plant's parasitic electricity demand is met from the same fuel [@woolf2014]. If the vapors and gases cannot meet these loads, part of the biochar is combusted, which reduces the biochar yield in proportion.
 
-The surplus vapors and gases, converted to an LHV basis, are combusted in a power block that raises steam for a condensing turbine. A power block is not always worthwhile: where electricity prices are low or the displaced grid intensity is small, its capital cost can exceed its revenue and grid credit. PyCCS is evaluated in each grid cell both with the power block and without energy export, in which case the surplus is flared. Export of heat alone is not included in the main results, because a heat-recovery boiler and a heat distribution network are justified only where there is a reliable year-round demand for heat. Such demand is a special case rather than a general condition (an exploratory heat-export scenario is reported in the Discussion). The configuration with the higher net value at the given carbon price is used. Because electricity is a small share of PyCCS revenue, operation is limited by the availability of the pyrolysis unit and the continuity of biomass supply rather than by dispatch. PyCCS is therefore assumed to operate at a capacity factor of 0.80, below the 0.90 on-stream factor of nth-plant pyrolysis designs [@dutta2015], to allow for interruptions of feedstock supply (Supplementary Text S1).
+The surplus vapors and gases, converted to an LHV basis, are combusted in a power block that raises steam for a condensing turbine. A power block is not always worthwhile: where electricity prices are low or the displaced grid intensity is small, its capital cost can exceed its revenue and grid credit. PyCCS is evaluated in each grid cell both with the power block and without energy export, in which case the surplus is flared. Export of heat alone is not included in the main results, because a heat-recovery boiler and a heat distribution network are justified only where there is a reliable year-round demand for heat. Such demand is a special case rather than a general condition (an exploratory heat-export scenario is reported in the Discussion). The configuration with the higher net value at the given carbon price is used. Because electricity is a small share of PyCCS revenue, operation is limited by the availability of the pyrolysis unit and the continuity of biomass supply rather than by dispatch. PyCCS is therefore assumed to operate at a capacity factor of 0.80, below the 0.90 on-stream factor of nth-plant pyrolysis designs [@dutta2015], to allow for interruptions of feedstock supply (see Capacity factors and price capture of biomass power).
 
 The pyrolysis unit costs 335 US\$ per Mg yr^-1^ of feed capacity in the United States (2024 USD), at the feed rate of a 50 MW~e~ reference plant. This is NREL's nth-plant estimate for a 2,000 Mg day^-1^ (dry basis) slow pyrolysis plant [@yadav2026], scaled to the reference size with an exponent of 0.7. The power block costs 3,250 US\$ kW~e~^-1^ in the United States. This lies between the cost of a steam cycle alone in NREL's pyrolysis designs, about 2,650 US\$ kW~e~^-1^ [@dutta2015], and that of a complete 50 MW~e~ biomass power plant [@eia2026], which also includes solid-fuel handling (4,700 US\$ kW~e~^-1^). The power block cost scales with size according to @eq-capex, with $P$ the fuel input to the power block and $\eta_{\mathrm{ref}}$ its own net electrical efficiency (@tbl-parameters). Both costs are scaled to other regions by the capital cost location factor (see Regional cost adjustment).
 
@@ -400,7 +403,7 @@ Each application is a spreading pass, assumed to be timed to precede tillage, wh
 
 #### Soil N~2~O emissions
 
-Biochar additions reduce direct emissions of nitrous oxide (N~2~O) from fertilized soils. We estimated the reduction from field trials by multilevel random-effects meta-analysis of the data compiled by @xu2021 (Supplementary Text S3). The mean reduction, $R_{\mathrm{N_2O}}$, is 20% (90% confidence interval 11–29%; 36 studies). It did not vary detectably with dose between 2.2 and 72 Mg ha^-1^. Any application at or above the lowest dose tested, $D_{\mathrm{N}}$ = 2.2 Mg ha^-1^, is therefore assumed to give the full reduction, and smaller doses a reduction proportional to dose.
+Biochar additions reduce direct emissions of nitrous oxide (N~2~O) from fertilized soils. We estimated the reduction from field trials by multilevel random-effects meta-analysis of the data compiled by @xu2021 (see Meta-analysis of biochar field trials). The mean reduction, $R_{\mathrm{N_2O}}$, is 20% (90% confidence interval 11–29%; 36 studies). It did not vary detectably with dose between 2.2 and 72 Mg ha^-1^. Any application at or above the lowest dose tested, $D_{\mathrm{N}}$ = 2.2 Mg ha^-1^, is therefore assumed to give the full reduction, and smaller doses a reduction proportional to dose.
 
 Too few trials in these data extend beyond one year to show whether the reduction declines as biochar ages (6 studies). Other syntheses find that it does, although they differ on how quickly: the reduction has been reported to become negligible within about a year [@borchard2019; @liu2020n2o], or to peak about 1.5 years after application and decline thereafter [@kaur2023], and it diminishes over time after single applications [@yang2025biochar]. At some sites, however, reductions persist 7–8 years after a single application [@guo2023legacy; @zhang2026paddy]. We assume that the reduction declines exponentially after each application, with a half-life $t_{1/2}$ of 2 years (1–10 years in the Monte Carlo analysis; @tbl-si-mc), and that the next application to the same land restores it. The avoided emissions per megagram of feedstock are
 
@@ -420,7 +423,7 @@ Where soil pH is below the target pH (@tbl-parameters), the acid-neutralizing ca
 
 The biochar retains all of the P and K of the feedstock (see Residue minerals and ash return). P and K are credited at their total content. Whether they are returned in biochar, in ash or in retained residue, they remain in the soil and become available to crops over the following years; the nutrients removed with the residue are valued on the same basis. Biochar N is held mainly in heterocyclic aromatic structures and is assumed to have no fertilizer value. P and K are valued at the world market prices of triple superphosphate and potassium chloride, respectively, averaged over the World Bank's annual prices for 2021–2025 and escalated to 2024 USD [@worldbank2026pinksheet]. Elemental P and K are converted to their oxide equivalents (×2.29 for P~2~O~5~ and ×1.20 for K~2~O) before pricing. We use the same prices in every region. Retail subsidies (as in India) and export controls (as in China) move farm-gate prices away from world prices, but they transfer value rather than change the economic value of the fertilizer displaced.
 
-The yield response to biochar was derived from a meta-analysis of field trials that combines the data of @woolf2016optimal, @xu2021 and @zhang2023 (Supplementary Text S3). The response increases with the biochar stock as a power function and decreases in magnitude with soil CEC. The relative yield increase of cohort $j$ in year $t$ is
+The yield response to biochar was derived from a meta-analysis of field trials that combines the data of @woolf2016optimal, @xu2021 and @zhang2023 (see Meta-analysis of biochar field trials). The response increases with the biochar stock as a power function and decreases in magnitude with soil CEC. The relative yield increase of cohort $j$ in year $t$ is
 
 $$\frac{\Delta y_{j,t}}{y} = e^{\alpha\, g(B_{j,t})} - 1, \qquad \alpha = \max\!\left(0,\ \beta_0 + \beta_{\mathrm{C}} \ln \mathrm{CEC}\right),$$ {#eq-yield-response}
 
@@ -430,7 +433,33 @@ where $\Delta y_{j,t}/y$ is the fractional increase in crop yield, $\alpha$ the 
 
 The yield increase is valued at $v_{\mathrm{c}}$, the value of crop production per hectare of harvested area, at production-weighted international prices of the major field crops (see Spatial input data). We do not assume that biochar goes to high-value horticultural crops. They occupy too little land to absorb biochar at the scale modeled here and are rarely grown on the resource-poor soils where the response is largest. The yield value per megagram of feedstock follows from @eq-ag-level, with the annual benefit per hectare of cropland $x_t = \kappa\, v_{\mathrm{c}}$ multiplied by the mean of $\Delta y_{j,t}/y$ over cohorts. The cost of field application, $V_{\mathrm{s}}$, follows from the same equation with $x_t = c_{\mathrm{s}}/\nu$ during the plant lifetime and zero after it.
 
-The CEC of biochar increases rather than declines as it ages in soil, as oxidation adds functional groups to its surfaces [@cheng2006; @liang2006], so the CEC component of the yield response is expected to persist. Its effect on crops can nonetheless decline, because aggregates and mineral coatings occlude biochar surfaces [@brodowski2006], and because biochar moves below the plough layer or is lost by erosion [@major2010; @rumpel2006]. We represent this decline by $k_{\mathrm{y}}$ (@eq-bc-stock). The magnitude of the response was also fitted mainly to measurements in the first year after application (66% of field observations; Supplementary Text S3), so it may include transient effects of fresh biochar, such as the release of nutrients from its ash. Field trials are too short to estimate $k_{\mathrm{y}}$ precisely. In 70 series of repeated measurements from 23 studies, with a median follow-up of 1 year, it was 0.14 yr^-1^ (90% confidence interval −0.43 to 0.31), but its sign depends on a single study on acid soils [@cornelissen2013]. That decline is consistent with a fading liming effect, which the model values separately as avoided lime. On soils with a pH of 6.5 or above, where the response reflects CEC rather than liming, the response did not decline (Supplementary Text S3). Over longer periods, the yield benefit of a single application fades within 5–10 years in many long-term experiments, partly as its liming effect wanes [@yang2025biochar]. Yet charcoal-rich Anthrosols, such as the Terra Preta of Amazonia and the African Dark Earths, remain more fertile than adjacent soils centuries after the charcoal was added [@glaser2001; @liang2006; @solomon2016]. We therefore sample $k_{\mathrm{y}}$ from a PERT distribution (a continuous distribution bounded by minimum and maximum plausible values, with a mode) with a minimum of zero, a mode of 0.05 yr^-1^ and a maximum of 0.3 yr^-1^ (@tbl-si-mc). The mode corresponds to a half-life of the response of about 14 years: slow enough to be consistent with the persistence on soils where the response reflects CEC and with the Anthrosols, and above zero to allow for occlusion, translocation and transient effects of fresh biochar. The maximum lies near the 95th percentile of the bootstrap estimates and covers the faster fading seen after single applications. The minimum of zero avoids extrapolating the short-term increases observed on some soils over decades.
+The CEC of biochar increases rather than declines as it ages in soil, as oxidation adds functional groups to its surfaces [@cheng2006; @liang2006], so the CEC component of the yield response is expected to persist. Its effect on crops can nonetheless decline, because aggregates and mineral coatings occlude biochar surfaces [@brodowski2006], and because biochar moves below the plough layer or is lost by erosion [@major2010; @rumpel2006]. We represent this decline by $k_{\mathrm{y}}$ (@eq-bc-stock). The magnitude of the response was also fitted mainly to measurements in the first year after application (66% of field observations; see Meta-analysis of biochar field trials), so it may include transient effects of fresh biochar, such as the release of nutrients from its ash. Field trials are too short to estimate $k_{\mathrm{y}}$ precisely. In 70 series of repeated measurements from 23 studies, with a median follow-up of 1 year, it was 0.14 yr^-1^ (90% confidence interval −0.43 to 0.31), but its sign depends on a single study on acid soils [@cornelissen2013]. That decline is consistent with a fading liming effect, which the model values separately as avoided lime. On soils with a pH of 6.5 or above, where the response reflects CEC rather than liming, the response did not decline (see Meta-analysis of biochar field trials). Over longer periods, the yield benefit of a single application fades within 5–10 years in many long-term experiments, partly as its liming effect wanes [@yang2025biochar]. Yet charcoal-rich Anthrosols, such as the Terra Preta of Amazonia and the African Dark Earths, remain more fertile than adjacent soils centuries after the charcoal was added [@glaser2001; @liang2006; @solomon2016]. We therefore sample $k_{\mathrm{y}}$ from a PERT distribution (a continuous distribution bounded by minimum and maximum plausible values, with a mode) with a minimum of zero, a mode of 0.05 yr^-1^ and a maximum of 0.3 yr^-1^ (@tbl-si-mc). The mode corresponds to a half-life of the response of about 14 years: slow enough to be consistent with the persistence on soils where the response reflects CEC and with the Anthrosols, and above zero to allow for occlusion, translocation and transient effects of fresh biochar. The maximum lies near the 95th percentile of the bootstrap estimates and covers the faster fading seen after single applications. The minimum of zero avoids extrapolating the short-term increases observed on some soils over decades.
+
+#### Meta-analysis of biochar field trials
+
+We combined three compilations of field and pot trials that report crop yields with and without biochar: the data underlying the yield model of @woolf2016optimal, @xu2021 and @zhang2023. @xu2021 also report N~2~O emissions. The effect size is the natural logarithm of the ratio of the treatment and control means (log response ratio, lnRR), with its sampling variance calculated from the reported standard deviations and replicate numbers where available.
+
+Three corrections were made before analysis. First, in @xu2021, treatments that combine biochar with another input, such as N fertilizer or manure, are compared with the same control as biochar alone in 27 of the 33 studies that report both. These contrasts include the effect of the input itself: their mean lnRR was 0.24–0.38, against 0.15 for biochar alone. We retained such a contrast only where its control differed from that of biochar alone, and otherwise calculated it against the treatment with the input alone (94 contrasts). For the same reason, three studies in @zhang2023 whose control yield did not vary with the N rate were excluded. In the data of @woolf2016optimal, each response ratio compares treatments that differ only in the addition of biochar. Second, 15 studies appear in more than one compilation. They were matched on first author, year, dose and site, and retained once. Third, four studies that @woolf2016optimal coded as pot trials, and one column experiment, are labeled as field trials in @xu2021; we recoded them. Pot trials were excluded from all analyses, because their response to dose differs from that of field trials.
+
+The shape of the yield response to dose was estimated within experiments, defined as sets of treatments that differ only in biochar dose (same study, site, crop, year, fertilization and biochar). For experiment $e$ and dose $D$, $\mathrm{lnRR}_{e,D} = \alpha_e (D/B_{\mathrm{r}})^{\gamma}$, with a separate magnitude $\alpha_e$ for each experiment. Differences between sites therefore do not affect $\gamma$, which is identified only by dose contrasts within experiments. The model was fitted by weighted least squares, with weights equal to the inverse of the sampling variance plus the residual variance between observations. Confidence intervals were obtained by bootstrap resampling of studies. Across 251 field experiments from 115 studies, $\gamma$ was 0.50 (90% confidence interval 0.29–0.66). It was 0.30 (0.16–0.46) on soils with a pH of 6.5 or above (100 experiments, 50 studies) and 0.64 (0.38–0.77) on soils below pH 6.0 (99 experiments, 41 studies), where the response includes a liming effect that is close to linear in dose. A saturating exponential fitted the data less well than the power function, and the response relative to that at 10–20 Mg ha^-1^ continued to increase above 40 Mg ha^-1^ (@fig-si-dose-response, panel a).
+
+The magnitude of the response was modeled from all 1,264 field observations (191 studies). Each observation was normalized to the reference stock with the exponent of its soil pH class (0.30 at pH ≥ 6.5, 0.64 below 6.0, 0.50 between), giving $\alpha_i = \mathrm{lnRR}_i\, (B_{\mathrm{r}}/D_i)^{\gamma}$. We fitted multilevel meta-regressions with a random effect for each study and compared them with boosted regression trees and random forests by tenfold cross-validation in which whole studies were held out. The models predicted between-study variation only modestly. On the 51 studies that report both soil pH and CEC (434 observations), the share of the variance in study means explained by held-out predictions was 0.20 for a meta-regression on pH and CEC, 0.25 for boosted trees on pH and CEC, 0.32 for a random forest on all covariates, and 0.21 for TabPFN, a pretrained transformer for tabular data [@hollmann2025], with or without the additional covariates. Cross-validation that ignored the grouping of observations by study gave 0.38, which overstates predictive skill. No method improved on the meta-regression by the margin of 0.1 that we required for switching. TabPFN predicted as well from pH and CEC alone as from all covariates, which suggests that the signal that transfers between studies lies in these two soil properties, and that the higher score of the random forest reflects covariates specific to particular studies. Those covariates are also missing for many observations and cannot be mapped consistently. The meta-regression uses only pH and CEC, for which global maps are available, and, unlike the tree-based models, gives a response that changes smoothly and monotonically with CEC. We therefore used the meta-regression:
+
+$$\alpha = \beta_0 + \beta_{\mathrm{A}} \max(0,\, 6.5 - \mathrm{pH}) + \beta_{\mathrm{C}} \ln \mathrm{CEC},$$
+
+with $\beta_0$ = 0.361 (standard error 0.076), $\beta_{\mathrm{A}}$ = 0.070 (0.029) and $\beta_{\mathrm{C}}$ = −0.101 (0.025). Across the 10th to 90th percentiles of the observations, the pH term changes $\alpha$ by 0.15 and the CEC term by 0.24, consistent with the comparable importance of pH and CEC in @woolf2016optimal. In soils with pH of 6.5 or above alone (19 studies), $\beta_{\mathrm{C}}$ was −0.049 (0.042), so the CEC effect is identified mainly in acid soils, where low CEC and low pH occur together. MERIDIAN uses $\beta_0$ and $\beta_{\mathrm{C}}$ (@eq-yield-response), which the Monte Carlo analysis samples from a bivariate normal distribution with their estimated means and covariance. The weaker response fitted to soils with a pH of 6.5 or above alone ($\beta_0$ = 0.213, $\beta_{\mathrm{C}}$ = −0.049) lies outside the 90% range of these draws and is not sampled.
+
+For N~2~O, 99 contrasts of biochar combined with another input were excluded because their controls lacked that input, and 7 duplicated rows were removed. The remaining 160 observations from 36 studies gave a mean lnRR of −0.224 (standard error 0.068) in a multilevel random-effects model with study and observation random effects, a reduction of 20% (90% confidence interval 11–29%). The log-dose slope was 0.001 (0.052) across studies, and dose contrasts within 44 experiments from 20 studies showed no trend (median difference 0.00). The reduction did not differ significantly between trials of less than and more than one year, but only 25 observations from 6 studies exceed one year.
+
+Persistence of the yield response was examined in 70 series of the same treatment observed in two or more years (23 studies; median follow-up 1 year, maximum 5 years; 9 studies followed for 2 years or more). We fitted $\mathrm{lnRR}_{s,t} = \alpha_s e^{-k_{\mathrm{y}} t}$, with a separate magnitude $\alpha_s$ for each series and $t$ the time since the first observation. The estimated $k_{\mathrm{y}}$ was 0.14 yr^-1^ (90% confidence interval −0.43 to 0.31, by bootstrap resampling of studies), and its sign depends on a single study. Without the trials of @cornelissen2013, on acid soils, $k_{\mathrm{y}}$ was −0.30 yr^-1^. On soils with a pH of 6.5 or above (37 series, 11 studies), the response did not decline ($k_{\mathrm{y}}$ = −0.36 yr^-1^; 80% confidence interval −0.57 to 0.03), and omitting any one study left the estimate between −0.44 and −0.18 yr^-1^. The decline in the pooled data is thus concentrated in acid soils, where part of the response is a liming effect that diminishes as the soil reacidifies. Among series with an initial response above 0.05, the median response relative to the first observation was 0.83 after about one year (29 series, 15 studies) and 0.62 after about two years (10 series, 6 studies). These ratios overstate decline, because selecting series on a large first response favors subsequent regression toward the mean. Here $k_{\mathrm{y}}$ is the decline rate of the response itself; the model converts it to a decay of the effective biochar stock (@eq-bc-stock). The Monte Carlo distribution of $k_{\mathrm{y}}$ has its upper bound near the 95th percentile of the bootstrap estimates. Its mode of 0.05 yr^-1^, a half-life of about 14 years, gives more weight than the pooled estimate does to soils where the response reflects CEC rather than liming, while allowing for slow decline from occlusion, translocation and transient effects of fresh biochar (see Biochar agronomic valuation). Its lower bound of zero excludes extrapolating the short-term increases observed on some soils to decades. All models were fitted in Python with NumPy and SciPy [@harris2020; @virtanen2020]. The multilevel meta-regressions have the same random-effects structure as those of the R package metafor [@viechtbauer2010] and were fitted by maximum likelihood.
+
+### Capacity factors and price capture of biomass power
+
+Technology data give an availability of 91% for biomass plants [@dea2026], but this accounts only for planned and unplanned outages, not for operation below full output, which depends on how each technology is dispatched. Historical capacity factors of biomass power plants, such as 0.54–0.61 for US wood-fired plants over the past decade [@eia2026epm] and 0.50–0.64 for Drax's biomass units in 2023–2024 [@drax2025], reflect dispatch in grids with low or no carbon prices and are a poor guide to operation in decarbonizing grids. Models that optimize capacity and hourly dispatch together under carbon constraints find two roles for biomass power. Firm, base-load low-carbon supply [@daggash2019; @prado2023] is favored at high CO~2~ charges where other sources of flexibility are ample [@ahlstrom2022]. Flexible supply serves hours of high residual load in systems dominated by wind and solar [@johansson2019; @lehtveer2021]. We therefore evaluate BE in both modes: base load at a capacity factor of 0.85 (Monte Carlo range 0.75–0.90) and flexible operation at 0.45 (range 0.30–0.60).
+
+A plant that follows prices sells in high-price hours, so its realized price exceeds the time-averaged wholesale price. We estimated this ratio from hourly day-ahead prices in 24–31 European markets over 2015–2025 [@ember2026hourly], for a plant that runs the highest-priced hours of each day among its available hours (availability 0.91), with perfect foresight and no start-up or minimum-load constraints. The median ratio across markets in 2024–2025 was 1.05 at a capacity factor of 0.85 and 1.30 at 0.45 (10th–90th percentile 1.19–1.42); the latter has risen from 1.15–1.21 in 2015–2023 as solar generation has grown. Grid storage bounds the daily price spread available to a flexible generator: prices in discharge hours cannot persistently exceed the charging price divided by the round-trip efficiency plus the levelized cost of storage. At 65 US\$ MWh^-1^ for utility-scale batteries [@ember2025battery], this gives about 1.34 times the average European price, and about 1.9 at the US costs of @lazard2025. Batteries do not shift energy between seasons or across multi-day lulls in wind, whereas stored biomass can, and models of decarbonized systems show a wider spread of prices, with more hours at both very low and high prices [@geis2025]. The ratios are therefore 1.05 (range 1.02–1.08) for base load and 1.30 (range 1.15–1.45) for flexible operation, applied in all regions; they are derived from European markets and are an assumption elsewhere. The allocation between modes also depends on the generation mix and demand of each grid, which are not modeled.
+
+BECCS is driven towards base-load operation by its higher capital cost, by removal revenue earned per megagram of CO~2~ captured, and by the need to keep the capture plant, dense-phase pipeline and injection in steady operation [@johansson2019; @prado2023]. It takes 0.85, the design capacity factor of CCS power plants [@petranova2020], with a range of 0.60–0.90; the lower end reflects operation of about 3,900 full-load hours where scarce biomass is directed to high-price hours [@lehtveer2021]. Electricity is a small share of PyCCS revenue, so its operation is limited by the availability of the pyrolysis unit and the continuity of biomass supply rather than by dispatch. It takes 0.80 (range 0.70–0.85), below the 0.90 on-stream factor of nth-plant pyrolysis designs [@dutta2015], to allow for interruptions of feedstock supply.
 
 ## Residue minerals and ash return
 
@@ -440,7 +469,7 @@ $$Q = 2n_{\mathrm{Ca}} + 2n_{\mathrm{Mg}} + n_{\mathrm{K}} + n_{\mathrm{Na}} - n
 
 where $n_i$ is the amount of element $i$ (mol Mg^-1^ of feedstock) and $Q$ (mol of charge Mg^-1^) is expressed as CaCO~3~ equivalent. Base cations balanced by weak-acid anions (carbonate, oxide, silicate and organic anions) neutralize soil acidity, whereas those balanced by chloride or sulfate do not. Phosphate counts as one equivalent because H~2~PO~4~^−^ is the dominant species at soil pH, and silica carries no alkalinity.
 
-Biochar produced at about 500 °C retains all of the Ca, Mg, K, Na and P, 45% of the Cl and 40% of the S [@saleh2014; @knudsen2004]. In combustion, Cl and S leave the fuel bed as KCl and K~2~SO~4~, which make up most of the fly ash of straw-fired grate boilers [@thomsen2006]. We assign 90% of the Cl, 50% of the S and 5% of the P to the fly ash, together with the K bound by the Cl and S; the bottom ash retains the rest (Supplementary Text S2). Per megagram of feedstock, biochar therefore carries 13–16% more acid-neutralizing capacity than the bottom ash and 1.6–1.9 times its K.
+Biochar produced at about 500 °C retains all of the Ca, Mg, K, Na and P, 45% of the Cl and 40% of the S [@saleh2014; @knudsen2004]. In combustion, Cl and S leave the fuel bed as KCl and K~2~SO~4~, which make up most of the fly ash of straw-fired grate boilers [@thomsen2006]. We assign 90% of the Cl, 50% of the S and 5% of the P to the fly ash, together with the K bound by the Cl and S; the bottom ash retains the rest (see Partition of residue minerals in combustion and pyrolysis). Per megagram of feedstock, biochar therefore carries 13–16% more acid-neutralizing capacity than the bottom ash and 1.6–1.9 times its K.
 
 The bottom ash from BE and BECCS is assumed to be returned to cropland, as at Danish straw-fired power plants. It is returned to the fields in the same way as biochar (see Biomass transport costs and emissions and Biochar field application), in one spreading pass at 5 Mg ha^-1^, the maximum allowed for straw ash in Denmark [@bioash2019]. Fly ash, which concentrates heavy metals, is assumed to be landfilled, so combustion loses the K, Cl and S that the fly ash holds. Because nearly all straw ash in Denmark is used as fertilizer or soil improver [@lamers2018], the share of fly ash returned to cropland is sampled from 0 to 1 in the Monte Carlo analysis. The cost of landfilling fly ash, below 1.5 US\$ Mg^-1^ of feedstock, is part of plant O&M.
 
@@ -451,6 +480,10 @@ $$C_{\mathrm{rem}} = (1 - f_{\mathrm{burn}})\, f_{\mathrm{N}}\, w_{\mathrm{N}}\,
 where $C_{\mathrm{rem}}$ is in US\$ Mg^-1^, $f_{\mathrm{burn}}$ is the share of the residue that would otherwise be combusted in the field (see Residue removal counterfactual), $w_{\mathrm{N}}$, $w_{\mathrm{P}}$ and $w_{\mathrm{K}}$ are the N, P and K contents of the residue (kg Mg^-1^; @tbl-parameters), $p_{\mathrm{N}}$, $p_{\mathrm{P}}$ and $p_{\mathrm{K}}$ their prices (US\$ kg^-1^), $f_{\mathrm{N}}$ the fertilizer replacement value of residue N (fraction), $Q_{\mathrm{res}}$ the acid-neutralizing capacity of the residue (@eq-anc, kg CaCO~3~-eq Mg^-1^), $p_{\mathrm{lime}}$ the lime cost (US\$ kg^-1^), and $\delta$ is 1 where soil pH is below the target pH and 0 elsewhere. Prices are those used for the nutrient and liming credits (see Biochar agronomic valuation), with N priced as urea. P, K and alkalinity are charged in full, because residues combusted in the field also return them in their ash. N is charged only on the share of residue that would have been retained, because it is lost when residues are combusted in the field. Its fertilizer replacement value, $f_{\mathrm{N}}$, is assumed to be zero. Cereal residues have a high C:N ratio, so their decomposition immobilizes mineral N in the soil, and subsequent crops recover little of their N: about 8% over three years in a ^15^N-labeled straw experiment [@thomsen1994]. That recovery is gross of the fertilizer N immobilized meanwhile, so it is an upper bound on the replacement value. The Monte Carlo analysis samples $f_{\mathrm{N}}$ up to 0.1 to cover it and the N-richer residues of soybean, which the cereal composition omits (@tbl-si-mc).
 
 Relative to the counterfactual, biochar returns all of the P and K and more alkalinity than the residue, because part of its Cl and S is volatilized in pyrolysis. Bottom ash returns 95% of the P and 52–62% of the K. It is credited for its liming value where soil pH is below the target pH, and for its P and K at the same prices and on the same total-content basis as biochar. The charge is the same for every pathway, so it does not change which technology is preferred, but it raises the cost of all of them. We do not include the emissions from manufacturing the fertilizer and lime that replace the nutrients and alkalinity removed, nor those avoided by the nutrients and alkalinity returned in biochar and ash. With residue N given no replacement value, these concern only P, K and lime. For BE and BECCS, the omitted emissions are those of producing the potash that replaces the K lost in fly ash, 4–9 kg K~2~O Mg^-1^ of feedstock.
+
+### Partition of residue minerals in combustion and pyrolysis
+
+Biochar produced at about 500 °C retains all of the Ca, Mg, K, Na and P of the feedstock, and 45% of the Cl and 40% of the S. The remainder is released as HCl and sulfur gases, which raises the acid-neutralizing capacity of the char [@saleh2014; @knudsen2004]. In combustion, Cl and S leave the fuel bed as KCl and K~2~SO~4~, which make up most of the fly ash of straw-fired grate boilers (53% KCl and 29% K~2~SO~4~ at Avedøre [@thomsen2006]). We assign 90% of the Cl and 50% of the S to the fly ash, together with the K they bind and 5% of the P. The fly ash therefore has negligible acid-neutralizing capacity and holds 38–48% of the feedstock K; the bottom ash retains the Ca, Mg and Na and the remaining K and P. These assumptions give fly ash 15–18% of the ash mass for wheat and maize residues and 8–9% for rice residues, consistent with the 80–90% share of bottom ash reported for grate firing of straw [@lamers2018].
 
 ## Net GHG abatement
 
@@ -524,7 +557,19 @@ The capital costs of CO~2~ transport (pipelines, booster pumps, liquefaction, sh
 
 O&M is charged at the same fraction of CAPEX in every region, so its absolute level follows regional CAPEX. The fraction does not fall where labor is cheaper: India's regulated O&M allowance for biomass plants is 7.8% of the regulated CAPEX per year [@cerc2024], compared with about 4% in the United States and Europe [@eia2026; @dea2020].
 
-The per-kilometer cost of haulage is scaled by a regional factor built from the cost structure of US trucking [@atri2024]. Each component is scaled by its regional cost relative to the United States: driver pay by labor cost, truck finance and insurance by truck prices, and fuel by diesel prices. The time-based components are also scaled by the ratio of US to regional mean collection speed, and fuel by the ratio of regional to US climb fuel, both from the truck routing (see Biomass transport costs and emissions). The resulting factors are 1.27 for Europe, 0.49 for China and 0.40 for India (Supplementary Text S4). Slower collection offsets part of the lower labor cost in China and India, and fuel taxes, lower speeds and steeper routes raise the cost in Europe. Field operations (spreading biochar or ash) and the loading and handling of feedstock and biochar are scaled by the ratio of regional to US prices for hired machinery services, compared operation by operation (Supplementary Text S4). The ratio is 1.4 for Europe, from UK contractor prices [@naac2024], and 1.6 for China, where machine harvesting, spraying and tillage services cost 1.5–2.4 times US custom rates [@mara2022summer; @wang2022uav; @mara2023spring]. Smaller machines on smaller fields offset the lower cost of labor in China, so these operations cost more per hectare than in the United States. The ratio is 0.55 for India, from custom-hire prices in Punjab [@anchala2020]. Interim storage is scaled by a separate factor: 0.2 for India, from the cost of paddy-straw depots in Punjab [@saboo2025ceew], and 0.5 for China, an estimate sampled over a wide range in the Monte Carlo analysis (@tbl-parameters).
+The per-kilometer cost of haulage is scaled by a regional factor built from the cost structure of US trucking [@atri2024]. Each component is scaled by its regional cost relative to the United States: driver pay by labor cost, truck finance and insurance by truck prices, and fuel by diesel prices. The time-based components are also scaled by the ratio of US to regional mean collection speed, and fuel by the ratio of regional to US climb fuel, both from the truck routing (see Biomass transport costs and emissions). The resulting factors are 1.27 for Europe, 0.49 for China and 0.40 for India (see Regional haulage, field-operation and storage cost factors). Slower collection offsets part of the lower labor cost in China and India, and fuel taxes, lower speeds and steeper routes raise the cost in Europe. Field operations (spreading biochar or ash) and the loading and handling of feedstock and biochar are scaled by the ratio of regional to US prices for hired machinery services, compared operation by operation (see Regional haulage, field-operation and storage cost factors). The ratio is 1.4 for Europe, from UK contractor prices [@naac2024], and 1.6 for China, where machine harvesting, spraying and tillage services cost 1.5–2.4 times US custom rates [@mara2022summer; @wang2022uav; @mara2023spring]. Smaller machines on smaller fields offset the lower cost of labor in China, so these operations cost more per hectare than in the United States. The ratio is 0.55 for India, from custom-hire prices in Punjab [@anchala2020]. Interim storage is scaled by a separate factor: 0.2 for India, from the cost of paddy-straw depots in Punjab [@saboo2025ceew], and 0.5 for China, an estimate sampled over a wide range in the Monte Carlo analysis (@tbl-parameters).
+
+#### Regional haulage, field-operation and storage cost factors
+
+The per-kilometer haulage cost of @searcy2007 describes US trucking. To transfer it to other regions, we split it into the cost shares of US truckload operations in 2023 [@atri2024]: time-based costs 64% (driver wages and benefits 66% of these; truck and trailer finance, insurance and permits 34%), fuel 24%, and repairs, tires and tolls 12%. The regional factor is
+
+$$\lambda_{\mathrm{h}} = s_{\mathrm{t}}\, \frac{v_{\mathrm{US}}}{v} \left[ \sigma\, \rho_{\mathrm{w}} + (1 - \sigma)\, \rho_{\mathrm{k}} \right] + s_{\mathrm{f}}\, \frac{\psi}{\psi_{\mathrm{US}}}\, \rho_{\mathrm{d}} + s_{\mathrm{o}}\, \frac{\rho_{\mathrm{w}} + \rho_{\mathrm{k}}}{2},$$ {#eq-haul-factor}
+
+where $s_{\mathrm{t}}$, $s_{\mathrm{f}}$ and $s_{\mathrm{o}}$ are the time-based, fuel and other cost shares, $\sigma$ the share of driver pay in time-based costs, $\rho_{\mathrm{w}}$, $\rho_{\mathrm{k}}$ and $\rho_{\mathrm{d}}$ the ratios of regional to US driver labor cost, truck price and diesel price, $v$ the mean collection speed (km h^-1^) and $\psi$ the mean grade fuel factor (the ratio of total to flat-road fuel use). Repairs combine labor and parts, so they are scaled by the mean of $\rho_{\mathrm{w}}$ and $\rho_{\mathrm{k}}$.
+
+@tbl-si-haul lists the inputs. Driver labor cost in the United States is the mean wage of heavy and tractor-trailer truck drivers in 2024, 26.92 US\$ h^-1^ [@bls2025oes], plus benefits at the ratio of benefits to wages in @atri2024, giving 33.6 US\$ h^-1^. For Europe, it is the 2024 labor cost in transport and storage in the EU, 29.3 € h^-1^ (31.7 US\$ h^-1^) [@eurostat2025lc]. For China, it is a monthly income of 6,500 CNY (904 US\$), the middle of the range reported by most truck drivers in a national survey [@cflp2025], over 286 working hours per month, because more than a third of drivers work 12 hours a day or more. For India, it is a monthly pay of 20,000 INR (239 US\$) over 260 hours. In a 2018 survey of 1,217 truck drivers in ten Indian cities, 89% earned up to 20,000 INR per month, and the median, interpolated within the reported income classes, was about 12,700 INR [@savelife2020]. Converted at the 2018 exchange rate and escalated to 2024, this is 231 US\$, close to the value used. Truck prices compare a heavy tractor with trailer. Diesel prices are 2024 averages, excluding value-added tax where hauliers can recover it (Europe and China) [@eia2026diesel; @ec2024oilbulletin; @bpcl2024hsd]. For China, we use a retail price of 7.6 CNY L^-1^ including value-added tax. It lies between the price in Beijing in December 2024, 7.14 CNY L^-1^ [@statista2024diesel], and the median of a provincial retail price series from 2019 to 2026, 8.55 CNY L^-1^ [@ceic2026diesel]. Mean speeds and grade fuel factors are biomass-weighted means over the least-time routes to 125 MW~th~ plants (see Biomass transport costs and emissions).
+
+Field and handling operations (spreading biochar or ash, loading and handling) are scaled by a separate factor, the ratio of regional to US prices for hired machinery services. US prices are the averages of the Iowa custom rate survey [@iowa2025custom]: 40 US\$ acre^-1^ (96 US\$ ha^-1^) for combining small grains, 9 US\$ acre^-1^ for spraying, 7.30 US\$ acre^-1^ for spreading dry fertilizer, 18.50 US\$ acre^-1^ for a tandem disk and 8 US\$ Mg^-1^ for spreading lime. For Europe, UK contractor prices [@naac2024] give ratios of 1.55 for combining cereals, 1.15 for spreading granular fertilizer, 1.24 for spreading lime and 1.63 for disc harrowing; we use 1.4 (1.15–1.65). For China, wheat machine harvesting cost 60 CNY mu^-1^ (900 CNY ha^-1^) in 2022 [@mara2022summer], a ratio of 1.5; drone spraying cost 225 CNY ha^-1^, including labor [@wang2022uav], a ratio of 1.6; ploughing, sowing and harvesting of wheat in Henan cost more than 120 CNY mu^-1^ [@qiu2021ams], a ratio of at least 1.6; and rotary tillage cost 50 CNY mu^-1^ in 2023 [@mara2023spring], a ratio of 1.9–2.4. We use 1.6 (1.2–2.4), the ratio for spraying, which like spreading is a light, single-pass operation. For India, custom-hired combine harvesting in Punjab cost Rs 3,217–3,400 ha^-1^ in 2018–19 [@anchala2020], a ratio of 0.65, and a tractor tillage pass about Rs 1,800 ha^-1^, a ratio of about 0.45; we use 0.55 (0.45–0.65). Prices are converted at the exchange rate of the source year and escalated with the US consumer price index. Interim storage of feedstock is scaled by a third factor. For India, paddy-straw depots in Punjab cost INR 250–400 per Mg of storage capacity to build and about INR 120 Mg^-1^ yr^-1^ to operate, excluding land rent [@saboo2025ceew], about 0.2 of the US and European storage cost (0.15–0.35 including land rent). For China, reported construction costs of straw collection and storage centers suggest about half the US and European cost, and we sample the factor from 0.3 to 1.0.
 
 ## Statistical methods
 
@@ -564,18 +609,55 @@ Residue supply per hectare of harvested area (see Biochar field application) use
 
 Electricity is valued at the wholesale price a generator receives, rather than at retail tariffs, whose regional differences largely reflect taxes, network charges and cross-subsidies. Prices are averages over 2024–2025, excluding the anomalous prices of the 2022 European gas crisis and its aftermath in 2023. For the United States, each state takes the price at the wholesale trading hub of the market that serves most of it (11 hubs) [@eia2026steo]. For Europe, prices are national day-ahead market prices [@ember2026price], with those of Türkiye [@epias2026] and Ukraine [@marketoperator2026] from their market operators; small markets without published prices take a neighboring market's price. Belarus, which has no wholesale market, takes its industrial tariff [@climatescope2021] multiplied by the ratio of wholesale to industrial prices in the United States (median across states in 2024, 0.42) [@eia2026steo; @eia2025epa]. For China, the price is the provincial benchmark on-grid tariff for coal-fired power [@ndrc2019], which is also the reference price for renewable generators, excluding value-added tax. For India, it is the average price on the day-ahead market of the Indian Energy Exchange in 2024–25 [@cerc2025stm], a single national value because the market rarely separates into regional prices. Each year's price is converted at that year's average exchange rate [@worldbank2026fx] and escalated to 2024 US dollars. The biomass-weighted mean prices are 40 US\$ MWh^-1^ for the United States, 96 for Europe, 47 for China and 49 for India. Grid carbon intensities are described under Grid displacement.
 
-```{r}
-#| label: tbl-parameters
-#| tbl-cap: "Operational, financial, and biophysical parameters of the MERIDIAN model."
-#| echo: false
-#| message: false
-#| warning: false
+## Reproducibility and consistency between model and manuscript
 
-library(gt)
-library(dplyr)
+The manuscript is written as a literate document in which every numerical result in the text, tables and figures is computed at rendering from the model's output files, and the parameter table is generated from the same input file that the model reads. Text and results therefore cannot diverge silently when the model changes. During development, an AI assistant (Claude, Anthropic) was used to check each statement in the Methods against the model code and parameter file, and to flag text that no longer matched the model's behavior or outputs. At each revision, all numbers and citation keys in the manuscript were compared before and after the change, and the lead author reviewed and approved every difference. Proposed citations were checked against the source publication or its DOI record. Statements from co-authors and from the AI assistant were subject to the same verification. The model code, input data and rendering pipeline are openly available (see Data availability), so that every value reported here can be regenerated.
 
-raw_params <- read.csv("../BiocharAG/inst/extdata/parameters.csv", check.names = FALSE, na.strings = "")
+# Author contributions {.unnumbered}
 
+<!-- TODO (EES): CRediT roles for each author. -->
+
+# Conflicts of interest {.unnumbered}
+
+<!-- TODO (EES): conflicts of interest statement ("There are no conflicts to declare" if none). -->
+
+# Data availability {.unnumbered}
+
+<!-- TODO (EES): repository and DOI for model code, inputs and results; note the reference numbers cited only in the ESI. -->
+
+# Acknowledgements {.unnumbered}
+
+This work was supported by Environmental Defense Fund with an award from King Philanthropies.
+
+Claude (Anthropic) was used as a research assistant for model code development, for checking consistency between the model and the manuscript, and for drafting and editing text. The AI tool did not make scientific decisions: every modeling choice, interpretation and passage of text it proposed was reviewed, revised where necessary and approved by the lead author, and all authors take full responsibility for the content. The procedures used to verify the AI-assisted work are described in the Supplementary Information (Section S5).
+
+# Notes and references {.unnumbered}
+
+Maps in this study depict Mainland China to correspond with the geographical scope of the data. The omission of islands or maritime boundaries does not imply an endorsement of any particular political status or territorial claim.
+
+::: {#refs}
+:::
+
+```{=latex}
+\clearpage
+\setcounter{page}{1}
+\renewcommand{\thepage}{S\arabic{page}}
+```
+
+# Electronic Supplementary Information {.unnumbered}
+
+```{=latex}
+\setcounter{figure}{0}
+\renewcommand{\thefigure}{S\arabic{figure}}
+\setcounter{table}{0}
+\renewcommand{\thetable}{S\arabic{table}}
+```
+
+## Supplementary tables {.unnumbered}
+
+```{r esi-table-helpers}
+#| include: false
+# Helpers shared by the ESI tables
 # Units in parameters.csv use Pandoc markdown (Mg^-1^, CO~2~); tables need LaTeX (or HTML) markup
 is_docx <- knitr::pandoc_to("docx")
 
@@ -637,211 +719,7 @@ md_units <- function(x, latex = knitr::is_latex_output()) {
     gsub("~([^~]+)~", "<sub>\\1</sub>", x)
   }
 }
-
-# Filter out rows that shouldn't be displayed
-# Exclude Constants, Control Flags, and some spatial metrics
-display_df <- raw_params |>
-  filter(!(category %in% c("Constants", "Control Flags"))) |>
-  filter(!(name %in% c(
-    "avg_dist", "collection_radius", "dist_offshore", "dist_onshore", "dist_sink_km", "dist_sink_saline_km", "feedstock_cost", "plant_sizes_mw_th", "flat_ci_tCO2_GJ", "rebound",
-    # BEBCS heat mode: optional, not used in the results (see Discussion)
-    "bebcs_heat_capital_cost", "bebcs_heat_efficiency", "bebcs_heat_life", "bebcs_heat_om_factor",
-    "heat_price", "heat_boiler_ci", "heat_pump_cop", "heat_offtake"
-  ))) |>
-  select(
-    Category = category,
-    Parameter = name,
-    Description = description,
-    USA = US,
-    Europe = Europe,
-    China = China,
-    India = India,
-    Units = units
-  ) |>
-  mutate(Units = md_units(Units)) |>
-  mutate(
-    # Convert NA to Spatially explicit for regional columns
-    USA = ifelse(is.na(USA), "Spatially explicit", USA),
-    Europe = ifelse(is.na(Europe), "Spatially explicit", Europe),
-    China = ifelse(is.na(China), "Spatially explicit", China),
-    India = ifelse(is.na(India), "Spatially explicit", India),
-    # Add backticks to Parameter names for markdown formatting
-    Parameter = paste0("`", Parameter, "`")
-  ) |>
-  # Arrange by Category
-  arrange(Category)
-
-# Identify rows where all regional values are identical
-is_uniform <- with(display_df, !is.na(USA) & USA == Europe & Europe == China & China == India & USA != "Spatially explicit")
-
-display_df$Europe[is_uniform] <- ""
-display_df$China[is_uniform] <- ""
-display_df$India[is_uniform] <- ""
-
-# Parameters that apply to one region only: show the value in that region's column
-one_region <- c(us_base_cost = "USA", eu_nutrient_deduction = "Europe", india_feedstock_cost = "India")
-for (nm in names(one_region)) {
-  i <- which(display_df$Parameter == paste0("`", nm, "`"))
-  v <- raw_params$US[raw_params$name == nm]
-  display_df[i, c("USA", "Europe", "China", "India")] <- "–"
-  display_df[i, one_region[[nm]]] <- v
-}
-
-if (is_docx) {
-  # Word: flextable with a heading row per category (gt output does not survive the Word conversion)
-  word_table(setNames(transform(display_df, Parameter = gsub("`", "", Parameter)), sub("^USA$", "USA / Default", names(display_df))),
-    widths = c(1.2, 2.1, 0.65, 0.6, 0.6, 0.6, 0.75), group = "Category", mono = "Parameter")
-} else {
-  gt(display_df, groupname_col = "Category") |>
-    tab_spanner(
-      label = "Value",
-      columns = c(USA, Europe, China, India)
-    ) |>
-    cols_label(
-      Parameter = "Parameter",
-      Description = "Description",
-      USA = "USA/Default",
-      Europe = "Europe",
-      China = "China",
-      India = "India",
-      Units = "Units"
-    ) |>
-    cols_width(
-      Parameter ~ pct(18),
-      Description ~ pct(24),
-      USA ~ pct(12),
-      Europe ~ pct(10),
-      China ~ pct(10),
-      India ~ pct(10),
-      Units ~ pct(16)
-    ) |>
-    fmt_markdown(columns = c(Category, Parameter, Description, USA, Europe, China, India)) |>
-    fmt_passthrough(columns = Units, escape = FALSE) |>
-    tab_options(
-      table.font.size = px(9),
-      data_row.padding = px(2),
-      row_group.font.weight = "bold",
-      latex.use_longtable = TRUE,
-      latex.header_repeat = TRUE
-    )
-}
 ```
-
-# Figures {.unnumbered}
-
-![Break-even carbon price of each technology (rows 1–3), the technology with the lowest break-even price (row 4) and that price (row 5), by region (columns), at the regional market discount rates. The break-even price is the carbon price at which the net value of a technology becomes non-negative; it is negative where a technology is profitable without a carbon price. The technology with the lowest break-even price is the first to become profitable as the carbon price rises, but not necessarily the one with the highest net value at higher prices (@fig-evap). Colors are capped at −50 and 200 US\$ Mg^-1^ CO~2~e.](results/figures/Breakeven_CPrice.png){#fig-break-even width="100%"}
-
-![Technology with the highest net value in each grid cell, by carbon price (rows) and region (columns), at the regional market discount rates. Saturated colors: that net value is positive; pale colors: no technology is profitable, and the color shows the one with the smallest loss.](results/figures/Evaporation_Grid_market.png){#fig-evap width="100%"}
-
-![Abatement supply curves: annual abatement of the technology with the highest non-negative net value in each grid cell, summed over each region, as a function of the carbon price, at the regional market discount rates.](results/figures/MACC.png){#fig-macc width="100%"}
-
-![Spatial drivers of technology costs and of the takeover of biochar by geological storage: share of the mean absolute SHAP value of each spatial input in regional regression models of the break-even carbon prices of PyCCS and BECCS, the net value of BE without a carbon price, and the carbon price at which BECCS takes over. Blank: the input is not used by that model; values below 5% are not labeled.](results/spatial_shap/shap_importance.png){#fig-shap-importance width="100%"}
-
-![Carbon price at which BECCS becomes the technology with the highest non-negative net value in each grid cell, at the regional market discount rates. Gray: BECCS does not take over below 500 US\$ Mg^-1^ CO~2~e.](results/spatial_shap/map_takeover_price.png){#fig-takeover-price width="100%"}
-
-![Dominant driver of the BECCS takeover price (@fig-takeover-price) in each grid cell: the spatial input with the largest absolute SHAP value in the regional regression model (@fig-shap-importance).](results/spatial_shap/map_takeover_driver.png){#fig-takeover-driver width="100%"}
-
-# Author contributions {.unnumbered}
-
-<!-- TODO (EES): CRediT roles for each author. -->
-
-# Conflicts of interest {.unnumbered}
-
-<!-- TODO (EES): conflicts of interest statement ("There are no conflicts to declare" if none). -->
-
-# Data availability {.unnumbered}
-
-<!-- TODO (EES): repository and DOI for model code, inputs and results; note the reference numbers cited only in the ESI. -->
-
-# Acknowledgements {.unnumbered}
-
-This work was supported by Environmental Defense Fund with an award from King Philanthropies.
-
-Claude (Anthropic) was used as a research assistant for model code development, for checking consistency between the model and the manuscript, and for drafting and editing text. The AI tool did not make scientific decisions: every modeling choice, interpretation and passage of text it proposed was reviewed, revised where necessary and approved by the lead author, and all authors take full responsibility for the content. The procedures used to verify the AI-assisted work are described in the Supplementary Information (Section S5).
-
-# Notes and references {.unnumbered}
-
-Maps in this study depict Mainland China to correspond with the geographical scope of the data. The omission of islands or maritime boundaries does not imply an endorsement of any particular political status or territorial claim.
-
-::: {#refs}
-:::
-
-```{=latex}
-\clearpage
-\setcounter{page}{1}
-\renewcommand{\thepage}{S\arabic{page}}
-```
-
-# Electronic Supplementary Information {.unnumbered}
-
-```{=latex}
-\setcounter{figure}{0}
-\renewcommand{\thefigure}{S\arabic{figure}}
-\setcounter{table}{0}
-\renewcommand{\thetable}{S\arabic{table}}
-```
-
-## Supplementary Text {.unnumbered}
-
-### Text S1. Capacity factors and price capture of biomass power {.unnumbered}
-
-Technology data give an availability of 91% for biomass plants [@dea2026], but this accounts only for planned and unplanned outages, not for operation below full output, which depends on how each technology is dispatched. Historical capacity factors of biomass power plants, such as 0.54–0.61 for US wood-fired plants over the past decade [@eia2026epm] and 0.50–0.64 for Drax's biomass units in 2023–2024 [@drax2025], reflect dispatch in grids with low or no carbon prices and are a poor guide to operation in decarbonizing grids. Models that optimize capacity and hourly dispatch together under carbon constraints find two roles for biomass power. Firm, base-load low-carbon supply [@daggash2019; @prado2023] is favored at high CO~2~ charges where other sources of flexibility are ample [@ahlstrom2022]. Flexible supply serves hours of high residual load in systems dominated by wind and solar [@johansson2019; @lehtveer2021]. We therefore evaluate BE in both modes: base load at a capacity factor of 0.85 (Monte Carlo range 0.75–0.90) and flexible operation at 0.45 (range 0.30–0.60).
-
-A plant that follows prices sells in high-price hours, so its realized price exceeds the time-averaged wholesale price. We estimated this ratio from hourly day-ahead prices in 24–31 European markets over 2015–2025 [@ember2026hourly], for a plant that runs the highest-priced hours of each day among its available hours (availability 0.91), with perfect foresight and no start-up or minimum-load constraints. The median ratio across markets in 2024–2025 was 1.05 at a capacity factor of 0.85 and 1.30 at 0.45 (10th–90th percentile 1.19–1.42); the latter has risen from 1.15–1.21 in 2015–2023 as solar generation has grown. Grid storage bounds the daily price spread available to a flexible generator: prices in discharge hours cannot persistently exceed the charging price divided by the round-trip efficiency plus the levelized cost of storage. At 65 US\$ MWh^-1^ for utility-scale batteries [@ember2025battery], this gives about 1.34 times the average European price, and about 1.9 at the US costs of @lazard2025. Batteries do not shift energy between seasons or across multi-day lulls in wind, whereas stored biomass can, and models of decarbonized systems show a wider spread of prices, with more hours at both very low and high prices [@geis2025]. The ratios are therefore 1.05 (range 1.02–1.08) for base load and 1.30 (range 1.15–1.45) for flexible operation, applied in all regions; they are derived from European markets and are an assumption elsewhere. The allocation between modes also depends on the generation mix and demand of each grid, which are not modeled.
-
-BECCS is driven towards base-load operation by its higher capital cost, by removal revenue earned per megagram of CO~2~ captured, and by the need to keep the capture plant, dense-phase pipeline and injection in steady operation [@johansson2019; @prado2023]. It takes 0.85, the design capacity factor of CCS power plants [@petranova2020], with a range of 0.60–0.90; the lower end reflects operation of about 3,900 full-load hours where scarce biomass is directed to high-price hours [@lehtveer2021]. Electricity is a small share of PyCCS revenue, so its operation is limited by the availability of the pyrolysis unit and the continuity of biomass supply rather than by dispatch. It takes 0.80 (range 0.70–0.85), below the 0.90 on-stream factor of nth-plant pyrolysis designs [@dutta2015], to allow for interruptions of feedstock supply.
-
-### Text S2. Partition of residue minerals in combustion and pyrolysis {.unnumbered}
-
-Biochar produced at about 500 °C retains all of the Ca, Mg, K, Na and P of the feedstock, and 45% of the Cl and 40% of the S. The remainder is released as HCl and sulfur gases, which raises the acid-neutralizing capacity of the char [@saleh2014; @knudsen2004]. In combustion, Cl and S leave the fuel bed as KCl and K~2~SO~4~, which make up most of the fly ash of straw-fired grate boilers (53% KCl and 29% K~2~SO~4~ at Avedøre [@thomsen2006]). We assign 90% of the Cl and 50% of the S to the fly ash, together with the K they bind and 5% of the P. The fly ash therefore has negligible acid-neutralizing capacity and holds 38–48% of the feedstock K; the bottom ash retains the Ca, Mg and Na and the remaining K and P. These assumptions give fly ash 15–18% of the ash mass for wheat and maize residues and 8–9% for rice residues, consistent with the 80–90% share of bottom ash reported for grate firing of straw [@lamers2018].
-
-### Text S3. Meta-analysis of biochar field trials {.unnumbered}
-
-We combined three compilations of field and pot trials that report crop yields with and without biochar: the data underlying the yield model of @woolf2016optimal, @xu2021 and @zhang2023. @xu2021 also report N~2~O emissions. The effect size is the natural logarithm of the ratio of the treatment and control means (log response ratio, lnRR), with its sampling variance calculated from the reported standard deviations and replicate numbers where available.
-
-Three corrections were made before analysis. First, in @xu2021, treatments that combine biochar with another input, such as N fertilizer or manure, are compared with the same control as biochar alone in 27 of the 33 studies that report both. These contrasts include the effect of the input itself: their mean lnRR was 0.24–0.38, against 0.15 for biochar alone. We retained such a contrast only where its control differed from that of biochar alone, and otherwise calculated it against the treatment with the input alone (94 contrasts). For the same reason, three studies in @zhang2023 whose control yield did not vary with the N rate were excluded. In the data of @woolf2016optimal, each response ratio compares treatments that differ only in the addition of biochar. Second, 15 studies appear in more than one compilation. They were matched on first author, year, dose and site, and retained once. Third, four studies that @woolf2016optimal coded as pot trials, and one column experiment, are labeled as field trials in @xu2021; we recoded them. Pot trials were excluded from all analyses, because their response to dose differs from that of field trials.
-
-The shape of the yield response to dose was estimated within experiments, defined as sets of treatments that differ only in biochar dose (same study, site, crop, year, fertilization and biochar). For experiment $e$ and dose $D$, $\mathrm{lnRR}_{e,D} = \alpha_e (D/B_{\mathrm{r}})^{\gamma}$, with a separate magnitude $\alpha_e$ for each experiment. Differences between sites therefore do not affect $\gamma$, which is identified only by dose contrasts within experiments. The model was fitted by weighted least squares, with weights equal to the inverse of the sampling variance plus the residual variance between observations. Confidence intervals were obtained by bootstrap resampling of studies. Across 251 field experiments from 115 studies, $\gamma$ was 0.50 (90% confidence interval 0.29–0.66). It was 0.30 (0.16–0.46) on soils with a pH of 6.5 or above (100 experiments, 50 studies) and 0.64 (0.38–0.77) on soils below pH 6.0 (99 experiments, 41 studies), where the response includes a liming effect that is close to linear in dose. A saturating exponential fitted the data less well than the power function, and the response relative to that at 10–20 Mg ha^-1^ continued to increase above 40 Mg ha^-1^ (@fig-si-dose-response, panel a).
-
-The magnitude of the response was modeled from all 1,264 field observations (191 studies). Each observation was normalized to the reference stock with the exponent of its soil pH class (0.30 at pH ≥ 6.5, 0.64 below 6.0, 0.50 between), giving $\alpha_i = \mathrm{lnRR}_i\, (B_{\mathrm{r}}/D_i)^{\gamma}$. We fitted multilevel meta-regressions with a random effect for each study and compared them with boosted regression trees and random forests by tenfold cross-validation in which whole studies were held out. The models predicted between-study variation only modestly. On the 51 studies that report both soil pH and CEC (434 observations), the share of the variance in study means explained by held-out predictions was 0.20 for a meta-regression on pH and CEC, 0.25 for boosted trees on pH and CEC, 0.32 for a random forest on all covariates, and 0.21 for TabPFN, a pretrained transformer for tabular data [@hollmann2025], with or without the additional covariates. Cross-validation that ignored the grouping of observations by study gave 0.38, which overstates predictive skill. No method improved on the meta-regression by the margin of 0.1 that we required for switching. TabPFN predicted as well from pH and CEC alone as from all covariates, which suggests that the signal that transfers between studies lies in these two soil properties, and that the higher score of the random forest reflects covariates specific to particular studies. Those covariates are also missing for many observations and cannot be mapped consistently. The meta-regression uses only pH and CEC, for which global maps are available, and, unlike the tree-based models, gives a response that changes smoothly and monotonically with CEC. We therefore used the meta-regression:
-
-$$\alpha = \beta_0 + \beta_{\mathrm{A}} \max(0,\, 6.5 - \mathrm{pH}) + \beta_{\mathrm{C}} \ln \mathrm{CEC},$$
-
-with $\beta_0$ = 0.361 (standard error 0.076), $\beta_{\mathrm{A}}$ = 0.070 (0.029) and $\beta_{\mathrm{C}}$ = −0.101 (0.025). Across the 10th to 90th percentiles of the observations, the pH term changes $\alpha$ by 0.15 and the CEC term by 0.24, consistent with the comparable importance of pH and CEC in @woolf2016optimal. In soils with pH of 6.5 or above alone (19 studies), $\beta_{\mathrm{C}}$ was −0.049 (0.042), so the CEC effect is identified mainly in acid soils, where low CEC and low pH occur together. MERIDIAN uses $\beta_0$ and $\beta_{\mathrm{C}}$ (@eq-yield-response), which the Monte Carlo analysis samples from a bivariate normal distribution with their estimated means and covariance. The weaker response fitted to soils with a pH of 6.5 or above alone ($\beta_0$ = 0.213, $\beta_{\mathrm{C}}$ = −0.049) lies outside the 90% range of these draws and is not sampled.
-
-For N~2~O, 99 contrasts of biochar combined with another input were excluded because their controls lacked that input, and 7 duplicated rows were removed. The remaining 160 observations from 36 studies gave a mean lnRR of −0.224 (standard error 0.068) in a multilevel random-effects model with study and observation random effects, a reduction of 20% (90% confidence interval 11–29%). The log-dose slope was 0.001 (0.052) across studies, and dose contrasts within 44 experiments from 20 studies showed no trend (median difference 0.00). The reduction did not differ significantly between trials of less than and more than one year, but only 25 observations from 6 studies exceed one year.
-
-Persistence of the yield response was examined in 70 series of the same treatment observed in two or more years (23 studies; median follow-up 1 year, maximum 5 years; 9 studies followed for 2 years or more). We fitted $\mathrm{lnRR}_{s,t} = \alpha_s e^{-k_{\mathrm{y}} t}$, with a separate magnitude $\alpha_s$ for each series and $t$ the time since the first observation. The estimated $k_{\mathrm{y}}$ was 0.14 yr^-1^ (90% confidence interval −0.43 to 0.31, by bootstrap resampling of studies), and its sign depends on a single study. Without the trials of @cornelissen2013, on acid soils, $k_{\mathrm{y}}$ was −0.30 yr^-1^. On soils with a pH of 6.5 or above (37 series, 11 studies), the response did not decline ($k_{\mathrm{y}}$ = −0.36 yr^-1^; 80% confidence interval −0.57 to 0.03), and omitting any one study left the estimate between −0.44 and −0.18 yr^-1^. The decline in the pooled data is thus concentrated in acid soils, where part of the response is a liming effect that diminishes as the soil reacidifies. Among series with an initial response above 0.05, the median response relative to the first observation was 0.83 after about one year (29 series, 15 studies) and 0.62 after about two years (10 series, 6 studies). These ratios overstate decline, because selecting series on a large first response favors subsequent regression toward the mean. Here $k_{\mathrm{y}}$ is the decline rate of the response itself; the model converts it to a decay of the effective biochar stock (@eq-bc-stock). The Monte Carlo distribution of $k_{\mathrm{y}}$ has its upper bound near the 95th percentile of the bootstrap estimates. Its mode of 0.05 yr^-1^, a half-life of about 14 years, gives more weight than the pooled estimate does to soils where the response reflects CEC rather than liming, while allowing for slow decline from occlusion, translocation and transient effects of fresh biochar (see Biochar agronomic valuation). Its lower bound of zero excludes extrapolating the short-term increases observed on some soils to decades. All models were fitted in Python with NumPy and SciPy [@harris2020; @virtanen2020]. The multilevel meta-regressions have the same random-effects structure as those of the R package metafor [@viechtbauer2010] and were fitted by maximum likelihood.
-
-### Text S4. Regional haulage, field-operation and storage cost factors {.unnumbered}
-
-The per-kilometer haulage cost of @searcy2007 describes US trucking. To transfer it to other regions, we split it into the cost shares of US truckload operations in 2023 [@atri2024]: time-based costs 64% (driver wages and benefits 66% of these; truck and trailer finance, insurance and permits 34%), fuel 24%, and repairs, tires and tolls 12%. The regional factor is
-
-$$\lambda_{\mathrm{h}} = s_{\mathrm{t}}\, \frac{v_{\mathrm{US}}}{v} \left[ \sigma\, \rho_{\mathrm{w}} + (1 - \sigma)\, \rho_{\mathrm{k}} \right] + s_{\mathrm{f}}\, \frac{\psi}{\psi_{\mathrm{US}}}\, \rho_{\mathrm{d}} + s_{\mathrm{o}}\, \frac{\rho_{\mathrm{w}} + \rho_{\mathrm{k}}}{2},$$ {#eq-haul-factor}
-
-where $s_{\mathrm{t}}$, $s_{\mathrm{f}}$ and $s_{\mathrm{o}}$ are the time-based, fuel and other cost shares, $\sigma$ the share of driver pay in time-based costs, $\rho_{\mathrm{w}}$, $\rho_{\mathrm{k}}$ and $\rho_{\mathrm{d}}$ the ratios of regional to US driver labor cost, truck price and diesel price, $v$ the mean collection speed (km h^-1^) and $\psi$ the mean grade fuel factor (the ratio of total to flat-road fuel use). Repairs combine labor and parts, so they are scaled by the mean of $\rho_{\mathrm{w}}$ and $\rho_{\mathrm{k}}$.
-
-@tbl-si-haul lists the inputs. Driver labor cost in the United States is the mean wage of heavy and tractor-trailer truck drivers in 2024, 26.92 US\$ h^-1^ [@bls2025oes], plus benefits at the ratio of benefits to wages in @atri2024, giving 33.6 US\$ h^-1^. For Europe, it is the 2024 labor cost in transport and storage in the EU, 29.3 € h^-1^ (31.7 US\$ h^-1^) [@eurostat2025lc]. For China, it is a monthly income of 6,500 CNY (904 US\$), the middle of the range reported by most truck drivers in a national survey [@cflp2025], over 286 working hours per month, because more than a third of drivers work 12 hours a day or more. For India, it is a monthly pay of 20,000 INR (239 US\$) over 260 hours. In a 2018 survey of 1,217 truck drivers in ten Indian cities, 89% earned up to 20,000 INR per month, and the median, interpolated within the reported income classes, was about 12,700 INR [@savelife2020]. Converted at the 2018 exchange rate and escalated to 2024, this is 231 US\$, close to the value used. Truck prices compare a heavy tractor with trailer. Diesel prices are 2024 averages, excluding value-added tax where hauliers can recover it (Europe and China) [@eia2026diesel; @ec2024oilbulletin; @bpcl2024hsd]. For China, we use a retail price of 7.6 CNY L^-1^ including value-added tax. It lies between the price in Beijing in December 2024, 7.14 CNY L^-1^ [@statista2024diesel], and the median of a provincial retail price series from 2019 to 2026, 8.55 CNY L^-1^ [@ceic2026diesel]. Mean speeds and grade fuel factors are biomass-weighted means over the least-time routes to 125 MW~th~ plants (see Biomass transport costs and emissions).
-
-|   | United States | Europe | China | India |
-|:--------------|--------------:|--------------:|--------------:|--------------:|
-| Driver labor cost, $\rho_{\mathrm{w}}$ | 1 | 0.90 | 0.094 | 0.027 |
-| Truck price, $\rho_{\mathrm{k}}$ | 1 | 1.0 | 0.23 | 0.25 |
-| Diesel price, $\rho_{\mathrm{d}}$ | 1 | 1.44 | 0.96 | 1.08 |
-| Mean collection speed, $v$ (km h^-1^) | 55.5 | 44.2 | 24.1 | 28.8 |
-| Grade fuel factor, $\psi$ | 1.14 | 1.34 | 1.32 | 1.14 |
-| Haulage factor, $\lambda_{\mathrm{h}}$ | 1 | 1.27 | 0.49 | 0.40 |
-| 90% range of $\lambda_{\mathrm{h}}$ in the Monte Carlo analysis | – | 1.15–1.33 | 0.45–0.60 | 0.36–0.49 |
-
-: Inputs to the regional haulage cost factor, as ratios to the United States unless units are given. {#tbl-si-haul}
-
-Field and handling operations (spreading biochar or ash, loading and handling) are scaled by a separate factor, the ratio of regional to US prices for hired machinery services. US prices are the averages of the Iowa custom rate survey [@iowa2025custom]: 40 US\$ acre^-1^ (96 US\$ ha^-1^) for combining small grains, 9 US\$ acre^-1^ for spraying, 7.30 US\$ acre^-1^ for spreading dry fertilizer, 18.50 US\$ acre^-1^ for a tandem disk and 8 US\$ Mg^-1^ for spreading lime. For Europe, UK contractor prices [@naac2024] give ratios of 1.55 for combining cereals, 1.15 for spreading granular fertilizer, 1.24 for spreading lime and 1.63 for disc harrowing; we use 1.4 (1.15–1.65). For China, wheat machine harvesting cost 60 CNY mu^-1^ (900 CNY ha^-1^) in 2022 [@mara2022summer], a ratio of 1.5; drone spraying cost 225 CNY ha^-1^, including labor [@wang2022uav], a ratio of 1.6; ploughing, sowing and harvesting of wheat in Henan cost more than 120 CNY mu^-1^ [@qiu2021ams], a ratio of at least 1.6; and rotary tillage cost 50 CNY mu^-1^ in 2023 [@mara2023spring], a ratio of 1.9–2.4. We use 1.6 (1.2–2.4), the ratio for spraying, which like spreading is a light, single-pass operation. For India, custom-hired combine harvesting in Punjab cost Rs 3,217–3,400 ha^-1^ in 2018–19 [@anchala2020], a ratio of 0.65, and a tractor tillage pass about Rs 1,800 ha^-1^, a ratio of about 0.45; we use 0.55 (0.45–0.65). Prices are converted at the exchange rate of the source year and escalated with the US consumer price index. Interim storage of feedstock is scaled by a third factor. For India, paddy-straw depots in Punjab cost INR 250–400 per Mg of storage capacity to build and about INR 120 Mg^-1^ yr^-1^ to operate, excluding land rent [@saboo2025ceew], about 0.2 of the US and European storage cost (0.15–0.35 including land rent). For China, reported construction costs of straw collection and storage centers suggest about half the US and European cost, and we sample the factor from 0.3 to 1.0.
-
-### Text S5 Reproducibility and consistency between model and manuscript {.unnumbered}
-
-The manuscript is written as a literate document in which every numerical result in the text, tables and figures is computed at rendering from the model's output files, and the parameter table is generated from the same input file that the model reads. Text and results therefore cannot diverge silently when the model changes. During development, an AI assistant (Claude, Anthropic) was used to check each statement in the Methods against the model code and parameter file, and to flag text that no longer matched the model's behavior or outputs. At each revision, all numbers and citation keys in the manuscript were compared before and after the change, and the lead author reviewed and approved every difference. Proposed citations were checked against the source publication or its DOI record. Statements from co-authors and from the AI assistant were subject to the same verification. The model code, input data and rendering pipeline are openly available (see Data availability), so that every value reported here can be regenerated.
-
-## Supplementary tables {.unnumbered}
 
 ```{r}
 #| echo: false
@@ -939,6 +817,128 @@ if (is_docx) {
 ```
 
 ```{r}
+#| label: tbl-parameters
+#| tbl-cap: "Operational, financial, and biophysical parameters of the MERIDIAN model."
+#| echo: false
+#| message: false
+#| warning: false
+
+library(gt)
+library(dplyr)
+
+raw_params <- read.csv("../BiocharAG/inst/extdata/parameters.csv", check.names = FALSE, na.strings = "")
+
+# Filter out rows that shouldn't be displayed
+# Exclude Constants, Control Flags, and some spatial metrics
+display_df <- raw_params |>
+  filter(!(category %in% c("Constants", "Control Flags"))) |>
+  filter(!(name %in% c(
+    "avg_dist", "collection_radius", "dist_offshore", "dist_onshore", "dist_sink_km", "dist_sink_saline_km", "feedstock_cost", "plant_sizes_mw_th", "flat_ci_tCO2_GJ", "rebound",
+    # BEBCS heat mode: optional, not used in the results (see Discussion)
+    "bebcs_heat_capital_cost", "bebcs_heat_efficiency", "bebcs_heat_life", "bebcs_heat_om_factor",
+    "heat_price", "heat_boiler_ci", "heat_pump_cop", "heat_offtake"
+  ))) |>
+  select(
+    Category = category,
+    Parameter = name,
+    Description = description,
+    USA = US,
+    Europe = Europe,
+    China = China,
+    India = India,
+    Units = units
+  ) |>
+  mutate(Units = md_units(Units)) |>
+  mutate(
+    # Convert NA to Spatially explicit for regional columns
+    USA = ifelse(is.na(USA), "Spatially explicit", USA),
+    Europe = ifelse(is.na(Europe), "Spatially explicit", Europe),
+    China = ifelse(is.na(China), "Spatially explicit", China),
+    India = ifelse(is.na(India), "Spatially explicit", India),
+    # Add backticks to Parameter names for markdown formatting
+    Parameter = paste0("`", Parameter, "`")
+  ) |>
+  # Arrange by Category
+  arrange(Category)
+
+# Identify rows where all regional values are identical
+is_uniform <- with(display_df, !is.na(USA) & USA == Europe & Europe == China & China == India & USA != "Spatially explicit")
+
+display_df$Europe[is_uniform] <- ""
+display_df$China[is_uniform] <- ""
+display_df$India[is_uniform] <- ""
+
+# Parameters that apply to one region only: show the value in that region's column
+one_region <- c(us_base_cost = "USA", eu_nutrient_deduction = "Europe", india_feedstock_cost = "India")
+for (nm in names(one_region)) {
+  i <- which(display_df$Parameter == paste0("`", nm, "`"))
+  v <- raw_params$US[raw_params$name == nm]
+  display_df[i, c("USA", "Europe", "China", "India")] <- "–"
+  display_df[i, one_region[[nm]]] <- v
+}
+
+if (is_docx) {
+  # Word: flextable with a heading row per category (gt output does not survive the Word conversion)
+  word_table(setNames(transform(display_df, Parameter = gsub("`", "", Parameter)), sub("^USA$", "USA / Default", names(display_df))),
+    widths = c(1.2, 2.1, 0.65, 0.6, 0.6, 0.6, 0.75), group = "Category", mono = "Parameter")
+} else {
+  gt(display_df, groupname_col = "Category") |>
+    tab_spanner(
+      label = "Value",
+      columns = c(USA, Europe, China, India)
+    ) |>
+    cols_label(
+      Parameter = "Parameter",
+      Description = "Description",
+      USA = "USA/Default",
+      Europe = "Europe",
+      China = "China",
+      India = "India",
+      Units = "Units"
+    ) |>
+    cols_width(
+      Parameter ~ pct(18),
+      Description ~ pct(24),
+      USA ~ pct(12),
+      Europe ~ pct(10),
+      China ~ pct(10),
+      India ~ pct(10),
+      Units ~ pct(16)
+    ) |>
+    fmt_markdown(columns = c(Category, Parameter, Description, USA, Europe, China, India)) |>
+    fmt_passthrough(columns = Units, escape = FALSE) |>
+    tab_options(
+      table.font.size = px(9),
+      data_row.padding = px(2),
+      row_group.font.weight = "bold",
+      latex.use_longtable = TRUE,
+      latex.header_repeat = TRUE
+    )
+}
+```
+
+| Region | Basis | Original value | 2024 US\$ Mg^-1^ | Source |
+|:--------------|:--------------|:--------------|--------------:|:--------------|
+| United States | Farm-gate price of crop residues, excluding the payment for nutrients removed | US\$24 per dry short ton (2011) | 37 | @perlack2011 |
+| Europe | Road-side cost of cereal straw, by country (three classes), excluding replacement fertilizer | €20, 37.5 and 62.5 Mg^-1^ dry matter (2012), less €12.1 | 13.9, 44.6 and 88.5 | @dees2017s2biom |
+| China | Field-side cost of collecting corn straw, Nongan county, Jilin | ¥99.6 Mg^-1^ of air-dried straw (2019) | 19.7 | @wang2022strawfeed |
+| India | Field-side cost of baled paddy straw, Haryana | 34 US\$ Mg^-1^ (dry basis) | 34 | @sokhansanj2023 |
+
+: Field-side feedstock prices. {#tbl-feedstock-price}
+
+|   | United States | Europe | China | India |
+|:--------------|--------------:|--------------:|--------------:|--------------:|
+| Driver labor cost, $\rho_{\mathrm{w}}$ | 1 | 0.90 | 0.094 | 0.027 |
+| Truck price, $\rho_{\mathrm{k}}$ | 1 | 1.0 | 0.23 | 0.25 |
+| Diesel price, $\rho_{\mathrm{d}}$ | 1 | 1.44 | 0.96 | 1.08 |
+| Mean collection speed, $v$ (km h^-1^) | 55.5 | 44.2 | 24.1 | 28.8 |
+| Grade fuel factor, $\psi$ | 1.14 | 1.34 | 1.32 | 1.14 |
+| Haulage factor, $\lambda_{\mathrm{h}}$ | 1 | 1.27 | 0.49 | 0.40 |
+| 90% range of $\lambda_{\mathrm{h}}$ in the Monte Carlo analysis | – | 1.15–1.33 | 0.45–0.60 | 0.36–0.49 |
+
+: Inputs to the regional haulage cost factor, as ratios to the United States unless units are given. {#tbl-si-haul}
+
+```{r}
 #| echo: false
 #| message: false
 #| warning: false
@@ -1009,7 +1009,7 @@ if (knitr::pandoc_to("docx")) {
 
 ## Supplementary figures {.unnumbered}
 
-![Meta-analysis of biochar field trials (Supplementary Text S3). (**a**) Shape of the crop yield response to biochar dose within experiments, relative to the response at 10–20 Mg ha^-1^, on soils with a pH of 6.5 or above and below 6.0; points are binned means with 90% confidence intervals, lines the fitted power functions. (**b**) Change in soil N~2~O emissions by dose class; the dashed line is the overall mean reduction of 20%. (**c**) Biochar-weighted ratio of the yield value per megagram of biochar under the fitted dose response to that under a response linear in dose, by region; bars span the confidence interval of the dose exponent and cropping intensities of 1–1.5.](../docs/biochar_agronomy_handover/dose_response_v2.png){#fig-si-dose-response width="100%"}
+![Meta-analysis of biochar field trials (see Methods, Meta-analysis of biochar field trials). (**a**) Shape of the crop yield response to biochar dose within experiments, relative to the response at 10–20 Mg ha^-1^, on soils with a pH of 6.5 or above and below 6.0; points are binned means with 90% confidence intervals, lines the fitted power functions. (**b**) Change in soil N~2~O emissions by dose class; the dashed line is the overall mean reduction of 20%. (**c**) Biochar-weighted ratio of the yield value per megagram of biochar under the fitted dose response to that under a response linear in dose, by region; bars span the confidence interval of the dose exponent and cropping intensities of 1–1.5.](../docs/biochar_agronomy_handover/dose_response_v2.png){#fig-si-dose-response width="100%"}
 
 ![Technology with the highest net value in each grid cell, by carbon price (rows) and region (columns), at a 2% social discount rate (cf. @fig-evap, at the regional market discount rates).](results/figures/Evaporation_Grid_social.png){#fig-si-evap-social width="100%"}
 
