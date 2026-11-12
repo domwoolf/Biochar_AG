@@ -149,7 +149,7 @@ fit_shap <- function(d, target) {
   shp <- shapviz(model, X_pred = X)
   message(sprintf("  %-14s %-7s %6d cells (%4.1f%% undefined), %2d inputs, holdout R2 %.3f",
                   target, d$region[1], nrow(X), 100 * (1 - mean(ok)), length(f), r2))
-  list(target = target, region = d$region[1], features = f, shp = shp, r2 = r2, data = d,
+  list(target = target, region = d$region[1], features = f, shp = shp, r2 = r2, data = d, model = model, X = X,
        undefined = 1 - mean(ok))
 }
 
@@ -188,21 +188,35 @@ p_imp <- ggplot(imp_plot, aes(x = region, y = feature_lab, fill = share_pct)) +
 ggsave(file.path(OUT_DIR, "shap_importance.png"), p_imp, width = 13, height = 5.2, dpi = 300, bg = "white")
 
 # ==============================================================================
-# Dependence plots (SI): one figure per target and region, inputs with >= 2% of mean |SHAP|
+# Dependence plots (SI): one figure per target and region, inputs with >= 2% of mean |SHAP|. Points are
+# colored by the input with the largest mean |SHAP interaction value| with the plotted input (exact TreeSHAP
+# interactions on the plotted sample); the color scale is clipped at the 2nd and 98th percentiles of that input
 # ==============================================================================
 for (m in models) {
   shares <- imp[target == m$target & region == m$region]
   v_show <- shares[share_pct >= 2][order(-share_pct), feature]
   if (!length(v_show)) next
   idx <- if (nrow(m$data) <= N_PLOT) seq_len(nrow(m$data)) else { set.seed(1); sort(sample.int(nrow(m$data), N_PLOT)) }
+  shp_i <- shapviz(m$model, X_pred = m$X[idx, , drop = FALSE], interactions = TRUE)
   deps <- lapply(v_show, function(v) {
-    sv_dependence(m$shp[idx, ], v = v, color_var = NULL, alpha = 0.3, size = 0.5, color = "#08519c") +
+    iv <- abs(shp_i$S_inter[, v, , drop = FALSE])[, 1, ]
+    iv[, v] <- 0
+    cv <- names(which.max(colMeans(iv)))
+    lim <- stats::quantile(shp_i$X[[cv]], c(0.02, 0.98), na.rm = TRUE, names = FALSE)
+    if (diff(lim) <= 0) lim <- range(shp_i$X[[cv]], na.rm = TRUE)
+    if (diff(lim) <= 0) lim <- lim + c(-0.5, 0.5)
+    sv_dependence(shp_i, v = v, color_var = cv, interactions = FALSE, alpha = 0.4, size = 0.5) +
+      scale_colour_viridis_c(option = "plasma", end = 0.9, limits = lim, oob = scales::squish, breaks = scales::breaks_pretty(n = 4),
+                             labels = scales::label_comma(),
+                             name = paste0(feature_labels[[cv]], "\n(", feature_units[[cv]], ")")) +
       theme_bw(base_size = 9) +
+      theme(legend.position = "bottom", legend.key.height = unit(0.2, "cm"), legend.key.width = unit(1.1, "cm"),
+            legend.title = element_text(size = 7), legend.text = element_text(size = 7)) +
       labs(title = feature_labels[[v]], x = paste0(feature_labels[[v]], " (", feature_units[[v]], ")"),
            y = paste0("SHAP value (", TARGET_UNITS[[m$target]], ")"))
   })
   ggsave(file.path(OUT_DIR, sprintf("dependence_%s_%s.png", m$target, m$region)), wrap_plots(deps, ncol = 3),
-         width = 10, height = 3 * ceiling(length(deps) / 3), dpi = 250)
+         width = 10, height = 3.6 * ceiling(length(deps) / 3), dpi = 250)
 }
 
 # ==============================================================================

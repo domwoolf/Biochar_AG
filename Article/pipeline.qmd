@@ -1,5 +1,5 @@
 ---
-title: "C-SCAPE model pipeline"
+title: "MERIDIAN model pipeline"
 subtitle: "Runs the model steps whose inputs have changed and writes their outputs to results/ for BiomassTEA.qmd"
 date: last-modified
 format:

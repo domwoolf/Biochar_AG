@@ -34,7 +34,7 @@ its best technology and flagged viable or not. Basis of @fig-evap and @fig-si-ev
 
 ## 2. `results/ai_summaries/macc_data_default.csv`
 
-Marginal abatement cost curves (@fig-macc, @fig-si-macc-biomass). From the carbon-price sweep
+Abatement supply curves (@fig-macc, @fig-si-macc-biomass). From the carbon-price sweep
 (`run_price_sweep`, 0–250 in steps of 5 and 275–500 in steps of 25 US$ Mg⁻¹ CO₂e): at each price, each cell is
 assigned to its best technology if viable, and abatement, residue and cropland area are summed by technology.
 
