@@ -56,6 +56,12 @@ library(sf)
   source("scripts/spatial_shap.R")
 }
 
+# 5b) Lock-in along a carbon-price trajectory (cohorts of PyCCS plants; paths to BECCS)
+#    Generates: results/ai_summaries/lockin_cohorts.csv
+{
+  source("scripts/lockin_cohorts.R")
+}
+
 # 6) Heat sensitivity (issue #106): optional; BEBCS heat mode is not part of the results (Discussion only)
 #    BEBCS selling heat instead of power, where year-round heat demand exists (reported per cell only)
 #    Generates: results/heat_sensitivity/ (cell table, maps, distribution plot)

@@ -37,7 +37,7 @@ MAX_PRICE <- 500 # top of the carbon-price grid (US$ Mg-1 CO2e)
 dir.create(OUT_DIR, showWarnings = FALSE, recursive = TRUE)
 
 TARGETS <- c(be_PyCCS = "Break-even carbon price, PyCCS", be_BECCS = "Break-even carbon price, BECCS",
-             n0_BE = "Net value of BE without a carbon price", takeover_BECCS = "Carbon price at which BECCS takes over")
+             n0_BE = "Net value of BE without a carbon price", takeover_BECCS = "Crossover price, BECCS")
 TARGET_UNITS <- c(be_PyCCS = "US$ Mg⁻¹ CO₂e", be_BECCS = "US$ Mg⁻¹ CO₂e",
                   n0_BE = "US$ Mg⁻¹ feedstock", takeover_BECCS = "US$ Mg⁻¹ CO₂e")
 
@@ -313,7 +313,7 @@ save_map <- function(fill_layer, scale_layer, guide, out_path, legend_height = 0
 
 save_map(
   function(d) geom_tile(data = d, aes(x = x, y = y, fill = takeover_BECCS)),
-  scale_fill_viridis_c(name = paste0("Carbon price at which BECCS takes over (", TARGET_UNITS[["takeover_BECCS"]], ")"),
+  scale_fill_viridis_c(name = paste0("Crossover price of BECCS (", TARGET_UNITS[["takeover_BECCS"]], ")"),
                        option = "viridis", limits = c(0, MAX_PRICE), na.value = "grey80"),
   guides(fill = guide_colourbar(direction = "horizontal", barwidth = unit(9, "cm"), barheight = unit(0.35, "cm"))),
   file.path(OUT_DIR, "map_takeover_price.png")
@@ -323,7 +323,7 @@ dom_share <- prop.table(table(map_cells$dominant))
 used <- intersect(names(feature_palette), names(dom_share)[dom_share >= 0.005])
 save_map(
   function(d) geom_tile(data = d, aes(x = x, y = y, fill = dominant)),
-  scale_fill_manual(name = "Dominant driver of the takeover price", values = feature_palette, limits = used,
+  scale_fill_manual(name = "Dominant driver of the crossover price of BECCS", values = feature_palette, limits = used,
                     labels = feature_labels[used], drop = FALSE, na.value = "grey80"),
   guides(fill = guide_legend(nrow = 3, byrow = TRUE)),
   file.path(OUT_DIR, "map_takeover_driver.png")

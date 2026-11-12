@@ -124,6 +124,13 @@ run_step("mc_shap", 'source("scripts/MC_shap.R"); run_mc_shap()')
 run_step("spatial_shap", 'source("scripts/spatial_shap.R")')
 ```
 
+```{r pipeline-lockin}
+#| include: false
+#| cache: true
+#| cache.extra: !expr list(fp_model(), fp_hash("scripts/lockin_cohorts.R"))
+run_step("lockin_cohorts", 'source("scripts/lockin_cohorts.R")')
+```
+
 ```{r pipeline-heat}
 #| include: false
 #| cache: true
@@ -139,6 +146,7 @@ run_step("heat_sensitivity", 'source("scripts/heat_sensitivity.R")')
 steps <- c(figures = "results/ai_summaries/macc_data_default.csv", components = "results/ai_summaries/per_tonne_components.csv",
            variants = "results/ai_summaries/variant_summary.csv", mc_analysis = "results/mc_analysis_results.csv",
            mc_shap = "results/mc_shap/mc_shap_importance.csv", spatial_shap = "results/ai_summaries/spatial_shap_importance.csv",
+           lockin_cohorts = "results/ai_summaries/lockin_cohorts.csv",
            heat_sensitivity = "results/ai_summaries/heat_sensitivity_quantiles.csv")
 info <- file.info(file.path(repo, steps))
 mc_log <- file.path(repo, "results/logs/mc_analysis.log")
