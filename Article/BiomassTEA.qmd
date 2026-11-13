@@ -24,6 +24,9 @@ format:
       \linenumbers
       \usepackage{authblk}
       \usepackage{marvosym}
+      % breakable reference entries (Pandoc sets each in an unbreakable \parbox, so a long entry overflows the page)
+      \renewcommand{\CSLLeftMargin}[1]{\makebox[\csllabelwidth][l]{#1}}
+      \renewcommand{\CSLRightInline}[1]{\hangindent=\csllabelwidth\hangafter=1 #1}
       %\usepackage{draftwatermark}
       %\SetWatermarkText{DRAFT. Not for distribution}
       %\SetWatermarkScale{0.35}
@@ -46,9 +49,9 @@ format:
       - "Jocelyn Lavallee (2)"
       - "Anna Raffeld (2)"
       - "Doria Gordon (2,3)"
-      - "1 Cornell University"
+      - "1 College of Agriculture and Life Sciences, Cornell University, Ithaca, NY 14853, USA"
       - "2 Environmental Defense Fund"
-      - "3 University of Florida"
+      - "3 Department of Biology, University of Florida, Gainesville, FL 32611, USA"
       - "* Correspondence: d.woolf@cornell.edu"
     number-sections: true
     toc: false

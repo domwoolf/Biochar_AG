@@ -357,9 +357,9 @@ p_curve <- ggplot(curves, aes(price, net_value, colour = tech)) +
   theme_imp() + theme(panel.grid.major.y = element_line(colour = GRID_COL, linewidth = 0.3),
                       axis.title.y = element_text(margin = margin(r = 3)))
 p_imp <- wrap_plots(c(lapply(names(TARGETS), bar_panel), list(free(p_curve, type = "label", side = "l"))), ncol = 1) +
-  plot_layout(heights = c(rep(1, length(TARGETS)), 1.6), guides = "collect") &
+  plot_layout(heights = c(rep(1, length(TARGETS)), 1.5), guides = "collect") &
   theme(legend.position = "bottom") & guides(fill = guide_legend(nrow = 2, byrow = TRUE))
-ggsave(file.path(OUT_DIR, "shap_importance.png"), p_imp, width = 7.2, height = 8.8, dpi = 300, bg = "white")
+ggsave(file.path(OUT_DIR, "shap_importance.png"), p_imp, width = 7.2, height = 7.4, dpi = 300, bg = "white")
 fwrite(curves, file.path(OUT_DIR, "net_value_curves.csv"))
 
 # ==============================================================================
