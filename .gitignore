@@ -1,4 +1,6 @@
-# Root .gitignore
+# Root
+# .gitignore
+.vscode/
 
 # User Spatial Data
 GIS/

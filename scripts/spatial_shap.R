@@ -2,18 +2,20 @@
 # Spatial drivers of technology costs and of the takeover of biochar by geological storage (issue #111).
 #
 # For each region, the main model path (run_price_sweep(), default regional parameters) gives four
-# targets per grid cell:
+# targets per grid cell, in the order in which they are usually reached as the carbon price rises:
 #   be_PyCCS        break-even carbon price of PyCCS (US$ Mg-1 CO2e)
+#   beccs_over_be   lowest carbon price at which BECCS has a higher net value than BE
 #   be_BECCS        break-even carbon price of BECCS
-#   n0_BE           net value of BE without a carbon price (US$ Mg-1 feedstock; BE abates too little for a
-#                   meaningful break-even price)
-#   takeover_BECCS  lowest carbon price at which BECCS has the highest non-negative net value
+#   takeover_BECCS  lowest carbon price at which BECCS has the highest non-negative net value (displayed as
+#                   the price at which BECCS outcompetes PyCCS; the crossover price in the manuscript)
+# BE has no break-even target: it abates too little for its break-even price to fall within the price range.
 # A gradient-boosted regression (XGBoost) predicts each target from the cell's spatial inputs, and SHAP
 # values attribute each prediction to the inputs. Models are fitted per region, so that inputs constant
 # within a region (e.g. feedstock cost outside Europe) cannot stand in for the region itself.
 #
-# Outputs (results/spatial_shap/): shap_importance.csv, shap_targets_by_cell.csv.gz, importance and
-# dependence figures, maps of the takeover price and its dominant driver; and
+# Outputs (results/spatial_shap/): shap_importance.csv, shap_targets_by_cell.csv.gz, importance figure
+# (input groups per target and region, anchored on the pooled median net value of each technology against
+# the carbon price), dependence figures, maps of the takeover price and its dominant driver; and
 # results/ai_summaries/spatial_shap_admin1_summary.csv, spatial_shap_importance.csv and
 # terminal_pathway_summary.csv (technology allocated at the top carbon price, by region).
 
@@ -34,36 +36,94 @@ REGIONS <- c("US", "Europe", "China", "India")
 MAP_HEIGHT <- 3.4 # height of each map panel (inches); widths follow each region's aspect ratio
 N_PLOT <- 20000 # cells sampled for dependence plots (SHAP is computed on all cells)
 MAX_PRICE <- 500 # top of the carbon-price grid (US$ Mg-1 CO2e)
+XGB_THREADS <- 1L # threads per XGBoost model: one model per worker, all models at once
+N_WORKERS <- max(1L, parallel::detectCores() - 2L) # parallel workers (capped by the number of models in par_map)
+
+# Apply FUN to each element of X in separate R processes (PSOCK, not fork: forked children can hang in
+# OpenMP once the parent has used it, e.g. through data.table). Objects named in `export` are copied from
+# the global environment; worker messages go to the log.
+par_map <- function(X, FUN, export = character()) {
+  if (N_WORKERS <= 1L || length(X) <= 1L) return(lapply(X, FUN))
+  cl <- parallel::makePSOCKcluster(min(N_WORKERS, length(X)), outfile = "")
+  on.exit(parallel::stopCluster(cl), add = TRUE)
+  wd <- getwd()
+  parallel::clusterCall(cl, function(wd) {
+    setwd(wd)
+    suppressPackageStartupMessages({ library(data.table); library(xgboost); library(shapviz) })
+    data.table::setDTthreads(1L)
+    source("scripts/results_cache.R")
+    NULL
+  }, wd)
+  if (length(export)) parallel::clusterExport(cl, export, envir = globalenv())
+  parallel::parLapplyLB(cl, X, FUN)
+}
 dir.create(OUT_DIR, showWarnings = FALSE, recursive = TRUE)
 
-TARGETS <- c(be_PyCCS = "Break-even carbon price, PyCCS", be_BECCS = "Break-even carbon price, BECCS",
-             n0_BE = "Net value of BE without a carbon price", takeover_BECCS = "Crossover price, BECCS")
-TARGET_UNITS <- c(be_PyCCS = "US$ Mg⁻¹ CO₂e", be_BECCS = "US$ Mg⁻¹ CO₂e",
-                  n0_BE = "US$ Mg⁻¹ feedstock", takeover_BECCS = "US$ Mg⁻¹ CO₂e")
+TARGETS <- c(be_PyCCS = "Break-even price, PyCCS", beccs_over_be = "Price at which BECCS outcompetes BE",
+             be_BECCS = "Break-even price, BECCS", takeover_BECCS = "Price at which BECCS outcompetes PyCCS")
+TARGET_UNITS <- setNames(rep("US$ Mg⁻¹ CO₂e", length(TARGETS)), names(TARGETS))
+ANCHOR_PRICES <- seq(0, 300, by = 5) # carbon prices of the net-value curves in the importance figure
 
 feature_labels <- c(
-  biomass_density = "Residue density", dist_BE_base = "Collection distance, BE (base load)",
-  dist_BE_flex = "Collection distance, BE (flexible)", dist_BECCS = "Collection distance, BECCS",
-  dist_PyCCS = "Collection distance, PyCCS", haul_mult = "Haulage cost multiplier",
+  biomass_density = "Residue density", dist_collect = "Collection distance", haul_mult = "Haulage cost multiplier",
   burn_frac = "Share of residue burned", feedstock_cost = "Feedstock cost", elec_price = "Electricity price",
   ff_c_intensity = "Grid carbon intensity", soil_temp = "Soil temperature", soil_ph = "Soil pH", soil_cec = "Soil CEC",
   bc_supply = "Biochar supply per hectare", crop_value = "Crop value per hectare",
   co2_route_km = "CO₂ route length", co2_offshore = "Offshore CO₂ sink", co2_storage_cost = "CO₂ storage cost"
 )
 feature_units <- c(
-  biomass_density = "Mg km\u207b\u00b2 yr\u207b\u00b9", dist_BE_base = "km", dist_BE_flex = "km", dist_BECCS = "km", dist_PyCCS = "km",
+  biomass_density = "Mg km\u207b\u00b2 yr\u207b\u00b9", dist_collect = "km",
   haul_mult = "ratio", burn_frac = "fraction", feedstock_cost = "US$ Mg\u207b\u00b9", elec_price = "US$ MWh\u207b\u00b9",
   ff_c_intensity = "Mg CO\u2082 GJ\u207b\u00b9", soil_temp = "\u00b0C", soil_ph = "pH", soil_cec = "cmolc kg\u207b\u00b9",
   bc_supply = "Mg ha\u207b\u00b9 yr\u207b\u00b9", crop_value = "US$ ha\u207b\u00b9 yr\u207b\u00b9", co2_route_km = "km",
   co2_offshore = "0/1", co2_storage_cost = "US$ Mg\u207b\u00b9 CO\u2082"
 )
 feature_palette <- c(
-  biomass_density = "#2ca02c", dist_BE_base = "#98df8a", dist_BE_flex = "#5ab55a", dist_BECCS = "#98df8a",
-  dist_PyCCS = "#98df8a", haul_mult = "#c5b0d5", burn_frac = "#ff9896",
+  biomass_density = "#2ca02c", dist_collect = "#98df8a", haul_mult = "#c5b0d5", burn_frac = "#ff9896",
   feedstock_cost = "#17becf", elec_price = "#1f77b4", ff_c_intensity = "#ff7f0e", soil_temp = "#d62728",
   soil_ph = "#7f7f7f", soil_cec = "#bcbd22", bc_supply = "#8c6d31", crop_value = "#e7ba52",
   co2_route_km = "#9467bd", co2_offshore = "#e377c2", co2_storage_cost = "#8c564b"
 )
+
+# Groups of inputs in the importance figure, in stacking order: inputs specific to PyCCS, inputs common to
+# the technologies, inputs specific to BECCS
+INPUT_GROUP <- c(soil_temp = "Soil and crop", soil_cec = "Soil and crop", soil_ph = "Soil and crop",
+                 bc_supply = "Soil and crop", crop_value = "Soil and crop",
+                 biomass_density = "Residue supply and management", dist_collect = "Residue supply and management",
+                 haul_mult = "Residue supply and management", feedstock_cost = "Residue supply and management",
+                 burn_frac = "Residue supply and management",
+                 elec_price = "Electricity grid", ff_c_intensity = "Electricity grid",
+                 co2_route_km = "CO₂ transport and storage", co2_offshore = "CO₂ transport and storage",
+                 co2_storage_cost = "CO₂ transport and storage")
+GROUP_COLS <- c("Soil and crop" = "#e0a100", "Residue supply and management" = "#a8642a",
+                "Electricity grid" = "#1f9e9e", "CO₂ transport and storage" = "#9b5fc9") # validated palette (light)
+
+# Lowest carbon price at which technology k has a higher net value than technology j, exact on the
+# piecewise-quadratic net value of the sweep (as sweep_takeover(), for one pair); NA if not below max_price
+pair_price <- function(sw, k, j, max_price = MAX_PRICE) {
+  n_cell <- dim(sw$abate)[1]
+  out <- rep(NA_real_, n_cell)
+  todo <- rep(TRUE, n_cell)
+  for (i in seq_along(sw$prices)) {
+    if (!any(todo) || sw$prices[i] > max_price) break
+    sg <- BiocharAG:::sweep_segment(sw, i)
+    wmax <- min(sg$wmax, (max_price - sg$p) / sg$d)
+    idx <- which(todo)
+    c0 <- sg$c0[idx, k] - sg$c0[idx, j]; b <- sg$b[idx, k] - sg$b[idx, j]; a <- sg$a[idx, k] - sg$a[idx, j]
+    w <- ifelse(!is.na(c0) & c0 >= 0, 0, NA_real_)
+    r <- BiocharAG:::quad_roots01(c0, b, a, wmax)
+    eps <- 1e-9 * if (is.finite(sg$wmax)) 1 else max(1, sg$p)
+    for (m in 1:2) {
+      wt <- pmin(r[, m] + eps, wmax)
+      ok <- is.na(w) & !is.na(r[, m]) & (c0 + b * wt + a * wt^2) >= 0
+      w[ok] <- r[ok, m]
+    }
+    hit <- !is.na(w)
+    out[idx[hit]] <- sg$p + sg$d * w[hit]
+    todo[idx[hit]] <- FALSE
+  }
+  out
+}
 
 # ==============================================================================
 # Targets and spatial inputs per region
@@ -113,11 +173,13 @@ region_data <- function(r) {
   haul_mult <- s_t * fac(p$haul_kt) + s_f * fac(p$haul_kd) * fac(p$haul_g) + max(0, 1 - s_t - s_f) * fac(p$haul_kd)
   n <- length(dat$vec$active_indices)
   rep_n <- function(x) if (length(x) == n) x else rep_len(x, n)
-  data.table(
+  # Net value of each technology (cells x 3: BE, BECCS, PyCCS) at the anchor prices
+  nv <- lapply(ANCHOR_PRICES, function(cp) sweep_net(sw, cp))
+  cells <- data.table(
     region = r, x = dat$vec$xy[, 1], y = dat$vec$xy[, 2], cell_area_km2 = dat$vec$cell_area,
-    be_PyCCS = be(3), be_BECCS = be(2), n0_BE = sw$n0[, 1], takeover_BECCS = sweep_takeover(sw, k = 2, max_price = MAX_PRICE),
-    biomass_density = sl$biomass_density, dist_BE_base = rep_n(p$avg_dist_BES_BASE), dist_BE_flex = rep_n(p$avg_dist_BES_FLEX),
-    dist_BECCS = rep_n(p$avg_dist_BECCS), dist_PyCCS = rep_n(p$avg_dist_BEBCS), haul_mult = rep_n(haul_mult),
+    be_PyCCS = be(3), beccs_over_be = pair_price(sw, 2, 1), be_BECCS = be(2),
+    takeover_BECCS = sweep_takeover(sw, k = 2, max_price = MAX_PRICE),
+    biomass_density = sl$biomass_density, dist_collect = rep_n(p$avg_dist_BES_BASE), haul_mult = rep_n(haul_mult),
     burn_frac = rep_n(residue_burn_share(p)), feedstock_cost = rep_n(p$feedstock_cost),
     elec_price = rep_n(p$elec_price), ff_c_intensity = rep_n(p$ff_c_intensity), soil_temp = rep_n(p$soil_temp),
     soil_ph = rep_n(p$soil_ph), soil_cec = rep_n(p$soil_cec), bc_supply = rep_n(pyccs$bc_supply_ha),
@@ -127,13 +189,29 @@ region_data <- function(r) {
     biomass = sl$biomass_density * dat$vec$cell_area, terminal = alloc[, ncol(alloc)], leaves_BECCS = leaves_beccs,
     beccs_no_route = is.na(sclass)
   )
+  list(cells = cells, nv = nv, w = sl$biomass_density * dat$vec$cell_area)
+}
+
+# Pooled median net value of each technology at each anchor price (weighted by residue, all regions)
+anchor_curves <- function(rd) {
+  w <- unlist(lapply(rd, `[[`, "w"))
+  wmed <- function(x) { ok <- is.finite(x) & is.finite(w); o <- order(x[ok]); x[ok][o][which(cumsum(w[ok][o]) >= sum(w[ok]) / 2)[1]] }
+  rbindlist(lapply(seq_along(ANCHOR_PRICES), function(k) {
+    m <- do.call(rbind, lapply(rd, function(x) x$nv[[k]]))
+    data.table(price = ANCHOR_PRICES[k], tech = c("BE", "BECCS", "PyCCS"), net_value = apply(m, 2, wmed))
+  }))
 }
 
 # Results cache (scripts/results_cache.R): the cell table, the fitted models and the SHAP interaction values
 # are each reused while the model and the code of their own stage are unchanged, so that edits to figures
 # or summaries do not repeat the price sweeps, fits or interaction values
-key_cells <- cache_key(fp_model(), region_data, REGIONS, MAX_PRICE)
-cells <- cached("cells", key_cells, rbindlist(lapply(REGIONS, region_data)), sub = "spatial_shap")
+key_cells <- cache_key(fp_model(), region_data, pair_price, anchor_curves, REGIONS, MAX_PRICE, ANCHOR_PRICES)
+cc <- cached("cells", key_cells, {
+  rd <- lapply(REGIONS, region_data)
+  list(cells = rbindlist(lapply(rd, `[[`, "cells")), curves = anchor_curves(rd))
+}, sub = "spatial_shap")
+cells <- cc$cells
+curves <- cc$curves
 fwrite(cells, file.path(OUT_DIR, "shap_targets_by_cell.csv.gz"))
 # Terminal pathway by region (biomass shares, %): technology allocated at the top of the price sweep; cells
 # that leave BECCS at a higher price after being allocated to it; and, of the biomass not terminal in BECCS,
@@ -154,15 +232,17 @@ FEATURES <- names(feature_labels)
 # Each target sees only the inputs that enter the economics of the technologies it depends on, so that
 # SHAP cannot attribute a cost to a correlated input the technology does not use (e.g. soil temperature
 # for BE, which correlates with the haulage multiplier in India). Residue density enters through the
-# collection distances, which are computed from it. Each technology hauls over its own collection
-# distance, set by its capacity factor.
-BASE_INPUTS <- c("haul_mult", "feedstock_cost", "elec_price", "soil_ph") # soil pH: lime credit of ash and biochar, removal charge
+# collection distance, which is computed from it. One collection distance (a plant of the reference size at
+# base load) stands for all technologies: each technology's distance scales with it through its capacity
+# factor (rank correlation 0.993-1.000 between technologies in every region).
+BASE_INPUTS <- c("dist_collect", "haul_mult", "feedstock_cost", "elec_price", "soil_ph") # soil pH: lime credit of ash and biochar, removal charge
 TARGET_FEATURES <- list(
-  n0_BE = c(BASE_INPUTS, "dist_BE_base", "dist_BE_flex"),
-  be_BECCS = c(BASE_INPUTS, "dist_BECCS", "ff_c_intensity", "burn_frac", "co2_route_km", "co2_offshore", "co2_storage_cost"),
-  be_PyCCS = c(BASE_INPUTS, "dist_PyCCS", "ff_c_intensity", "burn_frac", "soil_temp", "soil_cec", "bc_supply", "crop_value")
+  be_PyCCS = c(BASE_INPUTS, "ff_c_intensity", "burn_frac", "soil_temp", "soil_cec", "bc_supply", "crop_value"),
+  be_BECCS = c(BASE_INPUTS, "ff_c_intensity", "burn_frac", "co2_route_km", "co2_offshore", "co2_storage_cost")
 )
+TARGET_FEATURES$beccs_over_be <- TARGET_FEATURES$be_BECCS # BE uses a subset of the inputs of BECCS
 TARGET_FEATURES$takeover_BECCS <- union(TARGET_FEATURES$be_BECCS, TARGET_FEATURES$be_PyCCS)
+TARGET_FEATURES <- TARGET_FEATURES[names(TARGETS)]
 
 # ==============================================================================
 # Regression models and SHAP values (one per target and region)
@@ -179,7 +259,7 @@ fit_shap <- function(d, target) {
   X <- as.matrix(d[, ..f])
   set.seed(42)
   test <- sample.int(nrow(X), floor(0.2 * nrow(X)))
-  pars <- list(objective = "reg:squarederror", max_depth = 6, eta = 0.05, subsample = 0.8, nthread = 4)
+  pars <- list(objective = "reg:squarederror", max_depth = 6, eta = 0.05, subsample = 0.8, nthread = XGB_THREADS)
   m_cv <- xgb.train(params = pars, data = xgb.DMatrix(X[-test, , drop = FALSE], label = y[-test]), nrounds = 400, verbose = 0)
   pred <- predict(m_cv, X[test, , drop = FALSE])
   r2 <- 1 - sum((y[test] - pred)^2) / sum((y[test] - mean(y[test]))^2)
@@ -192,19 +272,19 @@ fit_shap <- function(d, target) {
 }
 
 fit_all <- function(cells) {
-  message("Fitting regression models...")
-  models <- list()
+  message("Fitting regression models (", N_WORKERS, " in parallel)...")
+  jobs <- list()
   for (tg in names(TARGETS)) for (r in REGIONS) {
     d <- cells[region == r]
     if (sum(is.finite(d[[tg]])) < 200) {
       message("  ", tg, " ", r, ": too few defined cells; skipped")
       next
     }
-    models[[paste(tg, r)]] <- fit_shap(d, tg)
+    jobs[[paste(tg, r)]] <- list(d = d, tg = tg)
   }
-  models
+  par_map(jobs, function(j) fit_shap(j$d, j$tg), export = c("fit_shap", "FEATURES", "TARGET_FEATURES", "MAX_PRICE", "XGB_THREADS"))
 }
-key_models <- cache_key(key_cells, fit_all, fit_shap, FEATURES, TARGETS, TARGET_FEATURES)
+key_models <- cache_key(key_cells, fit_all, fit_shap, FEATURES, names(TARGETS), TARGET_FEATURES) # names, not labels
 models <- cached("models", key_models, fit_all(cells), sub = "spatial_shap")
 for (m in models) message(sprintf("  %-14s %-7s holdout R2 %.3f", m$target, m$region, m$r2))
 
@@ -216,33 +296,91 @@ imp <- rbindlist(lapply(models, function(m) {
 fwrite(imp, file.path(OUT_DIR, "shap_importance.csv"))
 
 # ==============================================================================
-# Importance figure: share of mean |SHAP| by input, target and region
+# Importance figure. Panels a-d: share of mean |SHAP| by group of inputs, per target (in carbon-price order)
+# and region, with the region's residue-weighted median of the target. Panel e: pooled median net value of
+# each technology against the carbon price, marked where the curves cross zero or each other (a-d)
 # ==============================================================================
-imp_plot <- copy(imp)
-imp_plot[, feature_lab := factor(feature_labels[feature], levels = rev(feature_labels))]
-imp_plot[, target_lab := factor(TARGETS[target], levels = TARGETS)]
-imp_plot[, region := factor(region, levels = REGIONS)]
-p_imp <- ggplot(imp_plot, aes(x = region, y = feature_lab, fill = share_pct)) +
-  geom_tile(colour = "white", linewidth = 0.4) +
-  geom_text(aes(label = ifelse(share_pct >= 5, sprintf("%.0f", share_pct), "")), size = 2.8) +
-  facet_wrap(~target_lab, nrow = 1) +
-  scale_fill_gradient(name = "Share of mean |SHAP| (%)", low = "#f7fbff", high = "#08519c", limits = c(0, 100)) +
-  labs(x = NULL, y = NULL) + theme_minimal(base_size = 10) +
-  theme(panel.grid = element_blank(), legend.position = "bottom", strip.text = element_text(face = "bold"))
-ggsave(file.path(OUT_DIR, "shap_importance.png"), p_imp, width = 13, height = 5.2, dpi = 300, bg = "white")
+INK <- "#0b0b0b"; INK2 <- "#52514e"; GRID_COL <- "#e6e5e1"
+REGION_LAB <- c(US = "United States", Europe = "Europe", China = "China", India = "India")
+theme_imp <- function() {
+  theme_minimal(base_size = 9) +
+    theme(panel.grid.minor = element_blank(), panel.grid.major.y = element_blank(),
+          panel.grid.major.x = element_line(colour = GRID_COL, linewidth = 0.3),
+          axis.text = element_text(colour = INK2), axis.title = element_text(colour = INK2),
+          plot.title = element_text(face = "bold", size = 9, colour = INK), legend.position = "bottom",
+          plot.background = element_rect(fill = "white", colour = NA))
+}
+LETTERS_T <- setNames(letters[seq_along(TARGETS)], names(TARGETS))
+wmed_cells <- function(x, w) { ok <- is.finite(x) & is.finite(w); o <- order(x[ok]); x[ok][o][which(cumsum(w[ok][o]) >= sum(w[ok]) / 2)[1]] }
+reg_med <- rbindlist(lapply(names(TARGETS), function(tg) cells[, .(target = tg, med = wmed_cells(get(tg), biomass)), by = region]))
+grp <- imp[, .(share = sum(share_pct)), by = .(target, region, group = INPUT_GROUP[feature])]
+grp <- grp[CJ(target = names(TARGETS), region = REGIONS, group = names(GROUP_COLS)), on = .(target, region, group)][is.na(share), share := 0]
+grp[, group := factor(group, levels = names(GROUP_COLS))]
+grp[, region := factor(region, levels = rev(REGIONS))]
+reg_med[, region := factor(region, levels = rev(REGIONS))]
+bar_panel <- function(tg) {
+  ggplot(grp[target == tg], aes(x = share, y = region, fill = group)) +
+    geom_col(width = 0.72, colour = "white", linewidth = 0.5, position = position_stack(reverse = TRUE)) +
+    geom_text(aes(label = ifelse(share >= 10, sprintf("%.0f", share), "")),
+              position = position_stack(vjust = 0.5, reverse = TRUE), size = 2.6, colour = INK) +
+    geom_text(data = reg_med[target == tg], aes(x = 101.5, y = region, label = sprintf("$%.0f", med)), inherit.aes = FALSE,
+              hjust = 0, size = 2.6, colour = INK2) +
+    scale_fill_manual(values = GROUP_COLS, name = NULL, drop = FALSE) +
+    scale_y_discrete(labels = REGION_LAB) +
+    scale_x_continuous(limits = c(0, 110), expand = c(0, 0)) +
+    labs(title = sprintf("%s  %s", LETTERS_T[[tg]], TARGETS[[tg]]), x = NULL, y = NULL) + theme_imp() +
+    theme(panel.grid.major.x = element_blank(), axis.text.x = element_blank())
+}
+cw <- dcast(curves, price ~ tech, value.var = "net_value")
+first_root <- function(y) { i <- which(diff(sign(y)) != 0)[1]; cw$price[i] - y[i] * diff(cw$price)[i] / diff(y)[i] }
+anc <- data.table(target = names(TARGETS),
+                  x = c(first_root(cw$PyCCS), first_root(cw$BECCS - cw$BE), first_root(cw$BECCS), first_root(cw$BECCS - cw$PyCCS)))
+anc[, y := c(0, approx(cw$price, cw$BE, x[2])$y, 0, approx(cw$price, cw$PyCCS, x[4])$y)]
+anc[, lab := LETTERS_T[target]]
+message("Importance figure anchors (US$ Mg-1 CO2e): ", paste(sprintf("%s %.0f", anc$lab, anc$x), collapse = ", "))
+TECH_COL3 <- c(BE = TECH_COLORS[["BES"]], BECCS = TECH_COLORS[["BECCS"]], PyCCS = TECH_COLORS[["BEBCS"]])
+ytop <- max(curves$net_value) * 1.1
+p_curve <- ggplot(curves, aes(price, net_value, colour = tech)) +
+  geom_hline(yintercept = 0, colour = "#c9c8c2", linewidth = 0.4) +
+  geom_segment(data = anc, aes(x = x, xend = x, y = y, yend = ytop * 0.94), inherit.aes = FALSE,
+               colour = INK2, linewidth = 0.35, linetype = "22") +
+  geom_line(linewidth = 0.9) +
+  geom_point(data = anc, aes(x, y), inherit.aes = FALSE, shape = 21, size = 2.4, fill = "white", colour = INK, stroke = 0.7) +
+  annotate("label", x = anc$x, y = ytop, label = anc$lab, size = 3, fontface = "bold", colour = INK,
+           fill = "white", label.padding = unit(0.12, "lines")) +
+  geom_text(data = curves[price == max(price)], aes(label = tech), hjust = -0.15, size = 3, fontface = "bold", show.legend = FALSE) +
+  scale_colour_manual(values = TECH_COL3, guide = "none") +
+  scale_x_continuous(limits = c(0, max(ANCHOR_PRICES) * 1.1), breaks = seq(0, max(ANCHOR_PRICES), 50), expand = c(0, 0)) +
+  scale_y_continuous(labels = scales::label_comma()) +
+  labs(title = sprintf("%s  Net value of each technology", letters[length(TARGETS) + 1]),
+       x = "Carbon price (US$ Mg⁻¹ CO₂e)", y = "Net value (US$ Mg⁻¹ residue)") +
+  theme_imp() + theme(panel.grid.major.y = element_line(colour = GRID_COL, linewidth = 0.3),
+                      axis.title.y = element_text(margin = margin(r = 3)))
+p_imp <- wrap_plots(c(lapply(names(TARGETS), bar_panel), list(free(p_curve, type = "label", side = "l"))), ncol = 1) +
+  plot_layout(heights = c(rep(1, length(TARGETS)), 1.6), guides = "collect") &
+  theme(legend.position = "bottom") & guides(fill = guide_legend(nrow = 2, byrow = TRUE))
+ggsave(file.path(OUT_DIR, "shap_importance.png"), p_imp, width = 7.2, height = 8.8, dpi = 300, bg = "white")
+fwrite(curves, file.path(OUT_DIR, "net_value_curves.csv"))
 
 # ==============================================================================
 # Dependence plots (SI): one figure per target and region, inputs with >= 2% of mean |SHAP|. Points are
 # colored by the input with the largest mean |SHAP interaction value| with the plotted input (exact TreeSHAP
 # interactions on the plotted sample); the color scale is clipped at the 2nd and 98th percentiles of that input
 # ==============================================================================
-for (m in models) {
+# SHAP interaction values on the plotted sample of each model, computed in parallel and cached per model
+dep_jobs <- lapply(models, function(m) {
+  idx <- if (nrow(m$data) <= N_PLOT) seq_len(nrow(m$data)) else { set.seed(1); sort(sample.int(nrow(m$data), N_PLOT)) }
+  list(name = sprintf("interactions_%s_%s", m$target, m$region), key = cache_key(key_models, idx),
+       model = m$model, X = m$X[idx, , drop = FALSE])
+})
+message("SHAP interaction values (", N_WORKERS, " in parallel)...")
+shp_inter <- par_map(dep_jobs, function(j) cached(j$name, j$key, shapviz(j$model, X_pred = j$X, interactions = TRUE), sub = "spatial_shap"))
+for (k in seq_along(models)) {
+  m <- models[[k]]
   shares <- imp[target == m$target & region == m$region]
   v_show <- shares[share_pct >= 2][order(-share_pct), feature]
   if (!length(v_show)) next
-  idx <- if (nrow(m$data) <= N_PLOT) seq_len(nrow(m$data)) else { set.seed(1); sort(sample.int(nrow(m$data), N_PLOT)) }
-  shp_i <- cached(sprintf("interactions_%s_%s", m$target, m$region), cache_key(key_models, idx),
-                  shapviz(m$model, X_pred = m$X[idx, , drop = FALSE], interactions = TRUE), sub = "spatial_shap")
+  shp_i <- shp_inter[[k]]
   deps <- lapply(v_show, function(v) {
     iv <- abs(shp_i$S_inter[, v, , drop = FALSE])[, 1, ]
     iv[, v] <- 0
@@ -254,10 +392,12 @@ for (m in models) {
       scale_colour_viridis_c(option = "plasma", end = 0.9, limits = lim, oob = scales::squish, breaks = scales::breaks_pretty(n = 4),
                              labels = scales::label_comma(),
                              name = paste0(feature_labels[[cv]], "\n(", feature_units[[cv]], ")")) +
+      scale_x_continuous(labels = scales::label_comma()) +
+      guides(colour = guide_colourbar(title.position = "top", title.hjust = 0.5)) +
       theme_bw(base_size = 9) +
       theme(legend.position = "bottom", legend.key.height = unit(0.2, "cm"), legend.key.width = unit(1.1, "cm"),
             legend.title = element_text(size = 7), legend.text = element_text(size = 7)) +
-      labs(title = feature_labels[[v]], x = paste0(feature_labels[[v]], " (", feature_units[[v]], ")"),
+      labs(title = NULL, x = paste0(feature_labels[[v]], " (", feature_units[[v]], ")"),
            y = paste0("SHAP value (", TARGET_UNITS[[m$target]], ")"))
   })
   ggsave(file.path(OUT_DIR, sprintf("dependence_%s_%s.png", m$target, m$region)), wrap_plots(deps, ncol = 3),
@@ -343,7 +483,7 @@ adm <- rbindlist(lapply(REGIONS, function(r) {
   j[, .(region = r, cells = .N,
         median_takeover_BECCS = median(takeover_BECCS, na.rm = TRUE), share_no_takeover = mean(is.na(takeover_BECCS)),
         median_be_PyCCS = median(be_PyCCS, na.rm = TRUE), median_be_BECCS = median(be_BECCS, na.rm = TRUE),
-        median_n0_BE = median(n0_BE, na.rm = TRUE),
+        median_beccs_over_be = median(beccs_over_be, na.rm = TRUE),
         dominant_takeover_driver = if (all(is.na(dominant))) NA_character_ else names(which.max(table(dominant)))),
     by = .(NAM_0, NAM_1)]
 }))
