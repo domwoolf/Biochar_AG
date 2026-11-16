@@ -10,7 +10,7 @@ import sys
 
 from pypdf import PdfReader, PdfWriter
 
-ESI_TITLE = "Electronic Supplementary Information"
+ESI_TITLE = "Supplementary Information"
 
 
 def esi_start(reader):
