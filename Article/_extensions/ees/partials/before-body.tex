@@ -1,0 +1,103 @@
+%%% Front matter of the RSC article template (2016), replacing Quarto's \maketitle and abstract.
+%%% Title and abstract come from the document metadata; authors, affiliation footnotes and the ESI note
+%%% from rsc-authors, rsc-affiliations and rsc-esi.
+
+\pagestyle{fancy}
+\thispagestyle{plain}
+\fancypagestyle{plain}{
+\renewcommand{\headrulewidth}{0pt}
+}
+
+%%%PAGE SETUP%%%
+\makeFNbottom
+\makeatletter
+\renewcommand\LARGE{\@setfontsize\LARGE{15pt}{17}}
+\renewcommand\Large{\@setfontsize\Large{12pt}{14}}
+\renewcommand\large{\@setfontsize\large{10pt}{12}}
+\renewcommand\footnotesize{\@setfontsize\footnotesize{7pt}{10}}
+\makeatother
+
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+\renewcommand\footnoterule{\vspace*{1pt}%
+\color{cream}\hrule width 3.5in height 0.4pt \color{black}\vspace*{5pt}}
+\setcounter{secnumdepth}{5}
+
+\makeatletter
+\renewcommand\@biblabel[1]{#1}
+\renewcommand\@makefntext[1]%
+{\noindent\makebox[0pt][r]{\@thefnmark\,}#1}
+\makeatother
+\renewcommand{\figurename}{\small{Fig.}~}
+\sectionfont{\sffamily\Large}
+\subsectionfont{\normalsize}
+\subsubsectionfont{\bf}
+\setstretch{1.125}
+\setlength{\skip\footins}{0.8cm}
+\setlength{\footnotesep}{0.25cm}
+\setlength{\jot}{10pt}
+\titlespacing*{\section}{0pt}{4pt}{4pt}
+\titlespacing*{\subsection}{0pt}{15pt}{1pt}
+
+%%%FOOTER%%%
+% Page range in the footer: the article ends at the label ArticleLastPage, set before the ESI; the ESI block
+% redefines \rscpagerange as S1--\pageref{LastPage}
+\providecommand{\rscpagerange}{1--\pageref*{ArticleLastPage}}
+\fancyfoot{}
+% The template's footer artwork (LF: journal copyright line; RF: "Journal Name, [year], [vol.]") is omitted
+% at submission; only the page range and page number are shown
+\fancyfoot[RO]{\footnotesize{\sffamily{\rscpagerange ~\textbar  \hspace{2pt}\thepage}}}
+\fancyfoot[LE]{\footnotesize{\sffamily{\thepage~\textbar\hspace{2pt} \rscpagerange}}}
+\fancyhead{}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+\setlength{\arrayrulewidth}{1pt}
+\setlength{\columnsep}{6.5mm}
+\setlength\bibsep{1pt}
+
+%%%FIGURE SETUP%%%
+\makeatletter
+\newlength{\figrulesep}
+\setlength{\figrulesep}{0.5\textfloatsep}
+\newcommand{\topfigrule}{\vspace*{-1pt}%
+\noindent{\color{cream}\rule[-\figrulesep]{\columnwidth}{1.5pt}} }
+\newcommand{\botfigrule}{\vspace*{-2pt}%
+\noindent{\color{cream}\rule[\figrulesep]{\columnwidth}{1.5pt}} }
+\newcommand{\dblfigrule}{\vspace*{-1pt}%
+\noindent{\color{cream}\rule[-\figrulesep]{\textwidth}{1.5pt}} }
+\makeatother
+
+%%%TITLE, AUTHORS AND ABSTRACT%%%
+\twocolumn[
+  \begin{@twocolumnfalse}
+\noindent{\includegraphics[height=30pt]{journal_name}\hfill\raisebox{0pt}[0pt][0pt]{\includegraphics[height=55pt]{RSC_LOGO_CMYK}}\\[1ex]
+\includegraphics[width=18.5cm]{header_bar}}\par
+\vspace{1em}
+\sffamily
+\begin{tabular}{m{4.5cm} p{13.3cm} } % 13.5cm in the template, which overruns the text block by 7 pt
+
+\includegraphics{DOI} & \noindent\LARGE{\textbf{$title$$if(rsc-esi)$\textsuperscript{\dag}$endif$}} \\
+\vspace{0.3cm} & \vspace{0.3cm} \\
+
+ & \noindent\large{$rsc-authors$} \\
+
+\includegraphics{dates} & \noindent\normalsize{$abstract$} \\
+
+\end{tabular}
+
+ \end{@twocolumnfalse} \vspace{0.6cm}
+
+  ]
+
+%%%FONT SETUP%%%
+\renewcommand*\rmdefault{bch}\normalfont\upshape
+\rmfamily
+\section*{}
+\vspace{-1cm}
+
+%%%FOOTNOTES%%%
+$for(rsc-affiliations)$
+\footnotetext{$rsc-affiliations$}
+$endfor$
+$if(rsc-esi)$
+\footnotetext{\dag~$rsc-esi$}
+$endif$

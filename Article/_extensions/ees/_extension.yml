@@ -11,5 +11,18 @@ contributes:
       csl: royal-society-of-chemistry.csl
       filters:
         - cite-after-punct.lua
-    pdf: {}
-    docx: {}
+    pdf:
+      # RSC article template: preamble packages, and front matter (header, title block, abstract,
+      # affiliation footnotes, page setup) in place of Quarto's \maketitle
+      pdf-engine: pdflatex
+      documentclass: article
+      classoption: [twoside, twocolumn, 9pt]
+      papersize: letter
+      geometry: [left=1.5cm, right=1.5cm, top=1.785cm, bottom=2.0cm]
+      indent: true
+      cite-method: natbib
+      natbiboptions: "super,sort,compress,comma"
+      biblio-style: rsc
+      include-in-header: rsc-preamble.tex
+      template-partials:
+        - partials/before-body.tex

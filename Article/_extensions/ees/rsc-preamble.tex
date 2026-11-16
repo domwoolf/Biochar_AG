@@ -1,0 +1,35 @@
+%%% Preamble of the RSC article template (2016), adapted for Quarto/Pandoc.
+%%% Packages Quarto already loads (graphicx, hyperref, natbib, geometry) are omitted; epstopdf is not needed.
+\usepackage{extsizes}
+% extsizes resets the page layout; Quarto loads geometry first, so the RSC margins are applied again here
+\geometry{left=1.5cm,right=1.5cm,top=1.785cm,bottom=2.0cm}
+\usepackage[version=3]{mhchem}
+\usepackage{balance}
+\usepackage{mathptmx}
+\usepackage{sectsty}
+\usepackage{lastpage}
+\usepackage[format=plain,justification=justified,singlelinecheck=false,font={stretch=1.125,small,sf},labelfont=bf,labelsep=space]{caption}
+\usepackage{float}
+\usepackage{fancyhdr}
+\usepackage{fnpos}
+\usepackage[english]{babel}
+\addto{\captionsenglish}{%
+  \renewcommand{\refname}{Notes and references}
+}
+\usepackage{array}
+\usepackage{droidsans}
+\usepackage{charter}
+\usepackage[T1]{fontenc}
+\usepackage[usenames,dvipsnames]{xcolor}
+\usepackage{setspace}
+\usepackage[compact]{titlesec}
+\usepackage{placeins}
+\definecolor{cream}{RGB}{222,217,201}
+
+%%% Unicode characters in the text that pdfLaTeX does not map by default
+\DeclareUnicodeCharacter{2212}{\ensuremath{-}}
+\DeclareUnicodeCharacter{2265}{\ensuremath{\geq}}
+\DeclareUnicodeCharacter{03C1}{\ensuremath{\rho}}
+
+%%% Journal artwork for the header and footer, shipped with this extension
+\graphicspath{{_extensions/ees/head_foot/}}
