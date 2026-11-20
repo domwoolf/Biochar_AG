@@ -1,0 +1,3 @@
+All data required to reproduce the results are reported in the manuscript and Supporting Information. Parameter values and ranges are reported directly, and included in the code repository. Sources and versions of third-party spatial data sets are reported.
+
+All computer code to run the analyses is available at \[doi and permanent url to be provided before publication\].

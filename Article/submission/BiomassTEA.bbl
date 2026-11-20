@@ -1,0 +1,1858 @@
+\providecommand*{\mcitethebibliography}{\thebibliography}
+\csname @ifundefined\endcsname{endmcitethebibliography}
+{\let\endmcitethebibliography\endthebibliography}{}
+\begin{mcitethebibliography}{201}
+\providecommand*{\natexlab}[1]{#1}
+\providecommand*{\mciteSetBstSublistMode}[1]{}
+\providecommand*{\mciteSetBstMaxWidthForm}[2]{}
+\providecommand*{\mciteBstWouldAddEndPuncttrue}
+  {\def\EndOfBibitem{\unskip.}}
+\providecommand*{\mciteBstWouldAddEndPunctfalse}
+  {\let\EndOfBibitem\relax}
+\providecommand*{\mciteSetBstMidEndSepPunct}[3]{}
+\providecommand*{\mciteSetBstSublistLabelBeginEnd}[3]{}
+\providecommand*{\EndOfBibitem}{}
+\mciteSetBstSublistMode{f}
+\mciteSetBstMaxWidthForm{subitem}
+{(\emph{\alph{mcitesubitemcount}})}
+\mciteSetBstSublistLabelBeginEnd{\mcitemaxwidthsubitemform\space}
+{\relax}{\relax}
+
+\bibitem[{UNFCCC}(2015)]{unfccc2015paris}
+{UNFCCC}, \emph{Paris Agreement}, Decision 1/CP.21, document
+  FCCC/CP/2015/10/Add.1, 2015, \url{https://unfccc.int/documents/9097}\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[{IPCC}(2022)]{ipcc2022wg3}
+{IPCC}, \emph{Climate Change 2022: Mitigation of Climate Change. Contribution
+  of Working Group {III} to the Sixth Assessment Report of the
+  Intergovernmental Panel on Climate Change}, Cambridge University Press,
+  Cambridge, UK and New York, NY, USA, 2022\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Fuss \emph{et~al.}(2018)Fuss, Lamb, Callaghan, Hilaire, Creutzig,
+  Amann,\emph{et~al.}]{fuss2018}
+S.~Fuss, W.~F. Lamb, M.~W. Callaghan, J.~Hilaire, F.~Creutzig, T.~Amann
+  \emph{et~al.}, \emph{Environmental Research Letters}, 2018, \textbf{13},
+  063002\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Karan \emph{et~al.}(2023)Karan, Woolf, Azzi, Sundberg, and
+  Wood]{karan2023}
+S.~K. Karan, D.~Woolf, E.~S. Azzi, C.~Sundberg and S.~A. Wood, \emph{GCB
+  Bioenergy}, 2023, \textbf{15}, 1424--1436\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Della~Chiesa \emph{et~al.}(2026)Della~Chiesa, Archontoulis, Northrup,
+  Abalos, Shahid, Chen, Venterea, Jin, Nafziger, and
+  Castellano]{della2026productivity}
+T.~Della~Chiesa, S.~V. Archontoulis, D.~Northrup, D.~Abalos, M.~R. Shahid,
+  Z.~Chen, R.~T. Venterea, V.~L. Jin, E.~D. Nafziger and M.~J. Castellano,
+  \emph{Agronomy Journal}, 2026, \textbf{118}, e70597\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Yue \emph{et~al.}(2025)Yue, Adamowski, Cao, Chen, Xuanyuan, Elbeltagi,
+  and Dai]{yue2025managing}
+Q.~Yue, J.~Adamowski, X.~Cao, D.~Chen, M.~Xuanyuan, A.~Elbeltagi and X.~Dai,
+  \emph{Journal of Cleaner Production}, 2025, \textbf{486}, 144544\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Schmidt \emph{et~al.}(2019)Schmidt, Anca-Couce, Hagemann, Werner,
+  Gerten, Lucht, and Kammann]{schmidt2019pyccs}
+H.-P. Schmidt, A.~Anca-Couce, N.~Hagemann, C.~Werner, D.~Gerten, W.~Lucht and
+  C.~Kammann, \emph{GCB Bioenergy}, 2019, \textbf{11}, 573--591\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Woolf \emph{et~al.}(2010)Woolf, Amonette, Street-Perrott, Lehmann, and
+  Joseph]{woolf2010}
+D.~Woolf, J.~E. Amonette, F.~A. Street-Perrott, J.~Lehmann and S.~Joseph,
+  \emph{Nature Communications}, 2010, \textbf{1}, 56\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Lehmann \emph{et~al.}(2021)Lehmann, Cowie, Allison, Brand{\~a}o,
+  Joseph, Powlson, and Woolf]{lehmann2021biochar}
+J.~Lehmann, A.~Cowie, A.~Allison, M.~Brand{\~a}o, S.~Joseph, D.~Powlson and
+  D.~Woolf, \emph{Nature Geoscience}, 2021, \textbf{14}, 883--892\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Woolf \emph{et~al.}(2016)Woolf, Lehmann, and Lee]{woolf2016optimal}
+D.~Woolf, J.~Lehmann and D.~R. Lee, \emph{Nature Communications}, 2016,
+  \textbf{7}, 13160\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Jeffery \emph{et~al.}(2017)Jeffery, Abalos, Prodana, Bastos, van
+  Groenigen, Hungate, and Verheijen]{jeffery2017}
+S.~Jeffery, D.~Abalos, M.~Prodana, A.~C. Bastos, J.~W. van Groenigen, B.~A.
+  Hungate and F.~Verheijen, \emph{Environmental Research Letters}, 2017,
+  \textbf{12}, 053001\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Xu \emph{et~al.}(2021)Xu, Cai, Wu, Liang, Xiao, Xu, Colinet, and
+  Zhang]{xu2021}
+H.~Xu, A.~Cai, D.~Wu, G.~Liang, J.~Xiao, M.~Xu, G.~Colinet and W.~Zhang,
+  \emph{Soil and Tillage Research}, 2021, \textbf{213}, 105125\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Yang \emph{et~al.}(2025)Yang, Xia, van Groenigen, Zhao, Ti, Wang, Du,
+  Fan, Zhuang, Smith, Lal, Butterbach-Bahl, Han, Meng, Liu, Cai, Cheng, Liu,
+  Shu, Jiao, Pan, Tang, and Yan]{yang2025biochar}
+J.~Yang, L.~Xia, K.~J. van Groenigen, X.~Zhao, C.~Ti, W.~Wang, Z.~Du, M.~Fan,
+  M.~Zhuang, P.~Smith, R.~Lal, K.~Butterbach-Bahl, X.~Han, J.~Meng, J.~Liu,
+  H.~Cai, Y.~Cheng, X.~Liu, X.~Shu, X.~Jiao, Z.~Pan, G.~Tang and X.~Yan,
+  \emph{Proceedings of the National Academy of Sciences of the United States of
+  America}, 2025, \textbf{122}, e2509237122\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Edwards \emph{et~al.}(2026)Edwards, Geden, Gidden, Lamb, Minx, Nemet,
+  Smith,\emph{et~al.}]{edwards2026state}
+M.~Edwards, O.~Geden, M.~Gidden, W.~F. Lamb, J.~Minx, G.~F. Nemet, S.~Smith
+  \emph{et~al.}, \emph{The State of Carbon Dioxide Removal, 3rd Edition}, {OSF}
+  technical report, 2026\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Roe \emph{et~al.}(2021)Roe, Streck, Beach, Busch, Chapman, Daioglou,
+  Deppermann, Doelman,\emph{et~al.}]{roe2021}
+S.~Roe, C.~Streck, R.~Beach, J.~Busch, M.~Chapman, V.~Daioglou, A.~Deppermann,
+  J.~Doelman \emph{et~al.}, \emph{Global Change Biology}, 2021, \textbf{27},
+  6025--6058\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Peters \emph{et~al.}(2015)Peters, Iribarren, and Dufour]{peters2015}
+J.~F. Peters, D.~Iribarren and J.~Dufour, \emph{Environmental Science \&
+  Technology}, 2015, \textbf{49}, 5195--5202\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Lefebvre \emph{et~al.}(2021)Lefebvre, Williams, Kirk, Meersmans, Sohi,
+  Goglio, and Smith]{lefebvre2021}
+D.~Lefebvre, A.~Williams, G.~J.~D. Kirk, J.~Meersmans, S.~Sohi, P.~Goglio and
+  P.~Smith, \emph{Journal of Cleaner Production}, 2021, \textbf{312},
+  127764\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Saldarriaga and L{\'o}pez(2025)]{saldarriaga2025biochar}
+J.~F. Saldarriaga and J.~E. L{\'o}pez, \emph{Sustainability}, 2025,
+  \textbf{17}, 11285\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Forster \emph{et~al.}(2021)Forster, Storelvmo, Armour, Collins,
+  Dufresne, Frame, Lunt, Mauritsen, Palmer, Watanabe, Wild, and
+  Zhang]{forster2021}
+P.~Forster, T.~Storelvmo, K.~Armour, W.~Collins, J.-L. Dufresne, D.~Frame,
+  D.~J. Lunt, T.~Mauritsen, M.~D. Palmer, M.~Watanabe, M.~Wild and H.~Zhang,
+  \emph{Climate Change 2021: The Physical Science Basis. Contribution of
+  Working Group I to the Sixth Assessment Report of the Intergovernmental Panel
+  on Climate Change}, Cambridge University Press, Cambridge, UK and New York,
+  NY, USA, 2021, pp. 923--1054\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[McClelland \emph{et~al.}(2025)McClelland, Bossio, Gordon, Lehmann,
+  Hayek, Ogle, Sanderman, Wood, Yang, and Woolf]{mcclelland2025}
+S.~C. McClelland, D.~Bossio, D.~R. Gordon, J.~Lehmann, M.~N. Hayek, S.~M. Ogle,
+  J.~Sanderman, S.~A. Wood, Y.~Yang and D.~Woolf, \emph{Nature Climate Change},
+  2025, \textbf{15}, 642--649\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Riahi \emph{et~al.}(2022)Riahi, Schaeffer, Arango, Calvin, Guivarch,
+  Hasegawa, Jiang, Kriegler, Matthews, Peters, Rao, Robertson, Sebbit,
+  Steinberger, Tavoni, and van Vuuren]{riahi2022}
+K.~Riahi, R.~Schaeffer, J.~Arango, K.~Calvin, C.~Guivarch, T.~Hasegawa,
+  K.~Jiang, E.~Kriegler, R.~Matthews, G.~P. Peters, A.~Rao, S.~Robertson, A.~M.
+  Sebbit, J.~Steinberger, M.~Tavoni and D.~P. van Vuuren, \emph{Climate Change
+  2022: Mitigation of Climate Change. Contribution of Working Group {III} to
+  the Sixth Assessment Report of the Intergovernmental Panel on Climate
+  Change}, Cambridge University Press, Cambridge, UK and New York, NY, USA,
+  2022, pp. 295--408\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Drupp \emph{et~al.}(2018)Drupp, Freeman, Groom, and Nesje]{drupp2018}
+M.~A. Drupp, M.~C. Freeman, B.~Groom and F.~Nesje, \emph{American Economic
+  Journal: Economic Policy}, 2018, \textbf{10}, 109--134\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Hotelling(1931)]{hotelling1931}
+H.~Hotelling, \emph{Journal of Political Economy}, 1931, \textbf{39},
+  137--175\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Emmerling \emph{et~al.}(2019)Emmerling, Drouet, van~der Wijst, van
+  Vuuren, Bosetti, and Tavoni]{emmerling2019}
+J.~Emmerling, L.~Drouet, K.-I. van~der Wijst, D.~van Vuuren, V.~Bosetti and
+  M.~Tavoni, \emph{Environmental Research Letters}, 2019, \textbf{14},
+  104008\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Pahle \emph{et~al.}(2018)Pahle, Burtraw, Flachsland, Kelsey, Biber,
+  Meckling, Edenhofer, and Zysman]{pahle2018}
+M.~Pahle, D.~Burtraw, C.~Flachsland, N.~Kelsey, E.~Biber, J.~Meckling,
+  O.~Edenhofer and J.~Zysman, \emph{Nature Climate Change}, 2018, \textbf{8},
+  861--867\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Richters \emph{et~al.}(2026)Richters, Kriegler, Bertram, Cui,
+  Edmonds,\emph{et~al.}]{ngfs2026}
+O.~Richters, E.~Kriegler, C.~Bertram, R.~Cui, J.~Edmonds \emph{et~al.},
+  \emph{{NGFS} Climate Scenarios Data Set, Phase 5, Version 5.1}, 2026, Network
+  for Greening the Financial System; version 5.1, published 20 March 2026\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Babiker \emph{et~al.}(2022)Babiker, Berndes, Blok, Cohen, Cowie,
+  Geden, Ginzburg, Leip, Smith, Sugiyama, and Yamba]{babiker2022}
+M.~Babiker, G.~Berndes, K.~Blok, B.~Cohen, A.~Cowie, O.~Geden, V.~Ginzburg,
+  A.~Leip, P.~Smith, M.~Sugiyama and F.~Yamba, \emph{Climate Change 2022:
+  Mitigation of Climate Change. Contribution of Working Group {III} to the
+  Sixth Assessment Report of the Intergovernmental Panel on Climate Change},
+  Cambridge University Press, Cambridge, UK and New York, NY, USA, 2022, pp.
+  1245--1354\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Gambhir \emph{et~al.}(2019)Gambhir, Butnar, Li, Smith, and
+  Strachan]{gambhir2019}
+A.~Gambhir, I.~Butnar, P.-H. Li, P.~Smith and N.~Strachan, \emph{Energies},
+  2019, \textbf{12}, 1747\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Kaur \emph{et~al.}(2023)Kaur, Kieffer, Ren, and Hui]{kaur2023}
+N.~Kaur, C.~Kieffer, W.~Ren and D.~Hui, \emph{GCB Bioenergy}, 2023,
+  \textbf{15}, 24--37\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Borchard \emph{et~al.}(2019)Borchard, Schirrmann, Cayuela, Kammann,
+  Wrage-M{\"o}nnig, Estavillo, Fuertes-Mendiz{\'a}bal, Sigua, Spokas, Ippolito,
+  and Novak]{borchard2019}
+N.~Borchard, M.~Schirrmann, M.~L. Cayuela, C.~Kammann, N.~Wrage-M{\"o}nnig,
+  J.~M. Estavillo, T.~Fuertes-Mendiz{\'a}bal, G.~Sigua, K.~Spokas, J.~A.
+  Ippolito and J.~Novak, \emph{Science of The Total Environment}, 2019,
+  \textbf{651}, 2354--2364\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Lenton \emph{et~al.}(2025)Lenton, Milkoreit, Willcock, Abrams, McKay,
+  Buxton, Donges, Loriani, Wunderling,
+  Alkemade,\emph{et~al.}]{lenton2025global}
+T.~M. Lenton, M.~Milkoreit, S.~Willcock, J.~F. Abrams, D.~I.~A. McKay, J.~E.
+  Buxton, J.~F. Donges, S.~Loriani, N.~Wunderling, F.~Alkemade \emph{et~al.},
+  \emph{The {Global Tipping Points Report} 2025}, {University of Exeter}
+  technical report, 2025\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Matthews and Wynes(2022)]{matthews2022current}
+H.~D. Matthews and S.~Wynes, \emph{Science}, 2022, \textbf{376},
+  1404--1409\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Tavoni \emph{et~al.}(2026)Tavoni, Bauer, Drouet, Fujimori, Paltsev,
+  Pirani, Riahi, Rogelj, Schaeffer,
+  Van~Vuuren,\emph{et~al.}]{tavoni2026implications}
+M.~Tavoni, N.~Bauer, L.~Drouet, S.~Fujimori, S.~Paltsev, A.~Pirani, K.~Riahi,
+  J.~Rogelj, R.~Schaeffer, D.~Van~Vuuren \emph{et~al.}, \emph{Nature Climate
+  Change}, 2026, \textbf{16}, 261--272\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Bains \emph{et~al.}(2017)Bains, Psarras, and Wilcox]{bains2017}
+P.~Bains, P.~Psarras and J.~Wilcox, \emph{Progress in Energy and Combustion
+  Science}, 2017, \textbf{63}, 146--172\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Sanchez \emph{et~al.}(2018)Sanchez, Johnson, McCoy, Turner, and
+  Mach]{sanchez2018}
+D.~L. Sanchez, N.~Johnson, S.~T. McCoy, P.~A. Turner and K.~J. Mach,
+  \emph{Proceedings of the National Academy of Sciences}, 2018, \textbf{115},
+  4875--4880\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Roni \emph{et~al.}(2017)Roni, Chowdhury, Mamun, Marufuzzaman, Lein,
+  and Johnson]{roni2017}
+M.~S. Roni, S.~Chowdhury, S.~Mamun, M.~Marufuzzaman, W.~Lein and S.~Johnson,
+  \emph{Renewable and Sustainable Energy Reviews}, 2017, \textbf{78},
+  1089--1101\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Luo \emph{et~al.}(2025)Luo, Wei, Lu, Zhou, Tao, Quan, Liao, Jiang,
+  Xia, Huang, Niu, Xu, Sun, Zeng, Koven, Peng, Davis, Smith, You, Jiang, Cheng,
+  and Houlton]{luo2025woody}
+Y.~Luo, N.~Wei, X.~Lu, Y.~Zhou, F.~Tao, Q.~Quan, C.~Liao, L.~Jiang, J.~Xia,
+  Y.~Huang, S.~Niu, X.~Xu, Y.~Sun, N.~Zeng, C.~Koven, L.~Peng, S.~Davis,
+  P.~Smith, F.~You, Y.~Jiang, L.~Cheng and B.~Houlton, \emph{Nature
+  Geoscience}, 2025, \textbf{18}, 675--681\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Clayton \emph{et~al.}(2026)Clayton, Wyckoff, and Crotty]{clayton2026}
+L.~K. Clayton, A.~S. Wyckoff and S.~M. Crotty, \emph{Science Advances}, 2026,
+  \textbf{12}, eaee6185\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Yablonovitch and Deckman(2023)]{yablonovitch2023}
+E.~Yablonovitch and H.~W. Deckman, \emph{Proceedings of the National Academy of
+  Sciences}, 2023, \textbf{120}, e2217695120\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Nedelciu \emph{et~al.}(2020)Nedelciu, Ragnarsdottir, Schlyter, and
+  Stjernquist]{nedelciu2020}
+C.~E. Nedelciu, K.~V. Ragnarsdottir, P.~Schlyter and I.~Stjernquist,
+  \emph{Global Food Security}, 2020, \textbf{26}, 100426\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Al~Rawashdeh(2020)]{alrawashdeh2020}
+R.~Al~Rawashdeh, \emph{Resources Policy}, 2020, \textbf{69}, 101834\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Churkina \emph{et~al.}(2020)Churkina, Organschi, Reyer, Ruff, Vinke,
+  Liu, Reck, Graedel, and Schellnhuber]{churkina2020}
+G.~Churkina, A.~Organschi, C.~P.~O. Reyer, A.~Ruff, K.~Vinke, Z.~Liu, B.~K.
+  Reck, T.~E. Graedel and H.~J. Schellnhuber, \emph{Nature Sustainability},
+  2020, \textbf{3}, 269--276\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Field \emph{et~al.}(2016)Field, Tanger, Shackley, and
+  Haefele]{field2016}
+J.~L. Field, P.~Tanger, S.~J. Shackley and S.~M. Haefele, \emph{Applied
+  Energy}, 2016, \textbf{177}, 612--624\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[{World Bank}(2026)]{worldbank2026boundaries}
+{World Bank}, \emph{World Bank Official Boundaries, Admin 0 and Admin 1
+  (GeoPackage)}, World Bank Data Catalog, dataset 0038272, version 5, 2026,
+  \url{https://datacatalog.worldbank.org/search/dataset/0038272}, Accessed 31
+  March 2026\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[{R Core Team}(2025)]{rcore2025}
+{R Core Team}, \emph{R: A Language and Environment for Statistical Computing},
+  R Foundation for Statistical Computing, Vienna, Austria, 2025\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Hijmans(2025)]{hijmans2025terra}
+R.~J. Hijmans, \emph{terra: Spatial Data Analysis}, 2025\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Herrero \emph{et~al.}(2013)Herrero, Havl{\'i}k, Valin, Notenbaert,
+  Rufino, Thornton, Bl{\"u}mmel, Weiss, Grace, and Obersteiner]{herrero2013}
+M.~Herrero, P.~Havl{\'i}k, H.~Valin, A.~Notenbaert, M.~C. Rufino, P.~K.
+  Thornton, M.~Bl{\"u}mmel, F.~Weiss, D.~Grace and M.~Obersteiner,
+  \emph{Proceedings of the National Academy of Sciences}, 2013, \textbf{110},
+  20888--20893\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Kumar \emph{et~al.}(2015)Kumar, Kumar, and Joshi]{kumar2015}
+P.~Kumar, S.~Kumar and L.~Joshi, \emph{Socioeconomic and Environmental
+  Implications of Agricultural Residue Burning: A Case Study of {Punjab},
+  {India}}, Springer India, New Delhi, 2015\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Beach \emph{et~al.}(2012)Beach, Zhang, and McCarl]{beach2012}
+R.~H. Beach, Y.~W. Zhang and B.~A. McCarl, \emph{Climate Change Economics},
+  2012, \textbf{3}, 1250012\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Searcy \emph{et~al.}(2007)Searcy, Flynn, Ghafoori, and
+  Kumar]{searcy2007}
+E.~Searcy, P.~Flynn, E.~Ghafoori and A.~Kumar, \emph{Applied Biochemistry and
+  Biotechnology}, 2007, \textbf{137--140}, 639--652\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Leslie and Murray(2024)]{atri2024}
+A.~Leslie and D.~Murray, \emph{An Analysis of the Operational Costs of
+  Trucking: 2024 Update}, {American Transportation Research Institute}
+  technical report, 2024\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Weiss \emph{et~al.}(2020)Weiss, Nelson, Vargas-Ruiz, Gligori{\'c},
+  Bavadekar, Gabrilovich, Bertozzi-Villa, Rozier, Gibson, Shekel, Kamath,
+  Lieber, Schulman, Shao, Qarkaxhija, Nandi, Keddie, Rumisha, Amratia,
+  Arambepola, Chestnutt, Millar, Symons, Cameron, Battle, Bhatt, and
+  Gething]{weiss2020}
+D.~J. Weiss, A.~Nelson, C.~A. Vargas-Ruiz, K.~Gligori{\'c}, S.~Bavadekar,
+  E.~Gabrilovich, A.~Bertozzi-Villa, J.~Rozier, H.~S. Gibson, T.~Shekel,
+  C.~Kamath, A.~Lieber, K.~Schulman, Y.~Shao, V.~Qarkaxhija, A.~K. Nandi, S.~H.
+  Keddie, S.~Rumisha, P.~Amratia, R.~Arambepola, E.~G. Chestnutt, J.~J. Millar,
+  T.~L. Symons, E.~Cameron, K.~E. Battle, S.~Bhatt and P.~W. Gething,
+  \emph{Nature Medicine}, 2020, \textbf{26}, 1835--1838\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[{Smart Freight Centre}(2024)]{glec2024}
+{Smart Freight Centre}, \emph{Global Logistics Emissions Council Framework for
+  Logistics Emissions Accounting and Reporting, Version 3.1}, {Smart Freight
+  Centre} technical report, 2024\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Baxter \emph{et~al.}(1998)Baxter, Miles, Miles, Jenkins, Milne,
+  Dayton, Bryers, and Oden]{baxter1998}
+L.~L. Baxter, T.~R. Miles, T.~R. Miles, B.~M. Jenkins, T.~Milne, D.~Dayton,
+  R.~W. Bryers and L.~L. Oden, \emph{Fuel Processing Technology}, 1998,
+  \textbf{54}, 47--78\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[{García} \emph{et~al.}(2017){García}, Pizarro, {Lavín}, and
+  Bueno]{garcía2017}
+R.~{García}, C.~Pizarro, A.~G. {Lavín} and J.~L. Bueno, \emph{Fuel}, 2017,
+  \textbf{195}, 182--189\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Luan \emph{et~al.}(2025)Luan, Wang, Shao, Cui, Han, and He]{luan2025a}
+J.~Luan, Q.~Wang, D.~Shao, B.~Cui, P.~Han and Q.~He, \emph{Frontiers in Energy
+  Research}, 2025, \textbf{13}, 1634354\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[{Danish Energy Agency and Energinet}(2026)]{dea2026}
+{Danish Energy Agency and Energinet}, \emph{Technology Data for Electricity and
+  District Heating Production}, {Danish Energy Agency} technical report,
+  2026\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[{Danish Energy Agency}(2020)]{dea2020}
+{Danish Energy Agency}, \emph{Technology Data for Generation of Electricity and
+  District Heating}, {Danish Energy Agency and Energinet} technical report,
+  2020\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[{U.S. Department of Energy}(2011)]{perlack2011}
+{U.S. Department of Energy}, \emph{{U.S.} Billion-Ton Update: Biomass Supply
+  for a Bioenergy and Bioproducts Industry}, Oak Ridge National Laboratory
+  Technical Report ORNL/TM-2011/224, 2011\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[De~La Torre~Ugarte and Ray(2000)]{delatorreugarte2000}
+D.~G. De~La Torre~Ugarte and D.~E. Ray, \emph{Biomass and Bioenergy}, 2000,
+  \textbf{18}, 291--308\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Dees \emph{et~al.}(2017)Dees, Elbersen, Fitzgerald,
+  Vis,\emph{et~al.}]{dees2017s2biom}
+M.~Dees, B.~Elbersen, J.~Fitzgerald, M.~Vis \emph{et~al.}, \emph{Atlas with
+  Regional Cost Supply Biomass Potentials for {EU} 28, {Western Balkan}
+  Countries, {Moldavia}, {Turkey} and {Ukraine}}, {S2Biom project (FP7 grant
+  608622), deliverable D1.8} technical report, 2017\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[{World Bank}(2026)]{worldbank2026pinksheet}
+{World Bank}, \emph{World Bank Commodity Price Data (The Pink Sheet): Annual
+  Prices}, 2026, \url{https://www.worldbank.org/en/research/commodity-markets},
+  CMO-Historical-Data-Annual.xlsx; urea, triple superphosphate and potassium
+  chloride, nominal US dollars per tonne\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Tek(2026)]{tek2026saman}
+B.~Tek, \emph{Samsun saman fiyatlar{\i} 2026: g{\"u}ncel ton ve balya
+  fiyatlar{\i} [Samsun straw prices 2026: current prices per tonne and bale]},
+  Haber Gazetesi, 2026,
+  \url{https://www.habergazetesi.com.tr/samsun-son-dakika-saman-fiyatlari-2023},
+  Published 29 July 2026; accessed 6 October 2026\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Wang \emph{et~al.}(2022)Wang, Yin, Jiao, Yang, Shi, and
+  Richel]{wang2022strawfeed}
+S.~Wang, C.~Yin, J.~Jiao, X.~Yang, B.~Shi and A.~Richel, \emph{Resources,
+  Conservation and Recycling}, 2022, \textbf{185}, 106439\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Sokhansanj \emph{et~al.}(2023)Sokhansanj, Yadav, Lau, Yadvika, Verma,
+  and Karwasra]{sokhansanj2023}
+S.~Sokhansanj, Y.~K. Yadav, A.~Lau, Yadvika, K.~Verma and N.~Karwasra,
+  \emph{Journal of Sustainable Bioenergy Systems}, 2023, \textbf{13},
+  57--72\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Erenstein(2011)]{erenstein2011}
+O.~Erenstein, \emph{Agricultural Systems}, 2011, \textbf{104}, 54--62\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Duncan \emph{et~al.}(2020)Duncan, Samaddar, and
+  Bl{\"u}mmel]{duncan2020}
+A.~J. Duncan, A.~Samaddar and M.~Bl{\"u}mmel, \emph{Field Crops Research},
+  2020, \textbf{246}, 107680\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Lopes \emph{et~al.}(2023)Lopes, Tasneem, and Viriyavipart]{lopes2023}
+A.~A. Lopes, D.~Tasneem and A.~Viriyavipart, \emph{PLOS ONE}, 2023,
+  \textbf{18}, e0296059\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Becerra-P{\'e}rez \emph{et~al.}(2022)Becerra-P{\'e}rez, Rinc{\'o}n,
+  and Posada-Duque]{becerra2022}
+L.~A. Becerra-P{\'e}rez, L.~Rinc{\'o}n and J.~A. Posada-Duque, \emph{Energies},
+  2022, \textbf{15}, 4480\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Brechbill and Tyner(2008)]{brechbill2008}
+S.~C. Brechbill and W.~E. Tyner, \emph{The Economics of Renewable Energy: Corn
+  Stover and Switchgrass}, Purdue University, Purdue Extension Technical Report
+  ID-404-W, 2008\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Shackley \emph{et~al.}(2011)Shackley, Hammond, Gaunt, and
+  Ibarrola]{shackley2011}
+S.~Shackley, J.~Hammond, J.~Gaunt and R.~Ibarrola, \emph{Carbon Management},
+  2011, \textbf{2}, 335--356\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Kung \emph{et~al.}(2013)Kung, McCarl, and Cao]{kung2013}
+C.-C. Kung, B.~A. McCarl and X.~Cao, \emph{Energy Policy}, 2013, \textbf{60},
+  317--323\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Karras and Thr{\"a}n(2024)]{karras2024}
+T.~Karras and D.~Thr{\"a}n, \emph{Waste and Biomass Valorization}, 2024,
+  \textbf{15}, 5369--5385\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[{Council on Energy, Environment and Water}(2021)]{ceew2021exsitu}
+{Council on Energy, Environment and Water}, \emph{Is Ex Situ Crop Residue
+  Management a Scalable Solution to Stubble Burning?}, {CEEW} technical report,
+  2021\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[{TNO Biobased and Circular Technologies}(2026)]{phyllis2}
+{TNO Biobased and Circular Technologies}, \emph{Phyllis2: Database for the
+  Physico-Chemical Composition of (Treated) Lignocellulosic Biomass, Micro- and
+  Macroalgae, Various Feedstocks for Biogas Production and Biochar}, 2026,
+  \url{https://phyllis.nl/}, Cereal straw, corn stover and rice straw
+  records\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[{U.S. Energy Information Administration}(2026)]{eia2026}
+{U.S. Energy Information Administration}, \emph{Assumptions to the Annual
+  Energy Outlook 2026: Electricity Market Module}, {U.S. Energy Information
+  Administration} technical report, 2026\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[{International Renewable Energy Agency}(2025)]{irena2025}
+{International Renewable Energy Agency}, \emph{Renewable Power Generation Costs
+  in 2024}, {International Renewable Energy Agency} technical report,
+  2025\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[{Central Electricity Regulatory Commission}(2024)]{cerc2024}
+{Central Electricity Regulatory Commission}, \emph{Central Electricity
+  Regulatory Commission (Terms and Conditions for Tariff Determination from
+  Renewable Energy Sources) Regulations, 2024}, 2024,
+  \url{https://cercind.gov.in/regulations/189-Noti.pdf}, Normative capital cost
+  and O\&M expenses for biomass power projects based on Rankine cycle
+  technology, first year of the control period (FY2024--25)\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[{U.S. Energy Information Administration}(2023)]{eia2023}
+{U.S. Energy Information Administration}, \emph{Cost and Performance
+  Characteristics of New Generating Technologies, Annual Energy Outlook 2023},
+  {U.S. Energy Information Administration} technical report, 2023\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[{IRENA}(2012)]{irena2012}
+{IRENA}, \emph{Renewable Energy Technologies: Cost Analysis Series. Biomass for
+  Power Generation}, {International Renewable Energy Agency} technical report,
+  2012\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[{U.S. Energy Information Administration}(2026)]{eia2026epm}
+{U.S. Energy Information Administration}, \emph{Electric Power Monthly, Table
+  {6.07.B}: Capacity Factors for Utility Scale Generators Primarily Using
+  Non-Fossil Fuels}, {U.S. Energy Information Administration} technical report,
+  2026\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[{Drax Group plc}(2025)]{drax2025}
+{Drax Group plc}, \emph{2024 Full Year Results}, Results presentation, 27
+  February 2025, 2025,
+  \url{https://www.drax.com/wp-content/uploads/2025/02/Drax-2024-FYR-Presentation.pdf}\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Daggash \emph{et~al.}(2019)Daggash, Heuberger, and
+  Mac~Dowell]{daggash2019}
+H.~A. Daggash, C.~F. Heuberger and N.~Mac~Dowell, \emph{International Journal
+  of Greenhouse Gas Control}, 2019, \textbf{81}, 181--198\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Prado \emph{et~al.}(2023)Prado, Chiquier, Fajardy, and
+  Mac~Dowell]{prado2023}
+A.~Prado, S.~Chiquier, M.~Fajardy and N.~Mac~Dowell, \emph{iScience}, 2023,
+  \textbf{26}, 106303\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Johansson \emph{et~al.}(2019)Johansson, Lehtveer, and
+  G{\"o}ransson]{johansson2019}
+V.~Johansson, M.~Lehtveer and L.~G{\"o}ransson, \emph{Energy}, 2019,
+  \textbf{168}, 532--541\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Lehtveer and Emanuelsson(2021)]{lehtveer2021}
+M.~Lehtveer and A.~Emanuelsson, \emph{Frontiers in Climate}, 2021, \textbf{3},
+  647276\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[{Ember}(2026)]{ember2026hourly}
+{Ember}, \emph{European Wholesale Electricity Price Data: Hourly Day-Ahead
+  Prices}, 2026,
+  \url{https://ember-energy.org/data/european-wholesale-electricity-price-data/},
+  Hourly day-ahead prices by country, 2015--2026, from ENTSO-E, EMR and SEMOpx;
+  CC-BY 4.0\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[{IEAGHG}(2009)]{ieaghg2009}
+{IEAGHG}, \emph{Biomass {CCS} Study}, IEA Greenhouse Gas R\&D Programme
+  Technical Report 2009/9, 2009\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Herzog \emph{et~al.}(2016)Herzog, Rubin, and Rochelle]{herzog2016}
+H.~J. Herzog, E.~S. Rubin and G.~T. Rochelle, \emph{Environmental Science \&
+  Technology}, 2016, \textbf{50}, 6112--6113\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Tramo{\v{s}}ljika \emph{et~al.}(2021)Tramo{\v{s}}ljika, Blecich,
+  Bonefa{\v{c}}i{\'c}, and Gla{\v{z}}ar]{tramosljika2021}
+B.~Tramo{\v{s}}ljika, P.~Blecich, I.~Bonefa{\v{c}}i{\'c} and V.~Gla{\v{z}}ar,
+  \emph{Sustainability}, 2021, \textbf{13}, 801\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Li \emph{et~al.}(2024)Li, Gao, He, Yang, Wang, and Zheng]{li2024ccs}
+S.~Li, L.~Gao, S.~He, D.~Yang, C.~Wang and Y.~Zheng, \emph{Fundamental
+  Research}, 2024, \textbf{4}, 916--925\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Bhave \emph{et~al.}(2017)Bhave, Taylor, Fennell, Livingston, Shah,
+  Mac~Dowell, Dennis, Kraft, Pourkashanian, Insa, Jones, Burdett, Bauen, Beal,
+  Smallbone, and Akroyd]{bhave2017}
+A.~Bhave, R.~H.~S. Taylor, P.~Fennell, W.~R. Livingston, N.~Shah,
+  N.~Mac~Dowell, J.~Dennis, M.~Kraft, M.~Pourkashanian, M.~Insa, J.~Jones,
+  N.~Burdett, A.~Bauen, C.~Beal, A.~Smallbone and J.~Akroyd, \emph{Applied
+  Energy}, 2017, \textbf{190}, 481--489\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[{Petra Nova Parish Holdings LLC}(2020)]{petranova2020}
+{Petra Nova Parish Holdings LLC}, \emph{{W.A. Parish} Post-Combustion {CO2}
+  Capture and Sequestration Demonstration Project: Final Scientific/Technical
+  Report}, {U.S. Department of Energy, Office of Scientific and Technical
+  Information} Technical Report OSTI 1608572, 2020\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[{Oil and Gas Climate Initiative}(2024)]{ogci2024csrc}
+{Oil and Gas Climate Initiative}, \emph{{CO2} Storage Resource Catalogue, Cycle
+  4 Report: Global Summary}, {Oil and Gas Climate Initiative} technical report,
+  2024\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[{U.S. Geological Survey Geologic Carbon Dioxide Storage Resources
+  Assessment Team}(2013)]{usgs2013co2}
+{U.S. Geological Survey Geologic Carbon Dioxide Storage Resources Assessment
+  Team}, \emph{National Assessment of Geologic Carbon Dioxide Storage
+  Resources: Results}, U.S. Geological Survey Circular 1386, 2013\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[{Global CCS Institute}(2025)]{gccsi2025co2re}
+{Global CCS Institute}, \emph{{CO2RE} Facilities Database}, 2025,
+  \url{https://co2re.co/FacilityData}\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Amatulli \emph{et~al.}(2020)Amatulli, McInerney, Sethi, Strobl, and
+  Domisch]{amatulli2020}
+G.~Amatulli, D.~McInerney, T.~Sethi, P.~Strobl and S.~Domisch, \emph{Scientific
+  Data}, 2020, \textbf{7}, 162\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[{IEA Greenhouse Gas R\&D Programme}(2002)]{ieaghg2002transmission}
+{IEA Greenhouse Gas R\&D Programme}, \emph{Transmission of {CO$_2$} and
+  Energy}, IEA Greenhouse Gas R\&D Programme Technical Report PH4/6, 2002\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[{UNEP-WCMC and IUCN}(2026)]{wdpa2026}
+{UNEP-WCMC and IUCN}, \emph{Protected Planet: The World Database on Protected
+  Areas ({WDPA}), June 2026}, 2026, \url{https://www.protectedplanet.net}\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[McCollum and Ogden(2006)]{mccollum2006}
+D.~L. McCollum and J.~M. Ogden, \emph{Techno-Economic Models for Carbon Dioxide
+  Compression, Transport, and Storage \& Correlations for Estimating Carbon
+  Dioxide Density and Viscosity}, Institute of Transportation Studies,
+  University of California, Davis Technical Report UCD-ITS-RR-06-14, 2006\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Solomon \emph{et~al.}(2024)Solomon, Scheffler, Heineken, Ashkavand,
+  and Birth-Reichert]{solomon2024}
+M.~D. Solomon, M.~Scheffler, W.~Heineken, M.~Ashkavand and T.~Birth-Reichert,
+  \emph{Energies}, 2024, \textbf{17}, 2911\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Warmack \emph{et~al.}(2022)Warmack, Azzolina, Nakles, Peck, Connors,
+  Lagorin, Lagorin, Blumenthal, Hanslik, and Shendye]{warmack2022}
+M.~P. Warmack, N.~A. Azzolina, D.~V. Nakles, W.~D. Peck, K.~C. Connors,
+  W.~Lagorin, T.~Lagorin, T.~Blumenthal, J.~Hanslik and R.~Shendye,
+  \emph{Pipeline Cost and {CO$_2$} Transport Considerations Based on Three
+  Hypothetical Pipelines in the {PCOR} Partnership Initiative Region}, Energy
+  \& Environmental Research Center, University of North Dakota White paper
+  DE-FE0031838, 2022\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Roussanaly \emph{et~al.}(2013)Roussanaly, Bureau-Cauchois, and
+  Husebye]{roussanaly2013}
+S.~Roussanaly, G.~Bureau-Cauchois and J.~Husebye, \emph{International Journal
+  of Greenhouse Gas Control}, 2013, \textbf{12}, 341--350\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Chen and Morosuk(2021)]{chen2021liquefaction}
+F.~Chen and T.~Morosuk, \emph{Energies}, 2021, \textbf{14}, 7174\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[{European Technology Platform for Zero Emission Fossil Fuel Power
+  Plants (ZEP)}(2011)]{zep2011transport}
+{European Technology Platform for Zero Emission Fossil Fuel Power Plants
+  (ZEP)}, \emph{The Costs of {CO2} Transport: Post-demonstration {CCS} in the
+  {EU}}, {European Technology Platform for Zero Emission Fossil Fuel Power
+  Plants} technical report, 2011\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[{VITO}(2026)]{vito2026emis}
+{VITO}, \emph{Pipeline transport ({MAPiT CCU} technology sheet)}, 2026,
+  \url{https://emis.vito.be/nl/tools/mapitccu/technologies/pipeline-transport},
+  Energy and Environment Information System (EMIS); offshore pipelines 40--70\%
+  more expensive than onshore, citing Club CO2 (2024)\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Al~Baroudi \emph{et~al.}(2021)Al~Baroudi, Awoyomi, Patchigolla,
+  Jonnalagadda, and Anthony]{albaroudi2021}
+H.~Al~Baroudi, A.~Awoyomi, K.~Patchigolla, K.~Jonnalagadda and E.~J. Anthony,
+  \emph{Applied Energy}, 2021, \textbf{287}, 116510\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[{Global CCS Institute}(2025)]{gccsi2025}
+{Global CCS Institute}, \emph{Cost of {CO}2 Storage}, {Global CCS Institute}
+  thought leadership report, 2025\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[{European Technology Platform for Zero Emission Fossil Fuel Power
+  Plants (ZEP)}(2011)]{zep2011}
+{European Technology Platform for Zero Emission Fossil Fuel Power Plants
+  (ZEP)}, \emph{The Costs of {CO}2 Storage: Post-Demonstration {CCS} in the
+  {EU}}, {Zero Emissions Platform} technical report, 2011\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[{National Energy Technology Laboratory}(2024)]{netl2024scom}
+{National Energy Technology Laboratory}, \emph{{FECM/NETL CO2} Saline Storage
+  Cost Model ({CO2\_S\_COM})}, U.S. Department of Energy, 2024,
+  \url{https://edx.netl.doe.gov/dataset/fecm-netl-co2-saline-storage-cost-model-co2_s_com-v4},
+  Last update December 2024 (version 4)\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Woolf \emph{et~al.}(2014)Woolf, Lehmann, Fisher, and
+  Angenent]{woolf2014}
+D.~Woolf, J.~Lehmann, E.~M. Fisher and L.~T. Angenent, \emph{Environmental
+  Science \& Technology}, 2014, \textbf{48}, 6492--6499\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Woolf \emph{et~al.}(2021)Woolf, Lehmann, Ogle, Kishimoto-Mo, McConkey,
+  and Baldock]{woolf2021greenhouse}
+D.~Woolf, J.~Lehmann, S.~Ogle, A.~W. Kishimoto-Mo, B.~McConkey and J.~Baldock,
+  \emph{Environmental Science \& Technology}, 2021, \textbf{55},
+  14795--14805\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[{IPCC}(2019)]{ipcc2019biochar}
+{IPCC}, \emph{2019 Refinement to the 2006 {IPCC} Guidelines for National
+  Greenhouse Gas Inventories, Volume 4: Agriculture, Forestry and Other Land
+  Use}, IPCC, Geneva, Switzerland, 2019, ch.~2\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Channiwala and Parikh(2002)]{channiwala2002}
+S.~A. Channiwala and P.~P. Parikh, \emph{Fuel}, 2002, \textbf{81},
+  1051--1063\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Dutta \emph{et~al.}(2015)Dutta, Sahir, Tan, Humbird, Snowden-Swan,
+  Meyer, Ross, Sexton, Yap, and Lukas]{dutta2015}
+A.~Dutta, A.~Sahir, E.~Tan, D.~Humbird, L.~J. Snowden-Swan, P.~Meyer, J.~Ross,
+  D.~Sexton, R.~Yap and J.~Lukas, \emph{Process Design and Economics for the
+  Conversion of Lignocellulosic Biomass to Hydrocarbon Fuels: Thermochemical
+  Research Pathways with In Situ and Ex Situ Upgrading of Fast Pyrolysis
+  Vapors}, National Renewable Energy Laboratory and Pacific Northwest National
+  Laboratory Technical Report NREL/TP-5100-62455; PNNL-23823, 2015\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Yadav and Lamers(2026)]{yadav2026}
+G.~Yadav and P.~Lamers, \emph{Energy \& Fuels}, 2026, \textbf{40},
+  4670--4682\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Claassen \emph{et~al.}(2018)Claassen, Bowman, McFadden, Smith, and
+  Wallander]{claassen2018}
+R.~Claassen, M.~Bowman, J.~McFadden, D.~Smith and S.~Wallander, \emph{Tillage
+  Intensity and Conservation Cropping in the {United States}}, U.S. Department
+  of Agriculture, Economic Research Service Technical Report EIB-197,
+  2018\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[{Eurostat}(2020)]{eurostat2020tillage}
+{Eurostat}, \emph{Agri-environmental indicator -- tillage practices},
+  Statistics Explained, European Commission, 2020,
+  \url{https://ec.europa.eu/eurostat/statistics-explained/index.php/Agri-environmental_indicator_-_tillage_practices},
+  Data from the 2016 Farm Structure Survey; extracted July 2020; accessed 9
+  October 2026\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Dang \emph{et~al.}(2018)Dang, Balzer, Crawford, Rincon-Florez, Liu,
+  Melland, Antille, Kodur, Bell, Whish, Lai, Seymour, Carvalhais, and
+  Schenk]{dang2018}
+Y.~P. Dang, A.~Balzer, M.~Crawford, V.~Rincon-Florez, H.~Liu, A.~R. Melland,
+  D.~Antille, S.~Kodur, M.~J. Bell, J.~P.~M. Whish, Y.~Lai, N.~Seymour, L.~C.
+  Carvalhais and P.~Schenk, \emph{Environmental Science and Pollution
+  Research}, 2018, \textbf{25}, 1000--1015\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Major \emph{et~al.}(2010)Major, Lehmann, Rondon, and
+  Goodale]{major2010}
+J.~Major, J.~Lehmann, M.~Rondon and C.~Goodale, \emph{Global Change Biology},
+  2010, \textbf{16}, 1366--1379\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Lepp{\"a}koski \emph{et~al.}(2021)Lepp{\"a}koski, Marttila, Uusitalo,
+  Lev{\"a}nen, Halonen, and Mikkil{\"a}]{leppakoski2021}
+L.~Lepp{\"a}koski, M.~P. Marttila, V.~Uusitalo, J.~Lev{\"a}nen, V.~Halonen and
+  M.~H. Mikkil{\"a}, \emph{Sustainability}, 2021, \textbf{13}, 10097\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Roberts \emph{et~al.}(2010)Roberts, Gloy, Joseph, Scott, and
+  Lehmann]{roberts2010}
+K.~G. Roberts, B.~A. Gloy, S.~Joseph, N.~R. Scott and J.~Lehmann,
+  \emph{Environmental Science \& Technology}, 2010, \textbf{44}, 827--833\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Pujol~Pereira \emph{et~al.}(2016)Pujol~Pereira, Suddick, and
+  Six]{pujolpereira2016}
+E.~I. Pujol~Pereira, E.~C. Suddick and J.~Six, \emph{PLOS ONE}, 2016,
+  \textbf{11}, e0150837\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Cheng \emph{et~al.}(2025)Cheng, Lin, Huang, Cheng, and Lin]{cheng2025}
+P.-C. Cheng, M.-S. Lin, C.-Y. Huang, S.-F. Cheng and Y.-C. Lin, \emph{Journal
+  of Environmental Management}, 2025, \textbf{393}, 126956\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Liu \emph{et~al.}(2020)Liu, Li, Zhang, Rahaman, and Yang]{liu2020n2o}
+H.~Liu, H.~Li, A.~Zhang, M.~A. Rahaman and Z.~Yang, \emph{Science of The Total
+  Environment}, 2020, \textbf{721}, 137636\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Guo \emph{et~al.}(2023)Guo, Wu, Han, Li, Xu, Liu, Wang, and
+  Zou]{guo2023legacy}
+S.~Guo, J.~Wu, Z.~Han, Z.~Li, P.~Xu, S.~Liu, J.~Wang and J.~Zou, \emph{GCB
+  Bioenergy}, 2023, \textbf{15}, 478--493\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Zhang \emph{et~al.}(2026)Zhang, Lan, Zhang, Zhao, Sui, Bing, Sun,
+  Wang, Zhang, and Gao]{zhang2026paddy}
+Z.~Zhang, X.~Lan, K.~Zhang, J.~Zhao, Y.~Sui, X.~Bing, Z.~Sun, J.~Wang, W.~Zhang
+  and J.~Gao, \emph{Agriculture}, 2026, \textbf{16}, 433\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Hergoualc'h \emph{et~al.}(2019)Hergoualc'h, Akiyama, Bernoux,
+  Chirinda, del Prado, Kasimir, MacDonald, Ogle, Regina, and van~der
+  Weerden]{ipcc2019}
+K.~Hergoualc'h, H.~Akiyama, M.~Bernoux, N.~Chirinda, A.~del Prado,
+  {\AA}.~Kasimir, J.~D. MacDonald, S.~M. Ogle, K.~Regina and T.~J. van~der
+  Weerden, \emph{2019 Refinement to the 2006 {IPCC} Guidelines for National
+  Greenhouse Gas Inventories, Volume 4: Agriculture, Forestry and Other Land
+  Use}, IPCC, Geneva, Switzerland, 2019, ch.~11\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Zamanian \emph{et~al.}(2018)Zamanian, Zarebanadkouki, and
+  Kuzyakov]{zamanian2018}
+K.~Zamanian, M.~Zarebanadkouki and Y.~Kuzyakov, \emph{Global Change Biology},
+  2018, \textbf{24}, 2810--2817\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Latawiec \emph{et~al.}(2019)Latawiec, Strassburg, Junqueira, Araujo,
+  de~Moraes, Pinto, Castro, Rangel, Malaguti, Rodrigues, Barioni, Novotny,
+  Cornelissen, Mendes, Batista, Guerra, Zonta, Jakovac, and Hale]{latawiec2019}
+A.~E. Latawiec, B.~B.~N. Strassburg, A.~B. Junqueira, E.~Araujo, L.~F.~D.
+  de~Moraes, H.~A.~N. Pinto, A.~Castro, M.~Rangel, G.~A. Malaguti, A.~F.
+  Rodrigues, L.~G. Barioni, E.~H. Novotny, G.~Cornelissen, M.~Mendes,
+  N.~Batista, J.~G. Guerra, E.~Zonta, C.~Jakovac and S.~E. Hale,
+  \emph{Scientific Reports}, 2019, \textbf{9}, 11993\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Mills \emph{et~al.}(2020)Mills, Brorsen, and Arnall]{mills2020lime}
+B.~E. Mills, B.~W. Brorsen and D.~B. Arnall, \emph{Precision Agriculture},
+  2020, \textbf{21}, 369--386\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Cho \emph{et~al.}(2020)Cho, Brorsen, and Arnall]{cho2020lime}
+W.~Cho, B.~W. Brorsen and D.~B. Arnall, \emph{Agrosystems, Geosciences \&
+  Environment}, 2020, \textbf{3}, e20071\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Woods \emph{et~al.}(2026)Woods, Trlica, Berlin, Bloszies, Woodley,
+  Cook, and Sagues]{woods2026}
+E.~Woods, A.~Trlica, P.~Berlin, S.~Bloszies, A.~Woodley, R.~Cook and W.~J.
+  Sagues, \emph{RSC Sustainability}, 2026, \textbf{4}, 2308--2320\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Zhang \emph{et~al.}(2023)Zhang, Ye, Gao, Liu, Liu, Zhang, Liu, Sun,
+  Ren, Jia, Siddique, and Zhang]{zhang2023}
+N.~Zhang, X.~Ye, Y.~Gao, G.~Liu, Z.~Liu, Q.~Zhang, E.~Liu, S.~Sun, X.~Ren,
+  Z.~Jia, K.~H.~M. Siddique and P.~Zhang, \emph{Science of The Total
+  Environment}, 2023, \textbf{905}, 167290\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Cheng \emph{et~al.}(2006)Cheng, Lehmann, Thies, Burton, and
+  Engelhard]{cheng2006}
+C.-H. Cheng, J.~Lehmann, J.~E. Thies, S.~D. Burton and M.~H. Engelhard,
+  \emph{Organic Geochemistry}, 2006, \textbf{37}, 1477--1488\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Liang \emph{et~al.}(2006)Liang, Lehmann, Solomon, Kinyangi, Grossman,
+  O'Neill, Skjemstad, Thies, Lui{\~a}o, Petersen, and Neves]{liang2006}
+B.~Liang, J.~Lehmann, D.~Solomon, J.~Kinyangi, J.~Grossman, B.~O'Neill, J.~O.
+  Skjemstad, J.~Thies, F.~J. Lui{\~a}o, J.~Petersen and E.~G. Neves, \emph{Soil
+  Science Society of America Journal}, 2006, \textbf{70}, 1719--1730\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Brodowski \emph{et~al.}(2006)Brodowski, John, Flessa, and
+  Amelung]{brodowski2006}
+S.~Brodowski, B.~John, H.~Flessa and W.~Amelung, \emph{European Journal of Soil
+  Science}, 2006, \textbf{57}, 539--546\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Rumpel \emph{et~al.}(2006)Rumpel, Chaplot, Planchon, Bernadou,
+  Valentin, and Mariotti]{rumpel2006}
+C.~Rumpel, V.~Chaplot, O.~Planchon, J.~Bernadou, C.~Valentin and A.~Mariotti,
+  \emph{Catena}, 2006, \textbf{65}, 30--40\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Cornelissen \emph{et~al.}(2013)Cornelissen, Martinsen, Shitumbanuma,
+  Alling, Breedveld, Rutherford, Sparrevik, Hale, Obia, and
+  Mulder]{cornelissen2013}
+G.~Cornelissen, V.~Martinsen, V.~Shitumbanuma, V.~Alling, G.~Breedveld,
+  D.~Rutherford, M.~Sparrevik, S.~Hale, A.~Obia and J.~Mulder, \emph{Agronomy},
+  2013, \textbf{3}, 256--274\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Glaser \emph{et~al.}(2001)Glaser, Haumaier, Guggenberger, and
+  Zech]{glaser2001}
+B.~Glaser, L.~Haumaier, G.~Guggenberger and W.~Zech,
+  \emph{Naturwissenschaften}, 2001, \textbf{88}, 37--41\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Solomon \emph{et~al.}(2016)Solomon, Lehmann, Fraser, Leach, Amanor,
+  Frausin, Kristiansen, Millimouno, and Fairhead]{solomon2016}
+D.~Solomon, J.~Lehmann, J.~A. Fraser, M.~Leach, K.~Amanor, V.~Frausin, S.~M.
+  Kristiansen, D.~Millimouno and J.~Fairhead, \emph{Frontiers in Ecology and
+  the Environment}, 2016, \textbf{14}, 71--76\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Hollmann \emph{et~al.}(2025)Hollmann, M{\"u}ller, Purucker,
+  Krishnakumar, K{\"o}rfer, Hoo, Schirrmeister, and Hutter]{hollmann2025}
+N.~Hollmann, S.~M{\"u}ller, L.~Purucker, A.~Krishnakumar, M.~K{\"o}rfer, S.~B.
+  Hoo, R.~T. Schirrmeister and F.~Hutter, \emph{Nature}, 2025, \textbf{637},
+  319--326\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Harris \emph{et~al.}(2020)Harris, Millman, van~der Walt, Gommers,
+  Virtanen, Cournapeau, Wieser, Taylor, Berg, Smith,\emph{et~al.}]{harris2020}
+C.~R. Harris, K.~J. Millman, S.~J. van~der Walt, R.~Gommers, P.~Virtanen,
+  D.~Cournapeau, E.~Wieser, J.~Taylor, S.~Berg, N.~J. Smith \emph{et~al.},
+  \emph{Nature}, 2020, \textbf{585}, 357--362\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Virtanen \emph{et~al.}(2020)Virtanen, Gommers, Oliphant, Haberland,
+  Reddy, Cournapeau, Burovski, Peterson, Weckesser,
+  Bright,\emph{et~al.}]{virtanen2020}
+P.~Virtanen, R.~Gommers, T.~E. Oliphant, M.~Haberland, T.~Reddy, D.~Cournapeau,
+  E.~Burovski, P.~Peterson, W.~Weckesser, J.~Bright \emph{et~al.}, \emph{Nature
+  Methods}, 2020, \textbf{17}, 261--272\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Viechtbauer(2010)]{viechtbauer2010}
+W.~Viechtbauer, \emph{Journal of Statistical Software}, 2010, \textbf{36},
+  1--48\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Ahlstr{\"o}m \emph{et~al.}(2022)Ahlstr{\"o}m, Walter, G{\"o}ransson,
+  and Papadokonstantakis]{ahlstrom2022}
+J.~M. Ahlstr{\"o}m, V.~Walter, L.~G{\"o}ransson and S.~Papadokonstantakis,
+  \emph{Renewable Energy}, 2022, \textbf{190}, 596--605\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[{Ember}(2025)]{ember2025battery}
+{Ember}, \emph{How cheap is battery storage?}, 2025,
+  \url{https://ember-energy.org/latest-insights/how-cheap-is-battery-storage/},
+  Levelised cost of storage of 65 US\$/MWh for utility-scale batteries outside
+  China and the United States\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[{Lazard}(2025)]{lazard2025}
+{Lazard}, \emph{Levelized Cost of Energy+ (LCOE+)}, {Lazard} technical report,
+  2025\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Geis \emph{et~al.}(2026)Geis, Neumann, Lindner, H{\"a}rtel, and
+  Brown]{geis2025}
+J.~Geis, F.~Neumann, M.~Lindner, P.~H{\"a}rtel and T.~Brown, \emph{Energy
+  Economics}, 2026, \textbf{157}, 109213\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Saleh \emph{et~al.}(2014)Saleh, Flensborg, Shoulaifar, S{\'a}rossy,
+  Hansen, Egsgaard, DeMartini, Jensen, Glarborg, and Dam-Johansen]{saleh2014}
+S.~B. Saleh, J.~P. Flensborg, T.~K. Shoulaifar, Z.~S{\'a}rossy, B.~B. Hansen,
+  H.~Egsgaard, N.~DeMartini, P.~A. Jensen, P.~Glarborg and K.~Dam-Johansen,
+  \emph{Energy \& Fuels}, 2014, \textbf{28}, 3738--3746\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Knudsen \emph{et~al.}(2004)Knudsen, Jensen, and
+  Dam-Johansen]{knudsen2004}
+J.~N. Knudsen, P.~A. Jensen and K.~Dam-Johansen, \emph{Energy \& Fuels}, 2004,
+  \textbf{18}, 1385--1399\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Thomsen \emph{et~al.}(2006)Thomsen, Jensen, Simonsen, and
+  Sander]{thomsen2006}
+K.~Thomsen, J.~P. Jensen, P.~Simonsen and B.~Sander, \emph{Reuse of alkali from
+  bio fly ash {(Alkaligenanvendelse fra bioflyveaske)}}, Institut for
+  Kemiteknik, Technical University of Denmark; Energi E2; Elsam Engineering
+  Technical Report NEI-DK-4834, 2006\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[{Miljø- og Fødevareministeriet}(2019)]{bioash2019}
+{Miljø- og Fødevareministeriet}, \emph{Bekendtg{\o}relse om anvendelse af
+  bioaske til jordbrugsform{\aa}l (Bioaskebekendtg{\o}relsen), {BEK} nr 732 af
+  09/07/2019}, 2019,
+  \url{https://www.retsinformation.dk/eli/lta/2019/732}\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Lamers \emph{et~al.}(2018)Lamers, Cremers, Matschegg, Schmidl, Hannam,
+  Hazlett, Madrali, Primdal~Dam, Roberto, Mager, Davidsson, Bech, Feuerborn,
+  and Saraber]{lamers2018}
+F.~Lamers, M.~Cremers, D.~Matschegg, C.~Schmidl, K.~Hannam, P.~Hazlett,
+  S.~Madrali, B.~Primdal~Dam, R.~Roberto, R.~Mager, K.~Davidsson, N.~Bech,
+  H.-J. Feuerborn and A.~Saraber, \emph{Options for increased use of ash from
+  biomass combustion and co-firing}, IEA Bioenergy Task 32 Deliverable~D7,
+  2018\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Thomsen and Jensen(1994)]{thomsen1994}
+I.~K. Thomsen and E.~S. Jensen, \emph{Agriculture, Ecosystems \& Environment},
+  1994, \textbf{49}, 115--122\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Bolinder \emph{et~al.}(2020)Bolinder, Crotty, Elsen, Frac,
+  Kism{\'a}nyoky, Lipiec, Tits, T{\'o}th, and K{\"a}tterer]{bolinder2020}
+M.~A. Bolinder, F.~Crotty, A.~Elsen, M.~Frac, T.~Kism{\'a}nyoky, J.~Lipiec,
+  M.~Tits, Z.~T{\'o}th and T.~K{\"a}tterer, \emph{Mitigation and Adaptation
+  Strategies for Global Change}, 2020, \textbf{25}, 929--952\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Aalde \emph{et~al.}(2006)Aalde, Gonzalez, Gytarsky, Krug, Kurz, Ogle,
+  Raison, Schoene, Ravindranath, Elhassan, Heath, Higuchi, Kainja, Matsumoto,
+  S{\'a}nchez, and Somogyi]{ipcc2006}
+H.~Aalde, P.~Gonzalez, M.~Gytarsky, T.~Krug, W.~A. Kurz, S.~Ogle, J.~Raison,
+  D.~Schoene, N.~H. Ravindranath, N.~G. Elhassan, L.~S. Heath, N.~Higuchi,
+  S.~Kainja, M.~Matsumoto, M.~J.~S. S{\'a}nchez and Z.~Somogyi, \emph{2006
+  {IPCC} Guidelines for National Greenhouse Gas Inventories, Volume 4:
+  Agriculture, Forestry and Other Land Use}, IGES, Hayama, Japan, 2006,
+  ch.~2\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Smerald \emph{et~al.}(2023)Smerald, Rahimi, and Scheer]{smerald2023}
+A.~Smerald, J.~Rahimi and C.~Scheer, \emph{Scientific Data}, 2023, \textbf{10},
+  685\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[{Ember}(2026)]{ember2026yearly}
+{Ember}, \emph{Yearly Electricity Data}, 2026,
+  \url{https://ember-energy.org/data/yearly-electricity-data/}, Release of June
+  2026\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[{Ember}(2026)]{ember2026us}
+{Ember}, \emph{{US} Electricity Data: Yearly Generation by State}, 2026,
+  \url{https://ember-energy.org/data/us-electricity-data/}, Release of June
+  2026\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Schlömer \emph{et~al.}(2014)Schlömer, Bruckner, Fulton, Hertwich,
+  McKinnon, Perczyk, Roy, Schaeffer, Sims, Smith, and Wiser]{schlomer2014}
+S.~Schlömer, T.~Bruckner, L.~Fulton, E.~Hertwich, A.~McKinnon, D.~Perczyk,
+  J.~Roy, R.~Schaeffer, R.~Sims, P.~Smith and R.~Wiser, \emph{Climate Change
+  2014: Mitigation of Climate Change. Contribution of Working Group {III} to
+  the Fifth Assessment Report of the Intergovernmental Panel on Climate
+  Change}, Cambridge University Press, Cambridge, UK and New York, NY, 2014,
+  pp. 1329--1356\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Pehl \emph{et~al.}(2017)Pehl, Arvesen, Humpen{\"o}der, Popp, Hertwich,
+  and Luderer]{pehl2017}
+M.~Pehl, A.~Arvesen, F.~Humpen{\"o}der, A.~Popp, E.~G. Hertwich and G.~Luderer,
+  \emph{Nature Energy}, 2017, \textbf{2}, 939--945\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Hatton \emph{et~al.}(2025)Hatton, Staffell, Jansen, Oluleye, and
+  Hawkes]{hatton2025}
+L.~Hatton, I.~Staffell, M.~Jansen, G.~Oluleye and A.~Hawkes, \emph{Scientific
+  Data}, 2025, \textbf{12}, 1912\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Enache(2024)]{enache2024}
+C.~Enache, \emph{Corporate Tax Rates around the World, 2024}, Tax Foundation,
+  2024,
+  \url{https://taxfoundation.org/data/all/global/corporate-tax-rates-by-country-2024/}\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Towler and Sinnott(2022)]{towler2022}
+G.~Towler and R.~Sinnott, \emph{Chemical Engineering Design: Principles,
+  Practice and Economics of Plant and Process Design}, Butterworth-Heinemann,
+  Oxford, 3rd edn, 2022\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Liu and Gallagher(2011)]{liu2011pipeline}
+H.~Liu and K.~S. Gallagher, \emph{International Journal of Greenhouse Gas
+  Control}, 2011, \textbf{5}, 798--804\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[{National Association of Agricultural Contractors}(2024)]{naac2024}
+{National Association of Agricultural Contractors}, \emph{{NAAC} Contractor
+  Price Guide 2024--25}, Farmers Weekly, 2024,
+  \url{https://www.fwi.co.uk/machinery/naac-contractor-price-guide-2024-25}\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[{Ministry of Agriculture and Rural Affairs of
+  China}(2022)]{mara2022summer}
+{Ministry of Agriculture and Rural Affairs of China}, \emph{Survey Report on
+  Prices and Costs of Mechanized Crop Operation Services during the Summer
+  Harvest 2022}, 2022,
+  \url{https://www.chinanews.com.cn/gn/2022/05-27/9764709.shtml}, Reported in
+  Economic Daily, 27 May 2022\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Wang \emph{et~al.}(2022)Wang, Huang, Li, Yan, Han, Zhang, Pawlowski,
+  and Lan]{wang2022uav}
+L.~Wang, X.~Huang, W.~Li, K.~Yan, Y.~Han, Y.~Zhang, L.~Pawlowski and Y.~Lan,
+  \emph{Agriculture}, 2022, \textbf{12}, 397\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[{Ministry of Agriculture and Rural Affairs of
+  China}(2023)]{mara2023spring}
+{Ministry of Agriculture and Rural Affairs of China}, \emph{Survey Report on
+  Prices and Costs of Agricultural Machinery Services during Spring Ploughing
+  2023}, 2023,
+  \url{https://njhs.moa.gov.cn/nyjxhqk/202303/t20230328_6424029.htm}\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Anchala and Sachdeva(2020)]{anchala2020}
+G.~S. Anchala and J.~Sachdeva, \emph{Journal of Agricultural Development and
+  Policy}, 2020, \textbf{30}, 145--155\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Saboo \emph{et~al.}(2025)Saboo, Kemanth, and Arya]{saboo2025ceew}
+A.~Saboo, K.~Kemanth and H.~Arya, \emph{How can Paddy Straw Storage Strengthen
+  the Biomass Supply Chain? Infrastructure and Finance Needs in {Punjab}},
+  {Council on Energy, Environment and Water} technical report, 2025\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[{U.S. Bureau of Labor Statistics}(2025)]{bls2025oes}
+{U.S. Bureau of Labor Statistics}, \emph{Occupational Employment and Wages, May
+  2024: 53-3032 Heavy and Tractor-Trailer Truck Drivers}, Occupational
+  Employment and Wage Statistics, 2025,
+  \url{https://www.bls.gov/oes/current/oes533032.htm}\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[{Eurostat}(2025)]{eurostat2025lc}
+{Eurostat}, \emph{Labour cost levels by {NACE} Rev. 2 activity (lc\_lci\_lev)},
+  Eurostat database, 2025,
+  \url{https://ec.europa.eu/eurostat/databrowser/view/lc_lci_lev/default/table}\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[{China Federation of Logistics and Purchasing}(2025)]{cflp2025}
+{China Federation of Logistics and Purchasing}, \emph{2025 Truck Driver
+  Employment Status Survey Report}, China Federation of Logistics and
+  Purchasing, Beijing, 2025\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[{SaveLIFE Foundation}(2020)]{savelife2020}
+{SaveLIFE Foundation}, \emph{Status of Truck Drivers in {India}}, {SaveLIFE
+  Foundation} technical report, 2020\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[{U.S. Energy Information Administration}(2026)]{eia2026diesel}
+{U.S. Energy Information Administration}, \emph{{U.S.} No 2 Diesel Retail
+  Prices (Dollars per Gallon), Annual}, 2026,
+  \url{https://www.eia.gov/dnav/pet/hist/LeafHandler.ashx?n=PET&s=EMD_EPD2D_PTE_NUS_DPG&f=A},
+  Accessed 12 October 2026\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[{European Commission}(2024)]{ec2024oilbulletin}
+{European Commission}, \emph{Weekly Oil Bulletin: Prices of Petroleum Products
+  in the {EU}, 2024}, 2024,
+  \url{https://energy.ec.europa.eu/data-and-analysis/weekly-oil-bulletin_en},
+  Accessed 12 October 2026\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[{Bharat Petroleum Corporation Limited}(2024)]{bpcl2024hsd}
+{Bharat Petroleum Corporation Limited}, \emph{Price Build-up of High Speed
+  Diesel at {Delhi}, effective 1 April 2024}, 2024,
+  \url{https://www.bharatpetroleum.in/pdf/HSD_Pricebuildup_1st_April_2024.pdf},
+  Accessed 12 October 2026\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[{Statista}(2024)]{statista2024diesel}
+{Statista}, \emph{Average retail price of diesel oil in {China} as of
+  {December} 10, 2024, by region}, 2024,
+  \url{https://www.statista.com/statistics/1479583/china-diesel-fuel-price-by-region/},
+  Accessed 12 October 2026\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[{CEIC Data}(2026)]{ceic2026diesel}
+{CEIC Data}, \emph{{China} Diesel Price: For Vehicle: Retail: Province}, 2026,
+  \url{https://www.ceicdata.com/en/china/diesel-price-for-vehicle-retail-province},
+  Accessed 12 October 2026\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[{Iowa State University Extension and Outreach}(2025)]{iowa2025custom}
+{Iowa State University Extension and Outreach}, \emph{2025 Iowa Farm Custom
+  Rate Survey}, Iowa State University Technical Report FM 1698, 2025\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Qiu \emph{et~al.}(2021)Qiu, Choy, Li, Luo, and Li]{qiu2021ams}
+T.~Qiu, S.~T.~B. Choy, Y.~Li, B.~Luo and J.~Li, \emph{China \& World Economy},
+  2021, \textbf{29}, 99--122\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Chen and Guestrin(2016)]{chen2016xgboost}
+T.~Chen and C.~Guestrin, Proceedings of the 22nd ACM SIGKDD International
+  Conference on Knowledge Discovery and Data Mining, 2016, pp. 785--794\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Lundberg and Lee(2017)]{lundberg2017}
+S.~M. Lundberg and S.-I. Lee, Advances in Neural Information Processing Systems
+  30, 2017, pp. 4765--4774\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Lundberg \emph{et~al.}(2020)Lundberg, Erion, Chen, DeGrave, Prutkin,
+  Nair, Katz, Himmelfarb, Bansal, and Lee]{lundberg2020}
+S.~M. Lundberg, G.~Erion, H.~Chen, A.~DeGrave, J.~M. Prutkin, B.~Nair, R.~Katz,
+  J.~Himmelfarb, N.~Bansal and S.-I. Lee, \emph{Nature Machine Intelligence},
+  2020, \textbf{2}, 56--67\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Poggio \emph{et~al.}(2021)Poggio, de~Sousa, Batjes, Heuvelink, Kempen,
+  Ribeiro, and Rossiter]{poggio2021}
+L.~Poggio, L.~M. de~Sousa, N.~H. Batjes, G.~B.~M. Heuvelink, B.~Kempen,
+  E.~Ribeiro and D.~Rossiter, \emph{SOIL}, 2021, \textbf{7}, 217--240\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Lembrechts \emph{et~al.}(2022)Lembrechts, van~den Hoogen, Aalto,
+  Ashcroft, De~Frenne, Kemppinen, Kopecký, Luoto, Maclean, Crowther, Bailey,
+  Haesen, Klinges, Niittynen, Scheffers, Van~Meerbeek, Aartsma, Abdalaze,
+  Abedi, Aerts, Ahmadian, Ahrends, Alatalo, Alexander, Allonsius, Altman,
+  Ammann, Andres, Andrews, Ardö, Arriga, Arzac, Aschero, Assis, Assmann,
+  Bader, Bahalkeh, Barančok, Barrio, Barros, Barthel, Basham, Bauters,
+  Bazzichetto, Marchesini, Bell, Benavides, Benito~Alonso, Berauer, Bjerke,
+  Björk, Björkman, Björnsdóttir, Blonder, Boeckx, Boike, Bokhorst, Brum,
+  Brůna, Buchmann, Buysse, Camargo, Campoe, Candan, Canessa, Cannone,
+  Carbognani, Carnicer, Casanova-Katny, Cesarz, Chojnicki, Choler, Chown,
+  Cifuentes, Čiliak, Contador, Convey, Cooper, Cremonese, Curasi, Curtis,
+  Cutini, Dahlberg, Daskalova, de~Pablo, Della~Chiesa, Dengler, Deronde,
+  Descombes, Di~Cecco, Di~Musciano, Dick, Dimarco, Dolezal, Dorrepaal, Dušek,
+  Eisenhauer, Eklundh, Erickson, Erschbamer, Eugster, Ewers, Exton, Fanin,
+  Fazlioglu, Feigenwinter, Fenu, Ferlian, Fernández~Calzado,
+  Fernández-Pascual, Finckh, Higgens, Forte, Freeman, Frei, Fuentes-Lillo,
+  García, García, Géron, Gharun, Ghosn, Gigauri, Gobin, Goded, Goeckede,
+  Gottschall, Goulding, Govaert, Graae, Greenwood, Greiser, Grelle, Guénard,
+  Guglielmin, Guillemot, Haase, Haider, Halbritter, Hamid, Hammerle, Hampe,
+  Haugum, Hederová, Heinesch, Helfter, Hepenstrick, Herberich, Herbst,
+  Hermanutz, Hik, Hoffrén, Homeier, Hörtnagl, Høye, Hrbacek, Hylander,
+  Iwata, Jackowicz-Korczynski, Jactel, Järveoja, Jastrzębowski, Jentsch,
+  Jiménez, Jónsdóttir, Jucker, Jump, Juszczak, Kanka, Kašpar, Kazakis,
+  Kelly, Khuroo, Klemedtsson, Klisz, Kljun, Knohl, Kobler, Kollár, Kotowska,
+  Kovács, Kreyling, Lamprecht, Lang, Larson, Larson, Laska, le~Maire, Leihy,
+  Lens, Liljebladh, Lohila, Lorite, Loubet, Lynn, Macek, Mackenzie, Magliulo,
+  Maier, Malfasi, Máliš, Man, Manca, Manco, Manise, Manolaki, Marciniak,
+  Matula, Mazzolari, Medinets, Medinets, Meeussen, Merinero, Mesquita,
+  Meusburger, Meysman, Michaletz, Milbau, Moiseev, Moiseev, Mondoni, Monfries,
+  Montagnani, Moriana-Armendariz, Morra~di Cella, Mörsdorf, Mosedale, Muffler,
+  Muñoz-Rojas, Myers, Myers-Smith, Nagy, Nardino, Naujokaitis-Lewis, Newling,
+  Nicklas, Niedrist, Niessner, Nilsson, Normand, Nosetto, Nouvellon, Nuñez,
+  Ogaya, Ogée, Okello, Olejnik, Olesen, Opedal, Orsenigo, Palaj, Pampuch,
+  Panov, Pärtel, Pastor, Pauchard, Pauli, Pavelka, Pearse, Peichl, Pellissier,
+  Penczykowski, Penuelas, Petit~Bon, Petraglia, Phartyal, Phoenix, Pio,
+  Pitacco, Pitteloud, Plichta, Porro, Portillo-Estrada, Poulenard, Poyatos,
+  Prokushkin, Puchalka, Pușcaș, Radujković, Randall, Ratier~Backes, Remmele,
+  Remmers, Renault, Risch, Rixen, Robinson, Robroek, Rocha, Rossi, Rossi,
+  Roupsard, Rubtsov, Saccone, Sagot, Sallo~Bravo, Santos, Sarneel, Scharnweber,
+  Schmeddes, Schmidt, Scholten, Schuchardt, Schwartz, Scott, Seeber, Segalin~de
+  Andrade, Seipel, Semenchuk, Senior, Serra-Diaz, Sewerniak, Shekhar, Sidenko,
+  Siebicke, Siegwart~Collier, Simpson, Siqueira, Sitková, Six, Smiljanic,
+  Smith, Smith-Tripp, Somers, Sørensen, Souza, Souza, Souza~Dias, Spasojevic,
+  Speed, Spicher, Stanisci, Steinbauer, Steinbrecher, Steinwandter, Stemkovski,
+  Stephan, Stiegler, Stoll, Svátek, Svoboda, Tagesson, Tanentzap, Tanneberger,
+  Theurillat, Thomas, Thomas, Tielbörger, Tomaselli, Treier, Trouillier,
+  Turtureanu, Tutton, Tyystjärvi, Ueyama, Ujházy, Ujházyová, Uogintas,
+  Urban, Urban, Urbaniak, Ursu, Vaccari, Van~de Vondel, van~den Brink,
+  Van~Geel, Vandvik, Vangansbeke, Varlagin, Veen, Veenendaal, Venn, Verbeeck,
+  Verbrugggen, Verheijen, Villar, Vitale, Vittoz, Vives-Ingla, von Oppen, Walz,
+  Wang, Wang, Way, Wedegärtner, Weigel, Wild, Wilkinson, Wilmking, Wingate,
+  Winkler, Wipf, Wohlfahrt, Xenakis, Yang, Yu, Yu, Zellweger, Zhang, Zhang,
+  Zhao, Ziemblińska, Zimmermann, Zong, Zyryanov, Nijs, and
+  Lenoir]{lembrechts2022}
+J.~J. Lembrechts, J.~van~den Hoogen, J.~Aalto, M.~B. Ashcroft, P.~De~Frenne,
+  J.~Kemppinen, M.~Kopecký, M.~Luoto, I.~M.~D. Maclean, T.~W. Crowther, J.~J.
+  Bailey, S.~Haesen, D.~H. Klinges, P.~Niittynen, B.~R. Scheffers,
+  K.~Van~Meerbeek, P.~Aartsma, O.~Abdalaze, M.~Abedi, R.~Aerts, N.~Ahmadian,
+  A.~Ahrends, J.~M. Alatalo, J.~M. Alexander, C.~N. Allonsius, J.~Altman,
+  C.~Ammann, C.~Andres, C.~Andrews, J.~Ardö, N.~Arriga, A.~Arzac, V.~Aschero,
+  R.~L. Assis, J.~J. Assmann, M.~Y. Bader, K.~Bahalkeh, P.~Barančok, I.~C.
+  Barrio, A.~Barros, M.~Barthel, E.~W. Basham, M.~Bauters, M.~Bazzichetto,
+  L.~B. Marchesini, M.~C. Bell, J.~C. Benavides, J.~L. Benito~Alonso, B.~J.
+  Berauer, J.~W. Bjerke, R.~G. Björk, M.~P. Björkman, K.~Björnsdóttir,
+  B.~Blonder, P.~Boeckx, J.~Boike, S.~Bokhorst, B.~N.~S. Brum, J.~Brůna,
+  N.~Buchmann, P.~Buysse, J.~L. Camargo, O.~C. Campoe, O.~Candan, R.~Canessa,
+  N.~Cannone, M.~Carbognani, J.~Carnicer, A.~Casanova-Katny, S.~Cesarz,
+  B.~Chojnicki, P.~Choler, S.~L. Chown, E.~F. Cifuentes, M.~Čiliak,
+  T.~Contador, P.~Convey, E.~J. Cooper, E.~Cremonese, S.~R. Curasi, R.~Curtis,
+  M.~Cutini, C.~J. Dahlberg, G.~N. Daskalova, M.~A. de~Pablo, S.~Della~Chiesa,
+  J.~Dengler, B.~Deronde, P.~Descombes, V.~Di~Cecco, M.~Di~Musciano, J.~Dick,
+  R.~D. Dimarco, J.~Dolezal, E.~Dorrepaal, J.~Dušek, N.~Eisenhauer,
+  L.~Eklundh, T.~E. Erickson, B.~Erschbamer, W.~Eugster, R.~M. Ewers, D.~A.
+  Exton, N.~Fanin, F.~Fazlioglu, I.~Feigenwinter, G.~Fenu, O.~Ferlian, M.~R.
+  Fernández~Calzado, E.~Fernández-Pascual, M.~Finckh, R.~F. Higgens, T.~G.~W.
+  Forte, E.~C. Freeman, E.~R. Frei, E.~Fuentes-Lillo, R.~A. García, M.~B.
+  García, C.~Géron, M.~Gharun, D.~Ghosn, K.~Gigauri, A.~Gobin, I.~Goded,
+  M.~Goeckede, F.~Gottschall, K.~Goulding, S.~Govaert, B.~J. Graae,
+  S.~Greenwood, C.~Greiser, A.~Grelle, B.~Guénard, M.~Guglielmin,
+  J.~Guillemot, P.~Haase, S.~Haider, A.~H. Halbritter, M.~Hamid, A.~Hammerle,
+  A.~Hampe, S.~V. Haugum, L.~Hederová, B.~Heinesch, C.~Helfter,
+  D.~Hepenstrick, M.~Herberich, M.~Herbst, L.~Hermanutz, D.~S. Hik,
+  R.~Hoffrén, J.~Homeier, L.~Hörtnagl, T.~T. Høye, F.~Hrbacek, K.~Hylander,
+  H.~Iwata, M.~A. Jackowicz-Korczynski, H.~Jactel, J.~Järveoja,
+  S.~Jastrzębowski, A.~Jentsch, J.~J. Jiménez, I.~S. Jónsdóttir, T.~Jucker,
+  A.~S. Jump, R.~Juszczak, R.~Kanka, V.~Kašpar, G.~Kazakis, J.~Kelly, A.~A.
+  Khuroo, L.~Klemedtsson, M.~Klisz, N.~Kljun, A.~Knohl, J.~Kobler, J.~Kollár,
+  M.~M. Kotowska, B.~Kovács, J.~Kreyling, A.~Lamprecht, S.~I. Lang, C.~Larson,
+  K.~Larson, K.~Laska, G.~le~Maire, R.~I. Leihy, L.~Lens, B.~Liljebladh,
+  A.~Lohila, J.~Lorite, B.~Loubet, J.~Lynn, M.~Macek, R.~Mackenzie,
+  E.~Magliulo, R.~Maier, F.~Malfasi, F.~Máliš, M.~Man, G.~Manca, A.~Manco,
+  T.~Manise, P.~Manolaki, F.~Marciniak, R.~Matula, A.~C. Mazzolari,
+  S.~Medinets, V.~Medinets, C.~Meeussen, S.~Merinero, R.~d. C.~G. Mesquita,
+  K.~Meusburger, F.~J.~R. Meysman, S.~T. Michaletz, A.~Milbau, D.~Moiseev,
+  P.~Moiseev, A.~Mondoni, R.~Monfries, L.~Montagnani, M.~Moriana-Armendariz,
+  U.~Morra~di Cella, M.~Mörsdorf, J.~R. Mosedale, L.~Muffler, M.~Muñoz-Rojas,
+  J.~A. Myers, I.~H. Myers-Smith, L.~Nagy, M.~Nardino, I.~Naujokaitis-Lewis,
+  E.~Newling, L.~Nicklas, G.~Niedrist, A.~Niessner, M.~B. Nilsson, S.~Normand,
+  M.~D. Nosetto, Y.~Nouvellon, M.~A. Nuñez, R.~Ogaya, J.~Ogée, J.~Okello,
+  J.~Olejnik, J.~E. Olesen, {\O}.~H. Opedal, S.~Orsenigo, A.~Palaj, T.~Pampuch,
+  A.~V. Panov, M.~Pärtel, A.~Pastor, A.~Pauchard, H.~Pauli, M.~Pavelka, W.~D.
+  Pearse, M.~Peichl, L.~Pellissier, R.~M. Penczykowski, J.~Penuelas,
+  M.~Petit~Bon, A.~Petraglia, S.~S. Phartyal, G.~K. Phoenix, C.~Pio,
+  A.~Pitacco, C.~Pitteloud, R.~Plichta, F.~Porro, M.~Portillo-Estrada,
+  J.~Poulenard, R.~Poyatos, A.~S. Prokushkin, R.~Puchalka, M.~Pușcaș,
+  D.~Radujković, K.~Randall, A.~Ratier~Backes, S.~Remmele, W.~Remmers,
+  D.~Renault, A.~C. Risch, C.~Rixen, S.~A. Robinson, B.~J.~M. Robroek, A.~V.
+  Rocha, C.~Rossi, G.~Rossi, O.~Roupsard, A.~V. Rubtsov, P.~Saccone, C.~Sagot,
+  J.~Sallo~Bravo, C.~C. Santos, J.~M. Sarneel, T.~Scharnweber, J.~Schmeddes,
+  M.~Schmidt, T.~Scholten, M.~Schuchardt, N.~Schwartz, T.~Scott, J.~Seeber,
+  A.~C. Segalin~de Andrade, T.~Seipel, P.~Semenchuk, R.~A. Senior, J.~M.
+  Serra-Diaz, P.~Sewerniak, A.~Shekhar, N.~V. Sidenko, L.~Siebicke,
+  L.~Siegwart~Collier, E.~Simpson, D.~P. Siqueira, Z.~Sitková, J.~Six,
+  M.~Smiljanic, S.~W. Smith, S.~Smith-Tripp, B.~Somers, M.~V. Sørensen, J.~J.
+  L.~L. Souza, B.~I. Souza, A.~Souza~Dias, M.~J. Spasojevic, J.~D.~M. Speed,
+  F.~Spicher, A.~Stanisci, K.~Steinbauer, R.~Steinbrecher, M.~Steinwandter,
+  M.~Stemkovski, J.~G. Stephan, C.~Stiegler, S.~Stoll, M.~Svátek, M.~Svoboda,
+  T.~Tagesson, A.~J. Tanentzap, F.~Tanneberger, J.-P. Theurillat, H.~J.~D.
+  Thomas, A.~D. Thomas, K.~Tielbörger, M.~Tomaselli, U.~A. Treier,
+  M.~Trouillier, P.~D. Turtureanu, R.~Tutton, V.~A. Tyystjärvi, M.~Ueyama,
+  K.~Ujházy, M.~Ujházyová, D.~Uogintas, A.~V. Urban, J.~Urban, M.~Urbaniak,
+  T.-M. Ursu, F.~P. Vaccari, S.~Van~de Vondel, L.~van~den Brink, M.~Van~Geel,
+  V.~Vandvik, P.~Vangansbeke, A.~Varlagin, G.~F. Veen, E.~Veenendaal, S.~E.
+  Venn, H.~Verbeeck, E.~Verbrugggen, F.~G.~A. Verheijen, L.~Villar, L.~Vitale,
+  P.~Vittoz, M.~Vives-Ingla, J.~von Oppen, J.~Walz, R.~Wang, Y.~Wang, R.~G.
+  Way, R.~E.~M. Wedegärtner, R.~Weigel, J.~Wild, M.~Wilkinson, M.~Wilmking,
+  L.~Wingate, M.~Winkler, S.~Wipf, G.~Wohlfahrt, G.~Xenakis, Y.~Yang, Z.~Yu,
+  K.~Yu, F.~Zellweger, J.~Zhang, Z.~Zhang, P.~Zhao, K.~Ziemblińska,
+  R.~Zimmermann, S.~Zong, V.~I. Zyryanov, I.~Nijs and J.~Lenoir, \emph{Global
+  Change Biology}, 2022, \textbf{28}, 3110--3144\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Yu \emph{et~al.}(2020)Yu, You, Wood-Sichra, Ru, Joglekar, Fritz,
+  Xiong, Lu, Wu, and Yang]{yu2020spam}
+Q.~Yu, L.~You, U.~Wood-Sichra, Y.~Ru, A.~K.~B. Joglekar, S.~Fritz, W.~Xiong,
+  M.~Lu, W.~Wu and P.~Yang, \emph{Earth System Science Data}, 2020,
+  \textbf{12}, 3545--3572\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Waha \emph{et~al.}(2025)Waha, Folberth, Biemans, Boere, Bondeau,
+  Hartley, Hoogenboom, J{\"a}germeyr, Liu, Mathison, M{\"u}ller, Nkwasa, Olin,
+  Ruane, De~Vos, White, Williams, and Yu]{waha2025}
+K.~Waha, C.~Folberth, H.~Biemans, E.~Boere, A.~Bondeau, A.~J. Hartley,
+  G.~Hoogenboom, J.~J{\"a}germeyr, Y.~Liu, C.~Mathison, C.~M{\"u}ller,
+  A.~Nkwasa, S.~Olin, A.~C. Ruane, K.~De~Vos, J.~W. White, K.~Williams and
+  Q.~Yu, \emph{Communications Earth \& Environment}, 2025, \textbf{6},
+  756\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Waha \emph{et~al.}(2020)Waha, Dietrich, Portmann, Siebert, Thornton,
+  Bondeau, and Herrero]{waha2020}
+K.~Waha, J.~P. Dietrich, F.~T. Portmann, S.~Siebert, P.~K. Thornton, A.~Bondeau
+  and M.~Herrero, \emph{Global Environmental Change}, 2020, \textbf{64},
+  102131\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[{FAO}(2025)]{faostat2025}
+{FAO}, \emph{{FAOSTAT}: Producer Prices; Crops and Livestock Products}, Food
+  and Agriculture Organization of the United Nations, Rome, 2025,
+  \url{https://www.fao.org/faostat/en/#data}, Bulk downloads released December
+  2025 and January 2026; accessed 8 October 2026\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[{U.S. Energy Information Administration}(2026)]{eia2026steo}
+{U.S. Energy Information Administration}, \emph{Short-Term Energy Outlook,
+  September 2026}, {U.S. Energy Information Administration} technical report,
+  2026\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[{Ember}(2026)]{ember2026price}
+{Ember}, \emph{European Wholesale Electricity Price Data}, 2026,
+  \url{https://ember-energy.org/data/european-wholesale-electricity-price-data/},
+  Monthly average day-ahead prices by country, from ENTSO-E; CC-BY 4.0\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[{Energy Exchange Istanbul (EP{\.I}A{\c{S}})}(2026)]{epias2026}
+{Energy Exchange Istanbul (EP{\.I}A{\c{S}})}, \emph{Day-Ahead Market Clearing
+  Price (PTF)}, 2026, \url{https://seffaflik.epias.com.tr/}, EP{\.I}A{\c{S}}
+  Transparency Platform; annual averages 2023--2025\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[{JSC Market Operator (Ukraine)}(2026)]{marketoperator2026}
+{JSC Market Operator (Ukraine)}, \emph{Day-Ahead Market Results: BASE Price
+  Index}, 2026, \url{https://www.oree.com.ua/}, Annual BASE index
+  2023--2025\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[{BloombergNEF}(2021)]{climatescope2021}
+{BloombergNEF}, \emph{Climatescope 2021: Belarus}, 2021,
+  \url{https://2021.global-climatescope.org/markets/by/}, Industrial power
+  tariff 74 USD/MWh in 2020\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[{U.S. Energy Information Administration}(2025)]{eia2025epa}
+{U.S. Energy Information Administration}, \emph{Electric Power Annual 2024},
+  {U.S. Energy Information Administration} technical report, 2025\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[{National Development and Reform Commission}(2019)]{ndrc2019}
+{National Development and Reform Commission}, \emph{Guiding Opinions on
+  Deepening the Reform of the On-Grid Tariff Formation Mechanism for Coal-Fired
+  Power Generation (Fa Gai Jia Ge Gui [2019] No. 1658)}, 2019,
+  \url{https://zfxxgk.ndrc.gov.cn/web/iteminfo.jsp?id=16530}, Sets each
+  province's coal-fired benchmark on-grid tariff at its prevailing coal tariff,
+  with provincial implementation notices\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[{Central Electricity Regulatory Commission}(2025)]{cerc2025stm}
+{Central Electricity Regulatory Commission}, \emph{Report on Short-term Power
+  Market in India: 2024-25}, {Central Electricity Regulatory Commission,
+  Economics Division} technical report, 2025\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[{World Bank}(2026)]{worldbank2026fx}
+{World Bank}, \emph{Official Exchange Rate (LCU per US\$, Period Average),
+  Indicator PA.NUS.FCRF}, 2026,
+  \url{https://data.worldbank.org/indicator/PA.NUS.FCRF}, World Development
+  Indicators\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\end{mcitethebibliography}

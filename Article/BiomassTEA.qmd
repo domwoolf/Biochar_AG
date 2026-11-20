@@ -111,7 +111,8 @@ Crop residues are an abundant biomass source for carbon dioxide removal (CDR) th
 
 # Broader context {.unnumbered}
 
-Limiting global warming to below 2 °C requires gigatonne-scale carbon dioxide removal (CDR), yet expanding dedicated bioenergy crops risks competing for land with food production and natural ecosystems. Sustainably harvestable crop residues avoid this land competition, but the supply of residue is finite. Climate policy therefore faces an unresolved allocation challenge: should agricultural residues be left in field, burned to displace fossil power (BE), combusted with geological carbon capture and storage (BECCS), or pyrolyzed into biochar for soil application (PyCCS)? Global integrated assessment models rely heavily on BECCS and rarely represent biochar, whereas facility-level life-cycle assessments evaluate individual technologies without forcing them to compete for the same feedstock. By resolving this competition at 0.1° resolution across the United States, Europe, China, and India, we show that PyCCS and BECCS are complements ordered by carbon price rather than mutually exclusive alternatives. PyCCS provides the most cost-effective early removal, paid for in part by higher crop yields on less fertile soils, whereas BECCS maximizes total carbon removal from finite biomass once carbon prices rise and shared CO~2~ pipeline networks are built. Coordinating where and when each technology is deployed can accelerate near-term CDR while avoiding multi-gigatonne lock-in to lower-abatement pathways.
+
+{{< include _broader-context.qmd >}}
 
 # Introduction
 
@@ -676,9 +677,8 @@ There are no conflicts to declare.
 
 # Data availability {.unnumbered}
 
-All data required to reproduce the results are reported in the manuscript and Supporting Information. Parameter values and ranges are reported directly, and included in the code repository. Sources and versions of third-party spatial data sets are reported.
 
-All computer code to run the analyses is available at \[doi and permanent url to be provided before publication\].
+{{< include _data-availability.qmd >}}
 
 # Acknowledgements {.unnumbered}
 

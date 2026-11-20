@@ -1,0 +1,13 @@
+---
+title: "Broader context"
+subtitle: "Coordinating bioenergy, biochar, and geological storage for biomass-based carbon dioxide removal"
+author: "Dominic Woolf, Jocelyn M. Lavallee, Anna M. Raffeld, and Doria R. Gordon"
+format:
+  pdf:
+    papersize: letter
+    geometry: [margin=2.5cm]
+    fontsize: 11pt
+    number-sections: false
+---
+
+{{< include _broader-context.qmd >}}
